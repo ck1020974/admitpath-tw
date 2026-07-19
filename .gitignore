@@ -1,6 +1,7 @@
 # Local Codex and agent state
 .agents/
 .codex/
+docs/
 
 # Generated OCR assets and scratch work
 outputs/
