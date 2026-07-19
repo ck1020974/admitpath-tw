@@ -2,6 +2,10 @@
 
 台灣大學升學探索工具，整合校系查詢、個人申請、繁星推薦、分發入學、十八學群與落點分析。
 
+## 網站入口
+
+[直接開啟 AdmitPath](https://ck1020974.github.io/admitpath-tw/)
+
 ## 本機預覽
 
 ```powershell
