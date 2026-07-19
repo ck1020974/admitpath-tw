@@ -1,0 +1,15 @@
+# Local Codex and agent state
+.agents/
+.codex/
+
+# Generated OCR assets and scratch work
+outputs/
+tmp/
+work/
+*.log
+__pycache__/
+*.py[cod]
+
+# One-off source captures
+star114_school001.html
+tmp_ceec_groups.html

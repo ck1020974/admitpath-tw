@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>115 個申篩選結果人工覆核</title>
+  <link rel="stylesheet" href="./review.css?v=20260628-1">
+</head>
+<body>
+  <main class="review-shell">
+    <aside class="review-list-panel">
+      <header class="review-head">
+        <div>
+          <p>115 個人申請</p>
+          <h1>篩選結果人工覆核</h1>
+        </div>
+        <a href="./index.html">回查詢網站</a>
+      </header>
+
+      <section class="review-tools">
+        <input id="keywordInput" type="search" placeholder="搜尋學校、科系、代碼">
+        <select id="statusFilter">
+          <option value="all">全部狀態</option>
+        </select>
+        <select id="doneFilter">
+          <option value="all">全部進度</option>
+          <option value="pending">尚未填寫</option>
+          <option value="done">已填寫</option>
+        </select>
+      </section>
+
+      <section class="review-counts" id="reviewCounts"></section>
+      <section class="review-list" id="reviewList"></section>
+    </aside>
+
+    <section class="review-detail">
+      <header class="detail-top">
+        <div>
+          <p id="detailMeta">--</p>
+          <h2 id="detailTitle">請選擇一筆資料</h2>
+        </div>
+        <div class="detail-actions">
+          <button id="prevButton" type="button">上一筆</button>
+          <button id="nextButton" type="button">下一筆</button>
+          <button id="exportJsonButton" type="button">匯出 JSON</button>
+          <button id="exportCsvButton" type="button">匯出 CSV</button>
+        </div>
+      </header>
+
+      <section class="crop-card">
+        <div class="crop-toolbar">
+          <strong>官方表格裁切</strong>
+          <div>
+            <button id="zoomOutButton" type="button">縮小</button>
+            <button id="zoomInButton" type="button">放大</button>
+            <a id="officialImageLink" href="#" target="_blank" rel="noreferrer noopener">開官方整張圖</a>
+          </div>
+        </div>
+        <div class="crop-stage" id="cropStage">
+          <img id="cropImage" alt="官方表格裁切圖">
+          <div class="no-crop" id="noCrop">此筆未能自動定位裁切圖，請開官方整張圖後用系組代碼查找。</div>
+        </div>
+      </section>
+
+      <section class="data-grid">
+        <article>
+          <h3>目前 OCR</h3>
+          <div class="kv"><span>狀態</span><strong id="detailStatus">--</strong></div>
+          <div class="kv"><span>OCR 原文</span><pre id="ocrRaw">--</pre></div>
+          <div class="kv"><span>整理文字</span><pre id="normalizedText">--</pre></div>
+          <a id="detailUrl" href="#" target="_blank" rel="noreferrer noopener">開校系分則頁</a>
+        </article>
+
+        <article>
+          <h3>人工覆核</h3>
+          <label>
+            <span>正確結果</span>
+            <input id="correctedStandard" type="text" placeholder="例：(英文+數A+自然)44">
+          </label>
+          <label>
+            <span>分類</span>
+            <select id="correctionType">
+              <option value="">未選擇</option>
+              <option value="gsat">學測級分</option>
+              <option value="special">特殊術科結果</option>
+              <option value="blank">官方未列最低級分</option>
+              <option value="unresolved">仍待確認</option>
+            </select>
+          </label>
+          <label>
+            <span>備註</span>
+            <textarea id="correctionNote" rows="4" placeholder="例如：官方表格顯示主修 88，非學測級分。"></textarea>
+          </label>
+          <div class="form-actions">
+            <button id="saveButton" type="button">儲存此筆</button>
+            <button id="clearButton" type="button">清除此筆</button>
+          </div>
+        </article>
+      </section>
+    </section>
+  </main>
+  <script src="./review.js?v=20260628-1"></script>
+</body>
+</html>

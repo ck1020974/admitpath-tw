@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>114 公費生混合覆核</title>
+  <link rel="stylesheet" href="./review.css?v=20260706-09">
+</head>
+<body>
+  <main class="review-shell">
+    <aside class="review-list-panel">
+      <header class="review-head">
+        <div>
+          <p>114 個人申請</p>
+          <h1>公費生混合覆核</h1>
+        </div>
+        <a href="./index.html">回查詢網站</a>
+      </header>
+
+      <section class="review-tools">
+        <input id="keywordInput" type="search" placeholder="搜尋學校、科系、代碼">
+        <select id="schoolFilter">
+          <option value="all">全部學校</option>
+        </select>
+        <select id="doneFilter">
+          <option value="all">全部進度</option>
+          <option value="pending">尚未填寫</option>
+          <option value="done">已填寫</option>
+        </select>
+      </section>
+
+      <section class="review-counts" id="reviewCounts"></section>
+      <section class="review-list" id="reviewList"></section>
+    </aside>
+
+    <section class="review-detail">
+      <header class="detail-top">
+        <div>
+          <p id="detailMeta">--</p>
+          <h2 id="detailTitle">請選擇一筆資料</h2>
+        </div>
+        <div class="detail-actions">
+          <button id="prevButton" type="button">上一筆</button>
+          <button id="nextButton" type="button">下一筆</button>
+          <button id="exportJsonButton" type="button">匯出 JSON</button>
+          <button id="exportCsvButton" type="button">匯出 CSV</button>
+        </div>
+      </header>
+
+      <section class="crop-card">
+        <div class="crop-toolbar">
+          <strong>官方圖與同校對照</strong>
+          <div>
+            <a id="officialImageLink" href="#" target="_blank" rel="noreferrer noopener">開官方整張圖</a>
+            <a id="detailUrl" href="#" target="_blank" rel="noreferrer noopener">開校系分則頁</a>
+          </div>
+        </div>
+        <div class="crop-stage">
+          <div class="no-crop" id="noCrop" style="display:block;">這一頁不放裁切圖，請直接開官方整張圖，並對照下方同校已有資料的公費生結果。</div>
+        </div>
+      </section>
+
+      <section class="data-grid">
+        <article>
+          <h3>待確認空白列</h3>
+          <div class="kv"><span>狀態</span><strong id="detailStatus">--</strong></div>
+          <div class="kv"><span>學校</span><pre id="schoolSummary">--</pre></div>
+          <div class="kv"><span>空白系組</span><pre id="blankProgram">--</pre></div>
+          <div class="kv"><span>同校已有資料</span><pre id="peerPrograms">--</pre></div>
+        </article>
+
+        <article>
+          <h3>人工覆核</h3>
+          <label>
+            <span>人工結論</span>
+            <input id="correctedStandard" type="text" placeholder="例：確認從缺 / 保留缺漏 / 需再看圖">
+          </label>
+          <label>
+            <span>分類</span>
+            <select id="correctionType">
+              <option value="">未選擇</option>
+              <option value="official_empty">確認從缺</option>
+              <option value="keep_missing">保留缺漏</option>
+              <option value="needs_followup">待補判讀</option>
+            </select>
+          </label>
+          <label>
+            <span>備註</span>
+            <textarea id="correctionNote" rows="4" placeholder="例：同校其他公費生已有分數，但本組官方列空白，先保留待查。"></textarea>
+          </label>
+          <div class="form-actions">
+            <button id="saveButton" type="button">儲存此筆</button>
+            <button id="clearButton" type="button">清除此筆</button>
+          </div>
+        </article>
+      </section>
+    </section>
+  </main>
+  <script src="./public-fund-review.js?v=20260712-01"></script>
+</body>
+</html>

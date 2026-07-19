@@ -1,0 +1,342 @@
+﻿<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>升學資料中控台</title>
+  <link rel="stylesheet" href="./styles.css?v=20260711-01">
+</head>
+<body data-active-view="overview">
+  <div class="app-shell">
+    <aside class="side">
+      <div class="brand">
+        <div class="brand-mark">升</div>
+        <div>
+          <strong>升學資料中控台</strong>
+          <span>114-115 Admissions</span>
+        </div>
+      </div>
+
+      <nav class="side-nav primary-nav" aria-label="學生探索">
+        <button class="nav-item active" data-view="overview">首頁</button>
+        <button class="nav-item" data-view="workbench">查詢工作台</button>
+        <button class="nav-item" data-view="placement">落點分析</button>
+        <button class="nav-item" data-view="explorer">十八學群</button>
+        <button class="nav-item" data-view="compare">比較清單</button>
+      </nav>
+
+      <div class="side-meta">
+        <span>資料狀態</span>
+        <strong id="sideRecordCount">載入中</strong>
+      </div>
+    </aside>
+
+    <main class="main">
+      <section class="view-panel active" id="overviewView">
+        <div class="overview-grid home-overview">
+          <section class="home-intro" aria-label="升學探索入口">
+            <h2>把下一步，查清楚。</h2>
+            <p>從興趣開始認識學群，或直接依成績與條件找校系。</p>
+          </section>
+
+          <section class="home-entry-grid" aria-label="主要入口">
+            <button class="home-primary-card" data-home-entry="all-query">
+              <img src="./media/home-campus-wide.jpg" alt="">
+              <div class="home-primary-overlay">
+                <span class="section-tag">校系與落點</span>
+                <strong>找適合的校系</strong>
+                <p>依成績、學校或科系條件，縮小你的選擇。</p>
+                <div class="home-primary-tags">
+                  <span>校系查詢</span>
+                  <span>落點分析</span>
+                </div>
+              </div>
+            </button>
+            <button class="home-primary-card" data-home-entry="group-explorer">
+              <img src="./media/home-study.jpg" alt="">
+              <div class="home-primary-overlay">
+                <span class="section-tag">從興趣開始</span>
+                <strong>十八學群探索</strong>
+                <p>用學類、課程與代表校系，理解自己可能適合的方向。</p>
+                <div class="home-primary-tags">
+                  <span>學群</span>
+                  <span>學類</span>
+                  <span>課程</span>
+                </div>
+              </div>
+            </button>
+          </section>
+
+          <section class="home-utility-grid" aria-label="次要工作入口">
+            <button class="home-utility-card star-entry" data-home-entry="star-entry">
+              <div>
+                <span class="section-tag">繁星</span>
+                <strong>繁星推薦</strong>
+                <p>校排、學測門檻與比序。</p>
+              </div>
+            </button>
+            <button class="home-utility-card apply-entry" data-home-entry="personal-apply">
+              <div>
+                <span class="section-tag">個申</span>
+                <strong>個人申請</strong>
+                <p>看篩選標準與錄取門檻。</p>
+              </div>
+            </button>
+            <button class="home-utility-card distribution-entry" data-home-entry="distribution-entry">
+              <div>
+                <span class="section-tag">分發</span>
+                <strong>分發入學</strong>
+                <p>採計、加權與最低總分。</p>
+              </div>
+            </button>
+          </section>
+        </div>
+      </section>
+
+      <section class="view-panel" id="workbenchView">
+        <section class="workbench-panel">
+          <div class="workbench-head workspace-page-head">
+            <div class="workbench-copy workspace-page-copy">
+              <h2>校系資料查詢</h2>
+              <p>依年度、管道與條件，找出適合的校系。</p>
+            </div>
+            <div class="workbench-actions">
+              <div class="result-meta"><strong id="resultCount">0</strong><span>筆符合</span></div>
+              <div class="action-group">
+                <button class="ghost-button precision-button" id="openAdvancedFiltersButton">精準篩選</button>
+                <button class="ghost-button" data-view-jump="compare">比較清單</button>
+                <button class="ghost-button" id="resetFiltersButton">重設篩選</button>
+              </div>
+            </div>
+          </div>
+          <section class="filter-band workbench-filters" aria-label="查詢篩選">
+            <label>
+              <span>年度</span>
+              <select id="yearFilter">
+                <option value="all">全部</option>
+                <option value="115">115</option>
+                <option value="114">114</option>
+              </select>
+            </label>
+            <label>
+              <span>入學管道</span>
+              <select id="channelFilter">
+                <option value="all">全部</option>
+                <option value="personal_application">個人申請</option>
+                <option value="star_recommendation">繁星推薦</option>
+                <option value="exam_distribution">分發入學</option>
+              </select>
+            </label>
+            <label>
+              <span>學校</span>
+              <select id="schoolFilter">
+                <option value="all">全部學校</option>
+              </select>
+            </label>
+            <label class="search-field">
+              <span>關鍵字</span>
+              <input id="keywordInput" type="search" placeholder="系組代碼、學校、學系、採計科目">
+            </label>
+          </section>
+          <div class="advanced-filter-summary" id="advancedFilterSummary"></div>
+        </section>
+
+        <div class="table-shell">
+          <table>
+            <colgroup>
+              <col class="col-channel">
+              <col class="col-program">
+              <col class="col-highlight">
+              <col class="col-actions">
+            </colgroup>
+            <thead>
+              <tr>
+                <th>管道</th>
+                <th>學校 / 校系</th>
+                <th>篩選標準</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody id="recordTableBody"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="view-panel" id="placementView">
+        <section class="placement-shell">
+          <div class="placement-head placement-head-compact workspace-page-head">
+            <div class="workspace-page-copy">
+              <h2>落點分析</h2>
+              <p>依成績與條件，找出符合、接近與資料不足的校系。</p>
+            </div>
+          </div>
+
+          <section class="placement-setup-stage" id="placementSetupStage">
+            <div class="placement-workbench">
+            <section class="placement-score-band">
+              <div class="placement-band-head">
+                <div>
+                  <h3>成績輸入</h3>
+                </div>
+              </div>
+              <div class="placement-score-grid">
+                <label><span>國文</span><input data-placement-score="國文" type="number" min="0" max="15" placeholder="級分"></label>
+                <label><span>英文</span><input data-placement-score="英文" type="number" min="0" max="15" placeholder="級分"></label>
+                <label><span>數A</span><input data-placement-score="數A" type="number" min="0" max="15" placeholder="級分"></label>
+                <label><span>數B</span><input data-placement-score="數B" type="number" min="0" max="15" placeholder="級分"></label>
+                <label><span>社會</span><input data-placement-score="社會" type="number" min="0" max="15" placeholder="級分"></label>
+                <label><span>自然</span><input data-placement-score="自然" type="number" min="0" max="15" placeholder="級分"></label>
+                <label><span>英聽</span><input data-placement-score="英聽" type="text" placeholder="A/B/C"></label>
+                <label><span>在校%</span><input data-placement-score="在校" type="number" min="0" max="100" placeholder="百分比"></label>
+                <label><span>數甲</span><input data-placement-score="數甲" type="number" min="0" max="60" placeholder="分科"></label>
+                <label><span>數乙</span><input data-placement-score="數乙" type="number" min="0" max="60" placeholder="分科"></label>
+                <label><span>歷史</span><input data-placement-score="歷史" type="number" min="0" max="60" placeholder="分科"></label>
+                <label><span>地理</span><input data-placement-score="地理" type="number" min="0" max="60" placeholder="分科"></label>
+                <label><span>公民</span><input data-placement-score="公民" type="number" min="0" max="60" placeholder="分科"></label>
+                <label><span>物理</span><input data-placement-score="物理" type="number" min="0" max="60" placeholder="分科"></label>
+                <label><span>化學</span><input data-placement-score="化學" type="number" min="0" max="60" placeholder="分科"></label>
+                <label><span>生物</span><input data-placement-score="生物" type="number" min="0" max="60" placeholder="分科"></label>
+              </div>
+            </section>
+
+            <section class="placement-direction-panel">
+              <div class="placement-band-head">
+                <div>
+                  <h3>篩選條件</h3>
+                </div>
+                <div class="placement-selected-tags" id="placementSelectedTags"></div>
+              </div>
+              <section class="placement-filter-section">
+                <h4>入學與學校</h4>
+                <div class="placement-filter-band">
+                  <div class="placement-filter-group">
+                    <span>管道</span>
+                    <div class="placement-chip-row">
+                      <button class="placement-chip active" data-placement-channel="personal_application">個申</button>
+                      <button class="placement-chip active" data-placement-channel="star_recommendation">繁星</button>
+                      <button class="placement-chip" data-placement-channel="exam_distribution">分發</button>
+                    </div>
+                  </div>
+                  <div class="placement-filter-group">
+                    <span>學校條件</span>
+                    <div class="placement-chip-row">
+                      <button class="placement-chip active" data-placement-ownership="all">全部</button>
+                      <button class="placement-chip" data-placement-ownership="public">公立</button>
+                      <button class="placement-chip" data-placement-ownership="private">私立</button>
+                      <button class="placement-chip top-school" data-placement-top>頂大</button>
+                    </div>
+                  </div>
+                  <div class="placement-filter-group">
+                    <span>招生類型</span>
+                    <div class="placement-chip-row">
+                      <button class="placement-chip active" data-placement-special="exclude">一般</button>
+                      <button class="placement-chip" data-placement-special="include">含特殊</button>
+                      <button class="placement-chip" data-placement-special="only">只看特殊</button>
+                    </div>
+                  </div>
+                </div>
+              </section>
+              <section class="placement-filter-section placement-direction-section">
+                <h4>學群與學類</h4>
+                <div class="placement-direction-columns">
+                  <div>
+                    <strong>學群</strong>
+                    <div class="placement-direction-chips" id="placementGroupChips"></div>
+                  </div>
+                  <div>
+                    <strong>學類</strong>
+                    <div class="placement-direction-chips" id="placementCategoryChips"></div>
+                  </div>
+                </div>
+              </section>
+            </section>
+
+            </div>
+            <div class="placement-run-bar">
+              <button class="solid-button" id="runPlacementAnalysis" disabled>查看分析結果</button>
+            </div>
+          </section>
+
+          <section class="placement-result-stage" id="placementResultStage" hidden>
+            <div class="placement-result-head">
+              <div>
+                <button class="back-button" id="editPlacementCriteria">修改條件</button>
+                <h3>分析結果</h3>
+                <div class="placement-criteria-summary" id="placementCriteriaSummary"></div>
+              </div>
+              <div class="placement-count">
+                <strong id="placementResultCount">0</strong>
+                <span>筆候選</span>
+              </div>
+            </div>
+            <section class="placement-results-panel">
+              <div class="placement-summary-cards" id="placementSummaryCards"></div>
+              <div class="placement-result-tabs">
+                <button class="placement-result-tab active" data-placement-result-tab="all">全部</button>
+                <button class="placement-result-tab match" data-placement-result-tab="match">符合</button>
+                <button class="placement-result-tab near" data-placement-result-tab="near">接近</button>
+                <button class="placement-result-tab missing" data-placement-result-tab="missing">資料不足</button>
+              </div>
+              <div class="placement-results" id="placementResults"></div>
+            </section>
+          </section>
+        </section>
+      </section>
+
+      <section class="view-panel" id="explorerView">
+        <div class="section-head workspace-page-head">
+          <div class="workspace-page-copy">
+            <h2>十八學群探索</h2>
+            <p>從學群、學類到校系，逐步認識適合的方向。</p>
+          </div>
+        </div>
+        <div class="explorer-root" id="explorerRoot"></div>
+      </section>
+
+      <section class="view-panel" id="compareView">
+        <div class="section-head workspace-page-head">
+          <div class="workspace-page-copy">
+            <h2>比較清單</h2>
+            <p>集中檢視已選校系的入學條件與關鍵差異。</p>
+          </div>
+          <button class="ghost-button" id="clearCompareButton" hidden>清空比較</button>
+        </div>
+        <div class="compare-grid" id="compareGrid"></div>
+      </section>
+
+      <section class="view-panel" id="sourcesView">
+        <div class="section-head">
+          <div>
+            <h2>資料來源與狀態</h2>
+          </div>
+        </div>
+        <div class="source-list" id="sourceList"></div>
+      </section>
+    </main>
+  </div>
+
+  <aside class="detail-drawer" id="detailDrawer" aria-hidden="true">
+    <div class="drawer-head">
+      <div>
+        <p class="eyebrow" id="detailMeta">校系詳情</p>
+        <h2 id="detailTitle">--</h2>
+      </div>
+      <button class="icon-button" id="closeDrawerButton" aria-label="關閉">×</button>
+    </div>
+    <div class="drawer-body" id="detailBody"></div>
+  </aside>
+
+  <aside class="advanced-filter-drawer" id="advancedFilterDrawer" aria-hidden="true">
+    <div class="drawer-head advanced-drawer-head">
+      <div>
+        <p class="eyebrow">Precision Filter</p>
+        <h2>精準篩選</h2>
+      </div>
+      <button class="icon-button" id="closeAdvancedFiltersButton" aria-label="關閉">×</button>
+    </div>
+    <div class="advanced-filter-body" id="advancedFilterBody"></div>
+  </aside>
+
+  <script src="./app.js?v=20260712-01"></script>
+</body>
+</html>
