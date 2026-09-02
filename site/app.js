@@ -942,6 +942,12 @@ function bindEvents() {
   });
   document.getElementById("closeDrawerButton").addEventListener("click", closeDrawer);
   document.getElementById("closeAdvancedFiltersButton").addEventListener("click", closeAdvancedFilters);
+  document.addEventListener("pointerdown", (event) => {
+    const advancedDrawer = els.advancedFilterDrawer;
+    if (advancedDrawer?.classList.contains("open") && !advancedDrawer.contains(event.target)) closeAdvancedFilters();
+    const detailDrawer = els.detailDrawer;
+    if (detailDrawer?.classList.contains("open") && !detailDrawer.contains(event.target)) closeDrawer();
+  });
   bindPlacementEvents();
 }
 
