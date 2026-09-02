@@ -39,9 +39,15 @@
 const els = {};
 
 const fmt = new Intl.NumberFormat("zh-Hant-TW");
-const DATA_VERSION = "20260712-01";
+const DATA_VERSION = "20260902-01";
 
 const APPLY_SIEVE_SCORE_OVERRIDES = {
+  "115-personal_application-008342-115_apply": {
+    scores: {
+      1: "11",
+      2: "21",
+    },
+  },
   "114-personal_application-001062-114_apply": {
     scores: {
       1: "40",
@@ -889,11 +895,12 @@ function bindElements() {
     "advancedFilterBody",
     "advancedFilterSummary",
     "placementResultCount",
+    "placementResultCountLabel",
     "placementResults",
-    "placementGroupChips",
-    "placementCategoryChips",
-    "placementSummaryCards",
-    "placementSelectedTags",
+    "placementYearFilter",
+    "placementChannelFilter",
+    "placementSchoolFilter",
+    "placementKeywordInput",
   ].forEach((id) => {
     els[id] = document.getElementById(id);
   });
@@ -994,7 +1001,7 @@ function activateHomeEntry(entry) {
 async function loadData() {
   const [records, results, groups, manifest, gsatStandards, categoryInsights, categoryRepresentatives, qualityReport] = await Promise.all([
     fetchJson("./data/admissions_records.json"),
-    fetchJson("./data/distribution_results_114.json"),
+    fetchJson("./data/distribution_results.json"),
     fetchJson("./data/group_departments.json"),
     fetchJson("./data/site_manifest.json"),
     fetchJson("./data/ceec_gsat_five_standard_scores.json"),
@@ -1496,6 +1503,7 @@ function applyFilters() {
   });
   renderAdvancedFilterSummary();
   renderTable();
+  if (state.placement?.stage === "results") renderPlacementAnalysis();
 }
 
 function hydrateSchoolFilter() {
@@ -1532,7 +1540,7 @@ function setView(view) {
 function defaultPlacementState() {
   return {
     stage: "setup",
-    resultTab: "all",
+    resultTab: "match",
     scores: {
       國文: "",
       英文: "",
@@ -1557,6 +1565,10 @@ function defaultPlacementState() {
     specialAdmissionMode: "exclude",
     groups: [],
     categories: [],
+    year: "all",
+    channel: "all",
+    school: "all",
+    keyword: "",
   };
 }
 
@@ -1599,6 +1611,11 @@ function bindPlacementEvents() {
   });
   document.getElementById("runPlacementAnalysis")?.addEventListener("click", showPlacementResults);
   document.getElementById("editPlacementCriteria")?.addEventListener("click", showPlacementSetup);
+  document.getElementById("placementOpenAdvancedFiltersButton")?.addEventListener("click", openAdvancedFilters);
+  els.placementYearFilter?.addEventListener("change", updatePlacementResultFilters);
+  els.placementChannelFilter?.addEventListener("change", updatePlacementResultFilters);
+  els.placementSchoolFilter?.addEventListener("change", updatePlacementResultFilters);
+  els.placementKeywordInput?.addEventListener("input", debounce(updatePlacementResultFilters, 120));
   document.querySelectorAll("[data-placement-result-tab]").forEach((button) => {
     button.addEventListener("click", () => {
       state.placement.resultTab = button.dataset.placementResultTab || "all";
@@ -1611,7 +1628,7 @@ function showPlacementResults() {
   const profile = placementProfile();
   if (!placementHasAnyInput(profile)) return;
   state.placement.stage = "results";
-  state.placement.resultTab = "all";
+  state.placement.resultTab = "match";
   renderPlacementStage();
   renderPlacementAnalysis();
 }
@@ -1624,17 +1641,59 @@ function showPlacementSetup() {
 function renderPlacementStage() {
   const setupStage = document.getElementById("placementSetupStage");
   const resultStage = document.getElementById("placementResultStage");
+  const resultActions = document.getElementById("placementResultActions");
   const showingResults = state.placement?.stage === "results";
   if (setupStage) setupStage.hidden = showingResults;
   if (resultStage) resultStage.hidden = !showingResults;
+  if (resultActions) resultActions.hidden = !showingResults;
 }
 
 function hydratePlacementFilters() {
-  renderPlacementDirectionOptions();
+  hydratePlacementResultFilters();
 }
 
 function hydratePlacementCategoryFilter() {
-  renderPlacementDirectionOptions();
+  hydratePlacementResultFilters();
+}
+
+function placementFilterOptions(select, items, allLabel, value, label = (item) => item) {
+  if (!select) return;
+  select.replaceChildren();
+  const all = document.createElement("option");
+  all.value = "all";
+  all.textContent = allLabel;
+  select.appendChild(all);
+  items.forEach((item) => {
+    const option = document.createElement("option");
+    option.value = item;
+    option.textContent = label(item);
+    select.appendChild(option);
+  });
+  select.value = value;
+}
+
+function hydratePlacementResultFilters() {
+  const years = [...new Set(state.records.map((record) => String(record.year)).filter(Boolean))]
+    .sort((a, b) => b.localeCompare(a, "en"));
+  const schools = [...new Set(state.records.map((record) => record.schoolName).filter(Boolean))]
+    .sort((a, b) => a.localeCompare(b, "zh-Hant"));
+  placementFilterOptions(els.placementYearFilter, years, "年度", state.placement.year);
+  placementFilterOptions(els.placementChannelFilter, ["personal_application", "star_recommendation", "exam_distribution"], "入學管道", state.placement.channel, (channel) => ({
+    personal_application: "個人申請",
+    star_recommendation: "繁星推薦",
+    exam_distribution: "分發入學",
+  })[channel]);
+  placementFilterOptions(els.placementSchoolFilter, schools, "全部學校", state.placement.school);
+  if (els.placementKeywordInput) els.placementKeywordInput.value = state.placement.keyword;
+}
+
+function updatePlacementResultFilters() {
+  state.placement.year = els.placementYearFilter?.value || "all";
+  state.placement.channel = els.placementChannelFilter?.value || "all";
+  state.placement.school = els.placementSchoolFilter?.value || "all";
+  state.placement.keyword = els.placementKeywordInput?.value.trim() || "";
+  hydratePlacementResultFilters();
+  renderPlacementAnalysis();
 }
 
 function renderPlacementControls() {
@@ -1650,32 +1709,6 @@ function renderPlacementControls() {
   });
   const runButton = document.getElementById("runPlacementAnalysis");
   if (runButton) runButton.disabled = !placementHasAnyInput(placementProfile());
-  renderPlacementDirectionOptions();
-  if (!els.placementSelectedTags) return;
-  const tags = [
-    ...state.placement.groups.map((name) => ({ type: "group", value: name, label: name })),
-    ...state.placement.categories.map((name) => ({ type: "category", value: name, label: displayCategoryName(name) })),
-  ];
-  els.placementSelectedTags.innerHTML = tags.length ? tags.map((tag) => `
-    <button class="placement-selected-tag" data-placement-remove-type="${escapeAttr(tag.type)}" data-placement-remove-value="${escapeAttr(tag.value)}">
-      ${escapeHtml(tag.label)}
-    </button>
-  `).join("") : "";
-  els.placementSelectedTags.querySelectorAll("[data-placement-remove-type]").forEach((button) => {
-    button.addEventListener("click", () => {
-      const list = button.dataset.placementRemoveType === "group" ? state.placement.groups : state.placement.categories;
-      const value = button.dataset.placementRemoveValue;
-      const next = list.filter((item) => item !== value);
-      if (button.dataset.placementRemoveType === "group") {
-        state.placement.groups = next;
-        state.placement.categories = state.placement.categories.filter((category) => placementCategoryBelongsToSelection(category));
-      } else {
-        state.placement.categories = next;
-      }
-      renderPlacementControls();
-      renderPlacementAnalysis();
-    });
-  });
 }
 
 function renderPlacementDirectionOptions() {
@@ -1753,7 +1786,9 @@ function placementCategoryBelongsToSelection(categoryName) {
 function placementProfile() {
   return {
     scores: { ...state.placement.scores },
-    channels: state.placement.channels.length ? [...state.placement.channels] : ["personal_application", "star_recommendation", "exam_distribution"],
+    channels: state.placement.channel !== "all"
+      ? [state.placement.channel]
+      : ["personal_application", "star_recommendation", "exam_distribution"],
     schoolOwnership: state.placement.schoolOwnership,
     topUniversityOnly: state.placement.topUniversityOnly,
     specialAdmissionMode: state.placement.specialAdmissionMode || "exclude",
@@ -1773,7 +1808,7 @@ function renderPlacementAnalysis() {
   });
   if (!placementHasAnyInput(profile)) {
     els.placementResultCount.textContent = "0";
-    if (els.placementSummaryCards) els.placementSummaryCards.innerHTML = placementSummaryCardsHtml([]);
+    if (els.placementResultCountLabel) els.placementResultCountLabel.textContent = "筆符合";
     els.placementResults.innerHTML = `<div class="empty-state">先輸入至少一科成績，系統會依門檻與篩選標準整理可能校系。</div>`;
     return;
   }
@@ -1783,12 +1818,11 @@ function renderPlacementAnalysis() {
     .sort((a, b) => placementStatusWeight(a.evaluation.status) - placementStatusWeight(b.evaluation.status)
       || a.evaluation.gapTotal - b.evaluation.gapTotal
       || `${a.record.schoolCode}${a.record.departmentName}`.localeCompare(`${b.record.schoolCode}${b.record.departmentName}`, "zh-Hant"));
-  const visibleRows = state.placement.resultTab === "all"
-    ? allRows
-    : allRows.filter((row) => row.evaluation.status === state.placement.resultTab);
+  const visibleRows = allRows.filter((row) => row.evaluation.status === state.placement.resultTab);
   const rows = visibleRows.slice(0, 120);
-  els.placementResultCount.textContent = fmt.format(allRows.length);
-  if (els.placementSummaryCards) els.placementSummaryCards.innerHTML = placementSummaryCardsHtml(allRows);
+  const countLabel = { match: "筆符合", near: "筆接近", miss: "筆未達" }[state.placement.resultTab] || "筆結果";
+  els.placementResultCount.textContent = fmt.format(visibleRows.length);
+  if (els.placementResultCountLabel) els.placementResultCountLabel.textContent = countLabel;
   if (!rows.length) {
     els.placementResults.innerHTML = `<div class="empty-state">目前沒有符合條件的校系，可放寬學類或補上更多科目成績。</div>`;
     return;
@@ -1855,26 +1889,34 @@ function placementResultCardHtml(record, evaluation) {
     miss: "未達",
   }[evaluation.status] || "未判斷";
   return `
-    <article class="placement-result-card ${escapeAttr(evaluation.status)}">
+    <article class="placement-result-card ${escapeAttr(evaluation.status)} is-clickable" data-placement-detail="${escapeAttr(record.id)}">
       <div class="placement-result-main">
-        <span class="placement-status ${escapeAttr(evaluation.status)}">${escapeHtml(statusLabel)}</span>
         <div>
           <strong>${escapeHtml(record.schoolName)}</strong>
           <h3>${escapeHtml(record.departmentName)}${specialAdmissionBadgeHtml(record)}</h3>
-          <p>${escapeHtml(record.year)} ${escapeHtml(channelShort(record.channelKey))}｜${escapeHtml(placementResultSummary(evaluation))}</p>
+          <p class="placement-result-meta">
+            <span>${escapeHtml(record.year)} ${escapeHtml(channelShort(record.channelKey))}</span>
+            <span class="placement-status ${escapeAttr(evaluation.status)}">${escapeHtml(statusLabel)}</span>
+            <span class="placement-result-summary">${escapeHtml(placementResultSummary(evaluation))}</span>
+          </p>
         </div>
       </div>
-      <div class="placement-requirements">
-        ${evaluation.requirements.slice(0, 6).map((item) => `
-          <span class="placement-req ${escapeAttr(item.status)}">${escapeHtml(placementRequirementLabel(item))}</span>
-        `).join("")}
+      <div class="placement-result-side">
+        <div class="placement-requirements">
+          ${evaluation.requirements.slice(0, 6).map((item) => `
+            <span class="placement-req ${escapeAttr(item.status)}">${escapeHtml(placementRequirementLabel(item))}</span>
+          `).join("")}
+        </div>
       </div>
-      <button class="small-button" data-placement-detail="${escapeAttr(record.id)}">詳情</button>
     </article>
   `;
 }
 
 function placementMatchesFilters(record, profile) {
+  if (state.placement.year !== "all" && String(record.year) !== state.placement.year) return false;
+  if (state.placement.school !== "all" && record.schoolName !== state.placement.school) return false;
+  if (state.placement.keyword && !recordSearchText(record).includes(normalize(state.placement.keyword))) return false;
+  if (typeof recordMatchesAdvancedFilters === "function" && !recordMatchesAdvancedFilters(record)) return false;
   if (!profile.channels.includes(record.channelKey)) return false;
   if (profile.schoolOwnership !== "all" && schoolOwnership(record) !== profile.schoolOwnership) return false;
   if (profile.topUniversityOnly && !isTopUniversity(record)) return false;
@@ -2037,10 +2079,10 @@ function placementRequirementLabel(item) {
 }
 
 function placementResultSummary(evaluation) {
-  if (evaluation.status === "match") return "目前填入成績達標";
-  if (evaluation.status === "near") return `接近，約差 ${Number(evaluation.gapTotal.toFixed(1))}`;
+  if (evaluation.status === "match") return "達標";
+  if (evaluation.status === "near") return `約差 ${Number(evaluation.gapTotal.toFixed(1))}`;
   if (evaluation.status === "missing") return "需補填必要科目";
-  return `未達，約差 ${Number(evaluation.gapTotal.toFixed(1))}`;
+  return `約差 ${Number(evaluation.gapTotal.toFixed(1))}`;
 }
 
 function renderTable() {
@@ -2130,7 +2172,7 @@ function highlightHtml(record) {
 }
 
 function distributionResult(record) {
-  return record?.programCode ? state.results[record.programCode] : null;
+  return record?.programCode ? state.results[`${record.year}-${record.programCode}`] : null;
 }
 
 function distributionHighlightHtml(record) {
@@ -2288,23 +2330,28 @@ function personalApplicationStandardParts(record) {
   const parts = [];
   const result = record.applySieveResult;
   const rankedItems = applySieveRankedItems(record);
+  const sieveResultItems = (result?.sieveResultItems || []).filter((item) => !((item.subjects || []).length === 1 && Number(item.score) > 15));
+  const sieveResultStandard = String(result?.sieveResultStandard || "")
+    .split("、")
+    .filter((item) => !/^(國文|英文|數學A|數學B|數A|數B|社會|自然|英聽)\s*\d{2,}$/.test(item.trim()))
+    .join("、");
   const coveredSubjects = coveredSubjectsFromResult(result, record);
   if (rankedItems.length) {
     rankedItems.forEach((item) => {
       const label = rankedSieveLabel(item);
       if (label && item.score) parts.push({ type: "screening", text: label });
     });
-  } else if (result?.sieveResultItems?.length) {
-    result.sieveResultItems.forEach((item) => {
+  } else if (sieveResultItems.length) {
+    sieveResultItems.forEach((item) => {
       const label = normalizeSieveLabel(item.label || sieveItemLabel(item));
       splitSieveLabelParts(label).forEach((text) => parts.push({ type: "screening", text }));
     });
-  } else if (result?.sieveResultStandard) {
-    normalizeSieveLabel(result.sieveResultStandard).split("、").forEach((label) => {
+  } else if (sieveResultStandard) {
+    normalizeSieveLabel(sieveResultStandard).split("、").forEach((label) => {
       splitSieveLabelParts(label).forEach((text) => parts.push({ type: "screening", text }));
     });
   }
-  if (!result?.sieveResultStandard && !rankedItems.length) {
+  if (!sieveResultStandard && !rankedItems.length) {
     parts.push({ type: "status", text: personalApplicationNoResultLabel(record) });
   }
   parts.push(...applicationThresholdParts(record, coveredSubjects));
@@ -2321,7 +2368,13 @@ function personalApplicationNoResultLabel(record) {
   const review = record.applySieveReview;
   if (review?.status === "special_result" || review?.status === "manual_special") return "術科考試";
   if (record.examRequired === "是") return "術科考試";
-  return "從缺";
+  if (hasUnresolvedSingleSubjectScore(record)) return "篩選分數待覆核";
+  if (officialEmptyResult(record)) return "官方從缺";
+  return "官方結果待補";
+}
+
+function officialEmptyResult(record) {
+  return (state.qualityReport?.confirmedOfficialEmptyResults || []).find((item) => item.recordId === record.id);
 }
 
 function applicationThresholdParts(record, coveredSubjects = new Set()) {
@@ -2398,13 +2451,23 @@ function applySieveRankedItems(record) {
       label: item.label || ((item.subjects || []).length ? `${item.subjects.join("+")}${item.score || ""}` : ""),
     });
   });
-  return correctedItems.sort((a, b) => Number(a.rank || 0) - Number(b.rank || 0));
+  return correctedItems
+    .filter((item) => !((item.subjects || []).length === 1 && Number(item.score) > 15))
+    .sort((a, b) => Number(a.rank || 0) - Number(b.rank || 0));
+}
+
+function hasUnresolvedSingleSubjectScore(record) {
+  const overrideScores = applySieveOverrideConfig(record).scores;
+  return (record?.applySieveResult?.rankedItems || []).some((item) => (
+    (item.subjects || []).length === 1 && Number(item.score) > 15
+    && !(Number(overrideScores[item.rank]) >= 0 && Number(overrideScores[item.rank]) <= 15)
+  ));
 }
 
 function dataQualityStatusInfo(record) {
   const report = state.qualityReport || {};
   const anomaly = (report.anomalies || []).find((item) => item.recordId === record.id && item.risk === "high");
-  const officialEmpty = (report.confirmedOfficialEmptyResults || []).find((item) => item.recordId === record.id);
+  const officialEmpty = officialEmptyResult(record);
   if (anomaly?.manualCorrectionApplied) {
     return { label: "人工修正", tone: "corrected", summary: "已套用人工確認修正" };
   }
@@ -2412,6 +2475,9 @@ function dataQualityStatusInfo(record) {
     return { label: "覆核中", tone: "review", summary: anomaly.reviewAction || "高風險 OCR 待覆核" };
   }
   if (record.channelKey === "personal_application") {
+    if (hasUnresolvedSingleSubjectScore(record)) {
+      return { label: "分數待覆核", tone: "review", summary: "已隱藏不可能的單科分數，等待官方表格覆核" };
+    }
     if (officialEmpty) {
       return { label: "官方從缺", tone: "official", summary: officialEmpty.reason || "官方結果空白，已確認從缺" };
     }
@@ -2776,7 +2842,11 @@ function findRecordsForGroupRow(groupRow) {
   });
 }
 
-function chooseExplorerRepresentative(records, preferredChannelKey = "") {
+function explorerRecordKey(record) {
+  return `${record.year}-${record.channelKey}`;
+}
+
+function chooseExplorerRepresentative(records, preferredRecordKey = "") {
   const order = {
     "115-personal_application": 1,
     "115-star_recommendation": 2,
@@ -2784,8 +2854,8 @@ function chooseExplorerRepresentative(records, preferredChannelKey = "") {
     "114-personal_application": 4,
     "114-star_recommendation": 5,
   };
-  const pool = preferredChannelKey
-    ? records.filter((item) => item.channelKey === preferredChannelKey)
+  const pool = preferredRecordKey
+    ? records.filter((item) => explorerRecordKey(item) === preferredRecordKey)
     : records;
   return [...(pool.length ? pool : records)].sort((a, b) => {
     const ak = `${a.year}-${a.channelKey}`;
@@ -2795,12 +2865,23 @@ function chooseExplorerRepresentative(records, preferredChannelKey = "") {
 }
 
 function explorerChannelRecords(records) {
-  return ["personal_application", "star_recommendation", "exam_distribution"]
-    .map((channelKey) => ({
-      channelKey,
-      record: chooseExplorerRepresentative(records, channelKey),
-    }))
-    .filter((item) => item.record);
+  const uniqueRecords = new Map();
+  records.forEach((record) => {
+    const key = explorerRecordKey(record);
+    if (!uniqueRecords.has(key)) uniqueRecords.set(key, record);
+  });
+  return [...uniqueRecords.values()]
+    .sort((a, b) => {
+      const order = {
+        "115-personal_application": 1,
+        "115-star_recommendation": 2,
+        "114-exam_distribution": 3,
+        "114-personal_application": 4,
+        "114-star_recommendation": 5,
+      };
+      return (order[explorerRecordKey(a)] || 99) - (order[explorerRecordKey(b)] || 99);
+    })
+    .map((record) => ({ channelKey: record.channelKey, record, key: explorerRecordKey(record) }));
 }
 
 function explorerResultTitle() {
@@ -2815,17 +2896,18 @@ function explorerDepartmentCard(row) {
   const school = record?.schoolName || row.schoolDepartmentName.replace(row.schoolDepartmentName.replace(/^.*?(大學|學院)/, ""), "");
   const department = record?.departmentName || row.schoolDepartmentName.replace(/^.*?(大學|學院)/, "");
   const channelRecords = explorerChannelRecords(row.records);
+  const activeRecordKey = record ? explorerRecordKey(record) : channelRecords[0]?.key || "";
   const activeChannelKey = record?.channelKey || channelRecords[0]?.channelKey || "";
   const accentClass = activeChannelKey === "star_recommendation"
     ? "accent-star"
     : activeChannelKey === "exam_distribution"
       ? "accent-distribution"
       : "accent-apply";
-  const channels = channelRecords.map(({ channelKey, record: channelRecord }) => `
+  const channels = channelRecords.map(({ channelKey, record: channelRecord, key }) => `
     <button
-      class="channel-switch ${channelKey === activeChannelKey ? "active" : ""} ${channelKey === "star_recommendation" ? "star" : channelKey === "exam_distribution" ? "distribution" : "apply"}"
+      class="channel-switch ${key === activeRecordKey ? "active" : ""} ${channelKey === "star_recommendation" ? "star" : channelKey === "exam_distribution" ? "distribution" : "apply"}"
       data-explorer-channel="${escapeAttr(row.key)}"
-      data-channel-key="${escapeAttr(channelKey)}"
+      data-channel-key="${escapeAttr(key)}"
     >${escapeHtml(channelRecord.year)} ${escapeHtml(channelShort(channelKey))}</button>
   `).join("");
   const compactHighlight = record ? highlightHtml(record) : "";
@@ -2837,11 +2919,8 @@ function explorerDepartmentCard(row) {
           <strong class="explorer-school-name">${escapeHtml(school || row.schoolDepartmentName)}</strong>
           <span class="explorer-dept-name">${escapeHtml(department || row.schoolDepartmentName)}</span>
         </div>
-      </header>
-      <div class="explorer-card-meta">
         <span class="explorer-card-category">${escapeHtml(displayCategoryName(row.categoryName))}</span>
-        <span class="explorer-card-channel-count">${escapeHtml(String(channelRecords.length))} 管道</span>
-      </div>
+      </header>
       <div class="explorer-channels">${channels || "<span>暫無管道資料</span>"}</div>
       ${crossGroups.length ? `<p class="explorer-cross-groups">可跨學群：${escapeHtml(crossGroups.join("、"))}</p>` : ""}
       ${compactHighlight ? `<div class="explorer-highlight">${compactHighlight}</div>` : ""}
@@ -3967,16 +4046,21 @@ function summaryDetailHtml(record) {
 function applySieveResultHtml(record) {
   const result = record.applySieveResult;
   const correctedRankedItems = applySieveRankedItems(record);
-  if (record.channelKey !== "personal_application" || (!result?.sieveResultStandard && !correctedRankedItems.length)) return "";
+  const sieveResultStandard = String(result?.sieveResultStandard || "")
+    .split("、")
+    .filter((item) => !/^(國文|英文|數學A|數學B|數A|數B|社會|自然|英聽)\s*\d{2,}$/.test(item.trim()))
+    .join("、");
+  const sieveResultItems = (result?.sieveResultItems || []).filter((item) => !((item.subjects || []).length === 1 && Number(item.score) > 15));
+  if (record.channelKey !== "personal_application" || (!sieveResultStandard && !correctedRankedItems.length)) return "";
   const rankedItems = formatRankedSieveItems(correctedRankedItems);
   const missingRankedItems = formatMissingRankedSieveItems(correctedRankedItems);
-  const parsedItems = correctedRankedItems.length ? "" : formatSieveResultItems(result.sieveResultItems);
+  const parsedItems = correctedRankedItems.length ? "" : formatSieveResultItems(sieveResultItems);
   const thresholds = applicationThresholdParts(record, coveredSubjectsFromResult(result, record)).map((part) => part.text).join("、");
   return `
     <section class="detail-section">
       <h3>第一階段篩選結果</h3>
       <div class="detail-list">
-        ${rankedItems ? kv("篩選順位", rankedItems) : kv("通過篩選最低級分", result.sieveResultStandard)}
+        ${rankedItems ? kv("篩選順位", rankedItems) : kv("通過篩選最低級分", sieveResultStandard)}
         ${missingRankedItems ? kv("官方未列分數", missingRankedItems) : ""}
         ${parsedItems ? kv("系統解讀", parsedItems) : ""}
         ${thresholds ? kv("檢定標準", thresholds) : ""}
@@ -4432,7 +4516,7 @@ function renderSources() {
     </article>
   `).join("") + `
     <article class="source-card">
-      <h3>114 分發結果</h3>
+      <h3>114、115 分發結果</h3>
       <div class="kv"><span>筆數</span><span>${fmt.format(Object.keys(state.results).length)}</span></div>
       <div class="kv"><span>資料層級</span><span>最低錄取標準與錄取人數</span></div>
     </article>

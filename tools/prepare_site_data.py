@@ -16,6 +16,7 @@ SOURCE_FILES = [
     ("114_apply", ROOT / "admissions_114_personal_application_index.json"),
     ("114_star", ROOT / "admissions_114_star_recommendation_index.json"),
     ("114_distribution", ROOT / "admissions_114_exam_distribution_index.json"),
+    ("115_distribution", ROOT / "admissions_115_exam_distribution_results.json"),
 ]
 
 
@@ -653,21 +654,21 @@ def load_star_admission_results():
 
 
 def load_results():
-    path = ROOT / "admissions_114_exam_distribution_results.json"
-    data = json.load(path.open(encoding="utf-8"))
     results = {}
-    for row in data:
-        results[str(row.get("program_code"))] = {
-            "programCode": clean_text(row.get("program_code")),
-            "schoolName": clean_text(row.get("school_name")),
-            "departmentName": clean_text(row.get("department_name")),
-            "weightedSubjectsCompact": clean_text(row.get("weighted_subjects_compact")),
-            "admittedCount": clean_text(row.get("admitted_count_including_extra")),
-            "regularMinScore": clean_text(row.get("regular_min_admission_score")),
-            "regularTotalScore": clean_text(row.get("regular_total_score") or row.get("regular_min_admission_score")),
-            "regularTieBreak": clean_text(row.get("regular_tie_break")),
-            "sourceUrl": clean_text(row.get("source_url")),
-        }
+    for year in (114, 115):
+        path = ROOT / f"admissions_{year}_exam_distribution_results.json"
+        for row in json.load(path.open(encoding="utf-8")):
+            results[f"{year}-{row.get('program_code')}"] = {
+                "programCode": clean_text(row.get("program_code")),
+                "schoolName": clean_text(row.get("school_name")),
+                "departmentName": clean_text(row.get("department_name")),
+                "weightedSubjectsCompact": clean_text(row.get("weighted_subjects_compact")),
+                "admittedCount": clean_text(row.get("admitted_count_including_extra")),
+                "regularMinScore": clean_text(row.get("regular_min_admission_score")),
+                "regularTotalScore": clean_text(row.get("regular_total_score") or row.get("regular_min_admission_score")),
+                "regularTieBreak": clean_text(row.get("regular_tie_break")),
+                "sourceUrl": clean_text(row.get("source_url")),
+            }
     return results
 
 
@@ -749,6 +750,7 @@ def main():
         "datasets": [
             {"year": 115, "channel": "個人申請", "count": sum(1 for r in records if r["year"] == 115 and r["channelKey"] == "personal_application")},
             {"year": 115, "channel": "繁星推薦", "count": sum(1 for r in records if r["year"] == 115 and r["channelKey"] == "star_recommendation")},
+            {"year": 115, "channel": "分發入學", "count": sum(1 for r in records if r["year"] == 115 and r["channelKey"] == "exam_distribution")},
             {"year": 114, "channel": "個人申請", "count": sum(1 for r in records if r["year"] == 114 and r["channelKey"] == "personal_application")},
             {"year": 114, "channel": "繁星推薦", "count": sum(1 for r in records if r["year"] == 114 and r["channelKey"] == "star_recommendation")},
             {"year": 114, "channel": "分發入學", "count": sum(1 for r in records if r["year"] == 114 and r["channelKey"] == "exam_distribution")},
@@ -756,7 +758,7 @@ def main():
     }
 
     (SITE_DATA / "admissions_records.json").write_text(json.dumps(records, ensure_ascii=False), encoding="utf-8")
-    (SITE_DATA / "distribution_results_114.json").write_text(json.dumps(results, ensure_ascii=False), encoding="utf-8")
+    (SITE_DATA / "distribution_results.json").write_text(json.dumps(results, ensure_ascii=False), encoding="utf-8")
     (SITE_DATA / "group_departments.json").write_text(json.dumps(group_departments, ensure_ascii=False), encoding="utf-8")
     (SITE_DATA / "site_manifest.json").write_text(json.dumps(manifest, ensure_ascii=False, indent=2), encoding="utf-8")
     print(json.dumps(manifest, ensure_ascii=False, indent=2))

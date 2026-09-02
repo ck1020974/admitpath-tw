@@ -5,7 +5,7 @@ const vm = require("vm");
 const appJsPath = path.join(__dirname, "..", "site", "app.js");
 const indexPath = path.join(__dirname, "..", "site", "index.html");
 const recordsPath = path.join(__dirname, "..", "site", "data", "admissions_records.json");
-const resultsPath = path.join(__dirname, "..", "site", "data", "distribution_results_114.json");
+const resultsPath = path.join(__dirname, "..", "site", "data", "distribution_results.json");
 const groupsPath = path.join(__dirname, "..", "site", "data", "group_departments.json");
 const standardsPath = path.join(__dirname, "..", "site", "data", "ceec_gsat_five_standard_scores.json");
 
@@ -44,7 +44,10 @@ function extractFunction(name) {
   'id="placementView"',
   'id="placementResults"',
   'data-placement-score="數A"',
-  'data-placement-channel="personal_application"',
+  'id="placementYearFilter"',
+  'id="placementChannelFilter"',
+  'id="placementSchoolFilter"',
+  'id="placementKeywordInput"',
 ].forEach((pattern) => {
   if (!index.includes(pattern)) fail(`Missing placement analysis markup: ${pattern}`);
 });
@@ -90,6 +93,9 @@ const sandbox = {
       topUniversityOnly: false,
       groups: ["資訊學群", "工程學群"],
       categories: ["資訊工程學類", "電機工程學類"],
+      year: "all",
+      channel: "all",
+      school: "all",
       keyword: "",
     },
   },

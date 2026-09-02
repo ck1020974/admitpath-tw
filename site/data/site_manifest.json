@@ -1,7 +1,7 @@
 {
   "generatedFor": "升學工具網站第一版",
-  "recordCount": 9543,
-  "resultCount": 1787,
+  "recordCount": 11307,
+  "resultCount": 3551,
   "applySieveResultCount": 2902,
   "groupDepartmentCount": 1764,
   "datasets": [
@@ -14,6 +14,11 @@
       "year": 115,
       "channel": "繁星推薦",
       "count": 1666
+    },
+    {
+      "year": 115,
+      "channel": "分發入學",
+      "count": 1764
     },
     {
       "year": 114,

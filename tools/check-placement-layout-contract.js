@@ -29,21 +29,21 @@ if (!/\.placement-head-compact\s*\{[^}]*border:\s*0[^}]*background:\s*transparen
 [
   "placement-workbench",
   "placement-score-band",
-  "placement-filter-band",
-  "placement-direction-panel",
-  "placementGroupChips",
-  "placementCategoryChips",
-  "placementSummaryCards",
+  "placement-result-filters",
+  "placementYearFilter",
+  "placementChannelFilter",
+  "placementSchoolFilter",
+  "placementKeywordInput",
 ].forEach((pattern) => {
-  if (!html.includes(pattern)) fail(`Missing placement scheme-B markup: ${pattern}`);
+  if (!html.includes(pattern)) fail(`Missing placement workbench markup: ${pattern}`);
 });
 
-if (/placement-filter-disclosure|placement-direction-disclosure|<details/.test(html)) {
-  fail("Placement filters should stay directly visible instead of using collapsible disclosures.");
+if (/placement-direction-panel|placementGroupChips|placementCategoryChips|data-placement-channel|placementGroupFilter|placementCategoryFilter/.test(html)) {
+  fail("Placement setup should only ask for scores, not direction or channel selections.");
 }
 
-if (/placementKeywordInput|placement-keyword|state\.placement\.keyword/.test(html) || /placementKeywordInput|state\.placement\.keyword/.test(app)) {
-  fail("Placement should not include a keyword input or keyword-based matching state.");
+if (!/state\.placement\.keyword/.test(app)) {
+  fail("Placement keyword filtering state is missing.");
 }
 
 ["歷史", "地理", "公民", "生物"].forEach((subject) => {
@@ -52,17 +52,8 @@ if (/placementKeywordInput|placement-keyword|state\.placement\.keyword/.test(htm
   }
 });
 
-if (!/\.placement-filter-section\s*\{/.test(css) || !/\.placement-direction-columns\s*\{/.test(css)) {
-  fail("Placement filters should use direct, consistently styled sections.");
-}
-
-const directionChips = css.match(/\.placement-direction-chips\s*\{[\s\S]*?\n\}/)?.[0] || "";
-if (/max-height|overflow:\s*auto/.test(directionChips)) {
-  fail("Placement group and category lists should use page scrolling instead of nested scrollbars.");
-}
-
-if (!/\.placement-direction-chip\s*\{[\s\S]*?min-height:\s*34px;[\s\S]*?font-size:\s*13px;[\s\S]*?\}/.test(css)) {
-  fail("Placement group and category chips should use the larger readable selection size.");
+if (!/\.placement-result-filters\s*\{[\s\S]*?grid-template-columns:[\s\S]*?overflow-x:\s*auto/s.test(css)) {
+  fail("Placement result filters should stay in one row and scroll horizontally when space is limited.");
 }
 
 [
@@ -77,12 +68,11 @@ if (!/\.placement-direction-chip\s*\{[\s\S]*?min-height:\s*34px;[\s\S]*?font-siz
 });
 
 [
-  "renderPlacementDirectionOptions",
-  "placementGroupChipHtml",
-  "placementCategoryChipHtml",
-  "placementSummaryCardsHtml",
+  "hydratePlacementResultFilters",
+  "updatePlacementResultFilters",
+  "placementMatchesFilters",
 ].forEach((name) => {
-  if (!new RegExp(`function\\s+${name}\\s*\\(`).test(app)) fail(`Missing placement layout function: ${name}`);
+  if (!new RegExp(`function\\s+${name}\\s*\\(`).test(app)) fail(`Missing placement result filtering function: ${name}`);
 });
 
 [
@@ -120,7 +110,7 @@ if (!/\.placement-results-panel\s*\{[\s\S]*?grid-template-columns:\s*1fr;[\s\S]*
   if (!new RegExp(`function\\s+${name}\\s*\\(`).test(app)) fail(`Placement two-page flow is missing ${name}.`);
 });
 
-if (!/\.placement-result-stage\s*\{/.test(css) || !/\.placement-run-bar\s*\{/.test(css)) {
+if (!/\.placement-result-stage\s*\{/.test(css) || !/\.placement-run-slot\s*\{/.test(css)) {
   fail("Placement setup and results stages should have dedicated layout styling.");
 }
 

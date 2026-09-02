@@ -1,4 +1,5 @@
 import csv
+import argparse
 import json
 import re
 from pathlib import Path
@@ -7,7 +8,7 @@ import pdfplumber
 
 
 OUT_DIR = Path("outputs/admissions_data")
-RESULT_PDF = OUT_DIR / "uac_114_result_school_data.pdf"
+DEFAULT_YEAR = 114
 
 
 def clean(value):
@@ -28,9 +29,9 @@ def clean_tie_break(value):
     return text
 
 
-def parse_results():
+def parse_results(result_pdf, year):
     rows = []
-    with pdfplumber.open(RESULT_PDF) as pdf:
+    with pdfplumber.open(result_pdf) as pdf:
         for page_index, page in enumerate(pdf.pages, start=1):
             for table in page.extract_tables():
                 if not table or len(table) < 2:
@@ -51,12 +52,12 @@ def parse_results():
                     dispatched = clean(dispatched)
                     rows.append(
                         {
-                            "admission_year": 114,
+                            "admission_year": year,
                             "admission_channel": "分發入學",
                             "admission_channel_key": "exam_distribution",
                             "data_type": "放榜結果：各系組最低錄取標準及錄取人數",
                             "source_organization": "大學考試入學分發委員會",
-                            "source_url": "https://www.uac.edu.tw/114data/114_result_school_data.pdf",
+                            "source_url": f"https://www2.uac.edu.tw/{year}data/{year}_result_school_data.pdf",
                             "program_code": code,
                             "school_name": school,
                             "department_name": dept,
@@ -82,9 +83,15 @@ def parse_results():
 
 
 if __name__ == "__main__":
-    records = parse_results()
-    json_path = OUT_DIR / "admissions_114_exam_distribution_results.json"
-    csv_path = OUT_DIR / "admissions_114_exam_distribution_results.csv"
+    parser = argparse.ArgumentParser(description="Parse UAC distribution-admission result PDFs.")
+    parser.add_argument("--year", type=int, default=DEFAULT_YEAR)
+    parser.add_argument("--pdf", type=Path, default=None)
+    args = parser.parse_args()
+
+    result_pdf = args.pdf or OUT_DIR / f"uac_{args.year}_result_school_data.pdf"
+    records = parse_results(result_pdf, args.year)
+    json_path = OUT_DIR / f"admissions_{args.year}_exam_distribution_results.json"
+    csv_path = OUT_DIR / f"admissions_{args.year}_exam_distribution_results.csv"
     with json_path.open("w", encoding="utf-8") as f:
         json.dump(records, f, ensure_ascii=False, indent=2)
     fieldnames = list(records[0].keys()) if records else []
@@ -93,6 +100,6 @@ if __name__ == "__main__":
         writer.writeheader()
         writer.writerows(records)
     summary = {"rows": len(records), "csv": str(csv_path), "json": str(json_path)}
-    with (OUT_DIR / "uac_114_distribution_results_summary.json").open("w", encoding="utf-8") as f:
+    with (OUT_DIR / f"uac_{args.year}_distribution_results_summary.json").open("w", encoding="utf-8") as f:
         json.dump(summary, f, ensure_ascii=False, indent=2)
     print(json.dumps(summary, ensure_ascii=False, indent=2))
