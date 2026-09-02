@@ -1085,6 +1085,8 @@ function updateExplorerKeyword() {
 function defaultAdvancedFilters() {
   return {
     excludedSubjects: [],
+    subjectGroupsOpen: {},
+    school: "all",
     schoolOwnership: "all",
     topUniversityOnly: false,
     specialAdmissionMode: "exclude",
@@ -1096,6 +1098,8 @@ function defaultAdvancedFilters() {
 function currentAdvancedFilters() {
   if (!state.filters.advanced) state.filters.advanced = defaultAdvancedFilters();
   state.filters.advanced.excludedSubjects ||= [];
+  state.filters.advanced.subjectGroupsOpen ||= {};
+  state.filters.advanced.school ||= "all";
   state.filters.advanced.schoolOwnership ||= "all";
   state.filters.advanced.specialAdmissionMode ||= "exclude";
   state.filters.advanced.group ||= "";
@@ -1133,6 +1137,7 @@ function advancedFilterSummaryText() {
   const advanced = currentAdvancedFilters();
   const parts = [];
   if (advanced.excludedSubjects.length) parts.push(`不看 ${advanced.excludedSubjects.join("、")}`);
+  if (advanced.school !== "all") parts.push(advanced.school);
   if (advanced.schoolOwnership === "public") parts.push("公立");
   if (advanced.schoolOwnership === "private") parts.push("私立");
   if (advanced.topUniversityOnly) parts.push("頂大");
@@ -1148,6 +1153,7 @@ function renderAdvancedFilterDrawer() {
   const advanced = currentAdvancedFilters();
   const groupNames = advancedGroupNames();
   const categoryNames = advancedCategoryNames(advanced.group);
+  const schools = advancedSchoolOptions();
   els.advancedFilterBody.innerHTML = `
     <section class="advanced-section">
       <div class="advanced-section-head">
@@ -1215,6 +1221,17 @@ function renderAdvancedFilterDrawer() {
         </label>
       </div>
     </section>
+    <section class="advanced-section">
+      <div class="advanced-section-head">
+        <h3>學校</h3>
+      </div>
+      <label class="advanced-select-single">
+        <select id="advancedSchoolFilter">
+          <option value="all">全部學校</option>
+          ${schools.map((school) => `<option value="${escapeAttr(school.name)}" ${advanced.school === school.name ? "selected" : ""}>${escapeHtml(`${school.code} ${school.name}`)}</option>`).join("")}
+        </select>
+      </label>
+    </section>
     <section class="advanced-section advanced-current-section">
       <div class="advanced-section-head">
         <h3>已套用條件</h3>
@@ -1246,10 +1263,15 @@ function advancedSubjectGroupsHtml(advanced) {
   return keys.map((key) => {
     const group = ADVANCED_SUBJECT_GROUPS[key];
     if (!group) return "";
+    const open = Boolean(advanced.subjectGroupsOpen?.[key]);
+    const selectedCount = group.subjects.filter((subject) => advanced.excludedSubjects.includes(subject)).length;
     return `
       <div class="advanced-subject-group">
-        ${keys.length > 1 ? `<span>${escapeHtml(group.label)}</span>` : ""}
-        <div class="advanced-chip-row">
+        <button class="advanced-subject-toggle" data-toggle-advanced-subject-group="${escapeAttr(key)}" aria-expanded="${open}">
+          <span>${escapeHtml(group.label)}</span>
+          <small>${selectedCount ? `已排除 ${selectedCount} 科` : "展開科目"}</small>
+        </button>
+        <div class="advanced-chip-row" ${open ? "" : "hidden"}>
           ${group.subjects.map((subject) => `
             <button class="advanced-chip ${advanced.excludedSubjects.includes(subject) ? "active" : ""}" data-advanced-subject="${escapeAttr(subject)}">
               不看 ${escapeHtml(subject)}
@@ -1261,10 +1283,22 @@ function advancedSubjectGroupsHtml(advanced) {
   }).join("");
 }
 
+function advancedSchoolOptions() {
+  const schoolMap = new Map();
+  state.records.forEach((record) => {
+    if (!record.schoolName) return;
+    const code = record.schoolCode || "999";
+    const current = schoolMap.get(record.schoolName);
+    if (!current || code < current.code) schoolMap.set(record.schoolName, { name: record.schoolName, code });
+  });
+  return [...schoolMap.values()].sort((a, b) => a.code.localeCompare(b.code, "en"));
+}
+
 function advancedFilterChipsHtml() {
   const advanced = currentAdvancedFilters();
   const chips = [
     ...advanced.excludedSubjects.map((subject) => `不看 ${subject}`),
+    advanced.school !== "all" ? advanced.school : "",
     advanced.schoolOwnership === "public" ? "公立" : "",
     advanced.schoolOwnership === "private" ? "私立" : "",
     advanced.topUniversityOnly ? "頂大" : "",
@@ -1277,6 +1311,14 @@ function advancedFilterChipsHtml() {
 }
 
 function bindAdvancedFilterEvents() {
+  els.advancedFilterBody.querySelectorAll("[data-toggle-advanced-subject-group]").forEach((button) => {
+    button.addEventListener("click", () => {
+      const advanced = currentAdvancedFilters();
+      const key = button.dataset.toggleAdvancedSubjectGroup;
+      advanced.subjectGroupsOpen[key] = !advanced.subjectGroupsOpen[key];
+      renderAdvancedFilterDrawer();
+    });
+  });
   els.advancedFilterBody.querySelectorAll("[data-advanced-subject]").forEach((button) => {
     button.addEventListener("click", () => {
       const advanced = currentAdvancedFilters();
@@ -1287,6 +1329,11 @@ function bindAdvancedFilterEvents() {
       renderAdvancedFilterDrawer();
       applyFilters();
     });
+  });
+  els.advancedFilterBody.querySelector("#advancedSchoolFilter")?.addEventListener("change", (event) => {
+    currentAdvancedFilters().school = event.target.value || "all";
+    renderAdvancedFilterDrawer();
+    applyFilters();
   });
   els.advancedFilterBody.querySelectorAll("[data-school-ownership]").forEach((button) => {
     button.addEventListener("click", () => {
@@ -1344,12 +1391,14 @@ function advancedCategoryNames(groupName = "") {
 function recordMatchesAdvancedFilters(record) {
   const advanced = state.filters.advanced || {
     excludedSubjects: [],
+    school: "all",
     schoolOwnership: "all",
     topUniversityOnly: false,
     specialAdmissionMode: "exclude",
     group: "",
     category: "",
   };
+  if (advanced.school && advanced.school !== "all" && record.schoolName !== advanced.school) return false;
   if (advanced.schoolOwnership && advanced.schoolOwnership !== "all" && schoolOwnership(record) !== advanced.schoolOwnership) {
     return false;
   }
@@ -1454,6 +1503,7 @@ function specialAdmissionInfo(record) {
   const text = `${record?.departmentName || ""} ${record?.category || ""}`.replace(/\s+/g, "");
   const patterns = [
     { pattern: /希望組/, label: "希望組" },
+    { pattern: /晨光招生|晨光組|晨光/, label: "晨光" },
     { pattern: /旭日招生/, label: "旭日" },
     { pattern: /成星招生/, label: "成星" },
     { pattern: /政星招生|政星/, label: "政星" },

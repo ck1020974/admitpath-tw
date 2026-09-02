@@ -3317,6 +3317,38 @@ tr:hover td {
   font-weight: 900;
 }
 
+.advanced-subject-toggle {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: 38px;
+  padding: 0 11px;
+  border: 1px solid #dce7ef;
+  border-radius: 9px;
+  background: #f8fbfd;
+  color: #29485a;
+  font-size: 13px;
+  font-weight: 850;
+  text-align: left;
+}
+
+.advanced-subject-toggle:hover {
+  border-color: #aac4d6;
+  background: #f1f8fb;
+}
+
+.advanced-subject-toggle small {
+  color: #6b7b8f;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.advanced-subject-group .advanced-chip-row {
+  padding: 2px 2px 0;
+}
+
 .advanced-chip-row {
   display: flex;
   align-items: center;
@@ -3795,6 +3827,13 @@ tr:hover td {
   .quality-review-queue {
     grid-template-columns: 1fr;
   }
+}
+
+.advanced-select-single {
+  display: block;
+  padding: 0;
+  border: 0;
+  background: transparent;
 }
 
 @media (min-width: 560px) and (max-width: 720px) {
