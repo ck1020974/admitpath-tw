@@ -35,8 +35,8 @@ if (!/recordMatchesAdvancedFilters[\s\S]*specialAdmissionModeAllows/.test(app)) 
   fail("Advanced query filters must apply the special admission mode.");
 }
 
-if (!/placementMatchesFilters[\s\S]*specialAdmissionModeAllows/.test(app)) {
-  fail("Placement analysis filters must apply the special admission mode.");
+if (!/placementMatchesFilters[\s\S]*recordMatchesAdvancedFilters/.test(app)) {
+  fail("Placement analysis must apply the shared advanced filters, including special admission mode.");
 }
 
 const explicitSpecialNames = [
@@ -44,6 +44,9 @@ const explicitSpecialNames = [
   "旭日招生甲組(人文、教育)",
   "成星招生甲組(文社)",
   "晨光招生(學習科學學士學位學程)",
+  "興翼招生A組(商學管理)",
+  "向日葵聯合招生甲組(電資)",
+  "嘉星招生甲組(工)",
   "清華學院學士班乙組(青年儲蓄帳戶組)",
 ];
 
@@ -52,7 +55,7 @@ explicitSpecialNames.forEach((name) => {
     fail(`Expected fixture record missing: ${name}`);
   }
   const escaped = name.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-  if (!new RegExp(escaped).test(app) && !/希望組|晨光|旭日招生|成星招生|青年儲蓄/.test(app)) {
+  if (!new RegExp(escaped).test(app) && !/希望組|晨光|旭日招生|成星招生|興翼|向日葵|嘉星|青年儲蓄/.test(app)) {
     fail(`Special admission detector does not appear to cover: ${name}`);
   }
 });

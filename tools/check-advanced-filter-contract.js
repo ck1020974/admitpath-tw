@@ -57,10 +57,8 @@ const sandbox = {
     filters: {
       advanced: {
         excludedSubjects: [],
-        schoolOwnership: "all",
-        topUniversityOnly: false,
-        group: "",
-        category: "",
+        groups: [],
+        schools: [],
       },
     },
   },
@@ -103,29 +101,26 @@ if (sandbox.recordMatchesAdvancedFilters(ntuApply)) {
 }
 
 sandbox.state.filters.advanced.excludedSubjects = [];
-sandbox.state.filters.advanced.schoolOwnership = "private";
-if (sandbox.recordMatchesAdvancedFilters(ntuApply)) {
-  fail("Public school should be excluded when private schools are selected.");
+sandbox.state.filters.advanced.schools = ["國立臺灣大學"];
+if (!sandbox.recordMatchesAdvancedFilters(ntuApply)) {
+  fail("Selected school should include the matching record.");
 }
-
-sandbox.state.filters.advanced.schoolOwnership = "all";
-sandbox.state.filters.advanced.topUniversityOnly = true;
 const privateRecord = records.find((record) => record.schoolName && !record.schoolName.startsWith("國立") && !record.schoolName.startsWith("市立"));
 if (!privateRecord) fail("Could not find private sample.");
 if (sandbox.recordMatchesAdvancedFilters(privateRecord)) {
-  fail("Non-top university should be excluded when top university filter is enabled.");
+  fail("Unselected school should be excluded.");
 }
 
-sandbox.state.filters.advanced.topUniversityOnly = false;
-sandbox.state.filters.advanced.category = "資訊工程學類";
+sandbox.state.filters.advanced.schools = [];
+sandbox.state.filters.advanced.groups = ["資訊學群"];
 if (sandbox.recordMatchesAdvancedFilters(ntuApply)) {
-  fail("Chinese literature should be excluded when 資訊工程學類 is selected.");
+  fail("Chinese literature should be excluded when 資訊學群 is selected.");
 }
 
 const ntuCs = records.find((record) => record.schoolName === "國立臺灣大學" && record.departmentName.includes("資訊工程"));
 if (!ntuCs) fail("Could not find NTU CS sample.");
 if (!sandbox.recordMatchesAdvancedFilters(ntuCs)) {
-  fail("NTU CS should match 資訊工程學類.");
+  fail("NTU CS should match 資訊學群.");
 }
 
 console.log("Advanced filter contract check passed.");

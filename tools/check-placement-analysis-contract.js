@@ -46,7 +46,8 @@ function extractFunction(name) {
   'data-placement-score="數A"',
   'id="placementYearFilter"',
   'id="placementChannelFilter"',
-  'id="placementSchoolFilter"',
+  'data-placement-school-scope="public"',
+  'data-placement-school-scope="central"',
   'id="placementKeywordInput"',
 ].forEach((pattern) => {
   if (!index.includes(pattern)) fail(`Missing placement analysis markup: ${pattern}`);
@@ -95,7 +96,7 @@ const sandbox = {
       categories: ["資訊工程學類", "電機工程學類"],
       year: "all",
       channel: "all",
-      school: "all",
+      schoolScope: "all",
       keyword: "",
     },
   },
@@ -116,6 +117,7 @@ vm.runInContext([
   extractFunction("placementDistributionRequirements"),
   extractFunction("uniquePlacementRequirements"),
   extractFunction("placementMatchesFilters"),
+  extractFunction("placementSchoolScopeAllows"),
   extractFunction("placementSelectedNeedles"),
   extractFunction("placementResultSummary"),
   extractFunction("placementRequirementLabel"),

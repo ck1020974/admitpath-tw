@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>升學資料中控台</title>
-  <link rel="stylesheet" href="./styles.css?v=20260902-03">
+  <link rel="stylesheet" href="./styles.css?v=20260903-03">
 </head>
 <body data-active-view="overview">
   <div class="app-shell">
@@ -220,12 +220,21 @@
               <div class="placement-score-summary-line">
                 <div class="placement-criteria-summary" id="placementCriteriaSummary"></div>
                 <button class="back-button" id="editPlacementCriteria">修改成績</button>
+                <div class="placement-school-scope" aria-label="學校範圍">
+                  <span>學校範圍</span>
+                  <div class="placement-chip-row">
+                    <button class="placement-chip active" data-placement-school-scope="all">全部</button>
+                    <button class="placement-chip" data-placement-school-scope="public">公立</button>
+                    <button class="placement-chip" data-placement-school-scope="private">私立</button>
+                    <button class="placement-chip top-school" data-placement-school-scope="top">頂大</button>
+                    <button class="placement-chip" data-placement-school-scope="central">中字輩</button>
+                  </div>
+                </div>
               </div>
             </div>
             <section class="filter-band placement-result-filters" aria-label="落點結果篩選">
               <label><span>年度</span><select id="placementYearFilter"></select></label>
               <label><span>入學管道</span><select id="placementChannelFilter"></select></label>
-              <label><span>學校</span><select id="placementSchoolFilter"></select></label>
               <label class="search-field"><span>關鍵字</span><input id="placementKeywordInput" type="search" placeholder="學校、學系、採計科目"></label>
             </section>
             <section class="placement-results-panel">
@@ -289,6 +298,6 @@
     <div class="advanced-filter-body" id="advancedFilterBody"></div>
   </aside>
 
-  <script src="./app.js?v=20260902-12"></script>
+  <script src="./app.js?v=20260903-04"></script>
 </body>
 </html>

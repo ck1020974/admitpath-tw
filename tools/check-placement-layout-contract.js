@@ -32,13 +32,13 @@ if (!/\.placement-head-compact\s*\{[^}]*border:\s*0[^}]*background:\s*transparen
   "placement-result-filters",
   "placementYearFilter",
   "placementChannelFilter",
-  "placementSchoolFilter",
+  "placement-school-scope",
   "placementKeywordInput",
 ].forEach((pattern) => {
   if (!html.includes(pattern)) fail(`Missing placement workbench markup: ${pattern}`);
 });
 
-if (/placement-direction-panel|placementGroupChips|placementCategoryChips|data-placement-channel|placementGroupFilter|placementCategoryFilter/.test(html)) {
+if (/placement-direction-panel|placementGroupChips|placementCategoryChips|data-placement-channel|placementGroupFilter|placementCategoryFilter|placementSchoolFilter/.test(html)) {
   fail("Placement setup should only ask for scores, not direction or channel selections.");
 }
 

@@ -27,11 +27,9 @@
     keyword: "",
     advanced: {
       excludedSubjects: [],
-      schoolOwnership: "all",
-      topUniversityOnly: false,
       specialAdmissionMode: "exclude",
-      group: "",
-      category: "",
+      groups: [],
+      schools: [],
     },
   },
 };
@@ -899,7 +897,6 @@ function bindElements() {
     "placementResults",
     "placementYearFilter",
     "placementChannelFilter",
-    "placementSchoolFilter",
     "placementKeywordInput",
   ].forEach((id) => {
     els[id] = document.getElementById(id);
@@ -1092,12 +1089,9 @@ function defaultAdvancedFilters() {
   return {
     excludedSubjects: [],
     subjectGroupsOpen: {},
-    school: "all",
-    schoolOwnership: "all",
-    topUniversityOnly: false,
     specialAdmissionMode: "exclude",
-    group: "",
-    category: "",
+    groups: [],
+    schools: [],
   };
 }
 
@@ -1105,11 +1099,9 @@ function currentAdvancedFilters() {
   if (!state.filters.advanced) state.filters.advanced = defaultAdvancedFilters();
   state.filters.advanced.excludedSubjects ||= [];
   state.filters.advanced.subjectGroupsOpen ||= {};
-  state.filters.advanced.school ||= "all";
-  state.filters.advanced.schoolOwnership ||= "all";
   state.filters.advanced.specialAdmissionMode ||= "exclude";
-  state.filters.advanced.group ||= "";
-  state.filters.advanced.category ||= "";
+  state.filters.advanced.groups ||= [];
+  state.filters.advanced.schools ||= [];
   return state.filters.advanced;
 }
 
@@ -1143,14 +1135,10 @@ function advancedFilterSummaryText() {
   const advanced = currentAdvancedFilters();
   const parts = [];
   if (advanced.excludedSubjects.length) parts.push(`不看 ${advanced.excludedSubjects.join("、")}`);
-  if (advanced.school !== "all") parts.push(advanced.school);
-  if (advanced.schoolOwnership === "public") parts.push("公立");
-  if (advanced.schoolOwnership === "private") parts.push("私立");
-  if (advanced.topUniversityOnly) parts.push("頂大");
   if (advanced.specialAdmissionMode === "include") parts.push("含特殊組");
   if (advanced.specialAdmissionMode === "only") parts.push("只看特殊組");
-  if (advanced.group) parts.push(displayCategoryName(advanced.group));
-  if (advanced.category) parts.push(displayCategoryName(advanced.category));
+  if (advanced.groups.length) parts.push(...advanced.groups);
+  if (advanced.schools.length) parts.push(...advanced.schools);
   return parts.join("｜");
 }
 
@@ -1158,7 +1146,6 @@ function renderAdvancedFilterDrawer() {
   if (!els.advancedFilterBody) return;
   const advanced = currentAdvancedFilters();
   const groupNames = advancedGroupNames();
-  const categoryNames = advancedCategoryNames(advanced.group);
   const schools = advancedSchoolOptions();
   els.advancedFilterBody.innerHTML = `
     <section class="advanced-section">
@@ -1168,25 +1155,6 @@ function renderAdvancedFilterDrawer() {
       </div>
       <div class="advanced-subject-groups">
         ${advancedSubjectGroupsHtml(advanced)}
-      </div>
-    </section>
-    <section class="advanced-section">
-      <div class="advanced-section-head">
-        <h3>學校屬性</h3>
-      </div>
-      <div class="advanced-chip-row">
-        ${[
-          ["all", "全部"],
-          ["public", "公立"],
-          ["private", "私立"],
-        ].map(([value, label]) => `
-          <button class="advanced-chip ${advanced.schoolOwnership === value ? "active" : ""}" data-school-ownership="${value}">
-            ${escapeHtml(label)}
-          </button>
-        `).join("")}
-        <button class="advanced-chip top-school ${advanced.topUniversityOnly ? "active" : ""}" data-top-university>
-          頂大
-        </button>
       </div>
     </section>
     <section class="advanced-section">
@@ -1208,35 +1176,31 @@ function renderAdvancedFilterDrawer() {
     </section>
     <section class="advanced-section">
       <div class="advanced-section-head">
-        <h3>學群 / 學類</h3>
+        <h3>學群</h3>
+        <span>可複選</span>
       </div>
-      <div class="advanced-select-grid">
-        <label>
-          <span>學群</span>
-          <select id="advancedGroupFilter">
-            <option value="">全部學群</option>
-            ${groupNames.map((name) => `<option value="${escapeAttr(name)}" ${advanced.group === name ? "selected" : ""}>${escapeHtml(name)}</option>`).join("")}
-          </select>
-        </label>
-        <label>
-          <span>學類</span>
-          <select id="advancedCategoryFilter">
-            <option value="">全部學類</option>
-            ${categoryNames.map((name) => `<option value="${escapeAttr(name)}" ${advanced.category === name ? "selected" : ""}>${escapeHtml(displayCategoryName(name))}</option>`).join("")}
-          </select>
-        </label>
+      <div class="advanced-chip-row">
+        ${groupNames.map((name) => `
+          <button class="advanced-chip ${advanced.groups.includes(name) ? "active" : ""}" data-advanced-group="${escapeAttr(name)}">
+            ${escapeHtml(name)}
+          </button>
+        `).join("")}
       </div>
     </section>
     <section class="advanced-section">
       <div class="advanced-section-head">
         <h3>學校</h3>
+        <span>至多 5 間</span>
       </div>
       <label class="advanced-select-single">
-        <select id="advancedSchoolFilter">
-          <option value="all">全部學校</option>
-          ${schools.map((school) => `<option value="${escapeAttr(school.name)}" ${advanced.school === school.name ? "selected" : ""}>${escapeHtml(`${school.code} ${school.name}`)}</option>`).join("")}
+        <select id="advancedSchoolPicker" ${advanced.schools.length >= 5 ? "disabled" : ""}>
+          <option value="">選擇學校</option>
+          ${schools.filter((school) => !advanced.schools.includes(school.name)).map((school) => `<option value="${escapeAttr(school.name)}">${escapeHtml(`${school.code} ${school.name}`)}</option>`).join("")}
         </select>
       </label>
+      <div class="advanced-current advanced-school-selection">
+        ${advanced.schools.length ? advanced.schools.map((name) => `<button class="advanced-current-chip" data-remove-advanced-school="${escapeAttr(name)}">${escapeHtml(name)} ×</button>`).join("") : `<span class="advanced-empty">尚未選擇學校</span>`}
+      </div>
     </section>
     <section class="advanced-section advanced-current-section">
       <div class="advanced-section-head">
@@ -1263,10 +1227,8 @@ function advancedSubjectHint() {
 }
 
 function advancedSubjectGroupsHtml(advanced) {
-  const keys = state.filters.channel === "all"
-    ? ["personal_application", "star_recommendation", "exam_distribution"]
-    : [state.filters.channel];
-  return keys.map((key) => {
+  const keys = ["personal_application", "star_recommendation", "exam_distribution"];
+  const groupCards = keys.map((key) => {
     const group = ADVANCED_SUBJECT_GROUPS[key];
     if (!group) return "";
     const open = Boolean(advanced.subjectGroupsOpen?.[key]);
@@ -1277,16 +1239,27 @@ function advancedSubjectGroupsHtml(advanced) {
           <span>${escapeHtml(group.label)}</span>
           <small>${selectedCount ? `已排除 ${selectedCount} 科` : "展開科目"}</small>
         </button>
-        <div class="advanced-chip-row" ${open ? "" : "hidden"}>
+      </div>
+    `;
+  }).join("");
+  const expandedGroups = keys.filter((key) => advanced.subjectGroupsOpen?.[key]).map((key) => {
+    const group = ADVANCED_SUBJECT_GROUPS[key];
+    if (!group) return "";
+    return `
+      <div class="advanced-subject-expanded">
+        <strong>${escapeHtml(group.label)}：選擇不看的科目</strong>
+        <div class="advanced-chip-row">
           ${group.subjects.map((subject) => `
             <button class="advanced-chip ${advanced.excludedSubjects.includes(subject) ? "active" : ""}" data-advanced-subject="${escapeAttr(subject)}">
               不看 ${escapeHtml(subject)}
             </button>
           `).join("")}
         </div>
+        </div>
       </div>
     `;
   }).join("");
+  return `${groupCards}${expandedGroups}`;
 }
 
 function advancedSchoolOptions() {
@@ -1304,14 +1277,10 @@ function advancedFilterChipsHtml() {
   const advanced = currentAdvancedFilters();
   const chips = [
     ...advanced.excludedSubjects.map((subject) => `不看 ${subject}`),
-    advanced.school !== "all" ? advanced.school : "",
-    advanced.schoolOwnership === "public" ? "公立" : "",
-    advanced.schoolOwnership === "private" ? "私立" : "",
-    advanced.topUniversityOnly ? "頂大" : "",
     advanced.specialAdmissionMode === "include" ? "含特殊組" : "",
     advanced.specialAdmissionMode === "only" ? "只看特殊組" : "",
-    advanced.group ? displayCategoryName(advanced.group) : "",
-    advanced.category ? displayCategoryName(advanced.category) : "",
+    ...advanced.groups,
+    ...advanced.schools,
   ].filter(Boolean);
   return chips.map((chip) => `<span class="advanced-current-chip">${escapeHtml(chip)}</span>`).join("");
 }
@@ -1321,7 +1290,8 @@ function bindAdvancedFilterEvents() {
     button.addEventListener("click", () => {
       const advanced = currentAdvancedFilters();
       const key = button.dataset.toggleAdvancedSubjectGroup;
-      advanced.subjectGroupsOpen[key] = !advanced.subjectGroupsOpen[key];
+      const opening = !advanced.subjectGroupsOpen[key];
+      advanced.subjectGroupsOpen = opening ? { [key]: true } : {};
       renderAdvancedFilterDrawer();
     });
   });
@@ -1336,23 +1306,31 @@ function bindAdvancedFilterEvents() {
       applyFilters();
     });
   });
-  els.advancedFilterBody.querySelector("#advancedSchoolFilter")?.addEventListener("change", (event) => {
-    currentAdvancedFilters().school = event.target.value || "all";
-    renderAdvancedFilterDrawer();
-    applyFilters();
-  });
-  els.advancedFilterBody.querySelectorAll("[data-school-ownership]").forEach((button) => {
+  els.advancedFilterBody.querySelectorAll("[data-advanced-group]").forEach((button) => {
     button.addEventListener("click", () => {
-      currentAdvancedFilters().schoolOwnership = button.dataset.schoolOwnership || "all";
+      const advanced = currentAdvancedFilters();
+      const group = button.dataset.advancedGroup;
+      advanced.groups = advanced.groups.includes(group)
+        ? advanced.groups.filter((item) => item !== group)
+        : [...advanced.groups, group];
       renderAdvancedFilterDrawer();
       applyFilters();
     });
   });
-  els.advancedFilterBody.querySelector("[data-top-university]")?.addEventListener("click", () => {
+  els.advancedFilterBody.querySelector("#advancedSchoolPicker")?.addEventListener("change", (event) => {
     const advanced = currentAdvancedFilters();
-    advanced.topUniversityOnly = !advanced.topUniversityOnly;
+    const school = event.target.value;
+    if (school && !advanced.schools.includes(school) && advanced.schools.length < 5) advanced.schools = [...advanced.schools, school];
     renderAdvancedFilterDrawer();
     applyFilters();
+  });
+  els.advancedFilterBody.querySelectorAll("[data-remove-advanced-school]").forEach((button) => {
+    button.addEventListener("click", () => {
+      const advanced = currentAdvancedFilters();
+      advanced.schools = advanced.schools.filter((school) => school !== button.dataset.removeAdvancedSchool);
+      renderAdvancedFilterDrawer();
+      applyFilters();
+    });
   });
   els.advancedFilterBody.querySelectorAll("[data-special-admission-filter]").forEach((button) => {
     button.addEventListener("click", () => {
@@ -1360,18 +1338,6 @@ function bindAdvancedFilterEvents() {
       renderAdvancedFilterDrawer();
       applyFilters();
     });
-  });
-  els.advancedFilterBody.querySelector("#advancedGroupFilter")?.addEventListener("change", (event) => {
-    const advanced = currentAdvancedFilters();
-    advanced.group = event.target.value;
-    advanced.category = "";
-    renderAdvancedFilterDrawer();
-    applyFilters();
-  });
-  els.advancedFilterBody.querySelector("#advancedCategoryFilter")?.addEventListener("change", (event) => {
-    currentAdvancedFilters().category = event.target.value;
-    renderAdvancedFilterDrawer();
-    applyFilters();
   });
   els.advancedFilterBody.querySelector("#clearAdvancedFiltersButton")?.addEventListener("click", () => {
     state.filters.advanced = defaultAdvancedFilters();
@@ -1397,18 +1363,11 @@ function advancedCategoryNames(groupName = "") {
 function recordMatchesAdvancedFilters(record) {
   const advanced = state.filters.advanced || {
     excludedSubjects: [],
-    school: "all",
-    schoolOwnership: "all",
-    topUniversityOnly: false,
     specialAdmissionMode: "exclude",
-    group: "",
-    category: "",
+    groups: [],
+    schools: [],
   };
-  if (advanced.school && advanced.school !== "all" && record.schoolName !== advanced.school) return false;
-  if (advanced.schoolOwnership && advanced.schoolOwnership !== "all" && schoolOwnership(record) !== advanced.schoolOwnership) {
-    return false;
-  }
-  if (advanced.topUniversityOnly && !isTopUniversity(record)) return false;
+  if (advanced.schools?.length && !advanced.schools.includes(record.schoolName)) return false;
   if (!specialAdmissionModeAllows(record, advanced.specialAdmissionMode || "exclude")) return false;
   const excluded = new Set((advanced.excludedSubjects || []).map(advancedSubjectKey).filter(Boolean));
   if (excluded.size) {
@@ -1417,7 +1376,7 @@ function recordMatchesAdvancedFilters(record) {
       if (subjects.has(subject)) return false;
     }
   }
-  const needles = advancedCategoryNeedles(advanced.group, advanced.category);
+  const needles = groupRowsToNeedles(state.groups.filter((row) => advanced.groups?.includes(row.groupName)));
   if (needles.size && !matchesGroup(record, needles)) return false;
   return true;
 }
@@ -1512,6 +1471,9 @@ function specialAdmissionInfo(record) {
     { pattern: /晨光招生|晨光組|晨光/, label: "晨光" },
     { pattern: /旭日招生/, label: "旭日" },
     { pattern: /成星招生/, label: "成星" },
+    { pattern: /興翼招生|興翼/, label: "興翼" },
+    { pattern: /向日葵聯合招生|向日葵/, label: "向日葵" },
+    { pattern: /嘉星招生|嘉星/, label: "嘉星" },
     { pattern: /政星招生|政星/, label: "政星" },
     { pattern: /屯蒙/, label: "屯蒙" },
     { pattern: /柳川招生組/, label: "柳川" },
@@ -1623,7 +1585,7 @@ function defaultPlacementState() {
     categories: [],
     year: "all",
     channel: "all",
-    school: "all",
+    schoolScope: "all",
     keyword: "",
   };
 }
@@ -1670,8 +1632,14 @@ function bindPlacementEvents() {
   document.getElementById("placementOpenAdvancedFiltersButton")?.addEventListener("click", openAdvancedFilters);
   els.placementYearFilter?.addEventListener("change", updatePlacementResultFilters);
   els.placementChannelFilter?.addEventListener("change", updatePlacementResultFilters);
-  els.placementSchoolFilter?.addEventListener("change", updatePlacementResultFilters);
   els.placementKeywordInput?.addEventListener("input", debounce(updatePlacementResultFilters, 120));
+  document.querySelectorAll("[data-placement-school-scope]").forEach((button) => {
+    button.addEventListener("click", () => {
+      state.placement.schoolScope = button.dataset.placementSchoolScope || "all";
+      renderPlacementControls();
+      renderPlacementAnalysis();
+    });
+  });
   document.querySelectorAll("[data-placement-result-tab]").forEach((button) => {
     button.addEventListener("click", () => {
       state.placement.resultTab = button.dataset.placementResultTab || "all";
@@ -1731,22 +1699,18 @@ function placementFilterOptions(select, items, allLabel, value, label = (item) =
 function hydratePlacementResultFilters() {
   const years = [...new Set(state.records.map((record) => String(record.year)).filter(Boolean))]
     .sort((a, b) => b.localeCompare(a, "en"));
-  const schools = [...new Set(state.records.map((record) => record.schoolName).filter(Boolean))]
-    .sort((a, b) => a.localeCompare(b, "zh-Hant"));
   placementFilterOptions(els.placementYearFilter, years, "年度", state.placement.year);
   placementFilterOptions(els.placementChannelFilter, ["personal_application", "star_recommendation", "exam_distribution"], "入學管道", state.placement.channel, (channel) => ({
     personal_application: "個人申請",
     star_recommendation: "繁星推薦",
     exam_distribution: "分發入學",
   })[channel]);
-  placementFilterOptions(els.placementSchoolFilter, schools, "全部學校", state.placement.school);
   if (els.placementKeywordInput) els.placementKeywordInput.value = state.placement.keyword;
 }
 
 function updatePlacementResultFilters() {
   state.placement.year = els.placementYearFilter?.value || "all";
   state.placement.channel = els.placementChannelFilter?.value || "all";
-  state.placement.school = els.placementSchoolFilter?.value || "all";
   state.placement.keyword = els.placementKeywordInput?.value.trim() || "";
   hydratePlacementResultFilters();
   renderPlacementAnalysis();
@@ -1762,6 +1726,9 @@ function renderPlacementControls() {
   document.querySelector("[data-placement-top]")?.classList.toggle("active", state.placement.topUniversityOnly);
   document.querySelectorAll("[data-placement-special]").forEach((button) => {
     button.classList.toggle("active", state.placement.specialAdmissionMode === button.dataset.placementSpecial);
+  });
+  document.querySelectorAll("[data-placement-school-scope]").forEach((button) => {
+    button.classList.toggle("active", state.placement.schoolScope === button.dataset.placementSchoolScope);
   });
   const runButton = document.getElementById("runPlacementAnalysis");
   if (runButton) runButton.disabled = !placementHasAnyInput(placementProfile());
@@ -1970,13 +1937,12 @@ function placementResultCardHtml(record, evaluation) {
 
 function placementMatchesFilters(record, profile) {
   if (state.placement.year !== "all" && String(record.year) !== state.placement.year) return false;
-  if (state.placement.school !== "all" && record.schoolName !== state.placement.school) return false;
+  if (!placementSchoolScopeAllows(record, state.placement.schoolScope)) return false;
   if (state.placement.keyword && !recordSearchText(record).includes(normalize(state.placement.keyword))) return false;
   if (typeof recordMatchesAdvancedFilters === "function" && !recordMatchesAdvancedFilters(record)) return false;
   if (!profile.channels.includes(record.channelKey)) return false;
   if (profile.schoolOwnership !== "all" && schoolOwnership(record) !== profile.schoolOwnership) return false;
   if (profile.topUniversityOnly && !isTopUniversity(record)) return false;
-  if (!specialAdmissionModeAllows(record, profile.specialAdmissionMode || "exclude")) return false;
   const needles = placementSelectedNeedles(profile);
   if (needles.size && !matchesGroup(record, needles)) return false;
   return true;
@@ -2139,6 +2105,13 @@ function placementResultSummary(evaluation) {
   if (evaluation.status === "near") return `約差 ${Number(evaluation.gapTotal.toFixed(1))}`;
   if (evaluation.status === "missing") return "需補填必要科目";
   return `約差 ${Number(evaluation.gapTotal.toFixed(1))}`;
+}
+
+function placementSchoolScopeAllows(record, scope = "all") {
+  if (scope === "public" || scope === "private") return schoolOwnership(record) === scope;
+  if (scope === "top") return isTopUniversity(record);
+  if (scope === "central") return ["國立中央大學", "國立中興大學", "國立中山大學", "國立中正大學"].includes(record.schoolName);
+  return true;
 }
 
 function renderTable() {
