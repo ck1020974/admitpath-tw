@@ -169,4 +169,13 @@ if (!sandbox.placementResultSummary(evaluation)) {
   fail("Placement evaluation should provide a readable summary.");
 }
 
+const mergedRequirements = sandbox.uniquePlacementRequirements([
+  { kind: "score", subjects: ["國文"], threshold: 10, source: "篩選" },
+  { kind: "score", subjects: ["國文"], threshold: 12, source: "申請" },
+  { kind: "score", subjects: ["英文"], threshold: 11, source: "篩選" },
+]);
+if (mergedRequirements.length !== 2 || mergedRequirements.find((item) => item.subjects[0] === "國文")?.threshold !== 12) {
+  fail("Duplicate subject thresholds should keep only the stricter, higher requirement.");
+}
+
 console.log("Placement analysis contract check passed.");

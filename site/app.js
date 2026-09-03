@@ -1474,6 +1474,7 @@ function specialAdmissionInfo(record) {
     { pattern: /興翼招生|興翼/, label: "興翼" },
     { pattern: /向日葵聯合招生|向日葵/, label: "向日葵" },
     { pattern: /嘉星招生|嘉星/, label: "嘉星" },
+    { pattern: /西灣南星/, label: "西灣南星" },
     { pattern: /政星招生|政星/, label: "政星" },
     { pattern: /屯蒙/, label: "屯蒙" },
     { pattern: /柳川招生組/, label: "柳川" },
@@ -2046,13 +2047,28 @@ function placementDistributionRequirements(record) {
 }
 
 function uniquePlacementRequirements(requirements) {
+  const merged = [];
   const seen = new Set();
-  return requirements.filter((item) => {
+  const strictestIndex = new Map();
+  requirements.forEach((item) => {
+    // 個申可能同時提供「篩選」與「申請」兩個來源；同一科目只顯示較高的門檻。
+    if (["score", "sum"].includes(item.kind)) {
+      const strictestKey = `${item.kind}|${item.subjects.join("+")}`;
+      const existingIndex = strictestIndex.get(strictestKey);
+      if (existingIndex == null) {
+        strictestIndex.set(strictestKey, merged.length);
+        merged.push(item);
+      } else if (Number(item.threshold) > Number(merged[existingIndex].threshold)) {
+        merged[existingIndex] = item;
+      }
+      return;
+    }
     const key = `${item.kind}|${item.subjects.join("+")}|${item.threshold}|${item.source}`;
-    if (seen.has(key)) return false;
+    if (seen.has(key)) return;
     seen.add(key);
-    return true;
+    merged.push(item);
   });
+  return merged;
 }
 
 function placementRequirementResult(requirement, profile) {

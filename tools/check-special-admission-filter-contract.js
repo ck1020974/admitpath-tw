@@ -47,6 +47,7 @@ const explicitSpecialNames = [
   "興翼招生A組(商學管理)",
   "向日葵聯合招生甲組(電資)",
   "嘉星招生甲組(工)",
+  "西灣南星A組(文)",
   "清華學院學士班乙組(青年儲蓄帳戶組)",
 ];
 
@@ -55,7 +56,7 @@ explicitSpecialNames.forEach((name) => {
     fail(`Expected fixture record missing: ${name}`);
   }
   const escaped = name.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-  if (!new RegExp(escaped).test(app) && !/希望組|晨光|旭日招生|成星招生|興翼|向日葵|嘉星|青年儲蓄/.test(app)) {
+  if (!new RegExp(escaped).test(app) && !/希望組|晨光|旭日招生|成星招生|興翼|向日葵|嘉星|西灣南星|青年儲蓄/.test(app)) {
     fail(`Special admission detector does not appear to cover: ${name}`);
   }
 });
