@@ -177,5 +177,8 @@ const mergedRequirements = sandbox.uniquePlacementRequirements([
 if (mergedRequirements.length !== 2 || mergedRequirements.find((item) => item.subjects[0] === "國文")?.threshold !== 12) {
   fail("Duplicate subject thresholds should keep only the stricter, higher requirement.");
 }
+if (sandbox.placementRequirementLabel({ kind: "score", subjects: ["國文"], actual: 11, threshold: 13 }) !== "國文 11／13") {
+  fail("Single-subject labels should clearly separate the entered score and the threshold.");
+}
 
 console.log("Placement analysis contract check passed.");

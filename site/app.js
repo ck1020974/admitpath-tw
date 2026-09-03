@@ -1475,6 +1475,7 @@ function specialAdmissionInfo(record) {
     { pattern: /向日葵聯合招生|向日葵/, label: "向日葵" },
     { pattern: /嘉星招生|嘉星/, label: "嘉星" },
     { pattern: /西灣南星/, label: "西灣南星" },
+    { pattern: /薪火招生|薪火組/, label: "薪火" },
     { pattern: /政星招生|政星/, label: "政星" },
     { pattern: /屯蒙/, label: "屯蒙" },
     { pattern: /柳川招生組/, label: "柳川" },
@@ -1983,14 +1984,18 @@ function placementRecordRequirements(record) {
 function placementApplyRequirements(record) {
   const requirements = [];
   applySieveRankedItems(record).forEach((item) => {
-    if (item.score && item.subjects?.length) {
-      requirements.push({ kind: item.subjects.length > 1 ? "sum" : "score", subjects: item.subjects.map(shortSubject), threshold: Number(item.score), source: "篩選" });
+    const threshold = Number(item.score);
+    const isSingleSubject = item.subjects?.length === 1;
+    if (Number.isFinite(threshold) && threshold > 0 && item.subjects?.length && (!isSingleSubject || threshold <= 15)) {
+      requirements.push({ kind: isSingleSubject ? "score" : "sum", subjects: item.subjects.map(shortSubject), threshold, source: "篩選" });
     }
   });
   if (!requirements.length) {
     (record.applySieveResult?.sieveResultItems || []).forEach((item) => {
-      if (item.score && item.subjects?.length) {
-        requirements.push({ kind: item.subjects.length > 1 ? "sum" : "score", subjects: item.subjects.map(shortSubject), threshold: Number(item.score), source: "篩選" });
+      const threshold = Number(item.score);
+      const isSingleSubject = item.subjects?.length === 1;
+      if (Number.isFinite(threshold) && threshold > 0 && item.subjects?.length && (!isSingleSubject || threshold <= 15)) {
+        requirements.push({ kind: isSingleSubject ? "score" : "sum", subjects: item.subjects.map(shortSubject), threshold, source: "篩選" });
       }
     });
   }
@@ -2113,7 +2118,7 @@ function placementRequirementLabel(item) {
   }
   if (item.kind === "percent") return `在校 ${item.actual || "--"}/${item.threshold}%`;
   if (item.kind === "note") return item.source || subject;
-  return `${subject} ${item.actual || "--"}/${item.threshold}`;
+  return `${subject} ${item.actual || "--"}／${item.threshold}`;
 }
 
 function placementResultSummary(evaluation) {
@@ -2663,7 +2668,7 @@ function formatApplicationThresholdWithStandard(year, subject, standard) {
   const cleanStandard = String(standard || "").trim();
   if (!cleanSubject || !cleanStandard || cleanStandard === "--") return "";
   const score = state.gsatStandards?.[String(year)]?.[cleanSubject]?.[cleanStandard];
-  if (score != null) return `${formatSubjectScore(shortSubject(cleanSubject), score)}（${cleanStandard}）`;
+  if (score != null) return `${shortSubject(cleanSubject)} ${score}級（${cleanStandard}）`;
   if (cleanSubject === "英聽") return `${cleanSubject}${cleanStandard.replace(/級$/, "")}`;
   return `${shortSubject(cleanSubject)}${cleanStandard}`;
 }
@@ -3980,6 +3985,7 @@ function detailHtml(record, result) {
     </section>
     ${summaryDetailHtml(record)}
     ${starAdmissionResultHtml(record)}
+    ${record.channelKey === "personal_application" && cac ? personalApplicationThresholdHtml(record, cac) : ""}
     ${applySieveResultHtml(record)}
     ${applySieveReviewHtml(record)}
     ${cac ? cacDetailHtml(record, cac) : ""}
@@ -4183,22 +4189,7 @@ function cacDetailHtml(record, cac) {
   }
 
   if (record.channelKey === "personal_application") {
-    const firstStageHtml = record.applySieveResult?.sieveResultStandard ? "" : `
-      <section class="detail-section">
-        <h3>第一階段篩選</h3>
-        <div class="detail-list compact-list">
-          ${cac.screeningSubjects?.length ? cac.screeningSubjects.map((item) => (
-            singleLine([
-              item.standard ? formatApplicationThresholdWithStandard(record.year, item.subject, item.standard) : "",
-              item.screening_multiplier ? `篩選倍率 ${item.screening_multiplier}倍` : "",
-              item.score_weight ? `採計 ${item.score_weight}` : "",
-            ].filter(Boolean).join("，") || "--")
-          )).join("") : kv("資料", "--")}
-        </div>
-      </section>
-    `;
     return `
-      ${firstStageHtml}
       <section class="detail-section">
         <h3>第二階段採計</h3>
         <div class="detail-list">
@@ -4225,6 +4216,24 @@ function cacDetailHtml(record, cac) {
     `;
   }
   return "";
+}
+
+function personalApplicationThresholdHtml(record, cac) {
+  if (!cac?.screeningSubjects?.length) return "";
+  return `
+    <section class="detail-section">
+      <h3>學測申請門檻</h3>
+      <div class="detail-list compact-list">
+        ${cac.screeningSubjects.map((item) => (
+          singleLine([
+            item.standard ? formatApplicationThresholdWithStandard(record.year, item.subject, item.standard) : "",
+            item.screening_multiplier ? `篩選倍率 ${item.screening_multiplier}倍` : "",
+            item.score_weight ? `採計 ${item.score_weight}` : "",
+          ].filter(Boolean).join("，") || "--")
+        )).join("")}
+      </div>
+    </section>
+  `;
 }
 
 function kv(label, value) {
