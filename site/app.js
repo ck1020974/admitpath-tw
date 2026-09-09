@@ -37,7 +37,7 @@
 const els = {};
 
 const fmt = new Intl.NumberFormat("zh-Hant-TW");
-const DATA_VERSION = "20260902-01";
+const DATA_VERSION = "20260909-integrity-01";
 
 const APPLY_SIEVE_SCORE_OVERRIDES = {
   "115-personal_application-008342-115_apply": {
@@ -1373,6 +1373,14 @@ function recordMatchesAdvancedFilters(record) {
   if (excluded.size) {
     const subjects = recordSubjectKeys(record);
     for (const subject of excluded) {
+      if (record.channelKey === "personal_application" && ["數A", "數B"].includes(subject)) {
+        const other = subject === "數A" ? "數B" : "數A";
+        const items = record.cacDetail?.screeningSubjects || [];
+        const math = items.filter(i => ["數A", "數B"].includes(shortSubject(i.subject)) && i.standard && i.standard !== "--");
+        const used = items.some(i => advancedSubjectKeysFromText(i.subject).includes(subject) &&
+          (Number(i.screening_multiplier) > 0 || Number(String(i.score_weight).replace("*", "")) > 0));
+        if (math.length === 2 && !excluded.has(other) && !used) continue;
+      }
       if (subjects.has(subject)) return false;
     }
   }
@@ -1959,6 +1967,7 @@ function placementSelectedNeedles(profile) {
 }
 
 function evaluatePlacementRecord(record, profile) {
+  if (record.channelKey === "personal_application") return AdmissionRules.evaluate(record, profile, state.gsatStandards);
   const requirements = placementRecordRequirements(record);
   if (!requirements.length) {
     return { status: "missing", requirements: [], gapTotal: 99, missingCount: 1, missCount: 0 };
@@ -1982,6 +1991,10 @@ function placementRecordRequirements(record) {
 }
 
 function placementApplyRequirements(record) {
+  return AdmissionRules.requirements(record, state.gsatStandards);
+}
+
+function legacyPlacementApplyRequirements(record) {
   const requirements = [];
   applySieveRankedItems(record).forEach((item) => {
     const threshold = Number(item.score);
@@ -2111,6 +2124,7 @@ function placementScoreValue(profile, subject) {
 }
 
 function placementRequirementLabel(item) {
+  if (["any", "listening"].includes(item.kind)) return AdmissionRules.describe(item);
   const subject = item.subjects.join("+");
   if (item.kind === "weightedTotal") {
     const actual = Number(item.actual || 0).toFixed(1).replace(/\.0$/, "");
@@ -2122,6 +2136,8 @@ function placementRequirementLabel(item) {
 }
 
 function placementResultSummary(evaluation) {
+  if (evaluation.application && evaluation.pendingData) return "資料待核對，暫不判定";
+  if (evaluation.application && evaluation.status === "match") return "符合已收錄條件";
   if (evaluation.status === "match") return "達標";
   if (evaluation.status === "near") return `約差 ${Number(evaluation.gapTotal.toFixed(1))}`;
   if (evaluation.status === "missing") return "需補填必要科目";
@@ -2377,6 +2393,15 @@ function compactStarDistributionItem(value) {
 
 function personalApplicationStandardParts(record) {
   if (record.channelKey !== "personal_application") return [];
+  return [
+    ...(AdmissionRules.verifiedResults(record).length
+      ? AdmissionRules.verifiedResults(record).filter(i => i.score).map(i => ({ type: "screening", text: rankedSieveLabel(i) }))
+      : [{ type: "status", text: "一階結果待核對" }]),
+    ...applicationThresholdParts(record),
+  ];
+}
+
+function legacyPersonalApplicationStandardParts(record) {
   const parts = [];
   const result = record.applySieveResult;
   const rankedItems = applySieveRankedItems(record);
@@ -2428,6 +2453,10 @@ function officialEmptyResult(record) {
 }
 
 function applicationThresholdParts(record, coveredSubjects = new Set()) {
+  return AdmissionRules.thresholds(record, state.gsatStandards).map(r => ({ type: "threshold", text: AdmissionRules.describe(r) }));
+}
+
+function legacyApplicationThresholdParts(record, coveredSubjects = new Set()) {
   const items = record.cacDetail?.screeningSubjects || [];
   return items
     .filter((item) => item.standard && item.standard !== "--")
@@ -2479,6 +2508,7 @@ function applySieveOverrideConfig(record) {
 }
 
 function applySieveRankedItems(record) {
+  if (record.admissionAudit) return AdmissionRules.verifiedResults(record);
   const items = record?.applySieveResult?.rankedItems || [];
   const { scores, additions } = applySieveOverrideConfig(record);
   const correctedItems = items.map((item) => {
@@ -2515,6 +2545,13 @@ function hasUnresolvedSingleSubjectScore(record) {
 }
 
 function dataQualityStatusInfo(record) {
+  if (record.channelKey === "personal_application") {
+    const audit = record.admissionAudit;
+    const checked = audit?.resultStatus === "verified" && audit?.detailStatus === "parsed" && !audit?.issues?.length;
+    return checked
+      ? { label: "已核對篩選級分", tone: "official", summary: "簡章已重新解析，一階倍率級分已對照官方原表；超額篩選另依官方規定" }
+      : { label: "待核對", tone: "review", summary: audit?.issues?.join("；") || "簡章條件與一階結果分開核對；未確認級分不參與落點判斷" };
+  }
   const report = state.qualityReport || {};
   const anomaly = (report.anomalies || []).find((item) => item.recordId === record.id && item.risk === "high");
   const officialEmpty = officialEmptyResult(record);
@@ -4095,6 +4132,14 @@ function summaryDetailHtml(record) {
 }
 
 function applySieveResultHtml(record) {
+  if (record.channelKey === "personal_application") {
+    const rows = AdmissionRules.verifiedResults(record);
+    return `<section class="detail-section"><h3>第一階段篩選結果</h3><div class="detail-list">
+      ${rows.length ? rows.map(i => kv(`順位 ${i.rank}（${i.multiplier}倍）`, i.score ? rankedSieveLabel(i) : "官方未列分數")).join("") : kv("資料狀態", "倍率篩選級分待核對，暫不作為落點依據")}
+      ${kv("判讀方式", "先通過檢定，再按倍率由大至小篩選；同倍率科目以級分合計。符合列示門檻不代表通過超額篩選或錄取。")}
+      ${record.applySieveResult?.sourceImageUrl ? `<a href="${escapeAttr(record.applySieveResult.sourceImageUrl)}" target="_blank" rel="noopener">查看官方篩選原表</a>` : ""}
+      </div></section>`;
+  }
   const result = record.applySieveResult;
   const correctedRankedItems = applySieveRankedItems(record);
   const sieveResultStandard = String(result?.sieveResultStandard || "")
@@ -4121,6 +4166,7 @@ function applySieveResultHtml(record) {
 }
 
 function applySieveReviewHtml(record) {
+  if (record.channelKey === "personal_application") return "";
   const review = record.applySieveReview;
   if (record.channelKey !== "personal_application" || applySieveRankedItems(record).length || !review?.label) return "";
   const thresholds = applicationThresholdParts(record).map((part) => part.text).join("、");
@@ -4193,6 +4239,8 @@ function cacDetailHtml(record, cac) {
       <section class="detail-section">
         <h3>第二階段採計</h3>
         <div class="detail-list">
+          ${kv("學測成績占比", cac.academicPercentage || "待核對")}
+          ${cac.artPercentage ? kv("術科成績占比", cac.artPercentage) : ""}
           ${cac.secondStageItems?.length ? cac.secondStageItems.map((item) => (
             kv(item.item, [
               item.standard && item.standard !== "--" ? item.standard : "",
@@ -4200,6 +4248,7 @@ function cacDetailHtml(record, cac) {
             ].filter(Boolean).join("，") || "--")
           )).join("") : kv("資料", "--")}
           ${cac.sameScoreOrder?.length ? kv("同分參酌", cac.sameScoreOrder.join("\n")) : ""}
+          ${cac.apcsSubjects?.length ? kv("APCS篩選", cac.apcsSubjects.map(i => `${shortSubject(i.subject)} ${i.standard || "--"}，倍率 ${i.screening_multiplier || "--"}`).join("；")) : ""}
         </div>
       </section>
       ${(cac.reviewItems || cac.reviewDescription || cac.interviewOrTestDescription || cac.overEnrollmentScreening) ? `
@@ -4220,18 +4269,22 @@ function cacDetailHtml(record, cac) {
 
 function personalApplicationThresholdHtml(record, cac) {
   if (!cac?.screeningSubjects?.length) return "";
+  const valid = value => value && value !== "--";
   return `
     <section class="detail-section">
-      <h3>學測申請門檻</h3>
+      <h3>申請檢定門檻</h3>
       <div class="detail-list compact-list">
-        ${cac.screeningSubjects.map((item) => (
-          singleLine([
-            item.standard ? formatApplicationThresholdWithStandard(record.year, item.subject, item.standard) : "",
-            item.screening_multiplier ? `篩選倍率 ${item.screening_multiplier}倍` : "",
-            item.score_weight ? `採計 ${item.score_weight}` : "",
-          ].filter(Boolean).join("，") || "--")
-        )).join("")}
+        ${applicationThresholdParts(record).map(p => singleLine(p.text)).join("") || singleLine("未設學測／英聽檢定")}
       </div>
+      <h3>簡章倍率與加權</h3>
+      <div class="detail-list compact-list">
+        ${[...cac.screeningSubjects, ...(cac.apcsSubjects || []), ...(cac.artSubjects || [])].filter(i => valid(i.subject)).map(item => kv(shortSubject(item.subject), [
+          valid(item.screening_multiplier) ? `篩選 ${item.screening_multiplier}倍` : "不作倍率篩選",
+          valid(item.score_weight) ? `二階加權 ${item.score_weight}` : "",
+          (cac.artSubjects || []).includes(item) && valid(item.standard) ? `術科檢定 ${item.standard}` : "",
+        ].filter(Boolean).join("，"))).join("")}
+      </div>
+      ${record.detailUrl ? `<a href="${escapeAttr(record.detailUrl)}" target="_blank" rel="noopener">查看官方校系分則</a>` : ""}
     </section>
   `;
 }

@@ -161,6 +161,12 @@ def normalize_cac_detail(detail):
     return {
         "kind": detail.get("detail_kind", ""),
         "screeningSubjects": detail.get("screening_subjects", []),
+        "academicPercentage": detail.get("academic_percentage", ""),
+        "apcsSubjects": detail.get("apcs_subjects", []),
+        "artSubjects": detail.get("art_subjects", []),
+        "artPercentage": detail.get("art_percentage", ""),
+        "layout": detail.get("layout", "unknown"),
+        "parserVersion": detail.get("parser_version", ""),
         "secondStageItems": detail.get("second_stage_items", []),
         "sameScoreOrder": detail.get("same_score_order", []),
         "reviewItems": clean_text(detail.get("review_items")),

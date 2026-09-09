@@ -6,6 +6,7 @@ from pathlib import Path
 from urllib.request import Request, urlopen
 
 from lxml import html
+from apply_table_schema import parse_columns
 
 
 DATA_DIR = Path("outputs/admissions_data")
@@ -143,6 +144,9 @@ def parse_apply_detail(tree, rows):
             record["interview_or_test_description"] = clean(row[-1])
         if "同級分(分數)超額篩選方式" in row_text:
             record["over_enrollment_screening"] = clean(row[-1])
+    # Header topology, not a fixed cell offset, determines the admission fields.
+    record.update(parse_columns(tree))
+    record["notes"] = find_label_value(rows, {"備註"})
     return record
 
 

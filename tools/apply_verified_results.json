@@ -1,0 +1,10 @@
+{
+  "115": {
+    "001012": {"reviewedAt":"2026-09-09","method":"official-image-visual-review","rows":[[8,["社會"],10],[6,["英文"],10],[3,["國文"],15]]},
+    "001242": {"reviewedAt":"2026-09-09","method":"official-image-visual-review","rows":[[6,["國文"],13],[3,["數A","社會","自然"],43],[2,["國文","數A","社會","自然"],58]]},
+    "001582": {"reviewedAt":"2026-09-09","method":"official-image-visual-review","rows":[[10,["英文","自然"],26],[2.5,["數A"],15]]},
+    "006162": {"reviewedAt":"2026-09-09","method":"official-image-visual-review","rows":[[6,["數A"],11],[3,["英文"],14]]},
+    "006172": {"reviewedAt":"2026-09-09","method":"official-image-visual-review","rows":[[5,["英文","數A"],23],[3,["國文","英文","數A","社會"],51]]},
+    "014492": {"reviewedAt":"2026-09-09","method":"official-image-visual-review","rows":[[15,["英文"],2],[5,["APCS識讀","APCS實作"],5]]}
+  }
+}
