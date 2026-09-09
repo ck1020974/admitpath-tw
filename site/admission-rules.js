@@ -63,7 +63,14 @@
       // An unprovided alternative is not required once either math exam is supplied.
       const supplied = checked.filter(r => r.status !== 'missing');
       const best = passed || supplied.sort((a, b) => a.gap - b.gap)[0];
-      return { ...rule, status: best?.status || 'missing', gap: best?.gap || 0, actual: best?.actual ?? '', chosen: best?.subjects[0] };
+      return {
+        ...rule,
+        status: best?.status || 'missing',
+        gap: best?.gap || 0,
+        actual: best?.actual ?? '',
+        chosen: best?.subjects[0],
+        checkedOptions: checked,
+      };
     }
     const scores = rule.subjects.map(s => score(profile, s));
     if (scores.some(s => s == null)) return { ...rule, status: 'missing', actual: '', gap: 0 };

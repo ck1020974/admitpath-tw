@@ -37,7 +37,7 @@
 const els = {};
 
 const fmt = new Intl.NumberFormat("zh-Hant-TW");
-const DATA_VERSION = "20260909-integrity-11";
+const DATA_VERSION = "20260909-integrity-12";
 
 const APPLY_SIEVE_SCORE_OVERRIDES = {
   "115-personal_application-008342-115_apply": {
@@ -1941,8 +1941,8 @@ function placementResultCardHtml(record, evaluation) {
       </div>
       <div class="placement-result-side">
         <div class="placement-requirements">
-          ${evaluation.requirements.slice(0, 6).map((item) => `
-            <span class="placement-req ${escapeAttr(item.status)}">${escapeHtml(placementRequirementLabel(item))}</span>
+          ${evaluation.requirements.flatMap((item) => placementRequirementLabels(item)).slice(0, 8).map(({ item, label }) => `
+            <span class="placement-req ${escapeAttr(item.status)}">${escapeHtml(label)}</span>
           `).join("")}
         </div>
       </div>
@@ -2138,6 +2138,14 @@ function placementRequirementLabel(item) {
   if (item.kind === "percent") return `在校 ${item.actual || "--"}/${item.threshold}%`;
   if (item.kind === "note") return item.source || subject;
   return `${subject} ${item.actual || "--"}／${item.threshold}`;
+}
+
+function placementRequirementLabels(item) {
+  if (item.kind === "any") {
+    const options = item.checkedOptions || item.options;
+    return options.map((option) => ({ item: option, label: placementRequirementLabel(option) }));
+  }
+  return [{ item, label: placementRequirementLabel(item) }];
 }
 
 function placementResultSummary(evaluation) {
