@@ -2393,12 +2393,25 @@ function compactStarDistributionItem(value) {
 
 function personalApplicationStandardParts(record) {
   if (record.channelKey !== "personal_application") return [];
+  const displayResults = personalApplicationDisplayResults(record);
   return [
-    ...(AdmissionRules.verifiedResults(record).length
-      ? AdmissionRules.verifiedResults(record).filter(i => i.score).map(i => ({ type: "screening", text: rankedSieveLabel(i) }))
-      : [{ type: "status", text: "一階結果待核對" }]),
+    ...(displayResults.length
+      ? displayResults.filter(i => i.score).map(i => ({ type: "screening", text: rankedSieveLabel(i) }))
+      : [{ type: "status", text: "官方結果未列或尚未接入" }]),
     ...applicationThresholdParts(record),
   ];
+}
+
+function personalApplicationDisplayResults(record) {
+  const verified = AdmissionRules.verifiedResults(record);
+  if (verified.length) return verified;
+  const ranked = (record.applySieveResult?.rankedItems || [])
+    .filter(i => i.score !== "" && i.score != null)
+    .map(i => ({ ...i, subjects: (i.subjects || []).map(shortSubject) }));
+  if (ranked.length) return ranked;
+  return (record.applySieveResult?.sieveResultItems || [])
+    .filter(i => i.score !== "" && i.score != null && Number(i.score) <= 60)
+    .map((i, index) => ({ ...i, rank: index + 1, multiplier: "", subjects: (i.subjects || []).map(shortSubject) }));
 }
 
 function legacyPersonalApplicationStandardParts(record) {
@@ -2550,6 +2563,9 @@ function dataQualityStatusInfo(record) {
   if (record.channelKey === "personal_application") {
     const audit = record.admissionAudit;
     const checked = audit?.resultStatus === "verified" && audit?.detailStatus === "parsed" && !audit?.issues?.length;
+    if (!checked && personalApplicationDisplayResults(record).length) {
+      return { label: "官方結果已匯入", tone: "official", summary: "已匯入官方篩選表結果；落點判定只採用已完成核對的資料" };
+    }
     return checked
       ? { label: "已核對篩選級分", tone: "official", summary: "簡章已重新解析，一階倍率級分已對照官方原表；超額篩選另依官方規定" }
       : { label: "待核對", tone: "review", summary: audit?.issues?.join("；") || "簡章條件與一階結果分開核對；未確認級分不參與落點判斷" };
@@ -4135,9 +4151,9 @@ function summaryDetailHtml(record) {
 
 function applySieveResultHtml(record) {
   if (record.channelKey === "personal_application") {
-    const rows = AdmissionRules.verifiedResults(record);
+    const rows = personalApplicationDisplayResults(record);
     return `<section class="detail-section"><h3>第一階段篩選結果</h3><div class="detail-list">
-      ${rows.length ? rows.map(i => kv(`順位 ${i.rank}（${i.multiplier}倍）`, i.score ? rankedSieveLabel(i) : "官方未列分數")).join("") : kv("資料狀態", "倍率篩選級分待核對，暫不作為落點依據")}
+      ${rows.length ? rows.map(i => kv(`順位 ${i.rank}（${i.multiplier}倍）`, i.score ? rankedSieveLabel(i) : "官方未列分數")).join("") : kv("資料狀態", "官方未列或尚未接入")}
       ${kv("判讀方式", "先通過檢定，再按倍率由大至小篩選；同倍率科目以級分合計。符合列示門檻不代表通過超額篩選或錄取。")}
       ${record.applySieveResult?.sourceImageUrl ? `<a href="${escapeAttr(record.applySieveResult.sourceImageUrl)}" target="_blank" rel="noopener">查看官方篩選原表</a>` : ""}
       </div></section>`;

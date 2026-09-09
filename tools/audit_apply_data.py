@@ -87,7 +87,8 @@ def audit_records(records, standards, corrections):
         ids.add(r['id'])
         d = r.get('cacDetail') or {}
         review = corrections.get(str(r['year']), {}).get(r['programCode'])
-        gender_review = (r.get('applySieveResult') or {}).get('verification', {}).get('method') == 'official_gender_row'
+        verification_method = (r.get('applySieveResult') or {}).get('verification', {}).get('method')
+        gender_review = verification_method in ('official_gender_row', 'official_rapidocr')
         if review:
             result = r.setdefault('applySieveResult', {})
             if not result.get('sourceImageUrl', '').startswith('https://www.cac.edu.tw/'):
