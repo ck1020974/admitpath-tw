@@ -87,6 +87,7 @@ def audit_records(records, standards, corrections):
         ids.add(r['id'])
         d = r.get('cacDetail') or {}
         review = corrections.get(str(r['year']), {}).get(r['programCode'])
+        gender_review = (r.get('applySieveResult') or {}).get('verification', {}).get('method') == 'official_gender_row'
         if review:
             result = r.setdefault('applySieveResult', {})
             if not result.get('sourceImageUrl', '').startswith('https://www.cac.edu.tw/'):
@@ -108,17 +109,17 @@ def audit_records(records, standards, corrections):
             raise ValueError(f"Reviewed result contradicts current official detail: {r['id']} {anomalies}")
         r['admissionAudit'] = {
             'schemaVersion':2, 'detailStatus':'parsed' if r.get('officialDetailStatus') == 'parsed' else 'pending',
-            'resultStatus':'verified' if review else 'pending', 'issues':issues, 'resultIssues':anomalies,
+            'resultStatus':'verified' if review or gender_review else 'pending', 'issues':issues, 'resultIssues':anomalies,
             'resultScope':'一般招生名額之倍率篩選；不含未公開超額篩選最低級分',
             'detailSourceUrl':r.get('detailUrl'),
         }
         summary[f"{r['year']}_total"] += 1
         summary[f"{r['year']}_details_parsed"] += r['admissionAudit']['detailStatus'] == 'parsed'
-        summary[f"{r['year']}_results_verified"] += bool(review)
+        summary[f"{r['year']}_results_verified"] += bool(review or gender_review)
         summary[f"{r['year']}_math_either"] += len([i for i in d.get('screeningSubjects', []) if subject(i['subject']) in ('數A','數B') and i.get('standard') not in ('','--',None)]) == 2
         summary[f"{r['year']}_apcs"] += bool(d.get('apcsSubjects'))
         summary[f"{r['year']}_anomalies"] += bool(anomalies)
-        if issues or not review:
+        if issues or not review and not gender_review:
             queue.append({'id':r['id'], 'school':r['schoolName'], 'department':r['departmentName'], 'issues':issues+anomalies+([] if review else ['一階圖片級分尚未逐列核對']), 'detailUrl':r['detailUrl'], 'resultUrl':(r.get('applySieveResult') or {}).get('sourceImageUrl')})
     return {'summary': dict(summary), 'corrections':changed, 'reviewQueue':queue}
 

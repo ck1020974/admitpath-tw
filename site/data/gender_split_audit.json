@@ -1,0 +1,437 @@
+{
+  "count": 24,
+  "items": [
+    {
+      "original": "115-personal_application-001082-115_apply",
+      "new": "115-personal_application-001082-115_apply-男",
+      "gender": "男",
+      "row": {
+        "code": "001082",
+        "gender": "男",
+        "cells": [
+          "社會10",
+          "數B6",
+          "國英數B社43",
+          "國文12",
+          "英文13",
+          ""
+        ],
+        "y": 547.5
+      }
+    },
+    {
+      "original": "115-personal_application-001082-115_apply",
+      "new": "115-personal_application-001082-115_apply-女",
+      "gender": "女",
+      "row": {
+        "code": "001082",
+        "gender": "女",
+        "cells": [
+          "社會10",
+          "數B6",
+          "國英數B社45",
+          "國文13",
+          "英文14",
+          ""
+        ],
+        "y": 577.5
+      }
+    },
+    {
+      "original": "115-personal_application-027032-115_apply",
+      "new": "115-personal_application-027032-115_apply-男",
+      "gender": "男",
+      "row": {
+        "code": "027032",
+        "gender": "男",
+        "cells": [
+          "",
+          "",
+          "",
+          "",
+          "",
+          ""
+        ],
+        "y": 427.5
+      }
+    },
+    {
+      "original": "115-personal_application-027032-115_apply",
+      "new": "115-personal_application-027032-115_apply-女",
+      "gender": "女",
+      "row": {
+        "code": "027032",
+        "gender": "女",
+        "cells": [
+          "",
+          "",
+          "",
+          "",
+          "",
+          ""
+        ],
+        "y": 397.5
+      }
+    },
+    {
+      "original": "115-personal_application-031252-115_apply",
+      "new": "115-personal_application-031252-115_apply-男",
+      "gender": "男",
+      "row": {
+        "code": "031252",
+        "gender": "男",
+        "cells": [
+          "",
+          "",
+          "",
+          "",
+          "",
+          ""
+        ],
+        "y": 2989.5
+      }
+    },
+    {
+      "original": "115-personal_application-031252-115_apply",
+      "new": "115-personal_application-031252-115_apply-女",
+      "gender": "女",
+      "row": {
+        "code": "031252",
+        "gender": "女",
+        "cells": [
+          "",
+          "",
+          "",
+          "",
+          "",
+          ""
+        ],
+        "y": 2941.5
+      }
+    },
+    {
+      "original": "115-personal_application-033222-115_apply",
+      "new": "115-personal_application-033222-115_apply-男",
+      "gender": "男",
+      "row": {
+        "code": "033222",
+        "gender": "男",
+        "cells": [
+          "",
+          "",
+          "",
+          "",
+          "",
+          ""
+        ],
+        "y": 1131.5
+      }
+    },
+    {
+      "original": "115-personal_application-033222-115_apply",
+      "new": "115-personal_application-033222-115_apply-女",
+      "gender": "女",
+      "row": {
+        "code": "033222",
+        "gender": "女",
+        "cells": [
+          "",
+          "",
+          "",
+          "",
+          "",
+          ""
+        ],
+        "y": 1101.5
+      }
+    },
+    {
+      "original": "115-personal_application-056042-115_apply",
+      "new": "115-personal_application-056042-115_apply-男",
+      "gender": "男",
+      "row": {
+        "code": "056042",
+        "gender": "男",
+        "cells": [
+          "",
+          "",
+          "",
+          "",
+          "",
+          ""
+        ],
+        "y": 442.0
+      }
+    },
+    {
+      "original": "115-personal_application-056042-115_apply",
+      "new": "115-personal_application-056042-115_apply-女",
+      "gender": "女",
+      "row": {
+        "code": "056042",
+        "gender": "女",
+        "cells": [
+          "",
+          "",
+          "",
+          "",
+          "",
+          ""
+        ],
+        "y": 501.0
+      }
+    },
+    {
+      "original": "115-personal_application-056162-115_apply",
+      "new": "115-personal_application-056162-115_apply-男",
+      "gender": "男",
+      "row": {
+        "code": "056162",
+        "gender": "男",
+        "cells": [
+          "",
+          "",
+          "",
+          "",
+          "",
+          ""
+        ],
+        "y": 3211.5
+      }
+    },
+    {
+      "original": "115-personal_application-056162-115_apply",
+      "new": "115-personal_application-056162-115_apply-女",
+      "gender": "女",
+      "row": {
+        "code": "056162",
+        "gender": "女",
+        "cells": [
+          "",
+          "",
+          "",
+          "",
+          "",
+          ""
+        ],
+        "y": 3157.5
+      }
+    },
+    {
+      "original": "114-personal_application-001082-114_apply",
+      "new": "114-personal_application-001082-114_apply-男",
+      "gender": "男",
+      "row": {
+        "code": "001082",
+        "gender": "男",
+        "cells": [
+          "社會10",
+          "數B6",
+          "國英數B社41",
+          "文12",
+          "英文13",
+          ""
+        ],
+        "y": 418.5
+      }
+    },
+    {
+      "original": "114-personal_application-001082-114_apply",
+      "new": "114-personal_application-001082-114_apply-女",
+      "gender": "女",
+      "row": {
+        "code": "001082",
+        "gender": "女",
+        "cells": [
+          "社10",
+          "數鞤B6",
+          "國英數B社45",
+          "國文13",
+          "英文14",
+          ""
+        ],
+        "y": 440.5
+      }
+    },
+    {
+      "original": "114-personal_application-027032-114_apply",
+      "new": "114-personal_application-027032-114_apply-男",
+      "gender": "男",
+      "row": {
+        "code": "027032",
+        "gender": "男",
+        "cells": [
+          "",
+          "",
+          "",
+          "",
+          "",
+          ""
+        ],
+        "y": 330.5
+      }
+    },
+    {
+      "original": "114-personal_application-027032-114_apply",
+      "new": "114-personal_application-027032-114_apply-女",
+      "gender": "女",
+      "row": {
+        "code": "027032",
+        "gender": "女",
+        "cells": [
+          "",
+          "",
+          "",
+          "",
+          "",
+          ""
+        ],
+        "y": 308.5
+      }
+    },
+    {
+      "original": "114-personal_application-031232-114_apply",
+      "new": "114-personal_application-031232-114_apply-男",
+      "gender": "男",
+      "row": {
+        "code": "031232",
+        "gender": "男",
+        "cells": [
+          "",
+          "",
+          "",
+          "",
+          "",
+          ""
+        ],
+        "y": 2330.5
+      }
+    },
+    {
+      "original": "114-personal_application-031232-114_apply",
+      "new": "114-personal_application-031232-114_apply-女",
+      "gender": "女",
+      "row": {
+        "code": "031232",
+        "gender": "女",
+        "cells": [
+          "",
+          "",
+          "",
+          "",
+          "",
+          ""
+        ],
+        "y": 2292.5
+      }
+    },
+    {
+      "original": "114-personal_application-033202-114_apply",
+      "new": "114-personal_application-033202-114_apply-男",
+      "gender": "男",
+      "row": {
+        "code": "033202",
+        "gender": "男",
+        "cells": [
+          "",
+          "",
+          "",
+          "",
+          "",
+          ""
+        ],
+        "y": 659.5
+      }
+    },
+    {
+      "original": "114-personal_application-033202-114_apply",
+      "new": "114-personal_application-033202-114_apply-女",
+      "gender": "女",
+      "row": {
+        "code": "033202",
+        "gender": "女",
+        "cells": [
+          "",
+          "",
+          "",
+          "",
+          "",
+          ""
+        ],
+        "y": 681.5
+      }
+    },
+    {
+      "original": "114-personal_application-056042-114_apply",
+      "new": "114-personal_application-056042-114_apply-男",
+      "gender": "男",
+      "row": {
+        "code": "056042",
+        "gender": "男",
+        "cells": [
+          "",
+          "",
+          "",
+          "",
+          "",
+          ""
+        ],
+        "y": 341.0
+      }
+    },
+    {
+      "original": "114-personal_application-056042-114_apply",
+      "new": "114-personal_application-056042-114_apply-女",
+      "gender": "女",
+      "row": {
+        "code": "056042",
+        "gender": "女",
+        "cells": [
+          "",
+          "",
+          "",
+          "",
+          "",
+          ""
+        ],
+        "y": 384.0
+      }
+    },
+    {
+      "original": "114-personal_application-056162-114_apply",
+      "new": "114-personal_application-056162-114_apply-男",
+      "gender": "男",
+      "row": {
+        "code": "056162",
+        "gender": "男",
+        "cells": [
+          "",
+          "",
+          "",
+          "",
+          "",
+          ""
+        ],
+        "y": 2449.0
+      }
+    },
+    {
+      "original": "114-personal_application-056162-114_apply",
+      "new": "114-personal_application-056162-114_apply-女",
+      "gender": "女",
+      "row": {
+        "code": "056162",
+        "gender": "女",
+        "cells": [
+          "",
+          "",
+          "",
+          "",
+          "",
+          ""
+        ],
+        "y": 2408.0
+      }
+    }
+  ]
+}

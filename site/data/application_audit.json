@@ -1,14 +1,14 @@
 {
   "summary": {
-    "115_total": 2206,
-    "115_details_parsed": 2206,
-    "115_results_verified": 6,
+    "115_total": 2212,
+    "115_details_parsed": 2212,
+    "115_results_verified": 8,
     "115_math_either": 149,
     "115_apcs": 63,
     "115_anomalies": 0,
-    "114_total": 2168,
+    "114_total": 2174,
     "114_details_parsed": 0,
-    "114_results_verified": 0,
+    "114_results_verified": 2,
     "114_math_either": 126,
     "114_apcs": 0,
     "114_anomalies": 0
@@ -73,16 +73,6 @@
         "一階圖片級分尚未逐列核對"
       ],
       "detailUrl": "https://www.cac.edu.tw/apply115/system/ColQry_115xappLyfOrStu_Azd5gP29/html/115_001072.htm?v=1.0",
-      "resultUrl": "https://www.cac.edu.tw/CacLink/apply115/115Apply_sievE_Result_querY_615JG8Wgh9d/html_sieve_result_115_Zx57f1dW/Standard/report/pict/001.png"
-    },
-    {
-      "id": "115-personal_application-001082-115_apply",
-      "school": "國立臺灣大學",
-      "department": "戲劇學系",
-      "issues": [
-        "一階圖片級分尚未逐列核對"
-      ],
-      "detailUrl": "https://www.cac.edu.tw/apply115/system/ColQry_115xappLyfOrStu_Azd5gP29/html/115_001082.htm?v=1.0",
       "resultUrl": "https://www.cac.edu.tw/CacLink/apply115/115Apply_sievE_Result_querY_615JG8Wgh9d/html_sieve_result_115_Zx57f1dW/Standard/report/pict/001.png"
     },
     {
@@ -10076,9 +10066,19 @@
       "resultUrl": "https://www.cac.edu.tw/CacLink/apply115/115Apply_sievE_Result_querY_615JG8Wgh9d/html_sieve_result_115_Zx57f1dW/Standard/report/pict/027.png"
     },
     {
-      "id": "115-personal_application-027032-115_apply",
+      "id": "115-personal_application-027032-115_apply-男",
       "school": "國立中山大學",
-      "department": "劇場藝術學系",
+      "department": "劇場藝術學系(男)",
+      "issues": [
+        "一階圖片級分尚未逐列核對"
+      ],
+      "detailUrl": "https://www.cac.edu.tw/apply115/system/ColQry_115xappLyfOrStu_Azd5gP29/html/115_027032.htm?v=1.0",
+      "resultUrl": "https://www.cac.edu.tw/CacLink/apply115/115Apply_sievE_Result_querY_615JG8Wgh9d/html_sieve_result_115_Zx57f1dW/Standard/report/pict/027.png"
+    },
+    {
+      "id": "115-personal_application-027032-115_apply-女",
+      "school": "國立中山大學",
+      "department": "劇場藝術學系(女)",
       "issues": [
         "一階圖片級分尚未逐列核對"
       ],
@@ -11094,9 +11094,19 @@
       "resultUrl": "https://www.cac.edu.tw/CacLink/apply115/115Apply_sievE_Result_querY_615JG8Wgh9d/html_sieve_result_115_Zx57f1dW/Standard/report/pict/031.png"
     },
     {
-      "id": "115-personal_application-031252-115_apply",
+      "id": "115-personal_application-031252-115_apply-男",
       "school": "國立臺中教育大學",
-      "department": "體育學系運動專長組",
+      "department": "體育學系運動專長組(男)",
+      "issues": [
+        "一階圖片級分尚未逐列核對"
+      ],
+      "detailUrl": "https://www.cac.edu.tw/apply115/system/ColQry_115xappLyfOrStu_Azd5gP29/html/115_031252.htm?v=1.0",
+      "resultUrl": "https://www.cac.edu.tw/CacLink/apply115/115Apply_sievE_Result_querY_615JG8Wgh9d/html_sieve_result_115_Zx57f1dW/Standard/report/pict/031.png"
+    },
+    {
+      "id": "115-personal_application-031252-115_apply-女",
+      "school": "國立臺中教育大學",
+      "department": "體育學系運動專長組(女)",
       "issues": [
         "一階圖片級分尚未逐列核對"
       ],
@@ -11678,9 +11688,19 @@
       "resultUrl": "https://www.cac.edu.tw/CacLink/apply115/115Apply_sievE_Result_querY_615JG8Wgh9d/html_sieve_result_115_Zx57f1dW/Standard/report/pict/033.png"
     },
     {
-      "id": "115-personal_application-033222-115_apply",
+      "id": "115-personal_application-033222-115_apply-男",
       "school": "國立臺南大學",
-      "department": "戲劇創作與應用學系",
+      "department": "戲劇創作與應用學系(男)",
+      "issues": [
+        "一階圖片級分尚未逐列核對"
+      ],
+      "detailUrl": "https://www.cac.edu.tw/apply115/system/ColQry_115xappLyfOrStu_Azd5gP29/html/115_033222.htm?v=1.0",
+      "resultUrl": "https://www.cac.edu.tw/CacLink/apply115/115Apply_sievE_Result_querY_615JG8Wgh9d/html_sieve_result_115_Zx57f1dW/Standard/report/pict/033.png"
+    },
+    {
+      "id": "115-personal_application-033222-115_apply-女",
+      "school": "國立臺南大學",
+      "department": "戲劇創作與應用學系(女)",
       "issues": [
         "一階圖片級分尚未逐列核對"
       ],
@@ -17365,9 +17385,19 @@
       "resultUrl": "https://www.cac.edu.tw/CacLink/apply115/115Apply_sievE_Result_querY_615JG8Wgh9d/html_sieve_result_115_Zx57f1dW/Standard/report/pict/056.png"
     },
     {
-      "id": "115-personal_application-056042-115_apply",
+      "id": "115-personal_application-056042-115_apply-男",
       "school": "國立臺灣藝術大學",
-      "department": "戲劇學系",
+      "department": "戲劇學系(男)",
+      "issues": [
+        "一階圖片級分尚未逐列核對"
+      ],
+      "detailUrl": "https://www.cac.edu.tw/apply115/system/ColQry_115xappLyfOrStu_Azd5gP29/html/115_056042.htm?v=1.0",
+      "resultUrl": ""
+    },
+    {
+      "id": "115-personal_application-056042-115_apply-女",
+      "school": "國立臺灣藝術大學",
+      "department": "戲劇學系(女)",
       "issues": [
         "一階圖片級分尚未逐列核對"
       ],
@@ -17507,9 +17537,21 @@
       "resultUrl": null
     },
     {
-      "id": "115-personal_application-056162-115_apply",
+      "id": "115-personal_application-056162-115_apply-男",
       "school": "國立臺灣藝術大學",
-      "department": "雕塑學系",
+      "department": "雕塑學系(男)",
+      "issues": [
+        "甄選總成績占比未能確認合計100%",
+        "術科及主修規則須依官方分則另行核對",
+        "一階圖片級分尚未逐列核對"
+      ],
+      "detailUrl": "https://www.cac.edu.tw/apply115/system/ColQry_115xappLyfOrStu_Azd5gP29/html/115_056162.htm?v=1.0",
+      "resultUrl": null
+    },
+    {
+      "id": "115-personal_application-056162-115_apply-女",
+      "school": "國立臺灣藝術大學",
+      "department": "雕塑學系(女)",
       "issues": [
         "甄選總成績占比未能確認合計100%",
         "術科及主修規則須依官方分則另行核對",
@@ -22227,9 +22269,21 @@
       "resultUrl": "https://www.cac.edu.tw/CacLink/apply114/114appLy_3Hd_SieVe_QueRy_9dS4cqa1g_Kp3z/html_sieve_114_Ja9z51F/Standard/report/pict/001.png"
     },
     {
-      "id": "114-personal_application-001082-114_apply",
+      "id": "114-personal_application-001082-114_apply-男",
       "school": "國立臺灣大學",
-      "department": "戲劇學系",
+      "department": "戲劇學系(男)",
+      "issues": [
+        "官方分則尚未完成重新解析",
+        "甄選總成績占比未能確認合計100%",
+        "一階圖片級分尚未逐列核對"
+      ],
+      "detailUrl": "https://www.cac.edu.tw/apply114/system/ColQry_114applyXForStu_Fd87eO2q/html/114_001082.htm?v=1.0",
+      "resultUrl": "https://www.cac.edu.tw/CacLink/apply114/114appLy_3Hd_SieVe_QueRy_9dS4cqa1g_Kp3z/html_sieve_114_Ja9z51F/Standard/report/pict/001.png"
+    },
+    {
+      "id": "114-personal_application-001082-114_apply-女",
+      "school": "國立臺灣大學",
+      "department": "戲劇學系(女)",
       "issues": [
         "官方分則尚未完成重新解析",
         "甄選總成績占比未能確認合計100%",
@@ -33884,9 +33938,21 @@
       "resultUrl": "https://www.cac.edu.tw/CacLink/apply114/114appLy_3Hd_SieVe_QueRy_9dS4cqa1g_Kp3z/html_sieve_114_Ja9z51F/Standard/report/pict/027.png"
     },
     {
-      "id": "114-personal_application-027032-114_apply",
+      "id": "114-personal_application-027032-114_apply-男",
       "school": "國立中山大學",
-      "department": "劇場藝術學系",
+      "department": "劇場藝術學系(男)",
+      "issues": [
+        "官方分則尚未完成重新解析",
+        "甄選總成績占比未能確認合計100%",
+        "一階圖片級分尚未逐列核對"
+      ],
+      "detailUrl": "https://www.cac.edu.tw/apply114/system/ColQry_114applyXForStu_Fd87eO2q/html/114_027032.htm?v=1.0",
+      "resultUrl": "https://www.cac.edu.tw/CacLink/apply114/114appLy_3Hd_SieVe_QueRy_9dS4cqa1g_Kp3z/html_sieve_114_Ja9z51F/Standard/report/pict/027.png"
+    },
+    {
+      "id": "114-personal_application-027032-114_apply-女",
+      "school": "國立中山大學",
+      "department": "劇場藝術學系(女)",
       "issues": [
         "官方分則尚未完成重新解析",
         "甄選總成績占比未能確認合計100%",
@@ -35025,9 +35091,21 @@
       "resultUrl": "https://www.cac.edu.tw/CacLink/apply114/114appLy_3Hd_SieVe_QueRy_9dS4cqa1g_Kp3z/html_sieve_114_Ja9z51F/Standard/report/pict/031.png"
     },
     {
-      "id": "114-personal_application-031232-114_apply",
+      "id": "114-personal_application-031232-114_apply-男",
       "school": "國立臺中教育大學",
-      "department": "體育學系運動專長組",
+      "department": "體育學系運動專長組(男)",
+      "issues": [
+        "官方分則尚未完成重新解析",
+        "甄選總成績占比未能確認合計100%",
+        "一階圖片級分尚未逐列核對"
+      ],
+      "detailUrl": "https://www.cac.edu.tw/apply114/system/ColQry_114applyXForStu_Fd87eO2q/html/114_031232.htm?v=1.0",
+      "resultUrl": "https://www.cac.edu.tw/CacLink/apply114/114appLy_3Hd_SieVe_QueRy_9dS4cqa1g_Kp3z/html_sieve_114_Ja9z51F/Standard/report/pict/031.png"
+    },
+    {
+      "id": "114-personal_application-031232-114_apply-女",
+      "school": "國立臺中教育大學",
+      "department": "體育學系運動專長組(女)",
       "issues": [
         "官方分則尚未完成重新解析",
         "甄選總成績占比未能確認合計100%",
@@ -35652,9 +35730,21 @@
       "resultUrl": null
     },
     {
-      "id": "114-personal_application-033202-114_apply",
+      "id": "114-personal_application-033202-114_apply-男",
       "school": "國立臺南大學",
-      "department": "戲劇創作與應用學系",
+      "department": "戲劇創作與應用學系(男)",
+      "issues": [
+        "官方分則尚未完成重新解析",
+        "甄選總成績占比未能確認合計100%",
+        "一階圖片級分尚未逐列核對"
+      ],
+      "detailUrl": "https://www.cac.edu.tw/apply114/system/ColQry_114applyXForStu_Fd87eO2q/html/114_033202.htm?v=1.0",
+      "resultUrl": null
+    },
+    {
+      "id": "114-personal_application-033202-114_apply-女",
+      "school": "國立臺南大學",
+      "department": "戲劇創作與應用學系(女)",
       "issues": [
         "官方分則尚未完成重新解析",
         "甄選總成績占比未能確認合計100%",
@@ -42454,9 +42544,21 @@
       "resultUrl": null
     },
     {
-      "id": "114-personal_application-056042-114_apply",
+      "id": "114-personal_application-056042-114_apply-男",
       "school": "國立臺灣藝術大學",
-      "department": "戲劇學系",
+      "department": "戲劇學系(男)",
+      "issues": [
+        "官方分則尚未完成重新解析",
+        "甄選總成績占比未能確認合計100%",
+        "一階圖片級分尚未逐列核對"
+      ],
+      "detailUrl": "https://www.cac.edu.tw/apply114/system/ColQry_114applyXForStu_Fd87eO2q/html/114_056042.htm?v=1.0",
+      "resultUrl": null
+    },
+    {
+      "id": "114-personal_application-056042-114_apply-女",
+      "school": "國立臺灣藝術大學",
+      "department": "戲劇學系(女)",
       "issues": [
         "官方分則尚未完成重新解析",
         "甄選總成績占比未能確認合計100%",
@@ -42598,9 +42700,21 @@
       "resultUrl": null
     },
     {
-      "id": "114-personal_application-056162-114_apply",
+      "id": "114-personal_application-056162-114_apply-男",
       "school": "國立臺灣藝術大學",
-      "department": "雕塑學系",
+      "department": "雕塑學系(男)",
+      "issues": [
+        "官方分則尚未完成重新解析",
+        "甄選總成績占比未能確認合計100%",
+        "一階圖片級分尚未逐列核對"
+      ],
+      "detailUrl": "https://www.cac.edu.tw/apply114/system/ColQry_114applyXForStu_Fd87eO2q/html/114_056162.htm?v=1.0",
+      "resultUrl": null
+    },
+    {
+      "id": "114-personal_application-056162-114_apply-女",
+      "school": "國立臺灣藝術大學",
+      "department": "雕塑學系(女)",
       "issues": [
         "官方分則尚未完成重新解析",
         "甄選總成績占比未能確認合計100%",

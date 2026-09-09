@@ -37,7 +37,7 @@
 const els = {};
 
 const fmt = new Intl.NumberFormat("zh-Hant-TW");
-const DATA_VERSION = "20260909-integrity-01";
+const DATA_VERSION = "20260909-integrity-02";
 
 const APPLY_SIEVE_SCORE_OVERRIDES = {
   "115-personal_application-008342-115_apply": {
@@ -2453,7 +2453,9 @@ function officialEmptyResult(record) {
 }
 
 function applicationThresholdParts(record, coveredSubjects = new Set()) {
-  return AdmissionRules.thresholds(record, state.gsatStandards).map(r => ({ type: "threshold", text: AdmissionRules.describe(r) }));
+  return AdmissionRules.thresholds(record, state.gsatStandards).flatMap(r => r.kind === "any"
+    ? r.options.map(option => ({ type: "threshold", text: `${AdmissionRules.describe(option)}（擇一）` }))
+    : [{ type: "threshold", text: AdmissionRules.describe(r) }]);
 }
 
 function legacyApplicationThresholdParts(record, coveredSubjects = new Set()) {
