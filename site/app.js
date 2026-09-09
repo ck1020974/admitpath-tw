@@ -37,7 +37,7 @@
 const els = {};
 
 const fmt = new Intl.NumberFormat("zh-Hant-TW");
-const DATA_VERSION = "20260909-integrity-06";
+const DATA_VERSION = "20260909-integrity-07";
 
 const APPLY_SIEVE_SCORE_OVERRIDES = {
   "115-personal_application-008342-115_apply": {
@@ -2398,7 +2398,6 @@ function personalApplicationStandardParts(record) {
     ...(displayResults.length
       ? displayResults.filter(i => i.score).map(i => ({ type: "screening", text: rankedSieveLabel(i) }))
       : [{ type: "status", text: "官方結果未列或尚未接入" }]),
-    ...applicationThresholdParts(record),
   ];
 }
 
