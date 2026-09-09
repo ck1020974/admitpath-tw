@@ -152,6 +152,11 @@ button.lane-card {
   padding: 20px 24px 30px;
 }
 
+html,
+body {
+  overflow-x: hidden;
+}
+
 .eyebrow {
   margin: 0 0 6px;
   color: var(--teal);

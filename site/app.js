@@ -37,7 +37,7 @@
 const els = {};
 
 const fmt = new Intl.NumberFormat("zh-Hant-TW");
-const DATA_VERSION = "20260909-integrity-09";
+const DATA_VERSION = "20260909-integrity-10";
 
 const APPLY_SIEVE_SCORE_OVERRIDES = {
   "115-personal_application-008342-115_apply": {
