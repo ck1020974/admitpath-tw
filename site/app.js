@@ -37,7 +37,7 @@
 const els = {};
 
 const fmt = new Intl.NumberFormat("zh-Hant-TW");
-const DATA_VERSION = "20260909-integrity-08";
+const DATA_VERSION = "20260909-integrity-09";
 
 const APPLY_SIEVE_SCORE_OVERRIDES = {
   "115-personal_application-008342-115_apply": {
@@ -888,6 +888,7 @@ function bindElements() {
     "detailDrawer",
     "detailMeta",
     "detailTitle",
+    "detailCompareButton",
     "detailBody",
     "advancedFilterDrawer",
     "advancedFilterBody",
@@ -938,6 +939,10 @@ function bindEvents() {
     renderTable();
   });
   document.getElementById("closeDrawerButton").addEventListener("click", closeDrawer);
+  document.getElementById("detailCompareButton").addEventListener("click", () => {
+    const id = els.detailCompareButton.dataset.recordId;
+    if (id) toggleCompare(id);
+  });
   document.getElementById("closeAdvancedFiltersButton").addEventListener("click", closeAdvancedFilters);
   document.addEventListener("pointerdown", (event) => {
     const advancedDrawer = els.advancedFilterDrawer;
@@ -4022,10 +4027,18 @@ function openDetail(id) {
   const result = record.channelKey === "exam_distribution" ? distributionResult(record) : null;
   els.detailMeta.textContent = `${record.year} ${record.channel}`;
   els.detailTitle.textContent = `${record.schoolName} ${record.departmentName}`;
+  els.detailCompareButton.dataset.recordId = record.id;
+  updateDetailCompareButton(record.id);
   els.detailBody.innerHTML = detailHtml(record, result);
   els.detailDrawer.classList.add("open");
   els.detailDrawer.setAttribute("aria-hidden", "false");
-  els.detailBody.querySelector("[data-drawer-compare]")?.addEventListener("click", () => toggleCompare(record.id));
+}
+
+function updateDetailCompareButton(id) {
+  if (!els.detailCompareButton) return;
+  const included = state.compare.some((item) => item.id === id);
+  els.detailCompareButton.textContent = included ? "已加入比較" : "加入比較";
+  els.detailCompareButton.classList.toggle("is-added", included);
 }
 
 function closeDrawer() {
@@ -4037,9 +4050,6 @@ function detailHtml(record, result) {
   const weighted = record.weightedSubjects?.filter((item) => item.raw && item.raw !== "--" && item.raw !== "---") || [];
   const cac = record.cacDetail;
   return `
-    <section class="detail-section">
-      <button class="solid-button" data-drawer-compare>加入比較</button>
-    </section>
     <section class="detail-section">
       <h3>基本資料</h3>
       <div class="detail-list">
@@ -4339,6 +4349,7 @@ function toggleCompare(id) {
   }
   renderCompare();
   renderTable();
+  updateDetailCompareButton(id);
 }
 
 function renderCompare() {
