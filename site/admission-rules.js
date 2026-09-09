@@ -26,7 +26,7 @@
       .map(i => threshold(i, String(record.year), standards)).filter(Boolean);
     const math = rules.filter(r => ['數A', '數B'].includes(r.subjects[0]));
     if (math.length === 2 && math.every(r => r.kind === 'score')) {
-      return [...rules.filter(r => !math.includes(r)), { kind: 'any', subjects: ['數A', '數B'], options: math, source: '數學檢定（擇一）' }];
+      return [...rules.filter(r => !math.includes(r)), { kind: 'any', subjects: ['數A', '數B'], options: math, source: '數學檢定' }];
     }
     return rules;
   }
