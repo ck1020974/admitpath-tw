@@ -16,12 +16,19 @@ assert.equal(AdmissionRules.check(either, {scores: {'數A': 7, '數B': 4}}).stat
 assert.equal(AdmissionRules.describe(rules.find(r => r.subjects[0] === '國文')), '國文 前標');
 assert.equal(AdmissionRules.describe({kind: 'score', subjects:['國文'], threshold:15, source:'倍率篩選'}), '國文 ≥ 15級分');
 const app = fs.readFileSync(path.join(root, 'site/app.js'), 'utf8');
-const definition = app.match(/function applicationThresholdParts\([\s\S]*?\n\}/)[0];
+const definitionNames = [
+  'applicationThresholdParts',
+  'formatApplicationThresholdRule',
+  'formatApplicationThresholdWithStandard',
+  'normalizeSubject',
+  'shortSubject',
+];
+const definition = definitionNames.map((name) => app.match(new RegExp(`function ${name}\\([\\s\\S]*?\\n\\}`))[0]).join('\n');
 const context = {AdmissionRules, state:{gsatStandards:standards}, record};
 vm.createContext(context);
 vm.runInContext(definition + '\nresult = applicationThresholdParts(record)', context);
 const math = context.result.filter(p => /^數[AB]/.test(p.text));
 assert.equal(math.length, 2);
-assert.equal(math[0].text, '數A 均標');
-assert.equal(math[1].text, '數B 均標');
+assert.equal(math[0].text, '數A 均標（8級分）');
+assert.equal(math[1].text, '數B 均標（5級分）');
 console.log('Threshold label, separate math chips, OR evaluation, and numerical result checks passed.');

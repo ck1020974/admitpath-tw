@@ -37,7 +37,7 @@
 const els = {};
 
 const fmt = new Intl.NumberFormat("zh-Hant-TW");
-const DATA_VERSION = "20260909-integrity-05";
+const DATA_VERSION = "20260909-integrity-06";
 
 const APPLY_SIEVE_SCORE_OVERRIDES = {
   "115-personal_application-008342-115_apply": {
@@ -2467,8 +2467,15 @@ function officialEmptyResult(record) {
 
 function applicationThresholdParts(record, coveredSubjects = new Set()) {
   return AdmissionRules.thresholds(record, state.gsatStandards).flatMap(r => r.kind === "any"
-    ? r.options.map(option => ({ type: "threshold", text: AdmissionRules.describe(option) }))
-    : [{ type: "threshold", text: AdmissionRules.describe(r) }]);
+    ? r.options.map(option => ({ type: "threshold", text: formatApplicationThresholdRule(record.year, option) }))
+    : [{ type: "threshold", text: formatApplicationThresholdRule(record.year, r) }]);
+}
+
+function formatApplicationThresholdRule(year, rule) {
+  if (rule?.kind === "score" && rule.standard) {
+    return formatApplicationThresholdWithStandard(year, rule.subjects?.[0], rule.standard);
+  }
+  return AdmissionRules.describe(rule);
 }
 
 function legacyApplicationThresholdParts(record, coveredSubjects = new Set()) {
@@ -2723,7 +2730,7 @@ function formatApplicationThresholdWithStandard(year, subject, standard) {
   const cleanStandard = String(standard || "").trim();
   if (!cleanSubject || !cleanStandard || cleanStandard === "--") return "";
   const score = state.gsatStandards?.[String(year)]?.[cleanSubject]?.[cleanStandard];
-  if (score != null) return `${shortSubject(cleanSubject)} ${score}級（${cleanStandard}）`;
+  if (score != null) return `${shortSubject(cleanSubject)} ${cleanStandard}（${score}級分）`;
   if (cleanSubject === "英聽") return `${cleanSubject}${cleanStandard.replace(/級$/, "")}`;
   return `${shortSubject(cleanSubject)}${cleanStandard}`;
 }
