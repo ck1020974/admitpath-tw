@@ -37,7 +37,7 @@
 const els = {};
 
 const fmt = new Intl.NumberFormat("zh-Hant-TW");
-const DATA_VERSION = "20260909-integrity-07";
+const DATA_VERSION = "20260909-integrity-08";
 
 const APPLY_SIEVE_SCORE_OVERRIDES = {
   "115-personal_application-008342-115_apply": {
@@ -2398,6 +2398,7 @@ function personalApplicationStandardParts(record) {
     ...(displayResults.length
       ? displayResults.filter(i => i.score).map(i => ({ type: "screening", text: rankedSieveLabel(i) }))
       : [{ type: "status", text: "官方結果未列或尚未接入" }]),
+    ...applicationThresholdLabelParts(record),
   ];
 }
 
@@ -2468,6 +2469,13 @@ function applicationThresholdParts(record, coveredSubjects = new Set()) {
   return AdmissionRules.thresholds(record, state.gsatStandards).flatMap(r => r.kind === "any"
     ? r.options.map(option => ({ type: "threshold", text: formatApplicationThresholdRule(record.year, option) }))
     : [{ type: "threshold", text: formatApplicationThresholdRule(record.year, r) }]);
+}
+
+function applicationThresholdLabelParts(record) {
+  return AdmissionRules.thresholds(record, state.gsatStandards).flatMap((rule) => {
+    const rules = rule.kind === "any" ? rule.options : [rule];
+    return rules.map((item) => ({ type: "threshold", text: AdmissionRules.describe(item) }));
+  });
 }
 
 function formatApplicationThresholdRule(year, rule) {
