@@ -2454,7 +2454,7 @@ function officialEmptyResult(record) {
 
 function applicationThresholdParts(record, coveredSubjects = new Set()) {
   return AdmissionRules.thresholds(record, state.gsatStandards).flatMap(r => r.kind === "any"
-    ? r.options.map(option => ({ type: "threshold", text: `${AdmissionRules.describe(option)}（擇一）` }))
+    ? r.options.map(option => ({ type: "threshold", text: AdmissionRules.describe(option) }))
     : [{ type: "threshold", text: AdmissionRules.describe(r) }]);
 }
 

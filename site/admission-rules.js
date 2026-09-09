@@ -72,7 +72,7 @@
     return { ...rule, status: gap <= 0 ? 'match' : 'miss', actual, gap };
   }
   function describe(rule) {
-    if (rule.kind === 'any') return rule.options.map(describe).join(' 或 ') + '（擇一）';
+    if (rule.kind === 'any') return rule.options.map(describe).join(' 或 ');
     if (rule.kind === 'note') return rule.source;
     if (rule.kind === 'listening') return `英聽 ${rule.level}級以上`;
     if (rule.source === '檢定' && rule.standard) return `${rule.subjects.join('+')} ${rule.standard}`;

@@ -22,6 +22,6 @@ vm.createContext(context);
 vm.runInContext(definition + '\nresult = applicationThresholdParts(record)', context);
 const math = context.result.filter(p => /^數[AB]/.test(p.text));
 assert.equal(math.length, 2);
-assert.equal(math[0].text, '數A 均標（擇一）');
-assert.equal(math[1].text, '數B 均標（擇一）');
+assert.equal(math[0].text, '數A 均標');
+assert.equal(math[1].text, '數B 均標');
 console.log('Threshold label, separate math chips, OR evaluation, and numerical result checks passed.');
