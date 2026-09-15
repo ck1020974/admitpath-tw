@@ -1858,7 +1858,12 @@ function renderPlacementAnalysis() {
       || `${a.record.schoolCode}${a.record.departmentName}`.localeCompare(`${b.record.schoolCode}${b.record.departmentName}`, "zh-Hant"));
   const visibleRows = allRows.filter((row) => row.evaluation.status === state.placement.resultTab);
   const rows = visibleRows.slice(0, 120);
-  const countLabel = { match: "筆符合", near: "筆接近", miss: "筆未達" }[state.placement.resultTab] || "筆結果";
+  const countLabel = {
+    match: "筆符合",
+    near: "筆接近",
+    miss: "筆未達",
+    missing: "筆待核對／資料不足",
+  }[state.placement.resultTab] || "筆結果";
   els.placementResultCount.textContent = fmt.format(visibleRows.length);
   if (els.placementResultCountLabel) els.placementResultCountLabel.textContent = countLabel;
   if (!rows.length) {
