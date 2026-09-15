@@ -2172,19 +2172,26 @@ function placementResultSummary(evaluation) {
 }
 
 function placementSchoolScopeLabel(scope = "all") {
-  return { ntu: "台大", nthu: "清大", nycu: "交大", ncku: "成大", nccu: "政大" }[scope] || "";
+  return { ntu: "台大", nthu: "清大", nycu: "交大", ncku: "成大", nccu: "政大", scu: "東吳", teacher: "師範" }[scope] || "";
 }
 
 function placementSchoolScopeAllows(record, scope = "all") {
   if (scope === "public" || scope === "private") return schoolOwnership(record) === scope;
   if (scope === "top") return isTopUniversity(record);
   if (scope === "central") return ["國立中央大學", "國立中興大學", "國立中山大學", "國立中正大學"].includes(record.schoolName);
+  if (scope === "teacher") {
+    return [
+      "國立臺灣師範大學", "國立彰化師範大學", "國立高雄師範大學",
+      "國立臺北教育大學", "國立臺中教育大學", "國立臺南大學", "臺北市立大學",
+    ].some((name) => normalize(name) === normalize(record.schoolName));
+  }
   const schoolScopes = {
     ntu: ["國立臺灣大學", "國立台灣大學", "臺灣大學", "台灣大學"],
     nthu: ["國立清華大學", "清華大學"],
     nycu: ["國立陽明交通大學", "陽明交通大學"],
     ncku: ["國立成功大學", "成功大學"],
     nccu: ["國立政治大學", "政治大學"],
+    scu: ["東吳大學"],
   };
   if (schoolScopes[scope]) return schoolScopes[scope].some((name) => normalize(name) === normalize(record.schoolName));
   return true;
