@@ -2167,12 +2167,12 @@ function placementResultSummary(evaluation) {
   if (evaluation.application && evaluation.status === "match") return "符合已收錄條件";
   if (evaluation.status === "match") return "達標";
   if (evaluation.status === "near") return `約差 ${Number(evaluation.gapTotal.toFixed(1))}`;
-  if (evaluation.status === "missing") return "需補填必要科目";
+  if (evaluation.status === "missing") return "";
   return `約差 ${Number(evaluation.gapTotal.toFixed(1))}`;
 }
 
 function placementSchoolScopeLabel(scope = "all") {
-  return { ntu: "學校：台大", nthu: "學校：清大", nycu: "學校：交大", ncku: "學校：成大", nccu: "學校：政大" }[scope] || "";
+  return { ntu: "台大", nthu: "清大", nycu: "交大", ncku: "成大", nccu: "政大" }[scope] || "";
 }
 
 function placementSchoolScopeAllows(record, scope = "all") {
