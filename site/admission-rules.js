@@ -86,7 +86,8 @@
   }
   function score(profile, s) {
     const raw = profile.scores?.[subject(s)] ?? profile.scores?.[canonical(s)];
-    if (raw == null || String(raw).trim() === '') return null;
+    // 空白成績依落點分析設定視為 0 分，避免把「尚未輸入」誤列為資料不足。
+    if (raw == null || String(raw).trim() === '') return 0;
     if (subject(s) === '英聽') return listening[String(raw).trim().toUpperCase()] ?? null;
     const n = Number(raw), max = subject(s).startsWith('APCS') ? 5 : 15;
     return Number.isInteger(n) && n >= (max === 5 ? 1 : 0) && n <= max ? n : null;

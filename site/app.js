@@ -2134,7 +2134,8 @@ function placementRequirementResult(requirement, profile) {
 function placementScoreValue(profile, subject) {
   const key = advancedSubjectKey(subject) || shortSubject(subject);
   const raw = profile.scores?.[key] ?? profile.scores?.[shortSubject(subject)] ?? "";
-  if (raw === "" || raw == null) return null;
+  // 使用者未輸入的科目以 0 分計算；是否有輸入任何成績仍由分析開始按鈕控制。
+  if (raw === "" || raw == null) return 0;
   const value = Number(String(raw).replace(/[^\d.]/g, ""));
   return Number.isFinite(value) ? value : null;
 }
