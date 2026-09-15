@@ -2155,6 +2155,7 @@ function placementRequirementLabels(item) {
 
 function placementResultSummary(evaluation) {
   if (evaluation.application && evaluation.pendingData) return "資料待核對，暫不判定";
+  if (evaluation.application && evaluation.importedOfficialData && evaluation.status === "match") return "暫估符合官方已匯入篩選資料";
   if (evaluation.application && evaluation.status === "match") return "符合已收錄條件";
   if (evaluation.status === "match") return "達標";
   if (evaluation.status === "near") return `約差 ${Number(evaluation.gapTotal.toFixed(1))}`;

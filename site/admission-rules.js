@@ -34,14 +34,32 @@
     return record.admissionAudit?.resultStatus === 'verified'
       ? (record.applySieveResult?.rankedItems || []).map(i => ({ ...i, subjects: i.subjects.map(subject) })) : [];
   }
+  function importedOfficialResults(record) {
+    const audit = record.admissionAudit;
+    const sourceImageUrl = String(record.applySieveResult?.sourceImageUrl || '');
+    const rows = record.applySieveResult?.rankedItems || [];
+    if (audit?.resultStatus === 'verified' || audit?.detailStatus !== 'parsed' || audit?.issues?.length
+      || !sourceImageUrl.startsWith('https://www.cac.edu.tw/') || !rows.length) return [];
+    const complete = rows.every((item) => {
+      const subjects = (item.subjects || []).map(subject).filter(Boolean);
+      const score = Number(item.score);
+      const maximum = subjects.reduce((total, name) => total + (name.startsWith('APCS') ? 5 : 15), 0);
+      return subjects.length && Number.isFinite(score) && score >= 0 && score <= maximum;
+    });
+    return complete ? rows.map(i => ({ ...i, subjects: i.subjects.map(subject) })) : [];
+  }
   function requirements(record, standards) {
     const rules = thresholds(record, standards);
     const detail = record.cacDetail || {};
     const audit = record.admissionAudit;
+    const importedResults = importedOfficialResults(record);
     if (!audit || audit.detailStatus !== 'parsed' || audit.issues?.length) rules.push({ kind: 'note', subjects: [], source: '簡章條件待核對' });
-    if (audit?.resultStatus !== 'verified') rules.push({ kind: 'note', subjects: [], source: '一階結果待核對' });
-    else verifiedResults(record).forEach(i => {
-      if (valid(i.score)) rules.push({ kind: i.subjects.length > 1 ? 'sum' : 'score', subjects: i.subjects, threshold: Number(i.score), rank: i.rank, source: '倍率篩選' });
+    if (audit?.resultStatus !== 'verified' && !importedResults.length) rules.push({ kind: 'note', subjects: [], source: '一階結果待核對' });
+    const verified = verifiedResults(record);
+    const resultRows = verified.length ? verified : importedResults;
+    const resultSource = importedResults.length ? '官方篩選暫估' : '倍率篩選';
+    resultRows.forEach(i => {
+      if (valid(i.score)) rules.push({ kind: i.subjects.length > 1 ? 'sum' : 'score', subjects: i.subjects, threshold: Number(i.score), rank: i.rank, source: resultSource });
       else if (i.status !== 'official_not_listed') rules.push({ kind: 'note', subjects: i.subjects, source: '篩選級分待核對' });
     });
     if (/APCS/.test(record.departmentName) && !detail.apcsSubjects?.length) rules.push({ kind: 'note', subjects: [], source: 'APCS條件待核對' });
@@ -93,7 +111,8 @@
     return { status: missingCount || !checked.length ? 'missing' : missCount ? (gapTotal <= 3 ? 'near' : 'miss') : 'match',
       requirements: checked, missingCount, missCount, gapTotal, application: true,
       pendingData: checked.some(r => r.kind === 'note'),
+      importedOfficialData: checked.some(r => r.source === '官方篩選暫估'),
       caveat: '僅比對已收錄條件；不代表通過超額篩選或錄取。' };
   }
-  return { subject, thresholds, requirements, verifiedResults, check, describe, evaluate };
+  return { subject, thresholds, requirements, verifiedResults, importedOfficialResults, check, describe, evaluate };
 });
