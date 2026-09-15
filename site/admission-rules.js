@@ -23,6 +23,7 @@
   function thresholds(record, standards) {
     const detail = record.cacDetail || {};
     const rules = [...(detail.screeningSubjects || []), ...(detail.apcsSubjects || [])]
+      .filter(item => !subject(item.subject).startsWith('APCS'))
       .map(i => threshold(i, String(record.year), standards)).filter(Boolean);
     const math = rules.filter(r => ['數A', '數B'].includes(r.subjects[0]));
     if (math.length === 2 && math.every(r => r.kind === 'score')) {
@@ -32,21 +33,27 @@
   }
   function verifiedResults(record) {
     return record.admissionAudit?.resultStatus === 'verified'
-      ? (record.applySieveResult?.rankedItems || []).map(i => ({ ...i, subjects: i.subjects.map(subject) })) : [];
+      ? (record.applySieveResult?.rankedItems || [])
+        .filter(i => !(i.subjects || []).some(name => subject(name).startsWith('APCS')))
+        .map(i => ({ ...i, subjects: i.subjects.map(subject) })) : [];
   }
   function hasUsableApplicationDetail(record) {
     const detail = record.cacDetail || {};
-    return [...(detail.screeningSubjects || []), ...(detail.apcsSubjects || [])]
+    return [...(detail.screeningSubjects || [])]
       .some(item => valid(item.subject) && valid(item.standard));
   }
-  function hasBlockingDetailIssue(record) {
-    return (record.admissionAudit?.issues || []).some(issue => /APCS欄位缺漏|尚未支援的倍率篩選科目/.test(String(issue)));
+  function hasSpecialConditions(record) {
+    const detail = record.cacDetail || {};
+    return /APCS/.test(record.departmentName)
+      || (detail.apcsSubjects || []).length > 0
+      || record.examRequired === '是'
+      || detail.layout === 'art';
   }
   function importedOfficialResults(record) {
     const audit = record.admissionAudit;
     const sourceImageUrl = String(record.applySieveResult?.sourceImageUrl || '');
     const rows = record.applySieveResult?.rankedItems || [];
-    if (audit?.resultStatus === 'verified' || !hasUsableApplicationDetail(record) || hasBlockingDetailIssue(record)
+    if (audit?.resultStatus === 'verified' || !hasUsableApplicationDetail(record)
       || !sourceImageUrl.startsWith('https://www.cac.edu.tw/') || !rows.length) return [];
     const complete = rows.every((item) => {
       const subjects = (item.subjects || []).map(subject).filter(Boolean);
@@ -54,18 +61,20 @@
       const maximum = subjects.reduce((total, name) => total + (name.startsWith('APCS') ? 5 : 15), 0);
       return subjects.length && Number.isFinite(score) && score >= 0 && score <= maximum;
     });
-    return complete ? rows.map(i => ({ ...i, subjects: i.subjects.map(subject) })) : [];
+    return complete ? rows
+      .filter(i => !(i.subjects || []).some(name => subject(name).startsWith('APCS')))
+      .map(i => ({ ...i, subjects: i.subjects.map(subject) })) : [];
   }
   function requirements(record, standards) {
     const rules = thresholds(record, standards);
     const detail = record.cacDetail || {};
     const audit = record.admissionAudit;
+    const specialConditions = hasSpecialConditions(record);
     const importedResults = importedOfficialResults(record);
     // 第一階段落點只需要篩選科目與檢定；第二階段占比或舊版解析狀態
     // 不應讓已具備官方一階結果的校系整筆消失。
-    if (!hasUsableApplicationDetail(record)) rules.push({ kind: 'note', subjects: [], source: '簡章條件待核對' });
-    else if (hasBlockingDetailIssue(record)) rules.push({ kind: 'note', subjects: [], source: '特殊篩選條件待核對' });
-    if (audit?.resultStatus !== 'verified' && !importedResults.length) rules.push({ kind: 'note', subjects: [], source: '一階結果待核對' });
+    if (!hasUsableApplicationDetail(record) && !specialConditions) rules.push({ kind: 'note', subjects: [], source: '簡章條件待核對' });
+    if (audit?.resultStatus !== 'verified' && !importedResults.length && !specialConditions) rules.push({ kind: 'note', subjects: [], source: '一階結果待核對' });
     const verified = verifiedResults(record);
     const resultRows = verified.length ? verified : importedResults;
     const resultSource = importedResults.length ? '官方篩選暫估' : '倍率篩選';
@@ -73,8 +82,6 @@
       if (valid(i.score)) rules.push({ kind: i.subjects.length > 1 ? 'sum' : 'score', subjects: i.subjects, threshold: Number(i.score), rank: i.rank, source: resultSource });
       else if (i.status !== 'official_not_listed') rules.push({ kind: 'note', subjects: i.subjects, source: '篩選級分待核對' });
     });
-    if (/APCS/.test(record.departmentName) && !detail.apcsSubjects?.length) rules.push({ kind: 'note', subjects: [], source: 'APCS條件待核對' });
-    if (record.examRequired === '是' || detail.layout === 'art') rules.push({ kind: 'note', subjects: ['術科'], source: '術科條件請查官方分則' });
     return rules;
   }
   function score(profile, s) {
@@ -119,11 +126,13 @@
     const missingCount = checked.filter(r => r.status === 'missing').length;
     const missCount = checked.filter(r => r.status === 'miss').length;
     const gapTotal = checked.reduce((sum, r) => sum + Math.max(0, r.gap), 0);
-    return { status: missingCount || !checked.length ? 'missing' : missCount ? (gapTotal <= 3 ? 'near' : 'miss') : 'match',
+    const specialConditions = hasSpecialConditions(record);
+    return { status: missingCount || (!checked.length && !specialConditions) ? 'missing' : missCount ? (gapTotal <= 3 ? 'near' : 'miss') : 'match',
       requirements: checked, missingCount, missCount, gapTotal, application: true,
       pendingData: checked.some(r => r.kind === 'note'),
       importedOfficialData: checked.some(r => r.source === '官方篩選暫估'),
+      specialConditions,
       caveat: '僅比對已收錄條件；不代表通過超額篩選或錄取。' };
   }
-  return { subject, thresholds, requirements, verifiedResults, importedOfficialResults, hasUsableApplicationDetail, check, describe, evaluate };
+  return { subject, thresholds, requirements, verifiedResults, importedOfficialResults, hasUsableApplicationDetail, hasSpecialConditions, check, describe, evaluate };
 });

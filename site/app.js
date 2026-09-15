@@ -1934,16 +1934,18 @@ function placementResultCardHtml(record, evaluation) {
     missing: "資料不足",
     miss: "未達",
   }[evaluation.status] || "未判斷";
+  const summary = placementResultSummary(evaluation);
+  const specialCondition = evaluation.specialConditions ? `<span class="special-admission-badge">特殊條件</span>` : "";
   return `
     <article class="placement-result-card ${escapeAttr(evaluation.status)} is-clickable" data-placement-detail="${escapeAttr(record.id)}">
       <div class="placement-result-main">
         <div>
           <strong>${escapeHtml(record.schoolName)}</strong>
-          <h3>${escapeHtml(record.departmentName)}${specialAdmissionBadgeHtml(record)}</h3>
+          <h3>${escapeHtml(record.departmentName)}${specialAdmissionBadgeHtml(record)}${specialCondition}</h3>
           <p class="placement-result-meta">
             <span>${escapeHtml(record.year)} ${escapeHtml(channelShort(record.channelKey))}</span>
             <span class="placement-status ${escapeAttr(evaluation.status)}">${escapeHtml(statusLabel)}</span>
-            <span class="placement-result-summary">${escapeHtml(placementResultSummary(evaluation))}</span>
+            ${summary ? `<span class="placement-result-summary">${escapeHtml(summary)}</span>` : ""}
           </p>
         </div>
       </div>
@@ -1964,6 +1966,7 @@ function placementMatchesFilters(record, profile) {
   if (state.placement.keyword && !recordSearchText(record).includes(normalize(state.placement.keyword))) return false;
   if (typeof recordMatchesAdvancedFilters === "function" && !recordMatchesAdvancedFilters(record)) return false;
   if (!profile.channels.includes(record.channelKey)) return false;
+  if (!placementChannelHasRequiredScores(record, profile)) return false;
   if (profile.schoolOwnership !== "all" && schoolOwnership(record) !== profile.schoolOwnership) return false;
   if (profile.topUniversityOnly && !isTopUniversity(record)) return false;
   const needles = placementSelectedNeedles(profile);
@@ -2157,6 +2160,7 @@ function placementRequirementLabels(item) {
 }
 
 function placementResultSummary(evaluation) {
+  if (evaluation.status === "match") return "";
   if (evaluation.application && evaluation.pendingData) return "資料待核對，暫不判定";
   if (evaluation.application && evaluation.importedOfficialData && evaluation.status === "match") return "暫估符合官方已匯入篩選資料";
   if (evaluation.application && evaluation.status === "match") return "符合已收錄條件";
@@ -2182,6 +2186,16 @@ function placementSchoolScopeAllows(record, scope = "all") {
     nccu: ["國立政治大學", "政治大學"],
   };
   if (schoolScopes[scope]) return schoolScopes[scope].some((name) => normalize(name) === normalize(record.schoolName));
+  return true;
+}
+
+function placementChannelHasRequiredScores(record, profile) {
+  if (record.channelKey === "personal_application") return true;
+  if (record.channelKey === "star_recommendation") return placementScoreValue(profile, "在校") != null;
+  if (record.channelKey === "exam_distribution") {
+    return ["數甲", "數乙", "歷史", "地理", "公民", "物理", "化學", "生物"]
+      .some((subject) => placementScoreValue(profile, subject) != null);
+  }
   return true;
 }
 
