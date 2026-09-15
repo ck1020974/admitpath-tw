@@ -34,11 +34,19 @@
     return record.admissionAudit?.resultStatus === 'verified'
       ? (record.applySieveResult?.rankedItems || []).map(i => ({ ...i, subjects: i.subjects.map(subject) })) : [];
   }
+  function hasUsableApplicationDetail(record) {
+    const detail = record.cacDetail || {};
+    return [...(detail.screeningSubjects || []), ...(detail.apcsSubjects || [])]
+      .some(item => valid(item.subject) && valid(item.standard));
+  }
+  function hasBlockingDetailIssue(record) {
+    return (record.admissionAudit?.issues || []).some(issue => /APCS欄位缺漏|尚未支援的倍率篩選科目/.test(String(issue)));
+  }
   function importedOfficialResults(record) {
     const audit = record.admissionAudit;
     const sourceImageUrl = String(record.applySieveResult?.sourceImageUrl || '');
     const rows = record.applySieveResult?.rankedItems || [];
-    if (audit?.resultStatus === 'verified' || audit?.detailStatus !== 'parsed' || audit?.issues?.length
+    if (audit?.resultStatus === 'verified' || !hasUsableApplicationDetail(record) || hasBlockingDetailIssue(record)
       || !sourceImageUrl.startsWith('https://www.cac.edu.tw/') || !rows.length) return [];
     const complete = rows.every((item) => {
       const subjects = (item.subjects || []).map(subject).filter(Boolean);
@@ -53,7 +61,10 @@
     const detail = record.cacDetail || {};
     const audit = record.admissionAudit;
     const importedResults = importedOfficialResults(record);
-    if (!audit || audit.detailStatus !== 'parsed' || audit.issues?.length) rules.push({ kind: 'note', subjects: [], source: '簡章條件待核對' });
+    // 第一階段落點只需要篩選科目與檢定；第二階段占比或舊版解析狀態
+    // 不應讓已具備官方一階結果的校系整筆消失。
+    if (!hasUsableApplicationDetail(record)) rules.push({ kind: 'note', subjects: [], source: '簡章條件待核對' });
+    else if (hasBlockingDetailIssue(record)) rules.push({ kind: 'note', subjects: [], source: '特殊篩選條件待核對' });
     if (audit?.resultStatus !== 'verified' && !importedResults.length) rules.push({ kind: 'note', subjects: [], source: '一階結果待核對' });
     const verified = verifiedResults(record);
     const resultRows = verified.length ? verified : importedResults;
@@ -114,5 +125,5 @@
       importedOfficialData: checked.some(r => r.source === '官方篩選暫估'),
       caveat: '僅比對已收錄條件；不代表通過超額篩選或錄取。' };
   }
-  return { subject, thresholds, requirements, verifiedResults, importedOfficialResults, check, describe, evaluate };
+  return { subject, thresholds, requirements, verifiedResults, importedOfficialResults, hasUsableApplicationDetail, check, describe, evaluate };
 });
