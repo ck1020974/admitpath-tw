@@ -32,7 +32,8 @@
     return rules;
   }
   function verifiedResults(record) {
-    return record.admissionAudit?.resultStatus === 'verified'
+    const method = record.applySieveResult?.verification?.method;
+    return (record.admissionAudit?.resultStatus === 'verified' || method === 'university_tw_crosscheck')
       ? (record.applySieveResult?.rankedItems || [])
         .filter(i => !(i.subjects || []).some(name => subject(name).startsWith('APCS')))
         .map(i => ({ ...i, subjects: i.subjects.map(subject) })) : [];
@@ -70,12 +71,12 @@
     const detail = record.cacDetail || {};
     const audit = record.admissionAudit;
     const specialConditions = hasSpecialConditions(record);
+    const verified = verifiedResults(record);
     const importedResults = importedOfficialResults(record);
     // 第一階段落點只需要篩選科目與檢定；第二階段占比或舊版解析狀態
     // 不應讓已具備官方一階結果的校系整筆消失。
     if (!hasUsableApplicationDetail(record) && !specialConditions) rules.push({ kind: 'note', subjects: [], source: '簡章條件待核對' });
-    if (audit?.resultStatus !== 'verified' && !importedResults.length && !specialConditions) rules.push({ kind: 'note', subjects: [], source: '一階結果待核對' });
-    const verified = verifiedResults(record);
+    if (!verified.length && !importedResults.length && !specialConditions) rules.push({ kind: 'note', subjects: [], source: '一階結果待核對' });
     const resultRows = verified.length ? verified : importedResults;
     const resultSource = importedResults.length ? '官方篩選暫估' : '倍率篩選';
     resultRows.forEach(i => {
