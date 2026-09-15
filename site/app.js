@@ -2166,6 +2166,14 @@ function placementSchoolScopeAllows(record, scope = "all") {
   if (scope === "public" || scope === "private") return schoolOwnership(record) === scope;
   if (scope === "top") return isTopUniversity(record);
   if (scope === "central") return ["國立中央大學", "國立中興大學", "國立中山大學", "國立中正大學"].includes(record.schoolName);
+  const schoolScopes = {
+    ntu: "國立臺灣大學",
+    nthu: "國立清華大學",
+    nycu: "國立陽明交通大學",
+    ncku: "國立成功大學",
+    nccu: "國立政治大學",
+  };
+  if (schoolScopes[scope]) return record.schoolName === schoolScopes[scope];
   return true;
 }
 
