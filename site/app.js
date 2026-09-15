@@ -1885,7 +1885,7 @@ function placementCriteriaSummaryHtml(profile) {
     ...profile.groups,
     ...profile.categories.map(displayCategoryName),
   ];
-  const tags = [placementSchoolScopeLabel(profile.schoolScope), ...scoreTags, ...directionTags]
+  const tags = [...scoreTags, ...directionTags]
     .filter(Boolean)
     .slice(0, 8);
   return tags.length
@@ -2169,10 +2169,6 @@ function placementResultSummary(evaluation) {
   if (evaluation.status === "near") return `約差 ${Number(evaluation.gapTotal.toFixed(1))}`;
   if (evaluation.status === "missing") return "";
   return `約差 ${Number(evaluation.gapTotal.toFixed(1))}`;
-}
-
-function placementSchoolScopeLabel(scope = "all") {
-  return { ntu: "台大", nthu: "清大", nycu: "交大", ncku: "成大", nccu: "政大", scu: "東吳", teacher: "師範" }[scope] || "";
 }
 
 function placementSchoolScopeAllows(record, scope = "all") {
