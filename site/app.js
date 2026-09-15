@@ -1832,6 +1832,7 @@ function placementProfile() {
     specialAdmissionMode: state.placement.specialAdmissionMode || "exclude",
     groups: [...state.placement.groups],
     categories: [...state.placement.categories],
+    schoolScope: state.placement.schoolScope || "all",
   };
 }
 
@@ -1884,7 +1885,9 @@ function placementCriteriaSummaryHtml(profile) {
     ...profile.groups,
     ...profile.categories.map(displayCategoryName),
   ];
-  const tags = [...scoreTags, ...directionTags].slice(0, 8);
+  const tags = [placementSchoolScopeLabel(profile.schoolScope), ...scoreTags, ...directionTags]
+    .filter(Boolean)
+    .slice(0, 8);
   return tags.length
     ? tags.map((label) => `<span>${escapeHtml(label)}</span>`).join("")
     : "";
@@ -1957,7 +1960,7 @@ function placementResultCardHtml(record, evaluation) {
 
 function placementMatchesFilters(record, profile) {
   if (state.placement.year !== "all" && String(record.year) !== state.placement.year) return false;
-  if (!placementSchoolScopeAllows(record, state.placement.schoolScope)) return false;
+  if (!placementSchoolScopeAllows(record, profile.schoolScope)) return false;
   if (state.placement.keyword && !recordSearchText(record).includes(normalize(state.placement.keyword))) return false;
   if (typeof recordMatchesAdvancedFilters === "function" && !recordMatchesAdvancedFilters(record)) return false;
   if (!profile.channels.includes(record.channelKey)) return false;
@@ -2163,18 +2166,22 @@ function placementResultSummary(evaluation) {
   return `約差 ${Number(evaluation.gapTotal.toFixed(1))}`;
 }
 
+function placementSchoolScopeLabel(scope = "all") {
+  return { ntu: "學校：台大", nthu: "學校：清大", nycu: "學校：交大", ncku: "學校：成大", nccu: "學校：政大" }[scope] || "";
+}
+
 function placementSchoolScopeAllows(record, scope = "all") {
   if (scope === "public" || scope === "private") return schoolOwnership(record) === scope;
   if (scope === "top") return isTopUniversity(record);
   if (scope === "central") return ["國立中央大學", "國立中興大學", "國立中山大學", "國立中正大學"].includes(record.schoolName);
   const schoolScopes = {
-    ntu: "國立臺灣大學",
-    nthu: "國立清華大學",
-    nycu: "國立陽明交通大學",
-    ncku: "國立成功大學",
-    nccu: "國立政治大學",
+    ntu: ["國立臺灣大學", "國立台灣大學", "臺灣大學", "台灣大學"],
+    nthu: ["國立清華大學", "清華大學"],
+    nycu: ["國立陽明交通大學", "陽明交通大學"],
+    ncku: ["國立成功大學", "成功大學"],
+    nccu: ["國立政治大學", "政治大學"],
   };
-  if (schoolScopes[scope]) return record.schoolName === schoolScopes[scope];
+  if (schoolScopes[scope]) return schoolScopes[scope].some((name) => normalize(name) === normalize(record.schoolName));
   return true;
 }
 
