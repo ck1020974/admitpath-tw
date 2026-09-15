@@ -35,6 +35,7 @@
 };
 
 const els = {};
+let advancedFilterDraft = null;
 
 const fmt = new Intl.NumberFormat("zh-Hant-TW");
 const DATA_VERSION = "20260909-integrity-12";
@@ -1074,6 +1075,7 @@ function updateFilter() {
 
 function resetFilters() {
   state.filters = { year: "all", channel: "all", school: "all", keyword: "", advanced: defaultAdvancedFilters() };
+  advancedFilterDraft = null;
   resetExplorerState("overview");
   els.yearFilter.value = "all";
   els.channelFilter.value = "all";
@@ -1100,6 +1102,16 @@ function defaultAdvancedFilters() {
   };
 }
 
+function cloneAdvancedFilters(filters = defaultAdvancedFilters()) {
+  return {
+    excludedSubjects: [...(filters.excludedSubjects || [])],
+    subjectGroupsOpen: { ...(filters.subjectGroupsOpen || {}) },
+    specialAdmissionMode: filters.specialAdmissionMode || "exclude",
+    groups: [...(filters.groups || [])],
+    schools: [...(filters.schools || [])],
+  };
+}
+
 function currentAdvancedFilters() {
   if (!state.filters.advanced) state.filters.advanced = defaultAdvancedFilters();
   state.filters.advanced.excludedSubjects ||= [];
@@ -1111,12 +1123,14 @@ function currentAdvancedFilters() {
 }
 
 function openAdvancedFilters() {
+  advancedFilterDraft = cloneAdvancedFilters(currentAdvancedFilters());
   renderAdvancedFilterDrawer();
   els.advancedFilterDrawer?.classList.add("open");
   els.advancedFilterDrawer?.setAttribute("aria-hidden", "false");
 }
 
 function closeAdvancedFilters() {
+  advancedFilterDraft = null;
   els.advancedFilterDrawer?.classList.remove("open");
   els.advancedFilterDrawer?.setAttribute("aria-hidden", "true");
 }
@@ -1149,7 +1163,7 @@ function advancedFilterSummaryText() {
 
 function renderAdvancedFilterDrawer() {
   if (!els.advancedFilterBody) return;
-  const advanced = currentAdvancedFilters();
+  const advanced = advancedFilterDraft || currentAdvancedFilters();
   const groupNames = advancedGroupNames();
   const schools = advancedSchoolOptions();
   els.advancedFilterBody.innerHTML = `
@@ -1209,15 +1223,15 @@ function renderAdvancedFilterDrawer() {
     </section>
     <section class="advanced-section advanced-current-section">
       <div class="advanced-section-head">
-        <h3>已套用條件</h3>
+        <h3>已選條件（尚未套用）</h3>
       </div>
       <div class="advanced-current">
-        ${advancedFilterChipsHtml() || `<span class="advanced-empty">尚未套用精準條件</span>`}
+        ${advancedFilterChipsHtml(advanced) || `<span class="advanced-empty">尚未選擇精準條件</span>`}
       </div>
     </section>
     <div class="advanced-drawer-actions">
       <button class="ghost-button" id="clearAdvancedFiltersButton">清除精準條件</button>
-      <button class="solid-button" id="applyAdvancedFiltersButton">套用</button>
+      <button class="solid-button" id="applyAdvancedFiltersButton">套用篩選</button>
     </div>
   `;
   bindAdvancedFilterEvents();
@@ -1278,8 +1292,7 @@ function advancedSchoolOptions() {
   return [...schoolMap.values()].sort((a, b) => a.code.localeCompare(b.code, "en"));
 }
 
-function advancedFilterChipsHtml() {
-  const advanced = currentAdvancedFilters();
+function advancedFilterChipsHtml(advanced = currentAdvancedFilters()) {
   const chips = [
     ...advanced.excludedSubjects.map((subject) => `不看 ${subject}`),
     advanced.specialAdmissionMode === "include" ? "含特殊組" : "",
@@ -1293,7 +1306,7 @@ function advancedFilterChipsHtml() {
 function bindAdvancedFilterEvents() {
   els.advancedFilterBody.querySelectorAll("[data-toggle-advanced-subject-group]").forEach((button) => {
     button.addEventListener("click", () => {
-      const advanced = currentAdvancedFilters();
+      const advanced = advancedFilterDraft || (advancedFilterDraft = cloneAdvancedFilters(currentAdvancedFilters()));
       const key = button.dataset.toggleAdvancedSubjectGroup;
       const opening = !advanced.subjectGroupsOpen[key];
       advanced.subjectGroupsOpen = opening ? { [key]: true } : {};
@@ -1302,54 +1315,53 @@ function bindAdvancedFilterEvents() {
   });
   els.advancedFilterBody.querySelectorAll("[data-advanced-subject]").forEach((button) => {
     button.addEventListener("click", () => {
-      const advanced = currentAdvancedFilters();
+      const advanced = advancedFilterDraft || (advancedFilterDraft = cloneAdvancedFilters(currentAdvancedFilters()));
       const subject = button.dataset.advancedSubject;
       advanced.excludedSubjects = advanced.excludedSubjects.includes(subject)
         ? advanced.excludedSubjects.filter((item) => item !== subject)
         : [...advanced.excludedSubjects, subject];
       renderAdvancedFilterDrawer();
-      applyFilters();
     });
   });
   els.advancedFilterBody.querySelectorAll("[data-advanced-group]").forEach((button) => {
     button.addEventListener("click", () => {
-      const advanced = currentAdvancedFilters();
+      const advanced = advancedFilterDraft || (advancedFilterDraft = cloneAdvancedFilters(currentAdvancedFilters()));
       const group = button.dataset.advancedGroup;
       advanced.groups = advanced.groups.includes(group)
         ? advanced.groups.filter((item) => item !== group)
         : [...advanced.groups, group];
       renderAdvancedFilterDrawer();
-      applyFilters();
     });
   });
   els.advancedFilterBody.querySelector("#advancedSchoolPicker")?.addEventListener("change", (event) => {
-    const advanced = currentAdvancedFilters();
+    const advanced = advancedFilterDraft || (advancedFilterDraft = cloneAdvancedFilters(currentAdvancedFilters()));
     const school = event.target.value;
     if (school && !advanced.schools.includes(school) && advanced.schools.length < 5) advanced.schools = [...advanced.schools, school];
     renderAdvancedFilterDrawer();
-    applyFilters();
   });
   els.advancedFilterBody.querySelectorAll("[data-remove-advanced-school]").forEach((button) => {
     button.addEventListener("click", () => {
-      const advanced = currentAdvancedFilters();
+      const advanced = advancedFilterDraft || (advancedFilterDraft = cloneAdvancedFilters(currentAdvancedFilters()));
       advanced.schools = advanced.schools.filter((school) => school !== button.dataset.removeAdvancedSchool);
       renderAdvancedFilterDrawer();
-      applyFilters();
     });
   });
   els.advancedFilterBody.querySelectorAll("[data-special-admission-filter]").forEach((button) => {
     button.addEventListener("click", () => {
-      currentAdvancedFilters().specialAdmissionMode = button.dataset.specialAdmissionFilter || "exclude";
+      const advanced = advancedFilterDraft || (advancedFilterDraft = cloneAdvancedFilters(currentAdvancedFilters()));
+      advanced.specialAdmissionMode = button.dataset.specialAdmissionFilter || "exclude";
       renderAdvancedFilterDrawer();
-      applyFilters();
     });
   });
   els.advancedFilterBody.querySelector("#clearAdvancedFiltersButton")?.addEventListener("click", () => {
-    state.filters.advanced = defaultAdvancedFilters();
+    advancedFilterDraft = defaultAdvancedFilters();
     renderAdvancedFilterDrawer();
+  });
+  els.advancedFilterBody.querySelector("#applyAdvancedFiltersButton")?.addEventListener("click", () => {
+    state.filters.advanced = cloneAdvancedFilters(advancedFilterDraft || currentAdvancedFilters());
+    closeAdvancedFilters();
     applyFilters();
   });
-  els.advancedFilterBody.querySelector("#applyAdvancedFiltersButton")?.addEventListener("click", closeAdvancedFilters);
 }
 
 function advancedGroupNames() {
