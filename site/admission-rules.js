@@ -75,15 +75,13 @@
     const importedResults = importedOfficialResults(record);
     // 第一階段落點只需要篩選科目與檢定；第二階段占比或舊版解析狀態
     // 不應讓已具備官方一階結果的校系整筆消失。
-    if (!hasUsableApplicationDetail(record) && !specialConditions) rules.push({ kind: 'note', subjects: [], source: '簡章條件待核對' });
-    if (!verified.length && !importedResults.length && !specialConditions) rules.push({ kind: 'note', subjects: [], source: '一階結果待核對' });
     const resultRows = verified.length ? verified : importedResults;
     const resultSource = importedResults.length ? '官方篩選暫估' : '倍率篩選';
     resultRows.forEach(i => {
       if (valid(i.score)) rules.push({ kind: i.subjects.length > 1 ? 'sum' : 'score', subjects: i.subjects, threshold: Number(i.score), rank: i.rank, source: resultSource });
-      else if (i.status !== 'official_not_listed') rules.push({ kind: 'note', subjects: i.subjects, source: '篩選級分待核對' });
+      // 未公布的順位級分不使用推測值，保留其他已公布條件進行判定。
     });
-    return rules;
+    return rules.filter(rule => rule.kind !== 'note');
   }
   function score(profile, s) {
     const raw = profile.scores?.[subject(s)] ?? profile.scores?.[canonical(s)];
@@ -125,13 +123,13 @@
   }
   function evaluate(record, profile, standards) {
     const checked = requirements(record, standards).map(r => check(r, profile));
-    const missingCount = checked.filter(r => r.status === 'missing').length;
+    const missingCount = 0;
     const missCount = checked.filter(r => r.status === 'miss').length;
     const gapTotal = checked.reduce((sum, r) => sum + Math.max(0, r.gap), 0);
     const specialConditions = hasSpecialConditions(record);
-    return { status: missingCount || (!checked.length && !specialConditions) ? 'missing' : missCount ? (gapTotal <= 3 ? 'near' : 'miss') : 'match',
+    return { status: missCount ? (gapTotal <= 3 ? 'near' : 'miss') : 'match',
       requirements: checked, missingCount, missCount, gapTotal, application: true,
-      pendingData: checked.some(r => r.kind === 'note'),
+      pendingData: false,
       importedOfficialData: checked.some(r => r.source === '官方篩選暫估'),
       specialConditions,
       caveat: '僅比對已收錄條件；不代表通過超額篩選或錄取。' };

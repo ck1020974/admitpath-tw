@@ -1838,6 +1838,7 @@ function placementProfile() {
 
 function renderPlacementAnalysis() {
   if (!els.placementResults) return;
+  if (state.placement.resultTab === "missing") state.placement.resultTab = "match";
   renderPlacementControls();
   const profile = placementProfile();
   const criteriaSummary = document.getElementById("placementCriteriaSummary");
@@ -1863,7 +1864,6 @@ function renderPlacementAnalysis() {
     match: "筆符合",
     near: "筆接近",
     miss: "筆未達",
-    missing: "筆待核對／資料不足",
   }[state.placement.resultTab] || "筆結果";
   els.placementResultCount.textContent = fmt.format(visibleRows.length);
   if (els.placementResultCountLabel) els.placementResultCountLabel.textContent = countLabel;
@@ -1898,11 +1898,10 @@ function placementSummaryCardsHtml(rows) {
     const status = row.evaluation?.status || "missing";
     acc[status] = (acc[status] || 0) + 1;
     return acc;
-  }, { match: 0, near: 0, missing: 0, miss: 0 });
+  }, { match: 0, near: 0, miss: 0 });
   const cards = [
     { key: "match", label: "符合", value: counts.match, note: "目前成績達標" },
     { key: "near", label: "接近", value: counts.near, note: "差距較小可參考" },
-    { key: "missing", label: "資料不足", value: counts.missing, note: "需補填科目" },
     { key: "miss", label: "未達", value: counts.miss, note: "門檻仍有差距" },
   ];
   return cards.map((card) => `
@@ -1924,14 +1923,13 @@ function placementHasAnyInput(profile) {
 }
 
 function placementStatusWeight(status) {
-  return { match: 0, near: 1, missing: 2, miss: 3 }[status] ?? 4;
+  return { match: 0, near: 1, miss: 2 }[status] ?? 3;
 }
 
 function placementResultCardHtml(record, evaluation) {
   const statusLabel = {
     match: "符合",
     near: "接近",
-    missing: "資料不足",
     miss: "未達",
   }[evaluation.status] || "未判斷";
   const summary = placementResultSummary(evaluation);
@@ -1985,18 +1983,16 @@ function placementSelectedNeedles(profile) {
 function evaluatePlacementRecord(record, profile) {
   if (record.channelKey === "personal_application") return AdmissionRules.evaluate(record, profile, state.gsatStandards);
   const requirements = placementRecordRequirements(record);
-  if (!requirements.length) {
-    return { status: "missing", requirements: [], gapTotal: 99, missingCount: 1, missCount: 0 };
-  }
+  if (!requirements.length) return { status: "match", requirements: [], gapTotal: 0, missingCount: 0, missCount: 0 };
   const checked = requirements.map((requirement) => placementRequirementResult(requirement, profile));
-  const missingCount = checked.filter((item) => item.status === "missing").length;
-  const missCount = checked.filter((item) => item.status === "miss").length;
-  const gapTotal = checked.reduce((sum, item) => sum + Math.max(0, item.gap || 0), 0);
+  const comparable = checked.filter((item) => item.status !== "missing");
+  const missingCount = 0;
+  const missCount = comparable.filter((item) => item.status === "miss").length;
+  const gapTotal = comparable.reduce((sum, item) => sum + Math.max(0, item.gap || 0), 0);
   let status = "match";
-  if (missingCount) status = "missing";
-  else if (missCount && gapTotal <= 3) status = "near";
+  if (missCount && gapTotal <= 3) status = "near";
   else if (missCount) status = "miss";
-  return { status, requirements: checked, gapTotal, missingCount, missCount };
+  return { status, requirements: comparable, gapTotal, missingCount, missCount };
 }
 
 function placementRecordRequirements(record) {
@@ -2167,7 +2163,6 @@ function placementResultSummary(evaluation) {
   if (evaluation.application && evaluation.status === "match") return "符合已收錄條件";
   if (evaluation.status === "match") return "達標";
   if (evaluation.status === "near") return `約差 ${Number(evaluation.gapTotal.toFixed(1))}`;
-  if (evaluation.status === "missing") return "";
   return `約差 ${Number(evaluation.gapTotal.toFixed(1))}`;
 }
 
