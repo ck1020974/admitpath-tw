@@ -2996,9 +2996,10 @@ function chooseExplorerRepresentative(records, preferredRecordKey = "") {
   const order = {
     "115-personal_application": 1,
     "115-star_recommendation": 2,
-    "114-exam_distribution": 3,
+    "115-exam_distribution": 3,
     "114-personal_application": 4,
     "114-star_recommendation": 5,
+    "114-exam_distribution": 6,
   };
   const pool = preferredRecordKey
     ? records.filter((item) => explorerRecordKey(item) === preferredRecordKey)
@@ -3021,9 +3022,10 @@ function explorerChannelRecords(records) {
       const order = {
         "115-personal_application": 1,
         "115-star_recommendation": 2,
-        "114-exam_distribution": 3,
+        "115-exam_distribution": 3,
         "114-personal_application": 4,
         "114-star_recommendation": 5,
+        "114-exam_distribution": 6,
       };
       return (order[explorerRecordKey(a)] || 99) - (order[explorerRecordKey(b)] || 99);
     })
