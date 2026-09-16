@@ -54,13 +54,16 @@ button.lane-card {
 }
 
 .side {
-  position: sticky;
-  top: 0;
-  height: 100vh;
+  position: fixed;
+  inset: 0 auto 0 0;
+  width: 228px;
+  height: 100dvh;
   padding: 18px 14px;
   display: flex;
   flex-direction: column;
   gap: 18px;
+  overflow-y: auto;
+  z-index: 10;
   background:
     linear-gradient(180deg, #102033 0%, #13263a 100%);
   color: #f8fbff;
@@ -146,6 +149,7 @@ button.lane-card {
 }
 
 .main {
+  grid-column: 2;
   min-width: 0;
   overflow-x: hidden;
   margin: 0;
@@ -3745,7 +3749,10 @@ tr:hover td {
 
   .side {
     position: static;
+    inset: auto;
+    width: auto;
     height: auto;
+    overflow: visible;
   }
 
   .side-nav {
@@ -3765,6 +3772,7 @@ tr:hover td {
   }
 
   .main {
+    grid-column: auto;
     padding: 20px;
   }
 
