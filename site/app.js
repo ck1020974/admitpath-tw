@@ -4452,28 +4452,57 @@ function renderCompare() {
     });
     return;
   }
-  els.compareGrid.innerHTML = state.compare.map((record) => {
-    const result = record.channelKey === "exam_distribution" ? distributionResult(record) : null;
-    return `
-      <article class="compare-card">
-        <header>
-          <div>
-            ${channelPill(record)}
-            <h3>${escapeHtml(record.schoolName)}</h3>
-            <p>${escapeHtml(record.departmentName)}</p>
-          </div>
-          <button class="icon-button" data-remove-compare="${escapeAttr(record.id)}" aria-label="移除">×</button>
-        </header>
-        ${kv("招生名額", record.quota || "--")}
-        ${kv("篩選標準", getHighlight(record) || "--")}
-        ${kv("採計科目", record.weightedSubjectsText || "--")}
-        ${kv("甄試日期", record.screeningDate || "--")}
-        ${kv("最低錄取總分", result?.regularTotalScore || result?.regularMinScore || "--")}
-      </article>
-    `;
-  }).join("");
+  const channelCount = new Map();
+  state.compare.forEach((record) => {
+    const label = record.channel || "其他";
+    channelCount.set(label, (channelCount.get(label) || 0) + 1);
+  });
+  const channelSummary = [...channelCount.entries()].map(([label, count]) => `${label} ${count}`).join("、");
+  els.compareGrid.innerHTML = `
+    <section class="compare-overview">
+      <div class="compare-overview-count"><strong>${fmt.format(state.compare.length)}</strong><span>個已選校系</span></div>
+      <p>${escapeHtml(channelSummary)}。點選「查看詳情」可閱讀完整招生資訊。</p>
+      <button class="ghost-button" data-compare-browse>繼續找校系</button>
+    </section>
+    <div class="compare-list">
+      ${state.compare.map((record) => {
+        const result = record.channelKey === "exam_distribution" ? distributionResult(record) : null;
+        const score = result?.regularTotalScore || result?.regularMinScore || "--";
+        return `
+          <article class="compare-entry">
+            <header class="compare-entry-head">
+              <div class="compare-entry-title">
+                ${channelPill(record)}
+                <h3>${escapeHtml(record.schoolName)}</h3>
+                <p>${escapeHtml(record.departmentName)}</p>
+              </div>
+              <button class="icon-button" data-remove-compare="${escapeAttr(record.id)}" aria-label="移除 ${escapeAttr(`${record.schoolName}${record.departmentName}`)}">×</button>
+            </header>
+            <div class="compare-entry-focus">
+              <span>入學重點</span>
+              <div>${highlightHtml(record) || "--"}</div>
+            </div>
+            <dl class="compare-entry-facts">
+              <div><dt>招生名額</dt><dd>${escapeHtml(record.quota || "--")}</dd></div>
+              <div><dt>採計科目</dt><dd>${escapeHtml(record.weightedSubjectsText || "--")}</dd></div>
+              <div><dt>甄試日期</dt><dd>${escapeHtml(record.screeningDate || "--")}</dd></div>
+              <div><dt>最低錄取總分</dt><dd>${escapeHtml(score)}</dd></div>
+            </dl>
+            <footer class="compare-entry-actions">
+              <button class="small-button" data-compare-detail="${escapeAttr(record.id)}">查看詳情</button>
+              <button class="text-button" data-remove-compare="${escapeAttr(record.id)}">移出清單</button>
+            </footer>
+          </article>
+        `;
+      }).join("")}
+    </div>
+  `;
+  els.compareGrid.querySelector("[data-compare-browse]")?.addEventListener("click", () => setView("workbench"));
   els.compareGrid.querySelectorAll("[data-remove-compare]").forEach((button) => {
     button.addEventListener("click", () => toggleCompare(button.dataset.removeCompare));
+  });
+  els.compareGrid.querySelectorAll("[data-compare-detail]").forEach((button) => {
+    button.addEventListener("click", () => openDetail(button.dataset.compareDetail));
   });
 }
 
