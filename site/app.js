@@ -1366,7 +1366,11 @@ function bindAdvancedFilterEvents() {
 
 function advancedGroupNames() {
   return [...new Set(state.groups.map((row) => row.groupName).filter((name) => name && name !== "跨領域"))]
-    .sort((a, b) => a.localeCompare(b, "zh-Hant"));
+    .sort((a, b) => {
+      if (a === "不分系學群") return 1;
+      if (b === "不分系學群") return -1;
+      return a.localeCompare(b, "zh-Hant");
+    });
 }
 
 function advancedCategoryNames(groupName = "") {
