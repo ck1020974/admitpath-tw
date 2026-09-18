@@ -5,21 +5,26 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>升學資料中控台</title>
   <link rel="stylesheet" href="./styles.css?v=20260909-12">
+  <link rel="stylesheet" href="./special.css?v=1">
 </head>
 <body data-active-view="overview">
   <div class="app-shell">
     <aside class="side">
-      <div class="brand">
+      <button class="brand" type="button" data-view="overview" aria-label="回到首頁">
         <div class="brand-mark">升</div>
         <div>
           <strong>升學資料中控台</strong>
           <span>114-115 Admissions</span>
         </div>
-      </div>
+      </button>
 
       <nav class="side-nav primary-nav" aria-label="學生探索">
         <button class="nav-item active" data-view="overview">首頁</button>
         <button class="nav-item" data-view="workbench">查詢工作台</button>
+        <button class="nav-item" data-home-entry="special-entry">特殊選才</button>
+        <button class="nav-item" data-home-entry="star-entry">繁星入學</button>
+        <button class="nav-item" data-home-entry="personal-apply">個人申請</button>
+        <button class="nav-item" data-home-entry="distribution-entry">分發入學</button>
         <button class="nav-item" data-view="placement">落點分析</button>
         <button class="nav-item" data-view="explorer">十八學群</button>
         <button class="nav-item" data-view="compare">比較清單</button>
@@ -68,6 +73,7 @@
           </section>
 
           <section class="home-utility-grid" aria-label="次要工作入口">
+            <button class="home-utility-card" data-home-entry="special-entry"><div><span class="section-tag">特選</span><strong>特殊選才</strong><p>從專長與經歷，探索升學機會。</p></div></button>
             <button class="home-utility-card star-entry" data-home-entry="star-entry">
               <div>
                 <span class="section-tag">繁星</span>
@@ -125,6 +131,7 @@
                 <option value="personal_application">個人申請</option>
                 <option value="star_recommendation">繁星推薦</option>
                 <option value="exam_distribution">分發入學</option>
+                <option value="special_selection">特殊選才</option>
               </select>
             </label>
             <label>
@@ -167,7 +174,7 @@
           <div class="placement-head placement-head-compact workspace-page-head">
             <div class="workspace-page-copy">
               <h2>落點分析</h2>
-              <p>依成績與條件，找出符合、接近與資料不足的校系。</p>
+              <p>依成績與條件，找出符合、接近與未達的校系。</p>
             </div>
             <div class="workbench-actions placement-result-actions" id="placementResultActions" hidden>
               <div class="result-meta"><strong id="placementResultCount">0</strong><span id="placementResultCountLabel">筆符合</span></div>
@@ -306,6 +313,7 @@
   </aside>
 
   <script src="./admission-rules.js?v=20260909-08"></script>
-  <script src="./app.js?v=20260909-08"></script>
+  <script src="./admission-catalog.js?v=1"></script>
+  <script src="./app.js?v=20260918-special-integrated"></script>
 </body>
 </html>

@@ -75,6 +75,18 @@ button.lane-card {
   align-items: center;
   gap: 10px;
   min-height: 48px;
+  width: 100%;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.brand:hover .brand-mark,
+.brand:focus-visible .brand-mark {
+  box-shadow: 0 0 0 3px rgba(57, 183, 169, .28);
 }
 
 .brand-mark {
@@ -1500,7 +1512,7 @@ button:disabled {
 
 .home-utility-grid {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 12px;
 }
 
@@ -3987,7 +3999,7 @@ tr:hover td {
   }
 
   .home-utility-grid {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-template-columns: repeat(4, minmax(0, 1fr));
     gap: 8px;
   }
 
@@ -4074,7 +4086,8 @@ tr:hover td {
 
   .home-utility-card strong {
     margin-top: 7px;
-    font-size: 16px;
+    font-size: clamp(12px, 2.1vw, 16px);
+    white-space: nowrap;
   }
 
   .home-utility-card p {

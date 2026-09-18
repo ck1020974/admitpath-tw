@@ -1,0 +1,25 @@
+/* Special-selection highlights within the shared workbench. */
+.sp-exam-summary {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  font-weight: 700;
+  line-height: 1.6;
+}
+.sp-exam-tag {
+  display: inline-flex;
+  padding: 3px 8px;
+  border: 1px solid #dce8ee;
+  border-radius: 6px;
+  background: #f2f7fa;
+  color: #315665;
+  font-size: 12px;
+  white-space: nowrap;
+}
+.sp-exam-context {
+  flex-basis: 100%;
+  font-size: 12px;
+  font-weight: 400;
+  color: var(--muted);
+}

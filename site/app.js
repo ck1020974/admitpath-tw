@@ -986,6 +986,7 @@ function activateHomeEntry(entry) {
     return;
   }
   const channelMap = {
+    "special-entry": "special_selection",
     "personal-apply": "personal_application",
     "star-entry": "star_recommendation",
     "distribution-entry": "exam_distribution",
@@ -1004,6 +1005,9 @@ function activateHomeEntry(entry) {
   els.channelFilter.value = channel;
   els.keywordInput.value = "";
   setView("workbench");
+  document.querySelectorAll(".side-nav [data-home-entry]").forEach((button) => {
+    button.classList.toggle("active", button.dataset.homeEntry === entry);
+  });
   applyFilters();
 }
 
@@ -1018,7 +1022,8 @@ async function loadData() {
     fetchJson("./data/category_representatives.json"),
     fetchJson("./data/apply114_quality_report.json"),
   ]);
-  state.records = records;
+  const specialData = await fetchJson('./data/special_admissions_115.json');
+  state.records = [...records, ...AdmissionCatalog.initialize(records, specialData.records)];
   state.results = results;
   state.groups = groups;
   state.manifest = manifest;
@@ -1027,7 +1032,7 @@ async function loadData() {
   state.categoryRepresentatives = categoryRepresentatives;
   state.qualityReport = qualityReport;
   buildRecordIndexes();
-  els.sideRecordCount.textContent = `${fmt.format(records.length)} 筆資料`;
+  els.sideRecordCount.textContent = `${fmt.format(state.records.length)} 筆資料`;
 }
 
 function resetExplorerState(stage = "overview") {
@@ -1094,6 +1099,7 @@ function updateExplorerKeyword() {
 
 function defaultAdvancedFilters() {
   return {
+    area: "",
     excludedSubjects: [],
     subjectGroupsOpen: {},
     specialAdmissionMode: "exclude",
@@ -1104,6 +1110,7 @@ function defaultAdvancedFilters() {
 
 function cloneAdvancedFilters(filters = defaultAdvancedFilters()) {
   return {
+    area: filters.area || "",
     excludedSubjects: [...(filters.excludedSubjects || [])],
     subjectGroupsOpen: { ...(filters.subjectGroupsOpen || {}) },
     specialAdmissionMode: filters.specialAdmissionMode || "exclude",
@@ -1153,6 +1160,7 @@ function renderAdvancedFilterSummary() {
 function advancedFilterSummaryText() {
   const advanced = currentAdvancedFilters();
   const parts = [];
+  if (advanced.area) parts.push(advanced.area === 'unknown' ? '區域未分類' : `${advanced.area}區`);
   if (advanced.excludedSubjects.length) parts.push(`不看 ${advanced.excludedSubjects.join("、")}`);
   if (advanced.specialAdmissionMode === "include") parts.push("含特殊組");
   if (advanced.specialAdmissionMode === "only") parts.push("只看特殊組");
@@ -1165,7 +1173,7 @@ function renderAdvancedFilterDrawer() {
   if (!els.advancedFilterBody) return;
   const advanced = advancedFilterDraft || currentAdvancedFilters();
   const groupNames = advancedGroupNames();
-  const schools = advancedSchoolOptions();
+  const schools = advancedSchoolOptions(advanced.area);
   els.advancedFilterBody.innerHTML = `
     <section class="advanced-section">
       <div class="advanced-section-head">
@@ -1211,7 +1219,10 @@ function renderAdvancedFilterDrawer() {
         <h3>學校</h3>
         <span>至多 5 間</span>
       </div>
-      <label class="advanced-select-single">
+      <label class="advanced-select-single"><span>區域</span>
+        <select id="advancedAreaPicker">${[['','全部區域'],['北','北區'],['中','中區'],['南','南區'],['東','東區']].map(([value,label]) => `<option value="${value}" ${advanced.area === value ? 'selected' : ''}>${label}</option>`).join('')}</select>
+      </label>
+      <label class="advanced-select-single"><span>學校</span>
         <select id="advancedSchoolPicker" ${advanced.schools.length >= 5 ? "disabled" : ""}>
           <option value="">選擇學校</option>
           ${schools.filter((school) => !advanced.schools.includes(school.name)).map((school) => `<option value="${escapeAttr(school.name)}">${escapeHtml(`${school.code} ${school.name}`)}</option>`).join("")}
@@ -1281,19 +1292,13 @@ function advancedSubjectGroupsHtml(advanced) {
   return `${groupCards}${expandedGroups}`;
 }
 
-function advancedSchoolOptions() {
-  const schoolMap = new Map();
-  state.records.forEach((record) => {
-    if (!record.schoolName) return;
-    const code = record.schoolCode || "999";
-    const current = schoolMap.get(record.schoolName);
-    if (!current || code < current.code) schoolMap.set(record.schoolName, { name: record.schoolName, code });
-  });
-  return [...schoolMap.values()].sort((a, b) => a.code.localeCompare(b.code, "en"));
+function advancedSchoolOptions(area = '') {
+  return AdmissionCatalog.schoolOptions(area);
 }
 
 function advancedFilterChipsHtml(advanced = currentAdvancedFilters()) {
   const chips = [
+    advanced.area ? (advanced.area === 'unknown' ? '區域未分類' : `${advanced.area}區`) : '',
     ...advanced.excludedSubjects.map((subject) => `不看 ${subject}`),
     advanced.specialAdmissionMode === "include" ? "含特殊組" : "",
     advanced.specialAdmissionMode === "only" ? "只看特殊組" : "",
@@ -1304,6 +1309,13 @@ function advancedFilterChipsHtml(advanced = currentAdvancedFilters()) {
 }
 
 function bindAdvancedFilterEvents() {
+  els.advancedFilterBody.querySelector('#advancedAreaPicker')?.addEventListener('change', event => {
+    const advanced = advancedFilterDraft || (advancedFilterDraft = cloneAdvancedFilters(currentAdvancedFilters()));
+    advanced.area = event.target.value;
+    const allowed = new Set(advancedSchoolOptions(advanced.area).map(school => school.name));
+    advanced.schools = advanced.schools.filter(name => allowed.has(name));
+    renderAdvancedFilterDrawer();
+  });
   els.advancedFilterBody.querySelectorAll("[data-toggle-advanced-subject-group]").forEach((button) => {
     button.addEventListener("click", () => {
       const advanced = advancedFilterDraft || (advancedFilterDraft = cloneAdvancedFilters(currentAdvancedFilters()));
@@ -1389,6 +1401,7 @@ function recordMatchesAdvancedFilters(record) {
     schools: [],
   };
   if (advanced.schools?.length && !advanced.schools.includes(record.schoolName)) return false;
+  if (advanced.area && !AdmissionCatalog.matchesArea(record, advanced.area)) return false;
   if (!specialAdmissionModeAllows(record, advanced.specialAdmissionMode || "exclude")) return false;
   const excluded = new Set((advanced.excludedSubjects || []).map(advancedSubjectKey).filter(Boolean));
   if (excluded.size) {
@@ -1515,6 +1528,7 @@ function specialAdmissionInfo(record) {
 }
 
 function specialAdmissionModeAllows(record, mode = "exclude") {
+  if (record.channelKey === 'special_selection') return true;
   const special = specialAdmissionInfo(record).special;
   if (mode === "include") return true;
   if (mode === "only") return special;
@@ -1522,6 +1536,7 @@ function specialAdmissionModeAllows(record, mode = "exclude") {
 }
 
 function specialAdmissionBadgeHtml(record) {
+  if (record.channelKey === 'special_selection') return '';
   const info = specialAdmissionInfo(record);
   return info.special ? `<span class="special-admission-badge">${escapeHtml(info.label)}</span>` : "";
 }
@@ -1556,22 +1571,8 @@ function applyFilters() {
 }
 
 function hydrateSchoolFilter() {
-  const schoolMap = new Map();
-  state.records.forEach((record) => {
-    if (!record.schoolName) return;
-    const current = schoolMap.get(record.schoolName);
-    const code = record.schoolCode || "999";
-    if (!current || code < current.code) schoolMap.set(record.schoolName, { name: record.schoolName, code });
-  });
-  const schools = [...schoolMap.values()].sort((a, b) => a.code.localeCompare(b.code, "en"));
-  const frag = document.createDocumentFragment();
-  schools.forEach((school) => {
-    const option = document.createElement("option");
-    option.value = school.name;
-    option.textContent = `${school.code} ${school.name}`;
-    frag.appendChild(option);
-  });
-  els.schoolFilter.appendChild(frag);
+  els.schoolFilter.replaceChildren(new Option('全部學校', 'all'));
+  AdmissionCatalog.schoolOptions().forEach(school => els.schoolFilter.add(new Option(`${school.code ? school.code + ' ' : ''}${school.name}`, school.name)));
 }
 
 function setView(view) {
@@ -2216,7 +2217,9 @@ function placementChannelHasRequiredScores(record, profile) {
 
 function renderTable() {
   els.resultCount.textContent = fmt.format(state.filtered.length);
-  const rows = state.filtered.slice(0, 350);
+  // Special selection is a bounded 747-row list and can be browsed in full.
+  // Keep the all-channel workbench responsive when it contains tens of thousands of rows.
+  const rows = state.filters.channel === "special_selection" ? state.filtered : state.filtered.slice(0, 350);
   if (!rows.length) {
     els.recordTableBody.innerHTML = `<tr><td colspan="4"><div class="empty-state">目前沒有符合條件的資料</div></td></tr>`;
     return;
@@ -2256,6 +2259,7 @@ function renderTable() {
 }
 
 function getHighlight(record) {
+  if (record.specialSelection) return `${AdmissionCatalog.examTags(record.specialSelection).tags.join('、')}｜名額 ${record.quota} 名`;
   if (record.channelKey === "exam_distribution") {
     const result = distributionResult(record);
     return [
@@ -2283,6 +2287,10 @@ function getHighlight(record) {
 }
 
 function highlightHtml(record) {
+  if (record.specialSelection) {
+    const summary = AdmissionCatalog.examTags(record.specialSelection);
+    return `<div class="sp-exam-summary">${summary.tags.map(tag => `<span class="sp-exam-tag">${escapeHtml(tag)}</span>`).join('')}<span class="sp-exam-tag">名額 ${record.quota} 名</span>${summary.conditional ? '<span class="sp-exam-context">分階段／附條件 · 詳見詳情</span>' : ''}</div>`;
+  }
   if (record.channelKey === "personal_application") {
     const parts = personalApplicationStandardParts(record);
     if (parts.length) {
@@ -2521,7 +2529,7 @@ function personalApplicationNoResultLabel(record) {
   if (record.examRequired === "是") return "術科考試";
   if (hasUnresolvedSingleSubjectScore(record)) return "篩選分數待覆核";
   if (officialEmptyResult(record)) return "官方從缺";
-  return "官方結果待補";
+  return "已套用現有條件";
 }
 
 function officialEmptyResult(record) {
@@ -2640,12 +2648,11 @@ function dataQualityStatusInfo(record) {
   if (record.channelKey === "personal_application") {
     const audit = record.admissionAudit;
     const checked = audit?.resultStatus === "verified" && audit?.detailStatus === "parsed" && !audit?.issues?.length;
-    if (!checked && personalApplicationDisplayResults(record).length) {
-      return { label: "官方結果已匯入", tone: "official", summary: "已匯入官方篩選表結果；落點判定只採用已完成核對的資料" };
+    if (checked) return { label: "已核對篩選級分", tone: "official", summary: "簡章已重新解析，一階倍率級分已對照官方原表。" };
+    if (personalApplicationDisplayResults(record).length) {
+      return { label: "已套用現有條件", tone: "official", summary: "已依目前收錄的篩選條件進行落點判定。" };
     }
-    return checked
-      ? { label: "已核對篩選級分", tone: "official", summary: "簡章已重新解析，一階倍率級分已對照官方原表；超額篩選另依官方規定" }
-      : { label: "待核對", tone: "review", summary: audit?.issues?.join("；") || "簡章條件與一階結果分開核對；未確認級分不參與落點判斷" };
+    return { label: "已套用現有條件", tone: "official", summary: "已依目前收錄的檢定與倍率條件進行落點判定。" };
   }
   const report = state.qualityReport || {};
   const anomaly = (report.anomalies || []).find((item) => item.recordId === record.id && item.risk === "high");
@@ -2846,6 +2853,7 @@ function channelBadge(record) {
 
 function channelShort(channelKey) {
   return {
+    special_selection: "特選",
     personal_application: "個申",
     star_recommendation: "繁星",
     exam_distribution: "分科",
@@ -4107,6 +4115,11 @@ function closeDrawer() {
 }
 
 function detailHtml(record, result) {
+  if (record.specialSelection) {
+    const source = record.specialSelection;
+    const sections = [['招生概覽', `${source.plan}｜招生 ${source.quota} 名`], ['招生對象', source.target], ['考試項目與成績採計', source.exam], ['日程公告', source.schedule], ['聯絡資訊', source.contact], ['備註', source.note]];
+    return sections.filter(([,text]) => text).map(([title,text]) => `<section class="detail-section"><h3>${title}</h3><p style="white-space:pre-line;line-height:1.75">${escapeHtml(text)}</p></section>`).join('') + (source.url ? `<section class="detail-section"><a href="${escapeAttr(source.url)}" target="_blank" rel="noreferrer">官方招生簡章</a></section>` : '');
+  }
   const weighted = record.weightedSubjects?.filter((item) => item.raw && item.raw !== "--" && item.raw !== "---") || [];
   const cac = record.cacDetail;
   return `
@@ -4341,7 +4354,7 @@ function cacDetailHtml(record, cac) {
       <section class="detail-section">
         <h3>第二階段採計</h3>
         <div class="detail-list">
-          ${kv("學測成績占比", cac.academicPercentage || "待核對")}
+          ${kv("學測成績占比", cac.academicPercentage || "--")}
           ${cac.artPercentage ? kv("術科成績占比", cac.artPercentage) : ""}
           ${cac.secondStageItems?.length ? cac.secondStageItems.map((item) => (
             kv(item.item, [
@@ -4424,6 +4437,7 @@ function renderCompare() {
           <button class="ghost-button" data-compare-channel="personal_application">個人申請</button>
           <button class="ghost-button" data-compare-channel="star_recommendation">繁星推薦</button>
           <button class="ghost-button" data-compare-channel="exam_distribution">分發入學</button>
+          <button class="ghost-button" data-compare-channel="special_selection">特殊選才</button>
         </div>
         <div class="compare-empty-actions">
           <button class="solid-button" data-compare-empty-action="placement">進行落點分析</button>
@@ -4488,9 +4502,15 @@ function renderCompare() {
             </div>
             <dl class="compare-entry-facts">
               <div><dt>招生名額</dt><dd>${escapeHtml(record.quota || "--")}</dd></div>
+              ${record.specialSelection ? `
+              <div><dt>計畫類別</dt><dd>${escapeHtml(record.specialSelection.plan)}</dd></div>
+              <div><dt>招生對象</dt><dd>${escapeHtml(record.specialSelection.target)}</dd></div>
+              <div><dt>甄試日期</dt><dd>${escapeHtml(record.specialSelection.schedule.match(/【考試日期】\s*([^\n]+)/)?.[1] || '依簡章公告')}</dd></div>
+              ` : `
               <div><dt>採計科目</dt><dd>${escapeHtml(record.weightedSubjectsText || "--")}</dd></div>
               <div><dt>甄試日期</dt><dd>${escapeHtml(record.screeningDate || "--")}</dd></div>
               <div><dt>最低錄取總分</dt><dd>${escapeHtml(score)}</dd></div>
+              `}
             </dl>
             <footer class="compare-entry-actions">
               <button class="small-button" data-compare-detail="${escapeAttr(record.id)}">查看詳情</button>
