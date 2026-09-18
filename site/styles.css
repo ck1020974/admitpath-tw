@@ -71,6 +71,8 @@ button.lane-card {
 }
 
 .brand {
+  appearance: none;
+  -webkit-appearance: none;
   display: flex;
   align-items: center;
   gap: 10px;
@@ -3799,6 +3801,10 @@ tr:hover td {
   .explorer-insight-grid,
   .course-group-grid {
     grid-template-columns: 1fr;
+  }
+
+  .home-utility-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
   }
 
   .mosaic-card-wide {
