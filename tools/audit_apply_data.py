@@ -4,6 +4,9 @@ import re
 from collections import Counter
 from pathlib import Path
 
+from apply_sieve_score_guard import sanitize_record
+from official_sieve_reviews import apply_review, load_reviews
+
 ROOT = Path(__file__).resolve().parents[1]
 KNOWN = {'國文', '英文', '數A', '數B', '社會', '自然', 'APCS識讀', 'APCS實作'}
 
@@ -79,6 +82,7 @@ def inspect_record(r, standards):
 def audit_records(records, standards, corrections):
     queue, summary, changed = [], Counter(), []
     ids = set()
+    official_reviews = load_reviews()
     for r in records:
         if r['channelKey'] != 'personal_application':
             continue
@@ -87,8 +91,6 @@ def audit_records(records, standards, corrections):
         ids.add(r['id'])
         d = r.get('cacDetail') or {}
         review = corrections.get(str(r['year']), {}).get(r['programCode'])
-        verification_method = (r.get('applySieveResult') or {}).get('verification', {}).get('method')
-        gender_review = verification_method in ('official_gender_row', 'official_rapidocr')
         if review:
             result = r.setdefault('applySieveResult', {})
             if not result.get('sourceImageUrl', '').startswith('https://www.cac.edu.tw/'):
@@ -100,28 +102,34 @@ def audit_records(records, standards, corrections):
             result['sieveResultItems'] = [{'type':'combined' if len(i['subjects'])>1 else 'single', **{k:i[k] for k in ('subjects','score','label')}} for i in rows]
             result['sieveResultStandard'] = '、'.join(i['label'] for i in rows)
             result['verification'] = {k:v for k,v in review.items() if k != 'rows'} | {'sourceUrl':result['sourceImageUrl']}
+        sanitize_record(r)
+        if r['id'] in official_reviews:
+            apply_review(r, official_reviews[r['id']])
+        verification_method = (r.get('applySieveResult') or {}).get('verification', {}).get('method')
+        gender_review = verification_method in ('official_gender_row', 'official_rapidocr', 'official-image-visual-review')
+        score_review_pending = bool((r.get('applySieveResult') or {}).get('scoreReviewPending'))
         issues, anomalies, wanted = inspect_record(r, standards)
         # OCR rows without an official image review are provisional. Keep
         # them pending instead of reporting every provisional mismatch as a
         # confirmed anomaly.
-        if not review:
+        if not review and verification_method != 'official-image-visual-review':
             anomalies = []
         if review and anomalies:
             raise ValueError(f"Reviewed result contradicts current official detail: {r['id']} {anomalies}")
         r['admissionAudit'] = {
             'schemaVersion':2, 'detailStatus':'parsed' if r.get('officialDetailStatus') == 'parsed' else 'pending',
-            'resultStatus':'verified' if review or gender_review else 'pending', 'issues':issues, 'resultIssues':anomalies,
+            'resultStatus':'verified' if (review or gender_review) and not score_review_pending and not anomalies else 'pending', 'issues':issues, 'resultIssues':anomalies,
             'resultScope':'一般招生名額之倍率篩選；不含未公開超額篩選最低級分',
             'detailSourceUrl':r.get('detailUrl'),
         }
         summary[f"{r['year']}_total"] += 1
         summary[f"{r['year']}_details_parsed"] += r['admissionAudit']['detailStatus'] == 'parsed'
-        summary[f"{r['year']}_results_verified"] += bool(review or gender_review)
+        summary[f"{r['year']}_results_verified"] += bool((review or gender_review) and not score_review_pending and not anomalies)
         summary[f"{r['year']}_math_either"] += len([i for i in d.get('screeningSubjects', []) if subject(i['subject']) in ('數A','數B') and i.get('standard') not in ('','--',None)]) == 2
         summary[f"{r['year']}_apcs"] += bool(d.get('apcsSubjects'))
         summary[f"{r['year']}_anomalies"] += bool(anomalies)
-        if issues or not review and not gender_review:
-            queue.append({'id':r['id'], 'school':r['schoolName'], 'department':r['departmentName'], 'issues':issues+anomalies+([] if review else ['一階圖片級分尚未逐列核對']), 'detailUrl':r['detailUrl'], 'resultUrl':(r.get('applySieveResult') or {}).get('sourceImageUrl')})
+        if issues or anomalies or score_review_pending or not review and not gender_review:
+            queue.append({'id':r['id'], 'school':r['schoolName'], 'department':r['departmentName'], 'issues':issues+anomalies+(['單科或合計級分超過上限，待官方原表核對'] if score_review_pending else [])+([] if review else ['一階圖片級分尚未逐列核對']), 'detailUrl':r['detailUrl'], 'resultUrl':(r.get('applySieveResult') or {}).get('sourceImageUrl')})
     return {'summary': dict(summary), 'corrections':changed, 'reviewQueue':queue}
 
 

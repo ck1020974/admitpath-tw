@@ -2,109 +2,18 @@
   "summary": {
     "115_total": 2212,
     "115_details_parsed": 2212,
-    "115_results_verified": 1110,
+    "115_results_verified": 1142,
     "115_math_either": 149,
     "115_apcs": 63,
     "115_anomalies": 0,
     "114_total": 2174,
     "114_details_parsed": 0,
-    "114_results_verified": 1115,
+    "114_results_verified": 1140,
     "114_math_either": 126,
     "114_apcs": 0,
     "114_anomalies": 0
   },
-  "corrections": [
-    {
-      "id": "115-personal_application-001582-115_apply",
-      "before": [
-        {
-          "rank": 1,
-          "multiplier": "10",
-          "subjects": [
-            "自然",
-            "英文"
-          ],
-          "score": "26",
-          "label": "自然+英文26"
-        },
-        {
-          "rank": 2,
-          "multiplier": "2.5",
-          "subjects": [
-            "數A"
-          ],
-          "score": "15",
-          "label": "數A15"
-        }
-      ],
-      "after": [
-        {
-          "rank": 1,
-          "multiplier": "10",
-          "subjects": [
-            "英文",
-            "自然"
-          ],
-          "score": "26",
-          "label": "英文+自然26"
-        },
-        {
-          "rank": 2,
-          "multiplier": "2.5",
-          "subjects": [
-            "數A"
-          ],
-          "score": "15",
-          "label": "數A15"
-        }
-      ]
-    },
-    {
-      "id": "115-personal_application-014492-115_apply",
-      "before": [
-        {
-          "rank": 1,
-          "multiplier": "15",
-          "subjects": [
-            "英文"
-          ],
-          "score": "2",
-          "label": "英文2"
-        },
-        {
-          "rank": 2,
-          "multiplier": "5",
-          "subjects": [
-            "APCS實作",
-            "APCS識讀"
-          ],
-          "score": "5",
-          "label": "APCS實作+APCS識讀5"
-        }
-      ],
-      "after": [
-        {
-          "rank": 1,
-          "multiplier": "15",
-          "subjects": [
-            "英文"
-          ],
-          "score": "2",
-          "label": "英文2"
-        },
-        {
-          "rank": 2,
-          "multiplier": "5",
-          "subjects": [
-            "APCS識讀",
-            "APCS實作"
-          ],
-          "score": "5",
-          "label": "APCS識讀+APCS實作5"
-        }
-      ]
-    }
-  ],
+  "corrections": [],
   "reviewQueue": [
     {
       "id": "115-personal_application-001052-115_apply",
@@ -155,16 +64,6 @@
       ],
       "detailUrl": "https://www.cac.edu.tw/apply115/system/ColQry_115xappLyfOrStu_Azd5gP29/html/115_001122.htm?v=1.0",
       "resultUrl": "https://www.cac.edu.tw/CacLink/apply115/115Apply_sievE_Result_querY_615JG8Wgh9d/html_sieve_result_115_Zx57f1dW/Standard/report/pict/001.png"
-    },
-    {
-      "id": "115-personal_application-001132-115_apply",
-      "school": "國立臺灣大學",
-      "department": "心理學系",
-      "issues": [
-        "一階圖片級分尚未逐列核對"
-      ],
-      "detailUrl": "https://www.cac.edu.tw/apply115/system/ColQry_115xappLyfOrStu_Azd5gP29/html/115_001132.htm?v=1.0",
-      "resultUrl": ""
     },
     {
       "id": "115-personal_application-001142-115_apply",
@@ -255,16 +154,6 @@
       ],
       "detailUrl": "https://www.cac.edu.tw/apply115/system/ColQry_115xappLyfOrStu_Azd5gP29/html/115_001312.htm?v=1.0",
       "resultUrl": "https://www.cac.edu.tw/CacLink/apply115/115Apply_sievE_Result_querY_615JG8Wgh9d/html_sieve_result_115_Zx57f1dW/Standard/report/pict/001.png"
-    },
-    {
-      "id": "115-personal_application-001332-115_apply",
-      "school": "國立臺灣大學",
-      "department": "機械工程學系",
-      "issues": [
-        "一階圖片級分尚未逐列核對"
-      ],
-      "detailUrl": "https://www.cac.edu.tw/apply115/system/ColQry_115xappLyfOrStu_Azd5gP29/html/115_001332.htm?v=1.0",
-      "resultUrl": ""
     },
     {
       "id": "115-personal_application-001342-115_apply",
@@ -1087,16 +976,6 @@
       "resultUrl": "https://www.cac.edu.tw/CacLink/apply115/115Apply_sievE_Result_querY_615JG8Wgh9d/html_sieve_result_115_Zx57f1dW/Standard/report/pict/003.png"
     },
     {
-      "id": "115-personal_application-003422-115_apply",
-      "school": "國立中興大學",
-      "department": "景觀與遊憩學士學位學程",
-      "issues": [
-        "一階圖片級分尚未逐列核對"
-      ],
-      "detailUrl": "https://www.cac.edu.tw/apply115/system/ColQry_115xappLyfOrStu_Azd5gP29/html/115_003422.htm?v=1.0",
-      "resultUrl": "https://www.cac.edu.tw/CacLink/apply115/115Apply_sievE_Result_querY_615JG8Wgh9d/html_sieve_result_115_Zx57f1dW/Standard/report/pict/003.png"
-    },
-    {
       "id": "115-personal_application-003452-115_apply",
       "school": "國立中興大學",
       "department": "獸醫學系",
@@ -1115,16 +994,6 @@
       ],
       "detailUrl": "https://www.cac.edu.tw/apply115/system/ColQry_115xappLyfOrStu_Azd5gP29/html/115_003462.htm?v=1.0",
       "resultUrl": "https://www.cac.edu.tw/CacLink/apply115/115Apply_sievE_Result_querY_615JG8Wgh9d/html_sieve_result_115_Zx57f1dW/Standard/report/pict/003.png"
-    },
-    {
-      "id": "115-personal_application-003472-115_apply",
-      "school": "國立中興大學",
-      "department": "興翼招生B組(文史法律)",
-      "issues": [
-        "一階圖片級分尚未逐列核對"
-      ],
-      "detailUrl": "https://www.cac.edu.tw/apply115/system/ColQry_115xappLyfOrStu_Azd5gP29/html/115_003472.htm?v=1.0",
-      "resultUrl": ""
     },
     {
       "id": "115-personal_application-003482-115_apply",
@@ -1247,16 +1116,6 @@
       "resultUrl": "https://www.cac.edu.tw/CacLink/apply115/115Apply_sievE_Result_querY_615JG8Wgh9d/html_sieve_result_115_Zx57f1dW/Standard/report/pict/004.png"
     },
     {
-      "id": "115-personal_application-004142-115_apply",
-      "school": "國立成功大學",
-      "department": "資源工程學系",
-      "issues": [
-        "一階圖片級分尚未逐列核對"
-      ],
-      "detailUrl": "https://www.cac.edu.tw/apply115/system/ColQry_115xappLyfOrStu_Azd5gP29/html/115_004142.htm?v=1.0",
-      "resultUrl": "https://www.cac.edu.tw/CacLink/apply115/115Apply_sievE_Result_querY_615JG8Wgh9d/html_sieve_result_115_Zx57f1dW/Standard/report/pict/004.png"
-    },
-    {
       "id": "115-personal_application-004152-115_apply",
       "school": "國立成功大學",
       "department": "土木工程學系",
@@ -1275,16 +1134,6 @@
       ],
       "detailUrl": "https://www.cac.edu.tw/apply115/system/ColQry_115xappLyfOrStu_Azd5gP29/html/115_004162.htm?v=1.0",
       "resultUrl": "https://www.cac.edu.tw/CacLink/apply115/115Apply_sievE_Result_querY_615JG8Wgh9d/html_sieve_result_115_Zx57f1dW/Standard/report/pict/004.png"
-    },
-    {
-      "id": "115-personal_application-004182-115_apply",
-      "school": "國立成功大學",
-      "department": "水利及海洋工程學系(普渡雙聯組)",
-      "issues": [
-        "一階圖片級分尚未逐列核對"
-      ],
-      "detailUrl": "https://www.cac.edu.tw/apply115/system/ColQry_115xappLyfOrStu_Azd5gP29/html/115_004182.htm?v=1.0",
-      "resultUrl": ""
     },
     {
       "id": "115-personal_application-004192-115_apply",
@@ -1517,16 +1366,6 @@
       "resultUrl": ""
     },
     {
-      "id": "115-personal_application-004472-115_apply",
-      "school": "國立成功大學",
-      "department": "電機工程學系(乙組)",
-      "issues": [
-        "一階圖片級分尚未逐列核對"
-      ],
-      "detailUrl": "https://www.cac.edu.tw/apply115/system/ColQry_115xappLyfOrStu_Azd5gP29/html/115_004472.htm?v=1.0",
-      "resultUrl": ""
-    },
-    {
       "id": "115-personal_application-004482-115_apply",
       "school": "國立成功大學",
       "department": "電機工程學系(普渡雙聯組)",
@@ -1534,16 +1373,6 @@
         "一階圖片級分尚未逐列核對"
       ],
       "detailUrl": "https://www.cac.edu.tw/apply115/system/ColQry_115xappLyfOrStu_Azd5gP29/html/115_004482.htm?v=1.0",
-      "resultUrl": ""
-    },
-    {
-      "id": "115-personal_application-004492-115_apply",
-      "school": "國立成功大學",
-      "department": "資訊工程學系",
-      "issues": [
-        "一階圖片級分尚未逐列核對"
-      ],
-      "detailUrl": "https://www.cac.edu.tw/apply115/system/ColQry_115xappLyfOrStu_Azd5gP29/html/115_004492.htm?v=1.0",
       "resultUrl": ""
     },
     {
@@ -1595,16 +1424,6 @@
       ],
       "detailUrl": "https://www.cac.edu.tw/apply115/system/ColQry_115xappLyfOrStu_Azd5gP29/html/115_004572.htm?v=1.0",
       "resultUrl": ""
-    },
-    {
-      "id": "115-personal_application-004582-115_apply",
-      "school": "國立成功大學",
-      "department": "生物科技與產業科學系(APCS組)",
-      "issues": [
-        "一階圖片級分尚未逐列核對"
-      ],
-      "detailUrl": "https://www.cac.edu.tw/apply115/system/ColQry_115xappLyfOrStu_Azd5gP29/html/115_004582.htm?v=1.0",
-      "resultUrl": "https://www.cac.edu.tw/CacLink/apply115/115Apply_sievE_Result_querY_615JG8Wgh9d/html_sieve_result_115_Zx57f1dW/Standard/report/pict/004.png"
     },
     {
       "id": "115-personal_application-005012-115_apply",
@@ -2269,16 +2088,6 @@
       "resultUrl": "https://www.cac.edu.tw/CacLink/apply115/115Apply_sievE_Result_querY_615JG8Wgh9d/html_sieve_result_115_Zx57f1dW/Standard/report/pict/008.png"
     },
     {
-      "id": "115-personal_application-008342-115_apply",
-      "school": "中原大學",
-      "department": "室內設計學系",
-      "issues": [
-        "一階圖片級分尚未逐列核對"
-      ],
-      "detailUrl": "https://www.cac.edu.tw/apply115/system/ColQry_115xappLyfOrStu_Azd5gP29/html/115_008342.htm?v=1.0",
-      "resultUrl": "https://www.cac.edu.tw/CacLink/apply115/115Apply_sievE_Result_querY_615JG8Wgh9d/html_sieve_result_115_Zx57f1dW/Standard/report/pict/008.png"
-    },
-    {
       "id": "115-personal_application-008352-115_apply",
       "school": "中原大學",
       "department": "商業設計學系商業設計組",
@@ -2521,16 +2330,6 @@
       "resultUrl": "https://www.cac.edu.tw/CacLink/apply115/115Apply_sievE_Result_querY_615JG8Wgh9d/html_sieve_result_115_Zx57f1dW/Standard/report/pict/009.png"
     },
     {
-      "id": "115-personal_application-009382-115_apply",
-      "school": "東海大學",
-      "department": "工業設計學系(B組)",
-      "issues": [
-        "一階圖片級分尚未逐列核對"
-      ],
-      "detailUrl": "https://www.cac.edu.tw/apply115/system/ColQry_115xappLyfOrStu_Azd5gP29/html/115_009382.htm?v=1.0",
-      "resultUrl": ""
-    },
-    {
       "id": "115-personal_application-009392-115_apply",
       "school": "東海大學",
       "department": "景觀學系",
@@ -2635,16 +2434,6 @@
       "resultUrl": ""
     },
     {
-      "id": "115-personal_application-011152-115_apply",
-      "school": "國立清華大學",
-      "department": "科技管理學院學士班",
-      "issues": [
-        "一階圖片級分尚未逐列核對"
-      ],
-      "detailUrl": "https://www.cac.edu.tw/apply115/system/ColQry_115xappLyfOrStu_Azd5gP29/html/115_011152.htm?v=1.0",
-      "resultUrl": ""
-    },
-    {
       "id": "115-personal_application-011162-115_apply",
       "school": "國立清華大學",
       "department": "計量財務金融學系",
@@ -2663,16 +2452,6 @@
       ],
       "detailUrl": "https://www.cac.edu.tw/apply115/system/ColQry_115xappLyfOrStu_Azd5gP29/html/115_011172.htm?v=1.0",
       "resultUrl": "https://www.cac.edu.tw/CacLink/apply115/115Apply_sievE_Result_querY_615JG8Wgh9d/html_sieve_result_115_Zx57f1dW/Standard/report/pict/011.png"
-    },
-    {
-      "id": "115-personal_application-011182-115_apply",
-      "school": "國立清華大學",
-      "department": "數學系乙組(應用數學組)",
-      "issues": [
-        "一階圖片級分尚未逐列核對"
-      ],
-      "detailUrl": "https://www.cac.edu.tw/apply115/system/ColQry_115xappLyfOrStu_Azd5gP29/html/115_011182.htm?v=1.0",
-      "resultUrl": ""
     },
     {
       "id": "115-personal_application-011192-115_apply",
@@ -2803,16 +2582,6 @@
       ],
       "detailUrl": "https://www.cac.edu.tw/apply115/system/ColQry_115xappLyfOrStu_Azd5gP29/html/115_011342.htm?v=1.0",
       "resultUrl": "https://www.cac.edu.tw/CacLink/apply115/115Apply_sievE_Result_querY_615JG8Wgh9d/html_sieve_result_115_Zx57f1dW/Standard/report/pict/011.png"
-    },
-    {
-      "id": "115-personal_application-011352-115_apply",
-      "school": "國立清華大學",
-      "department": "資訊工程學系甲組(電子資訊組)",
-      "issues": [
-        "一階圖片級分尚未逐列核對"
-      ],
-      "detailUrl": "https://www.cac.edu.tw/apply115/system/ColQry_115xappLyfOrStu_Azd5gP29/html/115_011352.htm?v=1.0",
-      "resultUrl": ""
     },
     {
       "id": "115-personal_application-011372-115_apply",
@@ -3169,26 +2938,6 @@
       "resultUrl": "https://www.cac.edu.tw/CacLink/apply115/115Apply_sievE_Result_querY_615JG8Wgh9d/html_sieve_result_115_Zx57f1dW/Standard/report/pict/013.png"
     },
     {
-      "id": "115-personal_application-013262-115_apply",
-      "school": "國立陽明交通大學",
-      "department": "管理科學系",
-      "issues": [
-        "一階圖片級分尚未逐列核對"
-      ],
-      "detailUrl": "https://www.cac.edu.tw/apply115/system/ColQry_115xappLyfOrStu_Azd5gP29/html/115_013262.htm?v=1.0",
-      "resultUrl": ""
-    },
-    {
-      "id": "115-personal_application-013272-115_apply",
-      "school": "國立陽明交通大學",
-      "department": "運輸與物流管理學系",
-      "issues": [
-        "一階圖片級分尚未逐列核對"
-      ],
-      "detailUrl": "https://www.cac.edu.tw/apply115/system/ColQry_115xappLyfOrStu_Azd5gP29/html/115_013272.htm?v=1.0",
-      "resultUrl": ""
-    },
-    {
       "id": "115-personal_application-013312-115_apply",
       "school": "國立陽明交通大學",
       "department": "傳播與科技學系",
@@ -3236,16 +2985,6 @@
         "一階圖片級分尚未逐列核對"
       ],
       "detailUrl": "https://www.cac.edu.tw/apply115/system/ColQry_115xappLyfOrStu_Azd5gP29/html/115_013362.htm?v=1.0",
-      "resultUrl": ""
-    },
-    {
-      "id": "115-personal_application-013372-115_apply",
-      "school": "國立陽明交通大學",
-      "department": "屯蒙-人文社會組",
-      "issues": [
-        "一階圖片級分尚未逐列核對"
-      ],
-      "detailUrl": "https://www.cac.edu.tw/apply115/system/ColQry_115xappLyfOrStu_Azd5gP29/html/115_013372.htm?v=1.0",
       "resultUrl": ""
     },
     {
@@ -3339,16 +3078,6 @@
       "resultUrl": "https://www.cac.edu.tw/CacLink/apply115/115Apply_sievE_Result_querY_615JG8Wgh9d/html_sieve_result_115_Zx57f1dW/Standard/report/pict/013.png"
     },
     {
-      "id": "115-personal_application-013482-115_apply",
-      "school": "國立陽明交通大學",
-      "department": "醫學生物技術暨檢驗學系(資訊及精準醫學組)",
-      "issues": [
-        "一階圖片級分尚未逐列核對"
-      ],
-      "detailUrl": "https://www.cac.edu.tw/apply115/system/ColQry_115xappLyfOrStu_Azd5gP29/html/115_013482.htm?v=1.0",
-      "resultUrl": ""
-    },
-    {
       "id": "115-personal_application-013512-115_apply",
       "school": "國立陽明交通大學",
       "department": "物理治療暨輔助科技學系",
@@ -3377,16 +3106,6 @@
       ],
       "detailUrl": "https://www.cac.edu.tw/apply115/system/ColQry_115xappLyfOrStu_Azd5gP29/html/115_013532.htm?v=1.0",
       "resultUrl": "https://www.cac.edu.tw/CacLink/apply115/115Apply_sievE_Result_querY_615JG8Wgh9d/html_sieve_result_115_Zx57f1dW/Standard/report/pict/013.png"
-    },
-    {
-      "id": "115-personal_application-013542-115_apply",
-      "school": "國立陽明交通大學",
-      "department": "生物醫學工程學系",
-      "issues": [
-        "一階圖片級分尚未逐列核對"
-      ],
-      "detailUrl": "https://www.cac.edu.tw/apply115/system/ColQry_115xappLyfOrStu_Azd5gP29/html/115_013542.htm?v=1.0",
-      "resultUrl": ""
     },
     {
       "id": "115-personal_application-013552-115_apply",
@@ -3446,16 +3165,6 @@
         "一階圖片級分尚未逐列核對"
       ],
       "detailUrl": "https://www.cac.edu.tw/apply115/system/ColQry_115xappLyfOrStu_Azd5gP29/html/115_014082.htm?v=1.0",
-      "resultUrl": "https://www.cac.edu.tw/CacLink/apply115/115Apply_sievE_Result_querY_615JG8Wgh9d/html_sieve_result_115_Zx57f1dW/Standard/report/pict/014.png"
-    },
-    {
-      "id": "115-personal_application-014092-115_apply",
-      "school": "淡江大學",
-      "department": "英文學系全英語學士班",
-      "issues": [
-        "一階圖片級分尚未逐列核對"
-      ],
-      "detailUrl": "https://www.cac.edu.tw/apply115/system/ColQry_115xappLyfOrStu_Azd5gP29/html/115_014092.htm?v=1.0",
       "resultUrl": "https://www.cac.edu.tw/CacLink/apply115/115Apply_sievE_Result_querY_615JG8Wgh9d/html_sieve_result_115_Zx57f1dW/Standard/report/pict/014.png"
     },
     {
@@ -4087,16 +3796,6 @@
       ],
       "detailUrl": "https://www.cac.edu.tw/apply115/system/ColQry_115xappLyfOrStu_Azd5gP29/html/115_016062.htm?v=1.0",
       "resultUrl": "https://www.cac.edu.tw/CacLink/apply115/115Apply_sievE_Result_querY_615JG8Wgh9d/html_sieve_result_115_Zx57f1dW/Standard/report/pict/016.png"
-    },
-    {
-      "id": "115-personal_application-016082-115_apply",
-      "school": "國立中央大學",
-      "department": "化學學系",
-      "issues": [
-        "一階圖片級分尚未逐列核對"
-      ],
-      "detailUrl": "https://www.cac.edu.tw/apply115/system/ColQry_115xappLyfOrStu_Azd5gP29/html/115_016082.htm?v=1.0",
-      "resultUrl": ""
     },
     {
       "id": "115-personal_application-016102-115_apply",
@@ -5145,16 +4844,6 @@
       "resultUrl": null
     },
     {
-      "id": "115-personal_application-021162-115_apply",
-      "school": "國立臺灣海洋大學",
-      "department": "機械與機電工程學系",
-      "issues": [
-        "一階圖片級分尚未逐列核對"
-      ],
-      "detailUrl": "https://www.cac.edu.tw/apply115/system/ColQry_115xappLyfOrStu_Azd5gP29/html/115_021162.htm?v=1.0",
-      "resultUrl": "https://www.cac.edu.tw/CacLink/apply115/115Apply_sievE_Result_querY_615JG8Wgh9d/html_sieve_result_115_Zx57f1dW/Standard/report/pict/021.png"
-    },
-    {
       "id": "115-personal_application-021192-115_apply",
       "school": "國立臺灣海洋大學",
       "department": "海洋工程科技學士學位學程",
@@ -5443,16 +5132,6 @@
       "resultUrl": ""
     },
     {
-      "id": "115-personal_application-023172-115_apply",
-      "school": "國立彰化師範大學",
-      "department": "資訊工程學系(APCS組)",
-      "issues": [
-        "一階圖片級分尚未逐列核對"
-      ],
-      "detailUrl": "https://www.cac.edu.tw/apply115/system/ColQry_115xappLyfOrStu_Azd5gP29/html/115_023172.htm?v=1.0",
-      "resultUrl": "https://www.cac.edu.tw/CacLink/apply115/115Apply_sievE_Result_querY_615JG8Wgh9d/html_sieve_result_115_Zx57f1dW/Standard/report/pict/023.png"
-    },
-    {
       "id": "115-personal_application-023202-115_apply",
       "school": "國立彰化師範大學",
       "department": "資訊管理學系資訊管理組",
@@ -5577,16 +5256,6 @@
       "resultUrl": "https://www.cac.edu.tw/CacLink/apply115/115Apply_sievE_Result_querY_615JG8Wgh9d/html_sieve_result_115_Zx57f1dW/Standard/report/pict/026.png"
     },
     {
-      "id": "115-personal_application-026062-115_apply",
-      "school": "中山醫學大學",
-      "department": "語言治療與聽力學系語言治療組",
-      "issues": [
-        "一階圖片級分尚未逐列核對"
-      ],
-      "detailUrl": "https://www.cac.edu.tw/apply115/system/ColQry_115xappLyfOrStu_Azd5gP29/html/115_026062.htm?v=1.0",
-      "resultUrl": ""
-    },
-    {
       "id": "115-personal_application-026072-115_apply",
       "school": "中山醫學大學",
       "department": "語言治療與聽力學系聽力組",
@@ -5615,16 +5284,6 @@
       ],
       "detailUrl": "https://www.cac.edu.tw/apply115/system/ColQry_115xappLyfOrStu_Azd5gP29/html/115_026112.htm?v=1.0",
       "resultUrl": "https://www.cac.edu.tw/CacLink/apply115/115Apply_sievE_Result_querY_615JG8Wgh9d/html_sieve_result_115_Zx57f1dW/Standard/report/pict/026.png"
-    },
-    {
-      "id": "115-personal_application-026132-115_apply",
-      "school": "中山醫學大學",
-      "department": "營養學系(B組)",
-      "issues": [
-        "一階圖片級分尚未逐列核對"
-      ],
-      "detailUrl": "https://www.cac.edu.tw/apply115/system/ColQry_115xappLyfOrStu_Azd5gP29/html/115_026132.htm?v=1.0",
-      "resultUrl": ""
     },
     {
       "id": "115-personal_application-026142-115_apply",
@@ -5917,16 +5576,6 @@
       "resultUrl": "https://www.cac.edu.tw/CacLink/apply115/115Apply_sievE_Result_querY_615JG8Wgh9d/html_sieve_result_115_Zx57f1dW/Standard/report/pict/027.png"
     },
     {
-      "id": "115-personal_application-027242-115_apply",
-      "school": "國立中山大學",
-      "department": "資訊管理學系",
-      "issues": [
-        "一階圖片級分尚未逐列核對"
-      ],
-      "detailUrl": "https://www.cac.edu.tw/apply115/system/ColQry_115xappLyfOrStu_Azd5gP29/html/115_027242.htm?v=1.0",
-      "resultUrl": ""
-    },
-    {
       "id": "115-personal_application-027282-115_apply",
       "school": "國立中山大學",
       "department": "海洋環境及工程學系",
@@ -6091,16 +5740,6 @@
       "resultUrl": "https://www.cac.edu.tw/CacLink/apply115/115Apply_sievE_Result_querY_615JG8Wgh9d/html_sieve_result_115_Zx57f1dW/Standard/report/pict/030.png"
     },
     {
-      "id": "115-personal_application-030052-115_apply",
-      "school": "長庚大學",
-      "department": "醫學影像暨放射科學系",
-      "issues": [
-        "一階圖片級分尚未逐列核對"
-      ],
-      "detailUrl": "https://www.cac.edu.tw/apply115/system/ColQry_115xappLyfOrStu_Azd5gP29/html/115_030052.htm?v=1.0",
-      "resultUrl": ""
-    },
-    {
       "id": "115-personal_application-030062-115_apply",
       "school": "長庚大學",
       "department": "物理治療學系",
@@ -6138,16 +5777,6 @@
         "一階圖片級分尚未逐列核對"
       ],
       "detailUrl": "https://www.cac.edu.tw/apply115/system/ColQry_115xappLyfOrStu_Azd5gP29/html/115_030112.htm?v=1.0",
-      "resultUrl": ""
-    },
-    {
-      "id": "115-personal_application-030122-115_apply",
-      "school": "長庚大學",
-      "department": "化工與材料工程學系(化學工程組)",
-      "issues": [
-        "一階圖片級分尚未逐列核對"
-      ],
-      "detailUrl": "https://www.cac.edu.tw/apply115/system/ColQry_115xappLyfOrStu_Azd5gP29/html/115_030122.htm?v=1.0",
       "resultUrl": ""
     },
     {
@@ -7898,16 +7527,6 @@
       "resultUrl": "https://www.cac.edu.tw/CacLink/apply115/115Apply_sievE_Result_querY_615JG8Wgh9d/html_sieve_result_115_Zx57f1dW/Standard/report/pict/041.png"
     },
     {
-      "id": "115-personal_application-041112-115_apply",
-      "school": "國立中正大學",
-      "department": "心理學系",
-      "issues": [
-        "一階圖片級分尚未逐列核對"
-      ],
-      "detailUrl": "https://www.cac.edu.tw/apply115/system/ColQry_115xappLyfOrStu_Azd5gP29/html/115_041112.htm?v=1.0",
-      "resultUrl": "https://www.cac.edu.tw/CacLink/apply115/115Apply_sievE_Result_querY_615JG8Wgh9d/html_sieve_result_115_Zx57f1dW/Standard/report/pict/041.png"
-    },
-    {
       "id": "115-personal_application-041152-115_apply",
       "school": "國立中正大學",
       "department": "資訊工程學系",
@@ -8417,16 +8036,6 @@
         "一階圖片級分尚未逐列核對"
       ],
       "detailUrl": "https://www.cac.edu.tw/apply115/system/ColQry_115xappLyfOrStu_Azd5gP29/html/115_046362.htm?v=1.0",
-      "resultUrl": "https://www.cac.edu.tw/CacLink/apply115/115Apply_sievE_Result_querY_615JG8Wgh9d/html_sieve_result_115_Zx57f1dW/Standard/report/pict/046.png"
-    },
-    {
-      "id": "115-personal_application-046372-115_apply",
-      "school": "銘傳大學",
-      "department": "公共事務與行政管理學系（桃園校區）",
-      "issues": [
-        "一階圖片級分尚未逐列核對"
-      ],
-      "detailUrl": "https://www.cac.edu.tw/apply115/system/ColQry_115xappLyfOrStu_Azd5gP29/html/115_046372.htm?v=1.0",
       "resultUrl": "https://www.cac.edu.tw/CacLink/apply115/115Apply_sievE_Result_querY_615JG8Wgh9d/html_sieve_result_115_Zx57f1dW/Standard/report/pict/046.png"
     },
     {
@@ -10396,16 +10005,6 @@
       "resultUrl": "https://www.cac.edu.tw/CacLink/apply115/115Apply_sievE_Result_querY_615JG8Wgh9d/html_sieve_result_115_Zx57f1dW/Standard/report/pict/101.png"
     },
     {
-      "id": "115-personal_application-101192-115_apply",
-      "school": "國立高雄大學",
-      "department": "電機工程學系",
-      "issues": [
-        "一階圖片級分尚未逐列核對"
-      ],
-      "detailUrl": "https://www.cac.edu.tw/apply115/system/ColQry_115xappLyfOrStu_Azd5gP29/html/115_101192.htm?v=1.0",
-      "resultUrl": ""
-    },
-    {
       "id": "115-personal_application-101202-115_apply",
       "school": "國立高雄大學",
       "department": "電機工程學系(青年儲蓄帳戶組)",
@@ -10503,16 +10102,6 @@
         "一階圖片級分尚未逐列核對"
       ],
       "detailUrl": "https://www.cac.edu.tw/apply115/system/ColQry_115xappLyfOrStu_Azd5gP29/html/115_109012.htm?v=1.0",
-      "resultUrl": "https://www.cac.edu.tw/CacLink/apply115/115Apply_sievE_Result_querY_615JG8Wgh9d/html_sieve_result_115_Zx57f1dW/Standard/report/pict/109.png"
-    },
-    {
-      "id": "115-personal_application-109052-115_apply",
-      "school": "臺北醫學大學",
-      "department": "藥學系臨床藥學組",
-      "issues": [
-        "一階圖片級分尚未逐列核對"
-      ],
-      "detailUrl": "https://www.cac.edu.tw/apply115/system/ColQry_115xappLyfOrStu_Azd5gP29/html/115_109052.htm?v=1.0",
       "resultUrl": "https://www.cac.edu.tw/CacLink/apply115/115Apply_sievE_Result_querY_615JG8Wgh9d/html_sieve_result_115_Zx57f1dW/Standard/report/pict/109.png"
     },
     {

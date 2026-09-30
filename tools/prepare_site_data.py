@@ -2,6 +2,9 @@ import json
 import re
 from pathlib import Path
 
+from apply_sieve_score_guard import sanitize_record
+from official_sieve_reviews import apply_review, load_reviews
+
 
 ROOT = Path("outputs/admissions_data")
 SITE_DATA = Path("site/data")
@@ -744,6 +747,11 @@ def load_groups():
 
 def main():
     records = load_records()
+    official_reviews = load_reviews()
+    for record in records:
+        sanitize_record(record)
+        if record['id'] in official_reviews:
+            apply_review(record, official_reviews[record['id']])
     results = load_results()
     group_departments = load_groups()
 
