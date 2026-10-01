@@ -1492,7 +1492,7 @@ function advancedSubjectKey(subject) {
 
 function schoolOwnership(record) {
   const school = String(record?.schoolName || "");
-  return /^(國立|市立)/.test(school) ? "public" : "private";
+  return /^(國立|市立|國防大學|國防醫學大學)/.test(school) ? "public" : "private";
 }
 
 function isTopUniversity(record) {
@@ -1536,6 +1536,7 @@ function specialAdmissionModeAllows(record, mode = "exclude") {
 }
 
 function specialAdmissionBadgeHtml(record) {
+  if (record.militaryAdmission) return '<span class="special-admission-badge">（軍校）</span>';
   if (record.channelKey === 'special_selection') return '';
   const info = specialAdmissionInfo(record);
   return info.special ? `<span class="special-admission-badge">${escapeHtml(info.label)}</span>` : "";
@@ -2464,6 +2465,7 @@ function compactStarDistributionItem(value) {
 
 function personalApplicationStandardParts(record) {
   if (record.channelKey !== "personal_application") return [];
+  if (record.militaryAdmission) return record.militaryAdmission.rules.map(rule => ({ type: "threshold", text: rule.label || `${rule.subjects.join('+')}${rule.standard}` }));
   const displayResults = personalApplicationDisplayResults(record);
   return [
     ...(displayResults.length
@@ -2537,12 +2539,14 @@ function officialEmptyResult(record) {
 }
 
 function applicationThresholdParts(record, coveredSubjects = new Set()) {
+  if (record.militaryAdmission) return applicationThresholdLabelParts(record);
   return AdmissionRules.thresholds(record, state.gsatStandards).flatMap(r => r.kind === "any"
     ? r.options.map(option => ({ type: "threshold", text: formatApplicationThresholdRule(record.year, option) }))
     : [{ type: "threshold", text: formatApplicationThresholdRule(record.year, r) }]);
 }
 
 function applicationThresholdLabelParts(record) {
+  if (record.militaryAdmission) return AdmissionRules.thresholds(record, state.gsatStandards).map(rule => ({ type: "threshold", text: AdmissionRules.describe(rule) }));
   return AdmissionRules.thresholds(record, state.gsatStandards).flatMap((rule) => {
     const rules = rule.kind === "any" ? rule.options : [rule];
     return rules.map((item) => ({ type: "threshold", text: AdmissionRules.describe(item) }));
@@ -2645,6 +2649,7 @@ function hasUnresolvedSingleSubjectScore(record) {
 }
 
 function dataQualityStatusInfo(record) {
+  if (record.militaryAdmission) return { label: "軍校官方簡章", tone: "official", summary: "依軍校個申簡章列示學測檢定；另有體檢、報考身分、智力測驗及口試等條件，非一般個申倍率篩選。" };
   if (record.channelKey === "personal_application") {
     const audit = record.admissionAudit;
     const checked = audit?.resultStatus === "verified" && audit?.detailStatus === "parsed" && !audit?.issues?.length;
@@ -4247,6 +4252,7 @@ function summaryDetailHtml(record) {
 }
 
 function applySieveResultHtml(record) {
+  if (record.militaryAdmission) return `<section class="detail-section"><h3>軍校個人申請</h3><div class="detail-list">${kv("招生類別名額", Object.entries(record.militaryAdmission.quotas).map(([name, count]) => `${name} ${count}名`).join('；'))}${kv("學測檢定", record.militaryAdmission.thresholdText)}${kv("判讀方式", "比對學測檢定；軍校另須通過體檢、智力測驗及口試，符合學測不代表錄取。加總檢定按各科五標相加試算，實際資格以招生單位認定為準。")}</div></section>`;
   if (record.channelKey === "personal_application") {
     const rows = personalApplicationDisplayResults(record);
     return `<section class="detail-section"><h3>第一階段篩選結果</h3><div class="detail-list">
@@ -4384,6 +4390,7 @@ function cacDetailHtml(record, cac) {
 
 function personalApplicationThresholdHtml(record, cac) {
   if (!cac?.screeningSubjects?.length) return "";
+  if (record.militaryAdmission) return `<section class="detail-section"><h3>軍校學測檢定與採計</h3><div class="detail-list compact-list">${applicationThresholdParts(record).map(p => singleLine(p.text)).join('')}${record.weightedSubjects.map(item => kv(shortSubject(item.subject), `學測加權 ×${item.weight}`)).join('')}</div></section>`;
   const valid = value => value && value !== "--";
   return `
     <section class="detail-section">

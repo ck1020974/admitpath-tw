@@ -21,6 +21,16 @@
     return { kind: 'score', subjects: [s], threshold: Number(score), standard: item.standard, source: '檢定' };
   }
   function thresholds(record, standards) {
+    if (record.militaryAdmission) {
+      // 軍校的「任N科加總」為選擇式條件，不能拆成每科都須達標。
+      function resolve(rule) {
+        if (rule.kind === 'any') return { ...rule, options: rule.options.map(resolve) };
+        const values = rule.subjects.map((s, i) => standards?.[String(record.year)]?.[canonical(s)]?.[rule.standards?.[i] || rule.standard]);
+        if (values.some(v => !Number.isFinite(v))) throw new Error('Missing military GSAT standard');
+        return { ...rule, threshold: values.reduce((a, b) => a + b, 0), source: '檢定' };
+      }
+      return record.militaryAdmission.rules.map(resolve);
+    }
     const detail = record.cacDetail || {};
     const rules = [...(detail.screeningSubjects || []), ...(detail.apcsSubjects || [])]
       .filter(item => !subject(item.subject).startsWith('APCS'))
@@ -45,7 +55,7 @@
   }
   function hasSpecialConditions(record) {
     const detail = record.cacDetail || {};
-    return /APCS/.test(record.departmentName)
+    return Boolean(record.militaryAdmission) || /APCS/.test(record.departmentName)
       || (detail.apcsSubjects || []).length > 0
       || record.examRequired === '是'
       || detail.layout === 'art';
@@ -115,6 +125,7 @@
     return { ...rule, status: gap <= 0 ? 'match' : 'miss', actual, gap };
   }
   function describe(rule) {
+    if (rule.label) return rule.label;
     if (rule.kind === 'any') return rule.options.map(describe).join(' 或 ');
     if (rule.kind === 'note') return rule.source;
     if (rule.kind === 'listening') return `英聽 ${rule.level}級`;

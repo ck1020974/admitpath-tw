@@ -1,0 +1,48 @@
+const assert = require('node:assert/strict');
+const fs = require('node:fs');
+const vm = require('node:vm');
+const rules = require('../site/admission-rules.js');
+const records = require('../site/data/admissions_records.json');
+const standards = require('../site/data/ceec_gsat_five_standard_scores.json');
+const groups = require('../site/data/group_departments.json');
+const military = records.filter(r => r.militaryAdmission);
+assert.equal(military.length, 27);
+assert.equal(military.filter(r => r.schoolName === '國防大學').length, 22);
+assert.equal(military.filter(r => r.schoolName === '國防醫學大學').length, 5);
+assert.equal(new Set(records.map(r => r.id)).size, records.length);
+const all15 = { scores: Object.fromEntries(['國文', '英文', '數A', '數B', '社會', '自然'].map(s => [s, 15])) };
+for (const r of military) {
+  assert.equal(rules.evaluate(r, all15, standards).status, 'match', r.departmentName);
+  assert.notEqual(rules.evaluate(r, {}, standards).status, 'match', r.departmentName);
+  assert.equal(rules.hasSpecialConditions(r), true);
+  assert.equal(r.year, 115);
+  assert.equal(r.channelKey, 'personal_application');
+  assert.ok(groups.some(g => g.schoolDepartmentName === r.schoolName + r.departmentName));
+  assert.equal(Number(r.quota), Object.values(r.militaryAdmission.quotas).reduce((a, b) => a + b, 0));
+}
+const find = fragment => military.find(r => r.departmentName.includes(fragment));
+const evaluate = (r, scores) => rules.evaluate(r, { scores }, standards);
+assert.equal(evaluate(find('理工學院資訊工程學系'), { 英文: 8 }).status, 'match');
+assert.notEqual(evaluate(find('理工學院資訊工程學系'), { 英文: 7, 數A: 7, 自然: 8 }).status, 'match');
+const finance = find('財務管理');
+assert.equal(rules.thresholds(finance, standards)[0].threshold, 19);
+assert.equal(evaluate(finance, { 國文: 14, 英文: 0, 數B: 5 }).status, 'match');
+assert.notEqual(evaluate(finance, { 國文: 8, 英文: 5, 數B: 5 }).status, 'match');
+assert.equal(evaluate(find('運籌管理學系（數A）'), { 國文: 9, 英文: 5, 社會: 8 }).status, 'match');
+assert.equal(evaluate(find('政治學系國際'), { 國文: 14 }).status, 'match');
+assert.notEqual(evaluate(find('政治學系國際'), { 國文: 13 }).status, 'match');
+assert.equal(evaluate(find('新聞學系'), { 數B: 15 }).status, 'match');
+assert.notEqual(evaluate(find('新聞學系'), { 數A: 4, 數B: 3 }).status, 'match'); // A/B cannot count as two subjects.
+assert.equal(evaluate(find('護理學系'), { 英文: 15, 自然: 2 }).status, 'match');
+assert.notEqual(evaluate(find('醫學院醫學系'), { 國文: 15, 英文: 15, 數A: 11, 自然: 15 }).status, 'match');
+const app = fs.readFileSync(require.resolve('../site/app.js'), 'utf8');
+const names = ['schoolOwnership', 'specialAdmissionBadgeHtml', 'personalApplicationStandardParts', 'applicationThresholdLabelParts', 'dataQualityStatusInfo'];
+const context = { AdmissionRules: rules, state: { gsatStandards: standards }, record: finance };
+vm.createContext(context);
+vm.runInContext(names.map(name => app.match(new RegExp(`function ${name}\\([\\s\\S]*?\\n\\}`))[0]).join('\n'), context);
+assert.equal(context.schoolOwnership(finance), 'public');
+assert.ok(context.specialAdmissionBadgeHtml(finance).includes('（軍校）'));
+assert.ok(context.personalApplicationStandardParts(finance)[0].text.includes('三科成績加總'));
+assert.equal(context.applicationThresholdLabelParts(find('政治學系國際')).length, 1);
+assert.equal(context.dataQualityStatusInfo(finance).label, '軍校官方簡章');
+console.log('Military data, quotas, groups, OR/sum rules, zero defaults and UI labels passed (27 records).');
