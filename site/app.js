@@ -19,6 +19,7 @@
   categoryRepresentatives: {},
   qualityReport: null,
   compare: [],
+  compareFilters: { year: "all", channels: ["personal_application", "star_recommendation", "exam_distribution", "special_selection"] },
   placement: null,
   filters: {
     year: "all",
@@ -884,6 +885,8 @@ function bindElements() {
     "resultCount",
     "explorerRoot",
     "compareGrid",
+    "compareYearFilter",
+    "compareResultCount",
     "sourceList",
     "qualityReportRoot",
     "detailDrawer",
@@ -938,6 +941,19 @@ function bindEvents() {
     state.compare = [];
     renderCompare();
     renderTable();
+    updateDetailCompareButton(els.detailCompareButton.dataset.recordId);
+  });
+  els.compareYearFilter.addEventListener("change", () => {
+    state.compareFilters.year = els.compareYearFilter.value;
+    renderCompare();
+  });
+  document.querySelectorAll("[data-compare-channel-toggle]").forEach(button => {
+    button.addEventListener("click", () => {
+      const channel = button.dataset.compareChannelToggle;
+      const selected = state.compareFilters.channels;
+      state.compareFilters.channels = selected.includes(channel) ? selected.filter(key => key !== channel) : [...selected, channel];
+      renderCompare();
+    });
   });
   document.getElementById("closeDrawerButton").addEventListener("click", closeDrawer);
   document.getElementById("detailCompareButton").addEventListener("click", () => {
@@ -2225,10 +2241,21 @@ function renderTable() {
     els.recordTableBody.innerHTML = `<tr><td colspan="4"><div class="empty-state">目前沒有符合條件的資料</div></td></tr>`;
     return;
   }
-  els.recordTableBody.innerHTML = rows.map((record) => {
-    const highlight = highlightHtml(record);
-    const compareText = state.compare.some((item) => item.id === record.id) ? "已加入" : "比較";
-    return `
+  els.recordTableBody.innerHTML = rows.map(record => workbenchRecordRowHtml(record)).join("");
+
+  els.recordTableBody.querySelectorAll("[data-detail]").forEach((button) => {
+    button.addEventListener("click", () => openDetail(button.dataset.detail));
+  });
+  els.recordTableBody.querySelectorAll("[data-compare]").forEach((button) => {
+    button.addEventListener("click", () => toggleCompare(button.dataset.compare));
+  });
+}
+
+// 工作臺與比較清單共用同一列，確保管道、標準與軍校等備註一致。
+function workbenchRecordRowHtml(record, comparing = false) {
+  const highlight = highlightHtml(record);
+  const compareText = state.compare.some((item) => item.id === record.id) ? "已加入" : "比較";
+  return `
       <tr>
         <td>
           <div class="channel-stack">
@@ -2244,19 +2271,13 @@ function renderTable() {
         <td>
           <div class="row-actions">
             <button class="small-button" data-detail="${escapeAttr(record.id)}">詳情</button>
-            <button class="small-button" data-compare="${escapeAttr(record.id)}">${compareText}</button>
+            ${comparing
+              ? `<button class="small-button" data-remove-compare="${escapeAttr(record.id)}" aria-label="移除 ${escapeAttr(record.schoolName + record.departmentName)}">移除</button>`
+              : `<button class="small-button" data-compare="${escapeAttr(record.id)}">${compareText}</button>`}
           </div>
         </td>
       </tr>
     `;
-  }).join("");
-
-  els.recordTableBody.querySelectorAll("[data-detail]").forEach((button) => {
-    button.addEventListener("click", () => openDetail(button.dataset.detail));
-  });
-  els.recordTableBody.querySelectorAll("[data-compare]").forEach((button) => {
-    button.addEventListener("click", () => toggleCompare(button.dataset.compare));
-  });
 }
 
 function getHighlight(record) {
@@ -4425,7 +4446,8 @@ function toggleCompare(id) {
     state.compare = state.compare.filter((item) => item.id !== id);
   } else {
     const record = state.records.find((item) => item.id === id);
-    if (record && state.compare.length < 8) state.compare.push(record);
+    if (record && state.compare.length < 100) state.compare.push(record);
+    else if (record) window.alert("比較清單最多可選取 100 個校系，請先移除部分校系再加入。");
   }
   renderCompare();
   renderTable();
@@ -4435,6 +4457,16 @@ function toggleCompare(id) {
 function renderCompare() {
   const clearButton = document.getElementById("clearCompareButton");
   if (clearButton) clearButton.hidden = !state.compare.length;
+  const years = [...new Set(state.records.map(record => String(record.year)))].sort((a, b) => Number(b) - Number(a));
+  els.compareYearFilter.innerHTML = `<option value="all">全部學年度</option>${years.map(year => `<option value="${escapeAttr(year)}">${escapeHtml(year)} 學年度</option>`).join('')}`;
+  els.compareYearFilter.value = state.compareFilters.year;
+  document.querySelectorAll("[data-compare-channel-toggle]").forEach(button => {
+    const selected = state.compareFilters.channels.includes(button.dataset.compareChannelToggle);
+    button.classList.toggle("active", selected);
+    button.setAttribute("aria-pressed", String(selected));
+  });
+  const visible = filteredCompareRecords();
+  els.compareResultCount.textContent = `顯示 ${fmt.format(visible.length)} 筆 · 已選 ${fmt.format(state.compare.length)} / 100 個校系`;
   if (!state.compare.length) {
     els.compareGrid.innerHTML = `
       <div class="empty-state compare-empty-state">
@@ -4477,64 +4509,20 @@ function renderCompare() {
     });
     return;
   }
-  const channelCount = new Map();
-  state.compare.forEach((record) => {
-    const label = record.channel || "其他";
-    channelCount.set(label, (channelCount.get(label) || 0) + 1);
-  });
-  const channelSummary = [...channelCount.entries()].map(([label, count]) => `${label} ${count}`).join("、");
-  els.compareGrid.innerHTML = `
-    <section class="compare-overview">
-      <div class="compare-overview-count"><strong>${fmt.format(state.compare.length)}</strong><span>個已選校系</span></div>
-      <p>${escapeHtml(channelSummary)}。點選「查看詳情」可閱讀完整招生資訊。</p>
-      <button class="ghost-button" data-compare-browse>繼續找校系</button>
-    </section>
-    <div class="compare-list">
-      ${state.compare.map((record) => {
-        const result = record.channelKey === "exam_distribution" ? distributionResult(record) : null;
-        const score = result?.regularTotalScore || result?.regularMinScore || "--";
-        return `
-          <article class="compare-entry">
-            <header class="compare-entry-head">
-              <div class="compare-entry-title">
-                ${channelPill(record)}
-                <h3>${escapeHtml(record.schoolName)}</h3>
-                <p>${escapeHtml(record.departmentName)}</p>
-              </div>
-              <button class="icon-button" data-remove-compare="${escapeAttr(record.id)}" aria-label="移除 ${escapeAttr(`${record.schoolName}${record.departmentName}`)}">×</button>
-            </header>
-            <div class="compare-entry-focus">
-              <span>入學重點</span>
-              <div>${highlightHtml(record) || "--"}</div>
-            </div>
-            <dl class="compare-entry-facts">
-              <div><dt>招生名額</dt><dd>${escapeHtml(record.quota || "--")}</dd></div>
-              ${record.specialSelection ? `
-              <div><dt>計畫類別</dt><dd>${escapeHtml(record.specialSelection.plan)}</dd></div>
-              <div><dt>招生對象</dt><dd>${escapeHtml(record.specialSelection.target)}</dd></div>
-              <div><dt>甄試日期</dt><dd>${escapeHtml(record.specialSelection.schedule.match(/【考試日期】\s*([^\n]+)/)?.[1] || '依簡章公告')}</dd></div>
-              ` : `
-              <div><dt>採計科目</dt><dd>${escapeHtml(record.weightedSubjectsText || "--")}</dd></div>
-              <div><dt>甄試日期</dt><dd>${escapeHtml(record.screeningDate || "--")}</dd></div>
-              <div><dt>最低錄取總分</dt><dd>${escapeHtml(score)}</dd></div>
-              `}
-            </dl>
-            <footer class="compare-entry-actions">
-              <button class="small-button" data-compare-detail="${escapeAttr(record.id)}">查看詳情</button>
-              <button class="text-button" data-remove-compare="${escapeAttr(record.id)}">移出清單</button>
-            </footer>
-          </article>
-        `;
-      }).join("")}
-    </div>
-  `;
-  els.compareGrid.querySelector("[data-compare-browse]")?.addEventListener("click", () => setView("workbench"));
+  els.compareGrid.innerHTML = `<div class="table-shell"><table aria-label="已選校系比較表"><colgroup><col class="col-channel"><col class="col-program"><col class="col-highlight"><col class="col-actions"></colgroup><thead><tr><th scope="col">管道</th><th scope="col">學校 / 校系</th><th scope="col">篩選標準</th><th scope="col">操作</th></tr></thead><tbody>${visible.length
+    ? visible.map(record => workbenchRecordRowHtml(record, true)).join('')
+    : `<tr><td colspan="4"><div class="empty-state">${state.compareFilters.channels.length ? '目前篩選條件沒有符合的已選校系' : '尚未選取入學管道，請點選上方按鈕'}<br>篩選只影響顯示，不會移除已選校系。</div></td></tr>`}</tbody></table></div>`;
   els.compareGrid.querySelectorAll("[data-remove-compare]").forEach((button) => {
     button.addEventListener("click", () => toggleCompare(button.dataset.removeCompare));
   });
-  els.compareGrid.querySelectorAll("[data-compare-detail]").forEach((button) => {
-    button.addEventListener("click", () => openDetail(button.dataset.compareDetail));
+  els.compareGrid.querySelectorAll("[data-detail]").forEach((button) => {
+    button.addEventListener("click", () => openDetail(button.dataset.detail));
   });
+}
+
+function filteredCompareRecords() {
+  return state.compare.filter(record => (state.compareFilters.year === "all" || String(record.year) === state.compareFilters.year)
+    && state.compareFilters.channels.includes(record.channelKey));
 }
 
 function renderQualityReport() {

@@ -3223,6 +3223,29 @@ tr:hover td {
   gap: 16px;
 }
 
+.compare-filters {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 16px 24px;
+}
+
+.compare-filters > label { min-width: 180px; }
+.compare-channel-field { display: grid; gap: 8px; }
+.compare-channel-field > span { color: var(--muted); font-size: 12px; font-weight: 700; }
+.compare-channel-buttons { display: flex; flex-wrap: wrap; gap: 8px; }
+.compare-channel-buttons .active { background: var(--primary, #176b88); border-color: var(--primary, #176b88); color: #fff; }
+.compare-channel-buttons button:focus-visible { outline: 2px solid #176b88; outline-offset: 3px; }
+.compare-result-summary { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin: 16px 0; color: var(--muted); font-size: 14px; }
+.compare-grid .table-shell { min-width: 0; width: 100%; }
+.compare-grid .year-number { white-space: nowrap; flex-shrink: 0; }
+.compare-grid table { min-width: 820px; }
+@media (max-width: 600px) {
+  .compare-filters > label, .compare-channel-field { width: 100%; }
+  .compare-channel-buttons { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .compare-result-summary { flex-wrap: wrap; }
+}
+
 .compare-overview {
   display: flex;
   align-items: center;

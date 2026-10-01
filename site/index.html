@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>升學資料中控台</title>
-  <link rel="stylesheet" href="./styles.css?v=20260918-layout-fix">
+  <link rel="stylesheet" href="./styles.css?v=20261001-compare100">
   <link rel="stylesheet" href="./special.css?v=20260918-layout-fix">
 </head>
 <body data-active-view="overview">
@@ -271,10 +271,23 @@
         <div class="section-head workspace-page-head">
           <div class="workspace-page-copy">
             <h2>比較清單</h2>
-            <p>集中檢視已選校系的入學條件與關鍵差異。</p>
+            <p>最多選取 100 個校系，依學年度與入學管道檢視招生條件。</p>
           </div>
           <button class="ghost-button" id="clearCompareButton" hidden>清空比較</button>
         </div>
+        <section class="compare-filters filter-band" aria-label="比較清單篩選">
+          <label><span>學年度</span><select id="compareYearFilter"><option value="all">全部學年度</option></select></label>
+          <div class="compare-channel-field">
+            <span>入學管道</span>
+            <div class="compare-channel-buttons" role="group" aria-label="比較入學管道">
+              <button class="ghost-button active" data-compare-channel-toggle="personal_application" aria-pressed="true">個人申請</button>
+              <button class="ghost-button active" data-compare-channel-toggle="star_recommendation" aria-pressed="true">繁星推薦</button>
+              <button class="ghost-button active" data-compare-channel-toggle="exam_distribution" aria-pressed="true">分發入學</button>
+              <button class="ghost-button active" data-compare-channel-toggle="special_selection" aria-pressed="true">特殊選才</button>
+            </div>
+          </div>
+        </section>
+        <div class="compare-result-summary"><span id="compareResultCount" aria-live="polite"></span><button class="ghost-button" data-view-jump="workbench">繼續找校系</button></div>
         <div class="compare-grid" id="compareGrid"></div>
       </section>
 
@@ -314,6 +327,6 @@
 
   <script src="./admission-rules.js?v=20261001-military"></script>
   <script src="./admission-catalog.js?v=20260918-layout-fix"></script>
-  <script src="./app.js?v=20261001-military"></script>
+  <script src="./app.js?v=20261001-compare100"></script>
 </body>
 </html>
