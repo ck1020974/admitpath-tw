@@ -76,12 +76,15 @@ vm.runInContext([
   extractFunction("recordSubjectKeys"),
   extractFunction("advancedSubjectKeysFromText"),
   extractFunction("advancedSubjectKey"),
+  extractFunction("shortSubject"),
+  extractFunction("normalizeSubject"),
   extractFunction("schoolOwnership"),
   extractFunction("isTopUniversity"),
   extractFunction("specialAdmissionInfo"),
   extractFunction("specialAdmissionModeAllows"),
   extractFunction("advancedCategoryNeedles"),
   extractFunction("groupRowsToNeedles"),
+  extractFunction("cachedGroupNeedles"),
   extractFunction("matchesGroup"),
 ].join("\n\n"), sandbox);
 
@@ -96,9 +99,11 @@ if (!sandbox.isTopUniversity(ntuApply)) fail("NTU should be treated as a top uni
 if (sandbox.schoolOwnership(ntuApply) !== "public") fail("National universities should be public.");
 
 sandbox.state.filters.advanced.excludedSubjects = ["數A"];
-if (sandbox.recordMatchesAdvancedFilters(ntuApply)) {
-  fail("Personal application record with 數A requirement should be excluded by 不看數A.");
+if (!sandbox.recordMatchesAdvancedFilters(ntuApply)) {
+  fail("An alternative 數B threshold should remain available when excluding 數A.");
 }
+const mathAOnly = records.find(record => record.schoolName === "國立臺灣大學" && record.departmentName === "資訊工程學系" && record.channelKey === "personal_application");
+if (sandbox.recordMatchesAdvancedFilters(mathAOnly)) fail("A required 數A subject should be excluded by 不看數A.");
 
 sandbox.state.filters.advanced.excludedSubjects = [];
 sandbox.state.filters.advanced.schools = ["國立臺灣大學"];
@@ -123,4 +128,18 @@ if (!sandbox.recordMatchesAdvancedFilters(ntuCs)) {
   fail("NTU CS should match 資訊學群.");
 }
 
-console.log("Advanced filter contract check passed.");
+sandbox.state.filters.advanced.groups = [];
+const addedSpecialGroups = records.filter(record => /飛鳶|紫荊/.test(`${record.departmentName || ""} ${record.category || ""}`));
+if (!addedSpecialGroups.some(record => record.departmentName.includes("飛鳶"))) fail("Missing 飛鳶 fixture.");
+if (!addedSpecialGroups.some(record => record.departmentName.includes("紫荊"))) fail("Missing 紫荊 fixture.");
+for (const record of addedSpecialGroups) {
+  if (!sandbox.specialAdmissionInfo(record).special) fail(`Not classified as special: ${record.departmentName}`);
+  if (record.channelKey === "special_selection") continue;
+  sandbox.state.filters.advanced.specialAdmissionMode = "exclude";
+  if (sandbox.recordMatchesAdvancedFilters(record)) fail(`Special group leaked into general results: ${record.departmentName}`);
+  for (const mode of ["include", "only"]) {
+    sandbox.state.filters.advanced.specialAdmissionMode = mode;
+    if (!sandbox.recordMatchesAdvancedFilters(record)) fail(`Special group missing in ${mode}: ${record.departmentName}`);
+  }
+}
+console.log(`Advanced filter contract check passed, including ${addedSpecialGroups.length} 飛鳶／紫荊 records.`);

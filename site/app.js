@@ -1434,7 +1434,7 @@ function recordMatchesAdvancedFilters(record) {
       if (subjects.has(subject)) return false;
     }
   }
-  const needles = groupRowsToNeedles(state.groups.filter((row) => advanced.groups?.includes(row.groupName)));
+  const needles = cachedGroupNeedles(advanced.groups || []);
   if (needles.size && !matchesGroup(record, needles)) return false;
   return true;
 }
@@ -1535,6 +1535,8 @@ function specialAdmissionInfo(record) {
     { pattern: /西灣南星/, label: "西灣南星" },
     { pattern: /薪火招生|薪火組/, label: "薪火" },
     { pattern: /政星招生|政星/, label: "政星" },
+    { pattern: /飛鳶/, label: "飛鳶" },
+    { pattern: /紫荊/, label: "紫荊" },
     { pattern: /屯蒙/, label: "屯蒙" },
     { pattern: /柳川招生組/, label: "柳川" },
     { pattern: /青年儲蓄帳戶組|青年儲蓄/, label: "青年儲蓄" },
@@ -1560,9 +1562,7 @@ function specialAdmissionBadgeHtml(record) {
 
 function advancedCategoryNeedles(groupName = "", categoryName = "") {
   if (categoryName) {
-    return groupRowsToNeedles(state.groups.filter((row) => (
-      row.categoryName === categoryName && (!groupName || row.groupName === groupName)
-    )));
+    return cachedGroupNeedles(groupName ? [groupName] : [], [categoryName], true);
   }
   if (groupName) return getGroupNeedles(groupName);
   return new Set();
@@ -1641,10 +1641,11 @@ function defaultPlacementState() {
 
 function bindPlacementEvents() {
   document.querySelectorAll("[data-placement-score]").forEach((input) => {
-    input.addEventListener("input", debounce(() => {
+    input.addEventListener("input", () => {
       state.placement.scores[input.dataset.placementScore] = input.value.trim();
-      renderPlacementAnalysis();
-    }, 120));
+      // 成績立即保存，避免快速按分析時漏掉最後一筆；輸入階段不跑校系分析。
+      renderPlacementControls();
+    });
   });
   document.querySelectorAll("[data-placement-channel]").forEach((button) => {
     button.addEventListener("click", () => {
@@ -1874,6 +1875,8 @@ function renderPlacementAnalysis() {
   if (!els.placementResults) return;
   if (state.placement.resultTab === "missing") state.placement.resultTab = "match";
   renderPlacementControls();
+  // 設定畫面只更新按鈕狀態，按「查看分析結果」才計算全體校系。
+  if (state.placement.stage !== "results") return;
   const profile = placementProfile();
   const criteriaSummary = document.getElementById("placementCriteriaSummary");
   if (criteriaSummary) criteriaSummary.innerHTML = placementCriteriaSummaryHtml(profile);
@@ -1886,12 +1889,7 @@ function renderPlacementAnalysis() {
     els.placementResults.innerHTML = `<div class="empty-state">先輸入至少一科成績，系統會依門檻與篩選標準整理可能校系。</div>`;
     return;
   }
-  const allRows = state.records
-    .filter((record) => placementMatchesFilters(record, profile))
-    .map((record) => ({ record, evaluation: evaluatePlacementRecord(record, profile) }))
-    .sort((a, b) => placementStatusWeight(a.evaluation.status) - placementStatusWeight(b.evaluation.status)
-      || a.evaluation.gapTotal - b.evaluation.gapTotal
-      || `${a.record.schoolCode}${a.record.departmentName}`.localeCompare(`${b.record.schoolCode}${b.record.departmentName}`, "zh-Hant"));
+  const allRows = placementAnalysisRows(profile);
   const visibleRows = allRows.filter((row) => row.evaluation.status === state.placement.resultTab);
   const rows = visibleRows.slice(0, 120);
   const countLabel = {
@@ -1909,6 +1907,25 @@ function renderPlacementAnalysis() {
   els.placementResults.querySelectorAll("[data-placement-detail]").forEach((button) => {
     button.addEventListener("click", () => openDetail(button.dataset.placementDetail));
   });
+}
+
+function placementAnalysisRows(profile) {
+  // 結果分頁切換不重跑門檻分析；成績、篩選或資料更新才重新計算。
+  const key = JSON.stringify([profile, state.placement.year, state.placement.keyword, state.filters.advanced]);
+  const previous = placementAnalysisRows.cache;
+  if (previous?.key === key && previous.records === state.records
+    && previous.results === state.results && previous.groups === state.groups
+    && previous.standards === state.gsatStandards) return previous.rows;
+  const collator = new Intl.Collator("zh-Hant");
+  const rows = state.records
+    .filter((record) => placementMatchesFilters(record, profile))
+    .map((record) => ({ record, evaluation: evaluatePlacementRecord(record, profile) }))
+    .sort((a, b) => placementStatusWeight(a.evaluation.status) - placementStatusWeight(b.evaluation.status)
+      || a.evaluation.gapTotal - b.evaluation.gapTotal
+      || collator.compare(`${a.record.schoolCode}${a.record.departmentName}`, `${b.record.schoolCode}${b.record.departmentName}`));
+  placementAnalysisRows.cache = { key, records: state.records, results: state.results,
+    groups: state.groups, standards: state.gsatStandards, rows };
+  return rows;
 }
 
 function placementCriteriaSummaryHtml(profile) {
@@ -2007,11 +2024,7 @@ function placementMatchesFilters(record, profile) {
 }
 
 function placementSelectedNeedles(profile) {
-  const rows = state.groups.filter((row) => (
-    (profile.groups.length && profile.groups.includes(row.groupName))
-    || (profile.categories.length && profile.categories.includes(row.categoryName))
-  ));
-  return groupRowsToNeedles(rows);
+  return cachedGroupNeedles(profile.groups || [], profile.categories || []);
 }
 
 function evaluatePlacementRecord(record, profile) {
@@ -2965,15 +2978,34 @@ function explorerRowKey(row) {
 }
 
 function getGroupNeedles(groupName) {
-  if (!groupName) return new Set();
-  return groupRowsToNeedles(state.groups.filter((row) => row.groupName === groupName));
+  return cachedGroupNeedles(groupName ? [groupName] : []);
 }
 
 function getCategoryNeedles(groupName, categoryName) {
-  if (!categoryName) return new Set();
-  return groupRowsToNeedles(state.groups.filter((row) => (
-    row.categoryName === categoryName && (!groupName || row.groupName === groupName)
-  )));
+  return cachedGroupNeedles(categoryName && groupName ? [groupName] : [], categoryName ? [categoryName] : [], true);
+}
+
+// 按學群資料與選取條件快取，不再為每筆校系重掃學群或重建 Set。
+// 資料重新載入（新陣列）即使用新快取；保留原本 OR／學群內學類的語意。
+function cachedGroupNeedles(groupNames = [], categoryNames = [], withinGroup = false) {
+  const groups = [...new Set(groupNames)].sort();
+  const categories = [...new Set(categoryNames)].sort();
+  const key = JSON.stringify([groups, categories, withinGroup]);
+  cachedGroupNeedles.cache ||= new WeakMap();
+  let cache = cachedGroupNeedles.cache.get(state.groups);
+  if (!cache) {
+    cache = new Map();
+    cachedGroupNeedles.cache.set(state.groups, cache);
+  }
+  if (cache.has(key)) return cache.get(key);
+  const rows = state.groups.filter(row => withinGroup
+    ? categories.includes(row.categoryName) && (!groups.length || groups.includes(row.groupName))
+    : groups.includes(row.groupName) || categories.includes(row.categoryName));
+  const needles = groupRowsToNeedles(rows);
+  // 限制常駐條件組數；被淘汰的比對快取可由 WeakMap 自動回收。
+  if (cache.size >= 32) cache.delete(cache.keys().next().value);
+  cache.set(key, needles);
+  return needles;
 }
 
 function groupRowsToNeedles(rows) {
@@ -2987,13 +3019,27 @@ function groupRowsToNeedles(rows) {
 }
 
 function matchesGroup(record, needles) {
+  matchesGroup.cache ||= new WeakMap();
+  let cache = matchesGroup.cache.get(needles);
+  if (!cache) {
+    cache = new WeakMap();
+    matchesGroup.cache.set(needles, cache);
+  }
+  const nameKey = JSON.stringify([record.schoolName, record.departmentName]);
+  const previous = cache.get(record);
+  if (previous?.nameKey === nameKey) return previous.matched;
   const full = normalize(`${record.schoolName}${record.departmentName}`);
   const dept = normalize(record.departmentName);
+  let matched = false;
   for (const needle of needles) {
     if (!needle) continue;
-    if (full.includes(needle) || needle.includes(full) || dept.includes(needle) || needle.includes(dept)) return true;
+    if (full.includes(needle) || needle.includes(full) || dept.includes(needle) || needle.includes(dept)) {
+      matched = true;
+      break;
+    }
   }
-  return false;
+  cache.set(record, { nameKey, matched });
+  return matched;
 }
 
 function getExplorerDepartmentRows() {

@@ -64,8 +64,10 @@ function extractFunction(name) {
 ].forEach((name) => extractFunction(name));
 
 const sandbox = {
+  AdmissionRules: require("../site/admission-rules.js"),
   Intl,
   state: {
+    filters: { advanced: {} },
     records,
     results,
     groups,
@@ -108,6 +110,8 @@ vm.runInContext([
   applySieveOverrideMatch ? applySieveOverrideMatch[0] : "const APPLY_SIEVE_SCORE_OVERRIDES = {};",
   extractFunction("defaultPlacementState"),
   extractFunction("placementProfile"),
+  extractFunction("placementAnalysisRows"),
+  extractFunction("placementStatusWeight"),
   extractFunction("evaluatePlacementRecord"),
   extractFunction("placementRecordRequirements"),
   extractFunction("placementApplyRequirements"),
@@ -119,6 +123,7 @@ vm.runInContext([
   extractFunction("placementMatchesFilters"),
   extractFunction("placementSchoolScopeAllows"),
   extractFunction("placementSelectedNeedles"),
+  extractFunction("placementChannelHasRequiredScores"),
   extractFunction("placementResultSummary"),
   extractFunction("placementRequirementLabel"),
   extractFunction("placementScoreValue"),
@@ -131,6 +136,7 @@ vm.runInContext([
   extractFunction("specialAdmissionModeAllows"),
   extractFunction("advancedCategoryNeedles"),
   extractFunction("groupRowsToNeedles"),
+  extractFunction("cachedGroupNeedles"),
   extractFunction("matchesGroup"),
   extractFunction("distributionResult"),
   extractFunction("distributionSubjectLabel"),
@@ -181,4 +187,16 @@ if (sandbox.placementRequirementLabel({ kind: "score", subjects: ["國文"], act
   fail("Single-subject labels should clearly separate the entered score and the threshold.");
 }
 
-console.log("Placement analysis contract check passed.");
+const started = Date.now();
+const cachedRows = sandbox.placementAnalysisRows(profile);
+const coldMs = Date.now() - started;
+const warmStarted = Date.now();
+if (sandbox.placementAnalysisRows(profile) !== cachedRows) fail("Unchanged criteria must reuse analysis.");
+const warmMs = Date.now() - warmStarted;
+const originalRows = records.filter(record => sandbox.placementMatchesFilters(record, profile))
+  .map(record => ({ record, evaluation: sandbox.evaluatePlacementRecord(record, profile) }))
+  .sort((a, b) => sandbox.placementStatusWeight(a.evaluation.status) - sandbox.placementStatusWeight(b.evaluation.status)
+    || a.evaluation.gapTotal - b.evaluation.gapTotal
+    || `${a.record.schoolCode}${a.record.departmentName}`.localeCompare(`${b.record.schoolCode}${b.record.departmentName}`, "zh-Hant"));
+if (JSON.stringify(cachedRows) !== JSON.stringify(originalRows)) fail("Cached analysis changed results/order.");
+console.log(`Placement analysis contract check passed (${cachedRows.length} matching candidates; cold ${coldMs} ms, cached ${warmMs} ms).`);
