@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>升學資料中控台</title>
-  <link rel="stylesheet" href="./styles.css?v=20261001-compare100">
+  <link rel="stylesheet" href="./styles.css?v=20261006-nav-collapsed-default">
   <link rel="stylesheet" href="./special.css?v=20260918-layout-fix">
 </head>
 <body data-active-view="overview">
@@ -20,11 +20,18 @@
 
       <nav class="side-nav primary-nav" aria-label="學生探索">
         <button class="nav-item active" data-view="overview">首頁</button>
-        <button class="nav-item" data-view="workbench">查詢工作台</button>
-        <button class="nav-item" data-home-entry="special-entry">特殊選才</button>
-        <button class="nav-item" data-home-entry="star-entry">繁星入學</button>
-        <button class="nav-item" data-home-entry="personal-apply">個人申請</button>
-        <button class="nav-item" data-home-entry="distribution-entry">分發入學</button>
+        <div class="nav-workbench-row">
+          <button class="nav-item" data-view="workbench">查詢工作台</button>
+          <button class="nav-channels-toggle" id="navChannelsToggle" type="button" aria-label="展開入學管道" aria-expanded="false" aria-controls="navChannels">
+            <svg viewBox="0 0 20 20" width="16" height="16" aria-hidden="true"><path d="m4 7 6 6 6-6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </button>
+        </div>
+        <div class="nav-channels" id="navChannels" role="group" aria-label="入學管道" hidden>
+          <button class="nav-item" data-home-entry="special-entry">特殊選才</button>
+          <button class="nav-item" data-home-entry="star-entry">繁星入學</button>
+          <button class="nav-item" data-home-entry="personal-apply">個人申請</button>
+          <button class="nav-item" data-home-entry="distribution-entry">分發入學</button>
+        </div>
         <button class="nav-item" data-view="placement">落點分析</button>
         <button class="nav-item" data-view="explorer">十八學群</button>
         <button class="nav-item" data-view="compare">比較清單</button>
@@ -327,6 +334,6 @@
 
   <script src="./admission-rules.js?v=20261001-military"></script>
   <script src="./admission-catalog.js?v=20260918-layout-fix"></script>
-  <script src="./app.js?v=20261005-placement-performance"></script>
+  <script src="./app.js?v=20261006-nav-collapsed-default"></script>
 </body>
 </html>

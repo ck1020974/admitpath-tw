@@ -909,6 +909,14 @@ function bindElements() {
 }
 
 function bindEvents() {
+  const navToggle = document.getElementById("navChannelsToggle");
+  const navChannels = document.getElementById("navChannels");
+  navToggle.addEventListener("click", () => {
+    const expanded = navToggle.getAttribute("aria-expanded") !== "true";
+    navToggle.setAttribute("aria-expanded", String(expanded));
+    navToggle.setAttribute("aria-label", expanded ? "收起入學管道" : "展開入學管道");
+    navChannels.hidden = !expanded;
+  });
   document.querySelectorAll("[data-view]").forEach((button) => {
     button.addEventListener("click", () => {
       if (button.dataset.view === "explorer") resetExplorerState("overview");
@@ -2000,9 +2008,7 @@ function placementResultCardHtml(record, evaluation) {
       </div>
       <div class="placement-result-side">
         <div class="placement-requirements">
-          ${evaluation.requirements.flatMap((item) => placementRequirementLabels(item)).slice(0, 8).map(({ item, label }) => `
-            <span class="placement-req ${escapeAttr(item.status)}">${escapeHtml(label)}</span>
-          `).join("")}
+          ${placementRequirementChipsHtml(evaluation.requirements)}
         </div>
       </div>
     </article>
@@ -2201,6 +2207,34 @@ function placementRequirementLabels(item) {
     return options.map((option) => ({ item: option, label: placementRequirementLabel(option) }));
   }
   return [{ item, label: placementRequirementLabel(item) }];
+}
+
+function placementRequirementChipsHtml(requirements) {
+  const isTest = (item) => ["檢定", "數學檢定"].includes(item.source);
+  const tests = requirements.filter(isTest);
+  const primary = requirements.filter((item) => !isTest(item));
+  const used = new Set();
+  const numericLabel = (item) => item.kind === "any"
+    ? (item.checkedOptions || item.options).map(numericLabel).join(" 或 ")
+    : placementRequirementLabel(item);
+  const testLabel = (item) => item.kind === "any"
+    ? (item.checkedOptions || item.options).map(testLabel).join(" 或 ")
+    : `${placementRequirementLabel(item)} ${item.standard || "檢定"}`;
+  const testChip = (item, label) => `<span class="placement-req placement-req-test ${escapeAttr(item.status)}">${escapeHtml(label)}${item.status === "miss" ? " · 未達" : ""}</span>`;
+  const chips = primary.map((item) => {
+    const test = tests.find((candidate) => !used.has(candidate)
+      && candidate.kind === item.kind
+      && candidate.subjects.join("+") === item.subjects.join("+"));
+    const comparison = `<span class="placement-req ${escapeAttr(item.status)}">${escapeHtml(numericLabel(item))}</span>`;
+    if (!test) return comparison;
+    used.add(test);
+    return `<span class="placement-req-pair">${comparison}${testChip(test, testLabel(test))}</span>`;
+  });
+  // 沒有同科篩選結果的檢定放在最後；擇一條件保留「或」與整組判定。
+  tests.filter((item) => !used.has(item)).forEach((item) => {
+    chips.push(testChip(item, testLabel(item)));
+  });
+  return chips.join("");
 }
 
 function placementResultSummary(evaluation) {
