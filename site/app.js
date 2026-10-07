@@ -1687,6 +1687,14 @@ function bindPlacementEvents() {
   });
   document.getElementById("runPlacementAnalysis")?.addEventListener("click", showPlacementResults);
   document.getElementById("editPlacementCriteria")?.addEventListener("click", showPlacementSetup);
+  document.getElementById("placementCriteriaSummary")?.addEventListener("click", (event) => {
+    const scoreButton = event.target.closest("[data-placement-edit-score]");
+    if (!scoreButton) return;
+    showPlacementSetup();
+    const input = [...document.querySelectorAll("[data-placement-score]")]
+      .find((item) => item.dataset.placementScore === scoreButton.dataset.placementEditScore);
+    input?.focus();
+  });
   document.getElementById("placementOpenAdvancedFiltersButton")?.addEventListener("click", openAdvancedFilters);
   els.placementYearFilter?.addEventListener("change", updatePlacementResultFilters);
   els.placementChannelFilter?.addEventListener("change", updatePlacementResultFilters);
@@ -1939,17 +1947,13 @@ function placementAnalysisRows(profile) {
 function placementCriteriaSummaryHtml(profile) {
   const scoreTags = Object.entries(profile.scores)
     .filter(([, value]) => String(value || "").trim())
-    .map(([subject, value]) => `${shortSubject(subject)} ${value}`);
+    .map(([subject, value]) => `<button type="button" class="placement-score-edit" data-placement-edit-score="${escapeAttr(subject)}" aria-label="修改${escapeAttr(shortSubject(subject))}成績：${escapeAttr(value)}">${escapeHtml(`${shortSubject(subject)} ${value}`)}</button>`);
   const directionTags = [
     ...profile.groups,
     ...profile.categories.map(displayCategoryName),
   ];
-  const tags = [...scoreTags, ...directionTags]
-    .filter(Boolean)
-    .slice(0, 8);
-  return tags.length
-    ? tags.map((label) => `<span>${escapeHtml(label)}</span>`).join("")
-    : "";
+  return scoreTags.join("") + directionTags.filter(Boolean)
+    .map((label) => `<span>${escapeHtml(label)}</span>`).join("");
 }
 
 function placementSummaryCardsHtml(rows) {

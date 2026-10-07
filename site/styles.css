@@ -870,13 +870,41 @@ input:focus {
   margin: 0;
 }
 
-.placement-criteria-summary span {
+.placement-criteria-summary span,
+.placement-criteria-summary .placement-score-edit {
   padding: 4px 8px;
   border-radius: 999px;
   background: #eef5f8;
   color: #31566a;
   font-size: 12px;
   font-weight: 800;
+}
+
+.placement-criteria-summary .placement-score-edit {
+  border: 1px solid #b5ccd7;
+  cursor: pointer;
+}
+
+.placement-criteria-summary .placement-score-edit:hover {
+  background: #dceef4;
+  border-color: #31566a;
+}
+
+.placement-edit-button {
+  flex-shrink: 0;
+  background: #176b88;
+  border: 1px solid #176b88;
+  color: #fff;
+}
+
+.placement-edit-button:hover {
+  background: #10526a;
+}
+
+.placement-score-edit:focus-visible,
+.placement-edit-button:focus-visible {
+  outline: 3px solid #176b88;
+  outline-offset: 3px;
 }
 
 .placement-score-band,

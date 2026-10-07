@@ -10,14 +10,20 @@ function fn(name) {
 }
 let evaluations = 0;
 let controlUpdates = 0;
-const input = { value: '15', dataset: { placementScore: '國文' }, addEventListener(event, handler) { this.handler = handler; } };
+const input = { value: '15', dataset: { placementScore: '國文' }, focus() { this.focused = true; }, addEventListener(event, handler) { this.handler = handler; } };
+const summary = { addEventListener(event, handler) { this.handler = handler; } };
 const sandbox = {
   Intl,
   state: { placement: { stage: 'setup', resultTab: 'match', scores: {}, year: 'all', keyword: '' },
     filters: { advanced: {} }, records: [{ departmentName: '甲', schoolCode: '001' }], results: {}, groups: [], gsatStandards: {} },
   els: { placementResults: {} },
   document: { querySelectorAll: selector => selector === '[data-placement-score]' ? [input] : [],
-    querySelector: () => null, getElementById: () => null },
+    querySelector: () => null, getElementById: id => id === 'placementCriteriaSummary' ? summary : null },
+  renderPlacementStage() {},
+  shortSubject: value => value,
+  displayCategoryName: value => value,
+  escapeHtml: value => String(value).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/"/g, '&quot;'),
+  escapeAttr: value => String(value).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/"/g, '&quot;'),
   renderPlacementControls() { controlUpdates++; },
   showPlacementResults() {}, showPlacementSetup() {}, openAdvancedFilters() {}, updatePlacementResultFilters() {},
   debounce(fn) { return fn; },
@@ -27,7 +33,7 @@ const sandbox = {
   placementProfile: () => { throw new Error('Setup must not prepare analysis'); },
 };
 vm.createContext(sandbox);
-vm.runInContext(['bindPlacementEvents', 'renderPlacementAnalysis', 'placementAnalysisRows'].map(fn).join('\n'), sandbox);
+vm.runInContext(['bindPlacementEvents', 'renderPlacementAnalysis', 'placementAnalysisRows', 'showPlacementSetup', 'placementCriteriaSummaryHtml'].map(fn).join('\n'), sandbox);
 sandbox.bindPlacementEvents();
 input.handler();
 assert.equal(sandbox.state.placement.scores.國文, '15', 'Latest input saved synchronously');
@@ -35,6 +41,13 @@ assert.equal(evaluations, 0, 'Typing must not evaluate records');
 sandbox.renderPlacementAnalysis();
 assert.equal(evaluations, 0, 'Setup rendering must not evaluate hidden results');
 assert(controlUpdates > 0);
+const scoreMarkup = sandbox.placementCriteriaSummaryHtml({ scores: Object.fromEntries(Array.from({ length: 16 }, (_, i) => [`科目${i}`, '15'])), groups: ['工程學群'], categories: [] });
+assert.equal((scoreMarkup.match(/data-placement-edit-score=/g) || []).length, 16, 'Every entered score remains clickable, not just the first eight');
+sandbox.state.placement.stage = 'results';
+summary.handler({ target: { closest: () => ({ dataset: { placementEditScore: '國文' } }) } });
+assert.equal(sandbox.state.placement.stage, 'setup');
+assert(input.focused, 'Clicking a score focuses its input');
+assert.equal(sandbox.state.placement.scores.國文, '15', 'Editing preserves scores');
 const profile = { scores: { 國文: 15 } };
 const first = sandbox.placementAnalysisRows(profile);
 assert.equal(evaluations, 1);
