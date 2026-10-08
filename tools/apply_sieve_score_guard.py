@@ -8,6 +8,13 @@ OWNER_CORRECTIONS = {
     ('115-personal_application-002092-115_apply', 2, '43'): '13',
 }
 
+ART_SUBJECTS = {'主修', '副修', '視唱', '聽寫', '樂理', '素描', '彩繪技法',
+                '創意表現', '美術鑑賞', '水墨書畫', '體育', '體育百分等級'}
+
+
+def subject_maximum(subject):
+    return 100 if subject in ART_SUBJECTS else (5 if subject.startswith('APCS') else 15)
+
 
 def score_is_impossible(item):
     score = item.get('score')
@@ -20,7 +27,7 @@ def score_is_impossible(item):
         number = float(score)
     except (TypeError, ValueError):
         return True
-    maximum = sum(5 if subject.startswith('APCS') else 15 for subject in subjects)
+    maximum = sum(subject_maximum(subject) for subject in subjects)
     return not (0 <= number <= maximum)
 
 

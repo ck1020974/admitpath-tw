@@ -3,7 +3,7 @@ import re
 from pathlib import Path
 
 from apply_sieve_score_guard import sanitize_record
-from official_sieve_reviews import apply_review, load_reviews
+from official_sieve_reviews import apply_detail_reviews, apply_review, load_reviews
 
 
 ROOT = Path("outputs/admissions_data")
@@ -747,6 +747,7 @@ def load_groups():
 
 def main():
     records = load_records()
+    apply_detail_reviews(records)
     official_reviews = load_reviews()
     for record in records:
         sanitize_record(record)

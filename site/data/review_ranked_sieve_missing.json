@@ -1,110 +1,5 @@
 [
   {
-    "index": 1,
-    "year": 115,
-    "programCode": "001492",
-    "schoolCode": "001",
-    "schoolName": "國立臺灣大學",
-    "departmentName": "植物病理與微生物學系",
-    "officialResult": "英文+數A+自然26、英文8",
-    "rankedKnown": "英文+數A+自然 26、英文 8",
-    "missingRanks": "自然",
-    "rankedItems": [
-      {
-        "rank": 1,
-        "multiplier": "8",
-        "subjects": [
-          "英文",
-          "數A",
-          "自然"
-        ],
-        "score": "26",
-        "label": "英文+數A+自然26"
-      },
-      {
-        "rank": 2,
-        "multiplier": "5",
-        "subjects": [
-          "英文"
-        ],
-        "score": "8",
-        "label": "英文8"
-      },
-      {
-        "rank": 3,
-        "multiplier": "3",
-        "subjects": [
-          "自然"
-        ],
-        "score": "",
-        "label": "自然待補"
-      }
-    ],
-    "ocrRaw": "8 英 數 A 自 26 英文 8 自然 Ⅱ",
-    "detailUrl": "https://www.cac.edu.tw/apply115/system/ColQry_115xappLyfOrStu_Azd5gP29/html/115_001492.htm?v=1.0",
-    "cropImage": "./review_crops/ranked_115_001492.png",
-    "officialImageUrl": "https://www.cac.edu.tw/CacLink/apply115/115Apply_sievE_Result_querY_615JG8Wgh9d/html_sieve_result_115_Zx57f1dW/Standard/report/pict/001.png",
-    "locatedInOcr": true,
-    "externalStatus": "source_conflict",
-    "universityTwResult": "英文 14、自然 13",
-    "suggestedFill": "",
-    "externalConflicts": "順位1 官方 英文+數A+自然 26 / UTW 英文 14；順位2 官方 英文 8 / UTW 自然 13",
-    "universityTwUrl": "https://university-tw.ldkrsi.men/caac/001/001492"
-  },
-  {
-    "index": 2,
-    "year": 115,
-    "programCode": "002072",
-    "schoolCode": "002",
-    "schoolName": "國立臺灣師範大學",
-    "departmentName": "幼兒與家庭科學學系幼兒發展與教育組",
-    "officialResult": "國文+英文+數B+社會33、數B6",
-    "rankedKnown": "國文+英文+數B+社會 33、數B 6",
-    "missingRanks": "英文",
-    "rankedItems": [
-      {
-        "rank": 1,
-        "multiplier": "5",
-        "subjects": [
-          "國文",
-          "英文",
-          "數B",
-          "社會"
-        ],
-        "score": "33",
-        "label": "國文+英文+數B+社會33"
-      },
-      {
-        "rank": 2,
-        "multiplier": "4",
-        "subjects": [
-          "數B"
-        ],
-        "score": "6",
-        "label": "數B6"
-      },
-      {
-        "rank": 3,
-        "multiplier": "3",
-        "subjects": [
-          "英文"
-        ],
-        "score": "",
-        "label": "英文待補"
-      }
-    ],
-    "ocrRaw": "5 國 英 數 B 社 33 數學B6 英文 Ⅱ",
-    "detailUrl": "https://www.cac.edu.tw/apply115/system/ColQry_115xappLyfOrStu_Azd5gP29/html/115_002072.htm?v=1.0",
-    "cropImage": "./review_crops/ranked_115_002072.png",
-    "officialImageUrl": "https://www.cac.edu.tw/CacLink/apply115/115Apply_sievE_Result_querY_615JG8Wgh9d/html_sieve_result_115_Zx57f1dW/Standard/report/pict/002.png",
-    "locatedInOcr": true,
-    "externalStatus": "source_conflict",
-    "universityTwResult": "國文+英文+數B+社會 46、數B 10、英文 11",
-    "suggestedFill": "英文 11",
-    "externalConflicts": "順位1 官方 國文+英文+數B+社會 33 / UTW 國文+英文+數B+社會 46；順位2 官方 數B 6 / UTW 數B 10",
-    "universityTwUrl": "https://university-tw.ldkrsi.men/caac/002/002072"
-  },
-  {
     "index": 3,
     "year": 115,
     "programCode": "002132",
@@ -194,58 +89,6 @@
     "suggestedFill": "英文 11",
     "externalConflicts": "順位1 官方 數A 10 / UTW 數A 11",
     "universityTwUrl": "https://university-tw.ldkrsi.men/caac/003/003162"
-  },
-  {
-    "index": 5,
-    "year": 115,
-    "programCode": "003332",
-    "schoolCode": "003",
-    "schoolName": "國立中興大學",
-    "departmentName": "農藝學系",
-    "officialResult": "國文+英文+自然27、國文10",
-    "rankedKnown": "國文+英文+自然 27、國文 10",
-    "missingRanks": "自然",
-    "rankedItems": [
-      {
-        "rank": 1,
-        "multiplier": "8",
-        "subjects": [
-          "國文",
-          "英文",
-          "自然"
-        ],
-        "score": "27",
-        "label": "國文+英文+自然27"
-      },
-      {
-        "rank": 2,
-        "multiplier": "6",
-        "subjects": [
-          "國文"
-        ],
-        "score": "10",
-        "label": "國文10"
-      },
-      {
-        "rank": 3,
-        "multiplier": "3",
-        "subjects": [
-          "自然"
-        ],
-        "score": "",
-        "label": "自然待補"
-      }
-    ],
-    "ocrRaw": "國 英 自 27 國文 10 自然 Ⅱ",
-    "detailUrl": "https://www.cac.edu.tw/apply115/system/ColQry_115xappLyfOrStu_Azd5gP29/html/115_003332.htm?v=1.0",
-    "cropImage": "./review_crops/ranked_115_003332.png",
-    "officialImageUrl": "https://www.cac.edu.tw/CacLink/apply115/115Apply_sievE_Result_querY_615JG8Wgh9d/html_sieve_result_115_Zx57f1dW/Standard/report/pict/003.png",
-    "locatedInOcr": true,
-    "externalStatus": "source_conflict",
-    "universityTwResult": "國文+英文+自然 28、國文 11、自然 12",
-    "suggestedFill": "自然 12",
-    "externalConflicts": "順位1 官方 國文+英文+自然 27 / UTW 國文+英文+自然 28；順位2 官方 國文 10 / UTW 國文 11",
-    "universityTwUrl": "https://university-tw.ldkrsi.men/caac/003/003332"
   },
   {
     "index": 6,
@@ -430,60 +273,6 @@
     "universityTwUrl": "https://university-tw.ldkrsi.men/caac/004/004612"
   },
   {
-    "index": 10,
-    "year": 115,
-    "programCode": "006152",
-    "schoolCode": "006",
-    "schoolName": "國立政治大學",
-    "departmentName": "國際經營與貿易學系",
-    "officialResult": "國文+英文+數A+社會50、國文+英文27",
-    "rankedKnown": "國文+英文+數A+社會 50、國文+英文 27",
-    "missingRanks": "數A",
-    "rankedItems": [
-      {
-        "rank": 1,
-        "multiplier": "6",
-        "subjects": [
-          "國文",
-          "英文",
-          "數A",
-          "社會"
-        ],
-        "score": "50",
-        "label": "國文+英文+數A+社會50"
-      },
-      {
-        "rank": 2,
-        "multiplier": "4",
-        "subjects": [
-          "國文",
-          "英文"
-        ],
-        "score": "27",
-        "label": "國文+英文27"
-      },
-      {
-        "rank": 3,
-        "multiplier": "3",
-        "subjects": [
-          "數A"
-        ],
-        "score": "",
-        "label": "數A待補"
-      }
-    ],
-    "ocrRaw": "6 國 英 數 A 社 50 (國文+英文) 27 數學A Ⅱ",
-    "detailUrl": "https://www.cac.edu.tw/apply115/system/ColQry_115xappLyfOrStu_Azd5gP29/html/115_006152.htm?v=1.0",
-    "cropImage": "./review_crops/ranked_115_006152.png",
-    "officialImageUrl": "https://www.cac.edu.tw/CacLink/apply115/115Apply_sievE_Result_querY_615JG8Wgh9d/html_sieve_result_115_Zx57f1dW/Standard/report/pict/006.png",
-    "locatedInOcr": true,
-    "externalStatus": "source_conflict",
-    "universityTwResult": "國文+英文+數A+社會 43、國文 12、英文 14、數A 9",
-    "suggestedFill": "",
-    "externalConflicts": "順位1 官方 國文+英文+數A+社會 50 / UTW 國文+英文+數A+社會 43；順位2 官方 國文+英文 27 / UTW 國文 12",
-    "universityTwUrl": "https://university-tw.ldkrsi.men/caac/006/006152"
-  },
-  {
     "index": 11,
     "year": 115,
     "programCode": "006212",
@@ -634,50 +423,6 @@
     "universityTwUrl": "https://university-tw.ldkrsi.men/caac/006/006332"
   },
   {
-    "index": 14,
-    "year": 115,
-    "programCode": "006442",
-    "schoolCode": "006",
-    "schoolName": "國立政治大學",
-    "departmentName": "資訊科學系(資安組)",
-    "officialResult": "國文+英文+數A+自然48",
-    "rankedKnown": "國文+英文+數A+自然 48",
-    "missingRanks": "數A",
-    "rankedItems": [
-      {
-        "rank": 1,
-        "multiplier": "12",
-        "subjects": [
-          "國文",
-          "英文",
-          "數A",
-          "自然"
-        ],
-        "score": "48",
-        "label": "國文+英文+數A+自然48"
-      },
-      {
-        "rank": 2,
-        "multiplier": "10",
-        "subjects": [
-          "數A"
-        ],
-        "score": "",
-        "label": "數A待補"
-      }
-    ],
-    "ocrRaw": "12 國 英 數 A 自 48 數學A Ⅱ",
-    "detailUrl": "https://www.cac.edu.tw/apply115/system/ColQry_115xappLyfOrStu_Azd5gP29/html/115_006442.htm?v=1.0",
-    "cropImage": "./review_crops/ranked_115_006442.png",
-    "officialImageUrl": "https://www.cac.edu.tw/CacLink/apply115/115Apply_sievE_Result_querY_615JG8Wgh9d/html_sieve_result_115_Zx57f1dW/Standard/report/pict/006.png",
-    "locatedInOcr": true,
-    "externalStatus": "source_conflict",
-    "universityTwResult": "國文+英文+數A+自然 35、數A 9",
-    "suggestedFill": "數A 9",
-    "externalConflicts": "順位1 官方 國文+英文+數A+自然 48 / UTW 國文+英文+數A+自然 35",
-    "universityTwUrl": "https://university-tw.ldkrsi.men/caac/006/006442"
-  },
-  {
     "index": 15,
     "year": 115,
     "programCode": "009042",
@@ -749,49 +494,6 @@
     "suggestedFill": "",
     "externalConflicts": "",
     "universityTwUrl": "https://university-tw.ldkrsi.men/caac/009/009342"
-  },
-  {
-    "index": 17,
-    "year": 115,
-    "programCode": "013412",
-    "schoolCode": "013",
-    "schoolName": "國立陽明交通大學",
-    "departmentName": "屯蒙-生醫科學組",
-    "officialResult": "英文+數A+自然30",
-    "rankedKnown": "英文+數A+自然 30",
-    "missingRanks": "自然",
-    "rankedItems": [
-      {
-        "rank": 1,
-        "multiplier": "7",
-        "subjects": [
-          "英文",
-          "數A",
-          "自然"
-        ],
-        "score": "30",
-        "label": "英文+數A+自然30"
-      },
-      {
-        "rank": 2,
-        "multiplier": "5",
-        "subjects": [
-          "自然"
-        ],
-        "score": "",
-        "label": "自然待補"
-      }
-    ],
-    "ocrRaw": "7 英 數 A 自 30 自然 Ⅱ",
-    "detailUrl": "https://www.cac.edu.tw/apply115/system/ColQry_115xappLyfOrStu_Azd5gP29/html/115_013412.htm?v=1.0",
-    "cropImage": "./review_crops/ranked_115_013412.png",
-    "officialImageUrl": "https://www.cac.edu.tw/CacLink/apply115/115Apply_sievE_Result_querY_615JG8Wgh9d/html_sieve_result_115_Zx57f1dW/Standard/report/pict/013.png",
-    "locatedInOcr": true,
-    "externalStatus": "source_conflict",
-    "universityTwResult": "英文+數A+自然 32、自然 12",
-    "suggestedFill": "自然 12",
-    "externalConflicts": "順位1 官方 英文+數A+自然 30 / UTW 英文+數A+自然 32",
-    "universityTwUrl": "https://university-tw.ldkrsi.men/caac/013/013412"
   },
   {
     "index": 18,
@@ -876,89 +578,6 @@
     "universityTwUrl": "https://university-tw.ldkrsi.men/caac/015/015162"
   },
   {
-    "index": 20,
-    "year": 115,
-    "programCode": "016202",
-    "schoolCode": "016",
-    "schoolName": "國立中央大學",
-    "departmentName": "資訊管理學系(APCS組)",
-    "officialResult": "數A10",
-    "rankedKnown": "數A 10",
-    "missingRanks": "英文",
-    "rankedItems": [
-      {
-        "rank": 1,
-        "multiplier": "12",
-        "subjects": [
-          "數A"
-        ],
-        "score": "10",
-        "label": "數A10"
-      },
-      {
-        "rank": 2,
-        "multiplier": "10",
-        "subjects": [
-          "英文"
-        ],
-        "score": "",
-        "label": "英文待補"
-      }
-    ],
-    "ocrRaw": "數學A10 英文 Ⅱ (APCS 識 讀",
-    "detailUrl": "https://www.cac.edu.tw/apply115/system/ColQry_115xappLyfOrStu_Azd5gP29/html/115_016202.htm?v=1.0",
-    "cropImage": "./review_crops/ranked_115_016202.png",
-    "officialImageUrl": "https://www.cac.edu.tw/CacLink/apply115/115Apply_sievE_Result_querY_615JG8Wgh9d/html_sieve_result_115_Zx57f1dW/Standard/report/pict/016.png",
-    "locatedInOcr": true,
-    "externalStatus": "no_university_tw_record",
-    "universityTwResult": "",
-    "suggestedFill": "",
-    "externalConflicts": "順位1 University TW 無資料",
-    "universityTwUrl": ""
-  },
-  {
-    "index": 21,
-    "year": 115,
-    "programCode": "017022",
-    "schoolCode": "017",
-    "schoolName": "中國文化大學",
-    "departmentName": "哲學與歷史學系(史學組)",
-    "officialResult": "國文+社會16",
-    "rankedKnown": "國文+社會 16",
-    "missingRanks": "社會",
-    "rankedItems": [
-      {
-        "rank": 1,
-        "multiplier": "10",
-        "subjects": [
-          "國文",
-          "社會"
-        ],
-        "score": "16",
-        "label": "國文+社會16"
-      },
-      {
-        "rank": 2,
-        "multiplier": "4.5",
-        "subjects": [
-          "社會"
-        ],
-        "score": "",
-        "label": "社會待補"
-      }
-    ],
-    "ocrRaw": "國 社 16 社會 Ⅱ",
-    "detailUrl": "https://www.cac.edu.tw/apply115/system/ColQry_115xappLyfOrStu_Azd5gP29/html/115_017022.htm?v=1.0",
-    "cropImage": "./review_crops/ranked_115_017022.png",
-    "officialImageUrl": "https://www.cac.edu.tw/CacLink/apply115/115Apply_sievE_Result_querY_615JG8Wgh9d/html_sieve_result_115_Zx57f1dW/Standard/report/pict/017.png",
-    "locatedInOcr": true,
-    "externalStatus": "no_university_tw_result",
-    "universityTwResult": "",
-    "suggestedFill": "",
-    "externalConflicts": "順位1 University TW 無資料",
-    "universityTwUrl": "https://university-tw.ldkrsi.men/caac/017/017022"
-  },
-  {
     "index": 22,
     "year": 115,
     "programCode": "017042",
@@ -1032,59 +651,6 @@
     "universityTwUrl": "https://university-tw.ldkrsi.men/caac/020/020492"
   },
   {
-    "index": 24,
-    "year": 115,
-    "programCode": "021022",
-    "schoolCode": "021",
-    "schoolName": "國立臺灣海洋大學",
-    "departmentName": "航運管理學系",
-    "officialResult": "國文+英文+數B+社會35、數B6",
-    "rankedKnown": "國文+英文+數B+社會 35、數B 6",
-    "missingRanks": "英文",
-    "rankedItems": [
-      {
-        "rank": 1,
-        "multiplier": "6",
-        "subjects": [
-          "國文",
-          "英文",
-          "數B",
-          "社會"
-        ],
-        "score": "35",
-        "label": "國文+英文+數B+社會35"
-      },
-      {
-        "rank": 2,
-        "multiplier": "5",
-        "subjects": [
-          "數B"
-        ],
-        "score": "6",
-        "label": "數B6"
-      },
-      {
-        "rank": 3,
-        "multiplier": "3",
-        "subjects": [
-          "英文"
-        ],
-        "score": "",
-        "label": "英文待補"
-      }
-    ],
-    "ocrRaw": "6 國 英 數 B 社 35 數學B6 英文 Ⅱ",
-    "detailUrl": "https://www.cac.edu.tw/apply115/system/ColQry_115xappLyfOrStu_Azd5gP29/html/115_021022.htm?v=1.0",
-    "cropImage": "./review_crops/ranked_115_021022.png",
-    "officialImageUrl": "https://www.cac.edu.tw/CacLink/apply115/115Apply_sievE_Result_querY_615JG8Wgh9d/html_sieve_result_115_Zx57f1dW/Standard/report/pict/021.png",
-    "locatedInOcr": true,
-    "externalStatus": "source_conflict",
-    "universityTwResult": "國文+英文+數B+社會 32、數B 7、英文 10",
-    "suggestedFill": "英文 10",
-    "externalConflicts": "順位1 官方 國文+英文+數B+社會 35 / UTW 國文+英文+數B+社會 32；順位2 官方 數B 6 / UTW 數B 7",
-    "universityTwUrl": "https://university-tw.ldkrsi.men/caac/021/021022"
-  },
-  {
     "index": 25,
     "year": 115,
     "programCode": "021122",
@@ -1156,49 +722,6 @@
     "suggestedFill": "數A 10",
     "externalConflicts": "",
     "universityTwUrl": "https://university-tw.ldkrsi.men/caac/021/021242"
-  },
-  {
-    "index": 27,
-    "year": 115,
-    "programCode": "021262",
-    "schoolCode": "021",
-    "schoolName": "國立臺灣海洋大學",
-    "departmentName": "光電與材料科技學系",
-    "officialResult": "英文+數A+自然34",
-    "rankedKnown": "英文+數A+自然 34",
-    "missingRanks": "數A",
-    "rankedItems": [
-      {
-        "rank": 1,
-        "multiplier": "5",
-        "subjects": [
-          "英文",
-          "數A",
-          "自然"
-        ],
-        "score": "34",
-        "label": "英文+數A+自然34"
-      },
-      {
-        "rank": 2,
-        "multiplier": "3",
-        "subjects": [
-          "數A"
-        ],
-        "score": "",
-        "label": "數A待補"
-      }
-    ],
-    "ocrRaw": "5 英 數 A 自 34 數學A Ⅱ",
-    "detailUrl": "https://www.cac.edu.tw/apply115/system/ColQry_115xappLyfOrStu_Azd5gP29/html/115_021262.htm?v=1.0",
-    "cropImage": "./review_crops/ranked_115_021262.png",
-    "officialImageUrl": "https://www.cac.edu.tw/CacLink/apply115/115Apply_sievE_Result_querY_615JG8Wgh9d/html_sieve_result_115_Zx57f1dW/Standard/report/pict/021.png",
-    "locatedInOcr": true,
-    "externalStatus": "source_conflict",
-    "universityTwResult": "英文+數A+自然 32、數A 9",
-    "suggestedFill": "數A 9",
-    "externalConflicts": "順位1 官方 英文+數A+自然 34 / UTW 英文+數A+自然 32",
-    "universityTwUrl": "https://university-tw.ldkrsi.men/caac/021/021262"
   },
   {
     "index": 28,
@@ -1342,48 +865,6 @@
     "universityTwUrl": "https://university-tw.ldkrsi.men/caac/027/027432"
   },
   {
-    "index": 31,
-    "year": 115,
-    "programCode": "031012",
-    "schoolCode": "031",
-    "schoolName": "國立臺中教育大學",
-    "departmentName": "全校不分系學士學位學程",
-    "officialResult": "國文+英文21",
-    "rankedKnown": "國文+英文 21",
-    "missingRanks": "英文",
-    "rankedItems": [
-      {
-        "rank": 1,
-        "multiplier": "10",
-        "subjects": [
-          "國文",
-          "英文"
-        ],
-        "score": "21",
-        "label": "國文+英文21"
-      },
-      {
-        "rank": 2,
-        "multiplier": "4",
-        "subjects": [
-          "英文"
-        ],
-        "score": "",
-        "label": "英文待補"
-      }
-    ],
-    "ocrRaw": "10 國 英 21 英文 Ⅱ",
-    "detailUrl": "https://www.cac.edu.tw/apply115/system/ColQry_115xappLyfOrStu_Azd5gP29/html/115_031012.htm?v=1.0",
-    "cropImage": "./review_crops/ranked_115_031012.png",
-    "officialImageUrl": "https://www.cac.edu.tw/CacLink/apply115/115Apply_sievE_Result_querY_615JG8Wgh9d/html_sieve_result_115_Zx57f1dW/Standard/report/pict/031.png",
-    "locatedInOcr": true,
-    "externalStatus": "source_conflict",
-    "universityTwResult": "國文+英文 18、英文 9",
-    "suggestedFill": "英文 9",
-    "externalConflicts": "順位1 官方 國文+英文 21 / UTW 國文+英文 18",
-    "universityTwUrl": "https://university-tw.ldkrsi.men/caac/031/031012"
-  },
-  {
     "index": 32,
     "year": 115,
     "programCode": "031092",
@@ -1423,58 +904,6 @@
     "suggestedFill": "英文 11",
     "externalConflicts": "",
     "universityTwUrl": "https://university-tw.ldkrsi.men/caac/031/031092"
-  },
-  {
-    "index": 33,
-    "year": 115,
-    "programCode": "031202",
-    "schoolCode": "031",
-    "schoolName": "國立臺中教育大學",
-    "departmentName": "國際企業學系",
-    "officialResult": "國文+英文+數B24、國文11",
-    "rankedKnown": "國文+英文+數B 24、國文 11",
-    "missingRanks": "英文",
-    "rankedItems": [
-      {
-        "rank": 1,
-        "multiplier": "10",
-        "subjects": [
-          "國文",
-          "英文",
-          "數B"
-        ],
-        "score": "24",
-        "label": "國文+英文+數B24"
-      },
-      {
-        "rank": 2,
-        "multiplier": "8",
-        "subjects": [
-          "國文"
-        ],
-        "score": "11",
-        "label": "國文11"
-      },
-      {
-        "rank": 3,
-        "multiplier": "5",
-        "subjects": [
-          "英文"
-        ],
-        "score": "",
-        "label": "英文待補"
-      }
-    ],
-    "ocrRaw": "10 國 英 數 B24 國文 11 英文 Ⅱ",
-    "detailUrl": "https://www.cac.edu.tw/apply115/system/ColQry_115xappLyfOrStu_Azd5gP29/html/115_031202.htm?v=1.0",
-    "cropImage": "./review_crops/ranked_115_031202.png",
-    "officialImageUrl": "https://www.cac.edu.tw/CacLink/apply115/115Apply_sievE_Result_querY_615JG8Wgh9d/html_sieve_result_115_Zx57f1dW/Standard/report/pict/031.png",
-    "locatedInOcr": true,
-    "externalStatus": "auto_fill_candidate",
-    "universityTwResult": "國文+英文+數B 24、國文 11、英文 12",
-    "suggestedFill": "英文 12",
-    "externalConflicts": "",
-    "universityTwUrl": "https://university-tw.ldkrsi.men/caac/031/031202"
   },
   {
     "index": 34,
@@ -1518,48 +947,6 @@
     "universityTwUrl": "https://university-tw.ldkrsi.men/caac/033/033202"
   },
   {
-    "index": 35,
-    "year": 115,
-    "programCode": "034372",
-    "schoolCode": "034",
-    "schoolName": "國立東華大學",
-    "departmentName": "社會學系",
-    "officialResult": "國文+社會16",
-    "rankedKnown": "國文+社會 16",
-    "missingRanks": "社會",
-    "rankedItems": [
-      {
-        "rank": 1,
-        "multiplier": "10",
-        "subjects": [
-          "國文",
-          "社會"
-        ],
-        "score": "16",
-        "label": "國文+社會16"
-      },
-      {
-        "rank": 2,
-        "multiplier": "3",
-        "subjects": [
-          "社會"
-        ],
-        "score": "",
-        "label": "社會待補"
-      }
-    ],
-    "ocrRaw": "國 社 16 社會 Ⅱ",
-    "detailUrl": "https://www.cac.edu.tw/apply115/system/ColQry_115xappLyfOrStu_Azd5gP29/html/115_034372.htm?v=1.0",
-    "cropImage": "./review_crops/ranked_115_034372.png",
-    "officialImageUrl": "https://www.cac.edu.tw/CacLink/apply115/115Apply_sievE_Result_querY_615JG8Wgh9d/html_sieve_result_115_Zx57f1dW/Standard/report/pict/034.png",
-    "locatedInOcr": true,
-    "externalStatus": "auto_fill_candidate",
-    "universityTwResult": "國文+社會 16、社會 13",
-    "suggestedFill": "社會 13",
-    "externalConflicts": "",
-    "universityTwUrl": "https://university-tw.ldkrsi.men/caac/034/034372"
-  },
-  {
     "index": 36,
     "year": 115,
     "programCode": "034412",
@@ -1599,102 +986,6 @@
     "suggestedFill": "社會 11",
     "externalConflicts": "順位1 官方 國文 9 / UTW 國文 10",
     "universityTwUrl": "https://university-tw.ldkrsi.men/caac/034/034412"
-  },
-  {
-    "index": 37,
-    "year": 115,
-    "programCode": "035102",
-    "schoolCode": "035",
-    "schoolName": "臺北市立大學",
-    "departmentName": "地球環境暨生物資源學系",
-    "officialResult": "國文+英文+自然23",
-    "rankedKnown": "國文+英文+自然 23",
-    "missingRanks": "自然",
-    "rankedItems": [
-      {
-        "rank": 1,
-        "multiplier": "8",
-        "subjects": [
-          "國文",
-          "英文",
-          "自然"
-        ],
-        "score": "23",
-        "label": "國文+英文+自然23"
-      },
-      {
-        "rank": 2,
-        "multiplier": "3",
-        "subjects": [
-          "自然"
-        ],
-        "score": "",
-        "label": "自然待補"
-      }
-    ],
-    "ocrRaw": "8 國 英 自 23 自然 Ⅱ",
-    "detailUrl": "https://www.cac.edu.tw/apply115/system/ColQry_115xappLyfOrStu_Azd5gP29/html/115_035102.htm?v=1.0",
-    "cropImage": "./review_crops/ranked_115_035102.png",
-    "officialImageUrl": "https://www.cac.edu.tw/CacLink/apply115/115Apply_sievE_Result_querY_615JG8Wgh9d/html_sieve_result_115_Zx57f1dW/Standard/report/pict/035.png",
-    "locatedInOcr": true,
-    "externalStatus": "source_conflict",
-    "universityTwResult": "國文+英文+自然 28、自然 11",
-    "suggestedFill": "自然 11",
-    "externalConflicts": "順位1 官方 國文+英文+自然 23 / UTW 國文+英文+自然 28",
-    "universityTwUrl": "https://university-tw.ldkrsi.men/caac/035/035102"
-  },
-  {
-    "index": 38,
-    "year": 115,
-    "programCode": "036342",
-    "schoolCode": "036",
-    "schoolName": "國立屏東大學",
-    "departmentName": "電腦與通訊學系",
-    "officialResult": "國文+英文+數A21、英文+數A13",
-    "rankedKnown": "國文+英文+數A 21、英文+數A 13",
-    "missingRanks": "國文",
-    "rankedItems": [
-      {
-        "rank": 1,
-        "multiplier": "25",
-        "subjects": [
-          "國文",
-          "英文",
-          "數A"
-        ],
-        "score": "21",
-        "label": "國文+英文+數A21"
-      },
-      {
-        "rank": 2,
-        "multiplier": "15",
-        "subjects": [
-          "英文",
-          "數A"
-        ],
-        "score": "13",
-        "label": "英文+數A13"
-      },
-      {
-        "rank": 3,
-        "multiplier": "8",
-        "subjects": [
-          "國文"
-        ],
-        "score": "",
-        "label": "國文待補"
-      }
-    ],
-    "ocrRaw": "25 國 英 數 A21 (英文+數學A) 13 國文 Ⅱ",
-    "detailUrl": "https://www.cac.edu.tw/apply115/system/ColQry_115xappLyfOrStu_Azd5gP29/html/115_036342.htm?v=1.0",
-    "cropImage": "./review_crops/ranked_115_036342.png",
-    "officialImageUrl": "https://www.cac.edu.tw/CacLink/apply115/115Apply_sievE_Result_querY_615JG8Wgh9d/html_sieve_result_115_Zx57f1dW/Standard/report/pict/036.png",
-    "locatedInOcr": true,
-    "externalStatus": "source_conflict",
-    "universityTwResult": "國文+英文+數A 10、英文+數A 7、國文 10",
-    "suggestedFill": "國文 10",
-    "externalConflicts": "順位1 官方 國文+英文+數A 21 / UTW 國文+英文+數A 10；順位2 官方 英文+數A 13 / UTW 英文+數A 7",
-    "universityTwUrl": "https://university-tw.ldkrsi.men/caac/036/036342"
   },
   {
     "index": 39,
@@ -1777,39 +1068,6 @@
     "suggestedFill": "",
     "externalConflicts": "順位1 University TW 無資料",
     "universityTwUrl": ""
-  },
-  {
-    "index": 41,
-    "year": 115,
-    "programCode": "042012",
-    "schoolCode": "042",
-    "schoolName": "大葉大學",
-    "departmentName": "機械與自動化工程學系(智慧車輛與綠能科技組)",
-    "officialResult": "英文+數A7、國文+數A+英文7、國文+英文7",
-    "rankedKnown": "",
-    "missingRanks": "國文+數A",
-    "rankedItems": [
-      {
-        "rank": 1,
-        "multiplier": "5.5",
-        "subjects": [
-          "國文",
-          "數A"
-        ],
-        "score": "",
-        "label": "國文+數A待補"
-      }
-    ],
-    "ocrRaw": "目 組 合 國 文 + 數 學 A Ⅱ ( ) ( 英 文 + 數 學 A ) 7",
-    "detailUrl": "https://www.cac.edu.tw/apply115/system/ColQry_115xappLyfOrStu_Azd5gP29/html/115_042012.htm?v=1.0",
-    "cropImage": "./review_crops/ranked_115_042012.png",
-    "officialImageUrl": "https://www.cac.edu.tw/CacLink/apply115/115Apply_sievE_Result_querY_615JG8Wgh9d/html_sieve_result_115_Zx57f1dW/Standard/report/pict/042.png",
-    "locatedInOcr": true,
-    "externalStatus": "auto_fill_candidate",
-    "universityTwResult": "國文+數A 9",
-    "suggestedFill": "國文+數A 9",
-    "externalConflicts": "",
-    "universityTwUrl": "https://university-tw.ldkrsi.men/caac/042/042012"
   },
   {
     "index": 42,
@@ -2177,39 +1435,6 @@
     "universityTwUrl": "https://university-tw.ldkrsi.men/caac/051/051252"
   },
   {
-    "index": 52,
-    "year": 115,
-    "programCode": "058102",
-    "schoolCode": "058",
-    "schoolName": "國立暨南國際大學",
-    "departmentName": "資訊管理學系(資安組)",
-    "officialResult": "英文3、數A9、英文+數A9",
-    "rankedKnown": "",
-    "missingRanks": "國文+英文",
-    "rankedItems": [
-      {
-        "rank": 1,
-        "multiplier": "7",
-        "subjects": [
-          "國文",
-          "英文"
-        ],
-        "score": "",
-        "label": "國文+英文待補"
-      }
-    ],
-    "ocrRaw": "英文3、數學A9",
-    "detailUrl": "https://www.cac.edu.tw/apply115/system/ColQry_115xappLyfOrStu_Azd5gP29/html/115_058102.htm?v=1.0",
-    "cropImage": "",
-    "officialImageUrl": "https://www.cac.edu.tw/CacLink/apply115/115Apply_sievE_Result_querY_615JG8Wgh9d/html_sieve_result_115_Zx57f1dW/Standard/report/pict/058.png",
-    "locatedInOcr": false,
-    "externalStatus": "no_university_tw_record",
-    "universityTwResult": "",
-    "suggestedFill": "",
-    "externalConflicts": "",
-    "universityTwUrl": ""
-  },
-  {
     "index": 53,
     "year": 115,
     "programCode": "058122",
@@ -2272,59 +1497,6 @@
     "suggestedFill": "自然 7",
     "externalConflicts": "",
     "universityTwUrl": "https://university-tw.ldkrsi.men/caac/059/059432"
-  },
-  {
-    "index": 55,
-    "year": 115,
-    "programCode": "099202",
-    "schoolCode": "099",
-    "schoolName": "國立臺北大學",
-    "departmentName": "財政學系(飛鳶組)",
-    "officialResult": "國文+英文+數A+社會47",
-    "rankedKnown": "國文+英文+數A+社會 47",
-    "missingRanks": "數A、英文",
-    "rankedItems": [
-      {
-        "rank": 1,
-        "multiplier": "7",
-        "subjects": [
-          "國文",
-          "英文",
-          "數A",
-          "社會"
-        ],
-        "score": "47",
-        "label": "國文+英文+數A+社會47"
-      },
-      {
-        "rank": 2,
-        "multiplier": "6",
-        "subjects": [
-          "數A"
-        ],
-        "score": "",
-        "label": "數A待補"
-      },
-      {
-        "rank": 3,
-        "multiplier": "5",
-        "subjects": [
-          "英文"
-        ],
-        "score": "",
-        "label": "英文待補"
-      }
-    ],
-    "ocrRaw": "5 國 英 數 A 社 47 數 學 A9 英 7",
-    "detailUrl": "https://www.cac.edu.tw/apply115/system/ColQry_115xappLyfOrStu_Azd5gP29/html/115_099202.htm?v=1.0",
-    "cropImage": "./review_crops/ranked_115_099202.png",
-    "officialImageUrl": "https://www.cac.edu.tw/CacLink/apply115/115Apply_sievE_Result_querY_615JG8Wgh9d/html_sieve_result_115_Zx57f1dW/Standard/report/pict/099.png",
-    "locatedInOcr": true,
-    "externalStatus": "source_conflict",
-    "universityTwResult": "國文+英文+數A+社會 42、數A 6、英文 12",
-    "suggestedFill": "數A 6、英文 12",
-    "externalConflicts": "順位1 官方 國文+英文+數A+社會 47 / UTW 國文+英文+數A+社會 42",
-    "universityTwUrl": "https://university-tw.ldkrsi.men/caac/099/099202"
   },
   {
     "index": 56,
@@ -2514,59 +1686,6 @@
     "universityTwUrl": "https://university-tw.ldkrsi.men/caac/100/100412"
   },
   {
-    "index": 61,
-    "year": 115,
-    "programCode": "101072",
-    "schoolCode": "101",
-    "schoolName": "國立高雄大學",
-    "departmentName": "政治法律學系",
-    "officialResult": "國文+英文+社會37、國文+社會25",
-    "rankedKnown": "國文+英文+社會 37、國文+社會 25",
-    "missingRanks": "英文",
-    "rankedItems": [
-      {
-        "rank": 1,
-        "multiplier": "4",
-        "subjects": [
-          "國文",
-          "英文",
-          "社會"
-        ],
-        "score": "37",
-        "label": "國文+英文+社會37"
-      },
-      {
-        "rank": 2,
-        "multiplier": "3.5",
-        "subjects": [
-          "國文",
-          "社會"
-        ],
-        "score": "25",
-        "label": "國文+社會25"
-      },
-      {
-        "rank": 3,
-        "multiplier": "3",
-        "subjects": [
-          "英文"
-        ],
-        "score": "",
-        "label": "英文待補"
-      }
-    ],
-    "ocrRaw": "國 英 社 37 (國文+社會) 25 英文 Ⅱ",
-    "detailUrl": "https://www.cac.edu.tw/apply115/system/ColQry_115xappLyfOrStu_Azd5gP29/html/115_101072.htm?v=1.0",
-    "cropImage": "./review_crops/ranked_115_101072.png",
-    "officialImageUrl": "https://www.cac.edu.tw/CacLink/apply115/115Apply_sievE_Result_querY_615JG8Wgh9d/html_sieve_result_115_Zx57f1dW/Standard/report/pict/101.png",
-    "locatedInOcr": true,
-    "externalStatus": "source_conflict",
-    "universityTwResult": "國文+英文+社會 32、國文+社會 23、英文 10",
-    "suggestedFill": "英文 10",
-    "externalConflicts": "順位1 官方 國文+英文+社會 37 / UTW 國文+英文+社會 32；順位2 官方 國文+社會 25 / UTW 國文+社會 23",
-    "universityTwUrl": "https://university-tw.ldkrsi.men/caac/101/101072"
-  },
-  {
     "index": 62,
     "year": 115,
     "programCode": "101252",
@@ -2606,40 +1725,6 @@
     "suggestedFill": "數A 9",
     "externalConflicts": "",
     "universityTwUrl": "https://university-tw.ldkrsi.men/caac/101/101252"
-  },
-  {
-    "index": 63,
-    "year": 115,
-    "programCode": "151112",
-    "schoolCode": "151",
-    "schoolName": "國立聯合大學",
-    "departmentName": "電子工程學系(A組)",
-    "officialResult": "數A+自然20",
-    "rankedKnown": "",
-    "missingRanks": "國文+數A+自然",
-    "rankedItems": [
-      {
-        "rank": 1,
-        "multiplier": "3",
-        "subjects": [
-          "國文",
-          "數A",
-          "自然"
-        ],
-        "score": "",
-        "label": "國文+數A+自然待補"
-      }
-    ],
-    "ocrRaw": "(數學A+自然)20",
-    "detailUrl": "https://www.cac.edu.tw/apply115/system/ColQry_115xappLyfOrStu_Azd5gP29/html/115_151112.htm?v=1.0",
-    "cropImage": "",
-    "officialImageUrl": "https://www.cac.edu.tw/CacLink/apply115/115Apply_sievE_Result_querY_615JG8Wgh9d/html_sieve_result_115_Zx57f1dW/Standard/report/pict/151.png",
-    "locatedInOcr": false,
-    "externalStatus": "no_matching_fill",
-    "universityTwResult": "國文+數A 17",
-    "suggestedFill": "",
-    "externalConflicts": "",
-    "universityTwUrl": "https://university-tw.ldkrsi.men/caac/151/151112"
   },
   {
     "index": 64,

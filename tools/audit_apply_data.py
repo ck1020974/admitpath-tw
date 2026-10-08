@@ -4,15 +4,16 @@ import re
 from collections import Counter
 from pathlib import Path
 
-from apply_sieve_score_guard import sanitize_record
-from official_sieve_reviews import apply_review, load_reviews
+from apply_sieve_score_guard import ART_SUBJECTS, sanitize_record, score_is_impossible
+from official_sieve_reviews import apply_detail_reviews, apply_review, load_reviews
 
 ROOT = Path(__file__).resolve().parents[1]
 KNOWN = {'國文', '英文', '數A', '數B', '社會', '自然', 'APCS識讀', 'APCS實作'}
+KNOWN |= ART_SUBJECTS
 
 
 def subject(v):
-    return v.replace('數學', '數').replace('程式', 'APCS')
+    return v.replace('數學', '數').replace('程式', 'APCS').replace('體育(百分等級)', '體育').replace('體育百分等級', '體育')
 
 
 def subjects(v):
@@ -48,7 +49,7 @@ def inspect_record(r, standards):
     if d.get('layout') == 'art' and r.get('examRequired') == '是':
         issues.append('術科及主修規則須依官方分則另行核對')
     expected = {}
-    for item in d.get('screeningSubjects', []) + d.get('apcsSubjects', []):
+    for item in d.get('screeningSubjects', []) + d.get('apcsSubjects', []) + d.get('artSubjects', []):
         multiplier = number(item.get('screening_multiplier'))
         ss = subjects(item['subject'])
         if multiplier is not None and multiplier > 0:
@@ -57,12 +58,13 @@ def inspect_record(r, standards):
             expected.setdefault(multiplier, []).extend(ss)
     observed = (r.get('applySieveResult') or {}).get('rankedItems', [])
     anomalies = []
-    for row in observed:
+    specialized = (r.get('applySieveResult') or {}).get('specializations', [])
+    for row in observed + [item for specialization in specialized for item in specialization['rankedItems']]:
         ss = [subject(s) for s in row.get('subjects', [])]
         n = number(row.get('score'))
         if n is None:
             continue
-        if not ss or any(s not in KNOWN for s in ss) or n < 0 or n > sum(5 if s.startswith('APCS') else 15 for s in ss):
+        if not ss or any(s not in KNOWN for s in ss) or score_is_impossible(row):
             anomalies.append('篩選級分或科目超出合法範圍')
         # Independent check against minimum implied by the declared examinations.
         mins = []
@@ -74,12 +76,13 @@ def inspect_record(r, standards):
             anomalies.append('合計篩選級分低於檢定最低總和')
     actual = [(number(i.get('multiplier')), sorted(subject(s) for s in i.get('subjects', []))) for i in observed]
     wanted = [(m, sorted(set(ss))) for m, ss in sorted(expected.items(), reverse=True)]
-    if actual != wanted:
+    if actual != wanted and (r.get('applySieveResult') or {}).get('publishedStatus') != 'not-published':
         anomalies.append('篩選順序、科目或倍率與簡章不一致')
     return list(dict.fromkeys(issues)), list(dict.fromkeys(anomalies)), wanted
 
 
 def audit_records(records, standards, corrections):
+    apply_detail_reviews(records)
     queue, summary, changed = [], Counter(), []
     ids = set()
     official_reviews = load_reviews()
@@ -114,7 +117,7 @@ def audit_records(records, standards, corrections):
         # confirmed anomaly.
         if not review and verification_method != 'official-image-visual-review':
             anomalies = []
-        if review and anomalies:
+        if (review or r['id'] in official_reviews) and anomalies:
             raise ValueError(f"Reviewed result contradicts current official detail: {r['id']} {anomalies}")
         r['admissionAudit'] = {
             'schemaVersion':2, 'detailStatus':'parsed' if r.get('officialDetailStatus') == 'parsed' else 'pending',
@@ -129,7 +132,7 @@ def audit_records(records, standards, corrections):
         summary[f"{r['year']}_apcs"] += bool(d.get('apcsSubjects'))
         summary[f"{r['year']}_anomalies"] += bool(anomalies)
         if issues or anomalies or score_review_pending or not review and not gender_review:
-            queue.append({'id':r['id'], 'school':r['schoolName'], 'department':r['departmentName'], 'issues':issues+anomalies+(['單科或合計級分超過上限，待官方原表核對'] if score_review_pending else [])+([] if review else ['一階圖片級分尚未逐列核對']), 'detailUrl':r['detailUrl'], 'resultUrl':(r.get('applySieveResult') or {}).get('sourceImageUrl')})
+            queue.append({'id':r['id'], 'school':r['schoolName'], 'department':r['departmentName'], 'issues':issues+anomalies+(['單科或合計級分超過上限，待官方原表核對'] if score_review_pending else [])+([] if review or gender_review else ['一階圖片級分尚未逐列核對']), 'detailUrl':r['detailUrl'], 'resultUrl':(r.get('applySieveResult') or {}).get('sourceImageUrl')})
     return {'summary': dict(summary), 'corrections':changed, 'reviewQueue':queue}
 
 

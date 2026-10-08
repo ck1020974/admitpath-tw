@@ -1,10 +1,17 @@
 import unittest
 
-from apply_sieve_score_guard import sanitize_record
+from apply_sieve_score_guard import sanitize_record, score_is_impossible
 from audit_apply_data import audit_records
 
 
 class ApplySieveScoreGuardTests(unittest.TestCase):
+    def test_art_scores_keep_their_own_range(self):
+        self.assertFalse(score_is_impossible({'subjects': ['主修'], 'score': '84.36'}))
+        self.assertFalse(score_is_impossible({'subjects': ['素描', '彩繪技法', '創意表現'], 'score': '231'}))
+        self.assertTrue(score_is_impossible({'subjects': ['英文'], 'score': '84.36'}))
+        self.assertTrue(score_is_impossible({'subjects': ['主修'], 'score': '101'}))
+        self.assertTrue(score_is_impossible({'subjects': ['APCS識讀', 'APCS實作'], 'score': '11'}))
+
     def test_user_reported_correction_preserves_combined_score(self):
         record = {
             'id': '115-personal_application-002092-115_apply',

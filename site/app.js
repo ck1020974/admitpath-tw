@@ -2542,14 +2542,12 @@ function personalApplicationStandardParts(record) {
   return [
     ...(displayResults.length
       ? displayResults.filter(i => i.score).map(i => ({ type: "screening", text: rankedSieveLabel(i) }))
-      : [{ type: "status", text: "官方結果未列或尚未接入" }]),
+      : [{ type: "status", text: personalApplicationNoResultLabel(record) }]),
     ...applicationThresholdLabelParts(record),
   ];
 }
 
 function personalApplicationDisplayResults(record) {
-  const verified = AdmissionRules.verifiedResults(record);
-  if (verified.length) return verified;
   const ranked = (record.applySieveResult?.rankedItems || [])
     .filter(i => i.score !== "" && i.score != null)
     .map(i => ({ ...i, subjects: (i.subjects || []).map(shortSubject) }));
@@ -2598,6 +2596,8 @@ function rankedSieveLabel(item) {
 }
 
 function personalApplicationNoResultLabel(record) {
+  if (record.applySieveResult?.specializations?.length) return "依主修分別篩選，詳見校系資料";
+  if (record.applySieveResult?.publishedStatus === "not-published") return "官方未列篩選分數";
   const review = record.applySieveReview;
   if (review?.status === "special_result" || review?.status === "manual_special") return "術科考試";
   if (record.examRequired === "是") return "術科考試";
@@ -4360,9 +4360,12 @@ function applySieveResultHtml(record) {
   if (record.militaryAdmission) return `<section class="detail-section"><h3>軍校個人申請</h3><div class="detail-list">${kv("招生類別名額", Object.entries(record.militaryAdmission.quotas).map(([name, count]) => `${name} ${count}名`).join('；'))}${kv("學測檢定", record.militaryAdmission.thresholdText)}${kv("判讀方式", "比對學測檢定；軍校另須通過體檢、智力測驗及口試，符合學測不代表錄取。加總檢定按各科五標相加試算，實際資格以招生單位認定為準。")}</div></section>`;
   if (record.channelKey === "personal_application") {
     const rows = personalApplicationDisplayResults(record);
+    const result = record.applySieveResult || {};
+    const specializations = result.specializations || [];
     return `<section class="detail-section"><h3>第一階段篩選結果</h3><div class="detail-list">
-      ${rows.length ? rows.map(i => kv(`順位 ${i.rank}（${i.multiplier}倍）`, i.score ? rankedSieveLabel(i) : "官方未列分數")).join("") : kv("資料狀態", "官方未列或尚未接入")}
-      ${kv("判讀方式", "先通過檢定，再按倍率由大至小篩選；同倍率科目以級分合計。符合列示門檻不代表通過超額篩選或錄取。")}
+      ${rows.length ? rows.map(i => kv(`順位 ${i.rank}${i.multiplier ? `（${i.multiplier}倍）` : ""}`, rankedSieveLabel(i))).join("") : specializations.length ? kv("篩選方式", "依主修分別篩選") : kv("資料狀態", result.publishedStatus === "not-published" ? "官方未列篩選分數（--）" : "官方未列或尚未接入")}
+      ${specializations.map(s => kv(`${s.major}（${s.quota}名）`, `${s.artStandards ? `術科檢定：${s.artStandards}；` : ""}${s.rankedItems.map(i => `順位 ${i.rank}${i.multiplier ? `（${i.multiplier}倍）` : ""}：${i.score ? rankedSieveLabel(i) : `${(i.subjects || []).join('+')} 官方未列分數`}`).join('；')}${s.excessScreening ? '；有超額篩選' : ''}`)).join("")}
+      ${kv("判讀方式", "先通過檢定，再按倍率由大至小篩選；同倍率科目合計。學測為級分、APCS為級、術科為分數（體育為百分等級）。落點僅比對學測；術科、主修及APCS須另核對。符合列示門檻不代表通過超額篩選或錄取。")}
       ${record.applySieveResult?.sourceImageUrl ? `<a href="${escapeAttr(record.applySieveResult.sourceImageUrl)}" target="_blank" rel="noopener">查看官方篩選原表</a>` : ""}
       </div></section>`;
   }
@@ -4506,8 +4509,9 @@ function personalApplicationThresholdHtml(record, cac) {
       <h3>簡章倍率與加權</h3>
       <div class="detail-list compact-list">
         ${[...cac.screeningSubjects, ...(cac.apcsSubjects || []), ...(cac.artSubjects || [])].filter(i => valid(i.subject)).map(item => kv(shortSubject(item.subject), [
-          valid(item.screening_multiplier) ? `篩選 ${item.screening_multiplier}倍` : "不作倍率篩選",
+          item.screening_multiplier === "◎" ? "依主修項目分別設定倍率" : valid(item.screening_multiplier) ? `篩選 ${item.screening_multiplier}倍` : "不作倍率篩選",
           valid(item.score_weight) ? `二階加權 ${item.score_weight}` : "",
+          (cac.apcsSubjects || []).includes(item) && valid(item.standard) ? `APCS檢定 ${item.standard}級` : "",
           (cac.artSubjects || []).includes(item) && valid(item.standard) ? `術科檢定 ${item.standard}` : "",
         ].filter(Boolean).join("，"))).join("")}
       </div>

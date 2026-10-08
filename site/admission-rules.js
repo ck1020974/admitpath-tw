@@ -9,6 +9,9 @@
     .replace(/^(程式識讀|APCS識讀)$/, 'APCS識讀').replace(/^(程式實作|APCS實作)$/, 'APCS實作');
   const listening = { A: 4, B: 3, C: 2, F: 1 };
   const canonical = v => ({ 數A: '數學A', 數B: '數學B' }[subject(v)] || subject(v));
+  const academicSubjects = new Set(['國文', '英文', '數A', '數B', '社會', '自然']);
+  const artSubjects = new Set(['主修', '副修', '視唱', '聽寫', '樂理', '素描', '彩繪技法', '創意表現', '美術鑑賞', '水墨書畫', '體育', '體育百分等級']);
+  const academicResult = i => (i.subjects || []).length > 0 && i.subjects.every(name => academicSubjects.has(subject(name)));
   function threshold(item, year, standards) {
     if (!valid(item.standard)) return null;
     const s = subject(item.subject);
@@ -45,7 +48,7 @@
     const method = record.applySieveResult?.verification?.method;
     return (record.admissionAudit?.resultStatus === 'verified' || method === 'university_tw_crosscheck')
       ? (record.applySieveResult?.rankedItems || [])
-        .filter(i => !(i.subjects || []).some(name => subject(name).startsWith('APCS')))
+        .filter(academicResult)
         .map(i => ({ ...i, subjects: i.subjects.map(subject) })) : [];
   }
   function hasUsableApplicationDetail(record) {
@@ -69,11 +72,11 @@
     const complete = rows.every((item) => {
       const subjects = (item.subjects || []).map(subject).filter(Boolean);
       const score = Number(item.score);
-      const maximum = subjects.reduce((total, name) => total + (name.startsWith('APCS') ? 5 : 15), 0);
+      const maximum = subjects.reduce((total, name) => total + (artSubjects.has(name) ? 100 : (name.startsWith('APCS') ? 5 : 15)), 0);
       return subjects.length && Number.isFinite(score) && score >= 0 && score <= maximum;
     });
     return complete ? rows
-      .filter(i => !(i.subjects || []).some(name => subject(name).startsWith('APCS')))
+      .filter(academicResult)
       .map(i => ({ ...i, subjects: i.subjects.map(subject) })) : [];
   }
   function requirements(record, standards) {
@@ -143,7 +146,7 @@
       pendingData: false,
       importedOfficialData: checked.some(r => r.source === '官方篩選暫估'),
       specialConditions,
-      caveat: '僅比對已收錄條件；不代表通過超額篩選或錄取。' };
+      caveat: specialConditions ? '僅比對已收錄學測條件；術科、主修及APCS須另核對，不代表通過超額篩選或錄取。' : '僅比對已收錄條件；不代表通過超額篩選或錄取。' };
   }
   return { subject, thresholds, requirements, verifiedResults, importedOfficialResults, hasUsableApplicationDetail, hasSpecialConditions, check, describe, evaluate };
 });
