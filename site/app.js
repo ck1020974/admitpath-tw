@@ -19,6 +19,7 @@
   categoryRepresentatives: {},
   qualityReport: null,
   compare: [],
+  compareStorageStatus: "",
   compareFilters: { year: "all", channels: ["personal_application", "star_recommendation", "exam_distribution", "special_selection"] },
   placement: null,
   filters: {
@@ -40,6 +41,7 @@ let advancedFilterDraft = null;
 
 const fmt = new Intl.NumberFormat("zh-Hant-TW");
 const DATA_VERSION = "20260930-official-review-14";
+const COMPARE_STORAGE_KEY = "admitpath-tw:compare:v1";
 
 const APPLY_SIEVE_SCORE_OVERRIDES = {
   "115-personal_application-008342-115_apply": {
@@ -865,6 +867,8 @@ async function init() {
   bindElements();
   bindEvents();
   await loadData();
+  restoreCompare();
+  renderCompare();
   hydrateSchoolFilter();
   hydratePlacementFilters();
   applyFilters();
@@ -945,12 +949,7 @@ function bindEvents() {
 
   document.getElementById("resetFiltersButton").addEventListener("click", resetFilters);
   document.getElementById("openAdvancedFiltersButton").addEventListener("click", openAdvancedFilters);
-  document.getElementById("clearCompareButton").addEventListener("click", () => {
-    state.compare = [];
-    renderCompare();
-    renderTable();
-    updateDetailCompareButton(els.detailCompareButton.dataset.recordId);
-  });
+  document.getElementById("clearCompareButton").addEventListener("click", clearCompare);
   els.compareYearFilter.addEventListener("change", () => {
     state.compareFilters.year = els.compareYearFilter.value;
     renderCompare();
@@ -4528,6 +4527,61 @@ function singleLine(value) {
   return `<div class="kv single"><span>${escapeHtml(value ?? "")}</span></div>`;
 }
 
+function saveCompare() {
+  try {
+    window.localStorage.setItem(COMPARE_STORAGE_KEY, JSON.stringify({
+      version: 1,
+      ids: state.compare.map(record => record.id),
+    }));
+    state.compareStorageStatus = state.compare.length
+      ? "清單已自動儲存於此瀏覽器，下次回來會自動恢復。"
+      : "此瀏覽器會自動儲存比較清單，下次回來可繼續使用。";
+    return true;
+  } catch (error) {
+    state.compareStorageStatus = "此瀏覽器目前無法儲存清單，關閉或重新整理網頁後可能遺失選項。";
+    return false;
+  }
+}
+
+function restoreCompare() {
+  let saved;
+  try {
+    saved = window.localStorage.getItem(COMPARE_STORAGE_KEY);
+  } catch (error) {
+    state.compareStorageStatus = "此瀏覽器目前無法讀取已儲存的清單，關閉或重新整理網頁後可能遺失選項。";
+    return;
+  }
+  if (saved === null) {
+    saveCompare();
+    return;
+  }
+  let payload;
+  try {
+    payload = JSON.parse(saved);
+    if (!payload || payload.version !== 1 || !Array.isArray(payload.ids)
+      || !payload.ids.every(id => typeof id === "string")) throw new Error("Invalid compare list");
+  } catch (error) {
+    state.compareStorageStatus = "已儲存的清單格式無法讀取，請重新選取校系；新清單會在選取後儲存。";
+    return;
+  }
+  // Keep selection order, but resolve every ID against current admission data.
+  const recordsById = new Map(state.records.map(record => [record.id, record]));
+  const ids = [...new Set(payload.ids)].slice(0, 100);
+  state.compare = ids.map(id => recordsById.get(id)).filter(Boolean);
+  const missingCount = ids.length - state.compare.length;
+  if (saveCompare() && missingCount) {
+    state.compareStorageStatus = `已恢復 ${state.compare.length} 個校系；${missingCount} 個項目已不在目前資料中，請重新確認。清單已儲存於此瀏覽器。`;
+  }
+}
+
+function clearCompare() {
+  state.compare = [];
+  saveCompare();
+  renderCompare();
+  renderTable();
+  updateDetailCompareButton(els.detailCompareButton.dataset.recordId);
+}
+
 function toggleCompare(id) {
   const exists = state.compare.some((item) => item.id === id);
   if (exists) {
@@ -4535,14 +4589,20 @@ function toggleCompare(id) {
   } else {
     const record = state.records.find((item) => item.id === id);
     if (record && state.compare.length < 100) state.compare.push(record);
-    else if (record) window.alert("比較清單最多可選取 100 個校系，請先移除部分校系再加入。");
+    else {
+      if (record) window.alert("比較清單最多可選取 100 個校系，請先移除部分校系再加入。");
+      return;
+    }
   }
+  saveCompare();
   renderCompare();
   renderTable();
   updateDetailCompareButton(id);
 }
 
 function renderCompare() {
+  const storageStatus = document.getElementById("compareStorageStatus");
+  if (storageStatus) storageStatus.textContent = state.compareStorageStatus;
   const clearButton = document.getElementById("clearCompareButton");
   if (clearButton) clearButton.hidden = !state.compare.length;
   const years = [...new Set(state.records.map(record => String(record.year)))].sort((a, b) => Number(b) - Number(a));
