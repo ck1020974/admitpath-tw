@@ -40,7 +40,7 @@ const els = {};
 let advancedFilterDraft = null;
 
 const fmt = new Intl.NumberFormat("zh-Hant-TW");
-const DATA_VERSION = "20260930-official-review-14";
+const DATA_VERSION = "20261012-special-116";
 const COMPARE_STORAGE_KEY = "admitpath-tw:compare:v1";
 
 const APPLY_SIEVE_SCORE_OVERRIDES = {
@@ -1022,6 +1022,10 @@ function activateHomeEntry(entry) {
   }
   if (!channel) return;
   state.filters.channel = channel;
+  if (channel === "special_selection") {
+    state.filters.year = String(Math.max(...state.records.filter(record => record.channelKey === channel).map(record => record.year)));
+    els.yearFilter.value = state.filters.year;
+  }
   state.filters.keyword = "";
   state.linkedGroup = "";
   state.linkedCategory = "";
@@ -1045,8 +1049,8 @@ async function loadData() {
     fetchJson("./data/category_representatives.json"),
     fetchJson("./data/apply114_quality_report.json"),
   ]);
-  const specialData = await fetchJson('./data/special_admissions_115.json');
-  state.records = [...records, ...AdmissionCatalog.initialize(records, specialData.records)];
+  const specialData = await Promise.all([115, 116].map(year => fetchJson(`./data/special_admissions_${year}.json`)));
+  state.records = [...records, ...AdmissionCatalog.initialize(records, specialData.flatMap(dataset => dataset.records))];
   state.results = results;
   state.groups = groups;
   state.manifest = manifest;
@@ -2284,7 +2288,7 @@ function placementChannelHasRequiredScores(record, profile) {
 
 function renderTable() {
   els.resultCount.textContent = fmt.format(state.filtered.length);
-  // Special selection is a bounded 747-row list and can be browsed in full.
+  // Special selection can be browsed in full across the available years.
   // Keep the all-channel workbench responsive when it contains tens of thousands of rows.
   const rows = state.filters.channel === "special_selection" ? state.filtered : state.filtered.slice(0, 350);
   if (!rows.length) {
@@ -2361,7 +2365,7 @@ function getHighlight(record) {
 function highlightHtml(record) {
   if (record.specialSelection) {
     const summary = AdmissionCatalog.examTags(record.specialSelection);
-    return `<div class="sp-exam-summary">${summary.tags.map(tag => `<span class="sp-exam-tag">${escapeHtml(tag)}</span>`).join('')}<span class="sp-exam-tag">名額 ${record.quota} 名</span>${summary.conditional ? '<span class="sp-exam-context">分階段／附條件 · 詳見詳情</span>' : ''}</div>`;
+    return `<div class="sp-exam-summary">${record.specialSelection.plan === '資安外加' ? '<span class="sp-exam-tag">資安外加</span>' : ''}${summary.tags.map(tag => `<span class="sp-exam-tag">${escapeHtml(tag)}</span>`).join('')}<span class="sp-exam-tag">名額 ${record.quota} 名</span>${summary.conditional ? '<span class="sp-exam-context">分階段／附條件 · 詳見詳情</span>' : ''}</div>`;
   }
   if (record.channelKey === "personal_application") {
     const parts = personalApplicationStandardParts(record);
@@ -4227,7 +4231,7 @@ function detailHtml(record, result) {
   if (record.specialSelection) {
     const source = record.specialSelection;
     const sections = [['招生概覽', `${source.plan}｜招生 ${source.quota} 名`], ['招生對象', source.target], ['考試項目與成績採計', source.exam], ['日程公告', source.schedule], ['聯絡資訊', source.contact], ['備註', source.note]];
-    return sections.filter(([,text]) => text).map(([title,text]) => `<section class="detail-section"><h3>${title}</h3><p style="white-space:pre-line;line-height:1.75">${escapeHtml(text)}</p></section>`).join('') + (source.url ? `<section class="detail-section"><a href="${escapeAttr(source.url)}" target="_blank" rel="noreferrer">官方招生簡章</a></section>` : '');
+    return sections.filter(([,text]) => text).map(([title,text]) => `<section class="detail-section"><h3>${title}</h3><p style="white-space:pre-line;line-height:1.75">${escapeHtml(text)}</p></section>`).join('') + (source.url ? `<section class="detail-section"><a href="${escapeAttr(source.url)}" target="_blank" rel="noreferrer">官方招生簡章</a></section>` : '') + (source.sourceUrl ? `<section class="detail-section"><h3>資料來源</h3><p>教育部 116 學年度${escapeHtml(source.plan)}招生資訊，第 ${source.sourcePage} 頁，序號 ${source.sourceSerial}。各校考試及招生日期以各校公告簡章為準。</p><a href="${escapeAttr(source.sourceUrl)}#page=${source.sourcePage}" target="_blank" rel="noreferrer">查看來源 PDF</a></section>` : '');
   }
   const weighted = record.weightedSubjects?.filter((item) => item.raw && item.raw !== "--" && item.raw !== "---") || [];
   const cac = record.cacDetail;

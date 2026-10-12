@@ -36,7 +36,7 @@ window.AdmissionCatalog = (() => {
     schools = [...map.values()].sort((a,b) => (a.code || '999').localeCompare(b.code || '999', 'en') || a.name.localeCompare(b.name, 'zh-Hant'));
     return special.map(record => {
       const school = map.get(key(record.school));
-      return { id: record.id, year: record.year, channel: '特殊選才', channelKey: 'special_selection', schoolName: school.name, schoolCode: school.code, departmentName: record.department, quota: record.quota, programCode: '', category: record.plan, weightedSubjects: [], weightedSubjectsText: '', selectionNotes: `${record.target}\n${record.exam}`, rawFields: {}, specialSelection: record, sourceUrl: 'https://srecruit.moe.edu.tw/', detailUrl: record.url };
+      return { id: record.id, year: record.year, channel: '特殊選才', channelKey: 'special_selection', schoolName: school.name, schoolCode: school.code, departmentName: record.department, quota: record.quota, programCode: '', category: record.plan, weightedSubjects: [], weightedSubjectsText: '', selectionNotes: `${record.plan}\n${record.target}\n${record.exam}`, rawFields: {}, specialSelection: record, sourceUrl: record.sourceUrl || 'https://srecruit.moe.edu.tw/', detailUrl: record.url };
     });
   }
   function schoolOptions(area = '') { return schools.filter(school => !area || (area === 'unknown' ? !school.areas.size : school.areas.has(area))); }
