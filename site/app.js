@@ -2923,12 +2923,12 @@ function shortSubject(subject) {
 }
 
 function channelPill(record) {
-  const className = record.channelKey === "star_recommendation" ? "star" : record.channelKey === "exam_distribution" ? "distribution" : "";
+  const className = record.channelKey === "special_selection" ? "special" : record.channelKey === "star_recommendation" ? "star" : record.channelKey === "exam_distribution" ? "distribution" : "";
   return `<span class="channel-pill ${className}">${record.year} ${escapeHtml(record.channel)}</span>`;
 }
 
 function channelBadge(record) {
-  const className = record.channelKey === "star_recommendation" ? "star" : record.channelKey === "exam_distribution" ? "distribution" : "apply";
+  const className = record.channelKey === "special_selection" ? "special" : record.channelKey === "star_recommendation" ? "star" : record.channelKey === "exam_distribution" ? "distribution" : "apply";
   return `<span class="channel-mini ${className}">${escapeHtml(channelShort(record.channelKey))}</span>`;
 }
 

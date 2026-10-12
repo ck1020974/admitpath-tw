@@ -2155,6 +2155,12 @@ tr:hover td {
   color: #0f6e70;
 }
 
+.channel-mini.special,
+.channel-pill.special {
+  background: #f1e8fc;
+  color: #6b3097;
+}
+
 .channel-mini.star {
   background: #fff2d9;
   color: #87520d;
