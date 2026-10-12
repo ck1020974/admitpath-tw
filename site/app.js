@@ -1022,8 +1022,9 @@ function activateHomeEntry(entry) {
   }
   if (!channel) return;
   state.filters.channel = channel;
-  if (channel === "special_selection") {
-    state.filters.year = String(Math.max(...state.records.filter(record => record.channelKey === channel).map(record => record.year)));
+  const channelYears = state.records.filter(record => record.channelKey === channel).map(record => record.year);
+  if (channel === "special_selection" || (state.filters.year !== "all" && !channelYears.includes(Number(state.filters.year)))) {
+    state.filters.year = String(Math.max(...channelYears));
     els.yearFilter.value = state.filters.year;
   }
   state.filters.keyword = "";
