@@ -1,7 +1,8 @@
 # Local Codex and agent state
 .agents/
 .codex/
-docs/
+docs/*
+!docs/author-support-setup.md
 
 # Generated OCR assets and scratch work
 outputs/

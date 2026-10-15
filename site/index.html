@@ -4,8 +4,9 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>YUHSIN</title>
-  <link rel="stylesheet" href="./styles.css?v=20261012-special-color">
+  <link rel="stylesheet" href="./styles.css?v=20261015-subnav">
   <link rel="stylesheet" href="./special.css?v=20260918-layout-fix">
+  <link rel="stylesheet" href="./support.css?v=20261015-nav">
 </head>
 <body data-active-view="overview">
   <div class="app-shell">
@@ -36,6 +37,11 @@
         <button class="nav-item" data-view="explorer">十八學群</button>
         <button class="nav-item" data-view="compare">比較清單</button>
       </nav>
+
+      <button class="nav-item support-entry" id="supportAuthorButton" type="button" aria-haspopup="dialog" aria-controls="supportDialog" hidden>
+        <span class="support-entry-heart" aria-hidden="true">♡</span>
+        <span>支持作者</span>
+      </button>
 
       <div class="side-meta">
         <span>資料狀態</span>
@@ -334,6 +340,31 @@
     <div class="advanced-filter-body" id="advancedFilterBody"></div>
   </aside>
 
+  <dialog class="support-dialog" id="supportDialog" aria-labelledby="supportTitle" aria-describedby="supportIntro">
+    <div class="support-dialog-top">
+      <span class="support-eyebrow">YUHSIN · 祐馨升學網</span>
+      <form method="dialog"><button class="support-close" type="submit" aria-label="關閉支持作者視窗" autofocus>×</button></form>
+    </div>
+    <div class="support-content">
+      <div class="support-heading">
+        <span class="support-heart" aria-hidden="true">♡</span>
+        <h2 id="supportTitle">讓升學路上少一點迷惘</h2>
+      </div>
+      <p class="support-intro" id="supportIntro">我是一位中學公民科教師，自學程式設計，希望透過這個網站，陪學生把升學的選擇看得更清楚。你的支持，讓這份課堂外的陪伴持續下去。</p>
+      <div class="support-purpose">
+        <p><strong>每一份支持，都用在這裡</strong></p>
+        <ul><li>招生資料整理與更新</li><li>查詢工具改善與網站維護</li></ul>
+      </div>
+      <div class="support-payment">
+        <button class="support-pay-button" id="supportPaymentPending" type="button" disabled>尚未開放贊助</button>
+        <a class="support-pay-button" id="supportPaymentLink" target="_blank" rel="noopener noreferrer" hidden>前往贊助 <span aria-hidden="true">↗</span><span class="support-sr-only">（在新分頁開啟付款平台）</span></a>
+        <p class="support-payment-note" id="supportPaymentNote" hidden>單次自由贊助，金額於付款平台填寫。付款、交易紀錄及相關聯絡方式請於平台確認。</p>
+      </div>
+    </div>
+  </dialog>
+
+  <script src="./support-config.js?v=20261015"></script>
+  <script src="./support.js?v=20261015-no-status"></script>
   <script src="./admission-rules.js?v=20261008-official-audit"></script>
   <script src="./admission-catalog.js?v=20261012-special-116"></script>
   <script src="./app.js?v=20261012-special-color"></script>

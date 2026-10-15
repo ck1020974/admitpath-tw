@@ -154,7 +154,29 @@ button.lane-card {
 }
 
 .nav-channels {
-  display: contents;
+  display: grid;
+  gap: 5px;
+  margin-left: 10px;
+  padding-left: 10px;
+  border-left: 2px solid rgba(117, 194, 189, .3);
+}
+
+.nav-channels .nav-item {
+  min-height: 36px;
+  padding: 8px 10px;
+  border-radius: 8px;
+  border-color: rgba(108, 184, 179, .14);
+  background: rgba(71, 151, 148, .14);
+  color: #bfdfdc;
+  font-size: 13px;
+}
+
+.nav-channels .nav-item:hover,
+.nav-channels .nav-item:focus-visible,
+.nav-channels .nav-item.active {
+  background: rgba(71, 151, 148, .27);
+  border-color: rgba(108, 184, 179, .35);
+  color: #ecfffc;
 }
 
 .nav-channels[hidden] {
@@ -3894,6 +3916,16 @@ tr:hover td {
     grid-template-columns: repeat(5, minmax(0, 1fr));
   }
 
+  .nav-channels {
+    grid-column: 1 / -1;
+    order: 1;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    margin-left: 0;
+    padding: 6px 0 0;
+    border-left: 0;
+    border-top: 1px solid rgba(117, 194, 189, .18);
+  }
+
   .nav-item {
     text-align: center;
   }
@@ -4093,6 +4125,11 @@ tr:hover td {
 
   .primary-nav {
     grid-template-columns: repeat(5, minmax(0, 1fr));
+  }
+
+  .nav-channels .nav-item {
+    padding: 7px 4px;
+    font-size: 12px;
   }
 
   .nav-item {
