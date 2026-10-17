@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>學群探索｜祐馨升學網</title>
+  <link rel="stylesheet" href="./styles.css?v=20261016-clean">
+  <link rel="stylesheet" href="./info-dialog.css?v=20261016-clean">
+</head>
+<body data-stage="intro">
+  <header class="site-header">
+    <a class="brand" href="http://127.0.0.1:5173/"><span class="brand-mark">Y</span><span>YUHSIN<small>祐馨升學網</small></span></a>
+    <span class="review-label" title="本機審閱稿，尚未完成中文與高中生族群驗證">審閱版</span>
+  </header>
+  <main>
+    <section id="intro" aria-labelledby="introTitle">
+      <div class="intro-content">
+        <div class="intro-symbol" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i></div>
+        <p class="eyebrow">30 題 · 免登入</p>
+        <h1 id="introTitle">從興趣，找方向。</h1>
+        <p class="lead">選出你喜歡的活動，探索值得認識的學群。</p>
+        <button id="start" class="primary" type="button" disabled>載入中</button>
+        <a class="curiosity-link" href="./curiosity/">試試教師原創的「學群好奇心探索」 →</a>
+      </div>
+    </section>
+    <section id="quiz" hidden aria-labelledby="quizTitle">
+      <h1 id="quizTitle" class="sr-only">學群探索作答</h1>
+      <div class="quiz-top"><p id="progressText" aria-live="polite"></p><button id="backToIntro" class="text-button" type="button">返回首頁</button></div>
+      <progress id="progress" max="30" value="0" aria-label="已完成題數"></progress>
+      <span id="answeredCount" class="sr-only" aria-live="polite"></span>
+      <form id="quizForm" novalidate>
+        <div id="questions"></div>
+        <p id="quizError" class="error" role="alert"></p>
+        <div class="quiz-actions"><button id="previous" class="secondary" type="button">← 上一題</button><button id="next" class="primary" type="submit">下一題 →</button></div>
+      </form>
+      <div class="quiz-bottom"><span class="keyboard-hint"><kbd>1</kbd>–<kbd>5</kbd> 選答 · <kbd>Enter</kbd> 下一題</span><details class="quiz-help"><summary>作答提醒</summary><p>不考慮薪水、能力或工作資格，只判斷喜好。沒做過也可以想像；無法判斷選「不確定」。</p></details></div>
+    </section>
+    <section id="results" hidden aria-labelledby="resultsTitle">
+      <div class="page-heading"><h1 id="resultsTitle" tabindex="-1">你的興趣輪廓</h1><button id="editAnswers" class="secondary" type="button">修改作答</button></div>
+      <div id="resultSummary" class="result-summary"></div>
+      <div class="result-grid"><section class="score-panel" aria-labelledby="scoresTitle"><h2 id="scoresTitle">六類興趣分數</h2><div id="scores"></div><p class="subtle">原始分數 0–20，非能力或科系適合率。</p></section><section class="action-panel" aria-labelledby="actionTitle"><h2 id="actionTitle">下一步，試試看</h2><div id="actions"></div></section></div>
+      <section class="reading-section" aria-labelledby="readingTitle"><div class="section-heading"><h2 id="readingTitle">延伸探索</h2><button id="showAllGroups" class="secondary" type="button">全部十八學群</button></div><p class="subtle">本站編輯的閱讀建議，未經適配驗證；排列不代表適合程度。</p><div id="groupCards" class="group-grid"></div></section>
+      <a class="primary" href="http://127.0.0.1:5173/" target="_blank" rel="noopener noreferrer">前往升學網查校系 ↗</a>
+      <details class="result-tools"><summary>作答紀錄與測驗說明</summary><p>繁體中文改編稿，尚未完成驗證。各類5題、每題0–4分；同分並列，沒有常模排名。<a href="./modifications.html">來源及修改說明</a></p><div class="result-footer"><button id="downloadAnswers" class="secondary" type="button">下載匿名作答紀錄</button><button id="restart" class="text-button" type="button">清除並重測</button></div><p id="downloadStatus" class="subtle" role="status"></p></details>
+    </section>
+  </main>
+  <dialog id="aboutDialog" class="about-dialog" aria-labelledby="aboutTitle">
+    <div class="about-dialog-head"><h2 id="aboutTitle">測驗說明與來源</h2><form method="dialog"><button class="about-close" aria-label="關閉測驗說明" autofocus>×</button></form></div>
+    <div class="about-dialog-content"><p>依喜好回答，不必考慮是否擅長。回答只保留於本次頁面，重新整理會清除。本稿尚未完成中文及高中生族群驗證。</p>
+        <p class="source-meta"><strong>O*NET® Mini-IP 繁中改編 · 尚未驗證</strong><a href="./modifications.html">修改與免責聲明 / modifications and disclaimers ↗</a></p>
+        <p class="english-notice">This application includes information from the <a href="https://www.onetcenter.org/tools.html" target="_blank" rel="noopener noreferrer">O*NET Career Exploration Tools</a> by the U.S. Department of Labor, Employment and Training Administration (USDOL/ETA). Used under the <a href="https://www.onetcenter.org/license_toolsdev.html" target="_blank" rel="noopener noreferrer">O*NET Tools Developer License</a>. O*NET® is a trademark of USDOL/ETA. YUHSIN has modified all or some of this information. USDOL/ETA has not approved, endorsed, or tested these modifications.</p>
+    </div>
+  </dialog>
+  <footer class="site-footer" id="aboutFooter"><button class="about-trigger" id="aboutButton" type="button" aria-haspopup="dialog" aria-controls="aboutDialog" aria-label="YUHSIN · 學群探索：測驗說明與來源">YUHSIN · 學群探索</button></footer>
+  <noscript><p class="error">請啟用 JavaScript 以作答。</p></noscript>
+  <script src="./questionnaire.js"></script><script src="./flow.js?v=20261016"></script><script src="./app.js?v=20261016-clean"></script>
+  <script src="./info-dialog.js?v=20261016-clean"></script>
+</body></html>

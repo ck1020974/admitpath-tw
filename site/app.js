@@ -832,18 +832,7 @@ const APPLY_SIEVE_SCORE_OVERRIDES = {
   },
 };
 
-const CATEGORY_NAME_ALIASES = {
-  "一般跨學類": "不分系跨域學類",
-  "外語跨學類": "外語應用學類",
-  "工業管理學類": "工業工程管理學類",
-  "工程跨學類": "工程跨域學類",
-  "數理化跨學類": "理學跨域學類",
-  "文史哲跨學類": "人文跨域學類",
-  "營建安全學類": "營建與消防安全學類",
-  "管理跨學類": "管理跨域學類",
-  "藝術跨學類": "藝術跨域學類",
-  "電機資訊學類": "電機資訊整合學類",
-};
+const CATEGORY_NAME_ALIASES = window.GroupIntroductions.aliases;
 
 const ADVANCED_SUBJECT_GROUPS = {
   personal_application: {
@@ -876,6 +865,14 @@ async function init() {
   renderExplorer();
   renderQualityReport();
   renderSources();
+  const explorerLink = window.ExplorerLink?.parse(window.location.search, [...new Set(state.groups.map(row => row.groupName))]);
+  if (explorerLink) {
+    state.selectedGroup = explorerLink.group;
+    state.selectedExplorerStage = "group";
+    state.selectedCategory = "";
+    state.explorerKeyword = "";
+    setView("explorer");
+  }
 }
 
 function bindElements() {
@@ -920,6 +917,11 @@ function bindEvents() {
     navToggle.setAttribute("aria-expanded", String(expanded));
     navToggle.setAttribute("aria-label", expanded ? "收起入學管道" : "展開入學管道");
     navChannels.hidden = !expanded;
+  });
+  const explorerToggle = document.getElementById("navExplorerToggle");
+  explorerToggle.addEventListener("click", () => {
+    const expanded = explorerToggle.getAttribute("aria-expanded") !== "true";
+    setExplorerToolsExpanded(expanded);
   });
   document.querySelectorAll("[data-view]").forEach((button) => {
     button.addEventListener("click", () => {
@@ -1604,6 +1606,13 @@ function hydrateSchoolFilter() {
   AdmissionCatalog.schoolOptions().forEach(school => els.schoolFilter.add(new Option(`${school.code ? school.code + ' ' : ''}${school.name}`, school.name)));
 }
 
+function setExplorerToolsExpanded(expanded) {
+  const toggle = document.getElementById("navExplorerToggle");
+  toggle.setAttribute("aria-expanded", String(expanded));
+  toggle.setAttribute("aria-label", expanded ? "收起學群探索工具" : "展開學群探索工具");
+  document.getElementById("navExplorerTools").hidden = !expanded;
+}
+
 function setView(view) {
   state.view = view;
   document.body.dataset.activeView = view;
@@ -1611,7 +1620,10 @@ function setView(view) {
   document.querySelectorAll(".view-panel").forEach((panel) => panel.classList.remove("active"));
   document.getElementById(`${view}View`).classList.add("active");
   if (view === "compare") renderCompare();
-  if (view === "explorer") renderExplorer();
+  if (view === "explorer") {
+    setExplorerToolsExpanded(true);
+    renderExplorer();
+  }
   if (view === "placement") renderPlacementAnalysis();
   if (view === "quality") renderQualityReport();
 }
@@ -4014,8 +4026,7 @@ function renderCourseGroup(title, courses) {
 }
 
 function groupSummaryLine(groupName, categories) {
-  const names = categories.map((item) => displayCategoryName(item.name)).slice(0, 4).join("、");
-  return `${groupName}常見的學類包含${names}，雖然同屬一個學群，但實際在學的課程與訓練方向仍有差異。`;
+  return window.GroupIntroductions.describe(groupName, categories.map(item => item.name));
 }
 
 function getCategoryInsight(categoryName, groupName, rows = []) {
