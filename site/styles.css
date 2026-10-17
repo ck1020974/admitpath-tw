@@ -22,7 +22,7 @@
 
 body {
   margin: 0;
-  min-width: 320px;
+  min-width: 300px;
   color: var(--ink);
   background:
     linear-gradient(180deg, #f5f8fc 0%, #eef3f8 42%, #edf2f7 100%);
@@ -2210,14 +2210,22 @@ tr:hover td {
 
 .channel-stack {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
-  gap: 8px;
+  gap: 4px 6px;
   min-height: 28px;
 }
 
 .year-number {
+  display: inline-block;
+  flex-shrink: 0;
   font-weight: 800;
+  white-space: nowrap;
+  word-break: normal;
+  overflow-wrap: normal;
 }
+
+.channel-stack .channel-mini { flex-shrink: 0; white-space: nowrap; }
 
 .program-name {
   color: #224d59;
@@ -4305,3 +4313,9 @@ tr:hover td {
     grid-template-columns: 104px minmax(150px, .9fr) minmax(230px, 1.45fr);
   }
 }
+/* Academic-group exploration has the same extension level as the workbench. */
+.nav-explorer-tools a.nav-item{display:flex;align-items:center;text-decoration:none}
+.explorer-assessment-entry{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:42px;padding:10px 16px;border:1px solid #b9d9d3;border-radius:10px;background:#edf7f4;color:#146d65;font-size:13px;font-weight:600;text-decoration:none;white-space:nowrap}
+.explorer-assessment-entry:hover{background:#dcefe9}.explorer-assessment-entry:focus-visible{outline:3px solid #a67b2d;outline-offset:3px}
+@media(max-width:1020px){.nav-explorer-tools{grid-template-columns:1fr}.nav-explorer-tools a.nav-item{justify-content:center}}
+@media(max-width:720px){.primary-nav .nav-explorer-row .nav-item{white-space:nowrap}.primary-nav .nav-explorer-row .nav-channels-toggle{flex-basis:18px}.explorer-assessment-entry{align-self:flex-start}}
