@@ -3,7 +3,7 @@ const assert=require('node:assert/strict');
 const engine=require('../prototypes/interest-explorer/curiosity/engine');
 const data=require('../prototypes/interest-explorer/curiosity/data');
 const rng=()=>{let n=39;return()=>((n=(n*1664525+1013904223)>>>0)/4294967296);};
-function screen(s){for(let b=0;b<s.batches().length;b++){const ids=s.batches()[b].map(q=>q.id);assert.throws(()=>s.screen(b,[ids[0]],[ids[1]]));s.screen(b,ids.slice(0,2),ids.slice(2,4));}s.finalize(s.candidates().slice(0,3).map(q=>q.id));}
+function screen(s){for(let b=0;b<s.batches().length;b++){const ids=s.batches()[b].map(q=>q.id);assert.throws(()=>s.screen(b,[ids[0]]));s.screen(b,ids.slice(0,2));}s.finalize(s.pickBatches().flatMap(b=>b.slice(0,3).map(q=>q.id)));}
 function overview(s){for(const x of data.subjects.filter(x=>x.required))s.profile(x.id,3);s.finishProfiles();}
 function details(s){s.prepareDetails();const rows=s.detailPlan();assert.ok(rows.length>=3&&rows.length<=4);for(const row of rows){assert.equal(row.goals.length,3);assert.equal(new Set(row.goals.map(g=>g.id)).size,3);row.goals.forEach(g=>{assert.ok(g.references.every(k=>data.curriculum[k]));s.goal(g.id,3);});}}
 assert.equal(data.subjects.filter(s=>s.required).length,10);

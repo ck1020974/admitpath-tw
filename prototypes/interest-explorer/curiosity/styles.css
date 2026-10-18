@@ -149,7 +149,7 @@ body[data-view=screen] main,body[data-view=final] main{max-width:1050px;padding-
 .scenario-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
 .scenario-card{display:flex;flex-direction:column;gap:12px;min-width:0;min-height:158px;padding:18px;border:1px solid var(--line);border-radius:12px;background:#fff}
 .scenario-order{color:#80928b;font-size:10px;letter-spacing:.08em;font-variant-numeric:tabular-nums}
-.scenario-card h2{font-size:16px;line-height:1.7;margin:0;font-weight:600;letter-spacing:0}
+.scenario-card h2,.scenario-question{font-size:16px;line-height:1.7;margin:0;font-weight:600;letter-spacing:0}
 .scenario-toggle{align-self:flex-end;min-height:36px;margin-top:auto;border:0;border-radius:6px;background:#eef3ef;color:#416b61;padding:7px 11px;font-size:12px;cursor:pointer}
 .scenario-toggle:hover{background:#dfece4}.scenario-toggle:focus-visible{outline:3px solid #c28a28;outline-offset:3px}
 .scenario-card.is-skipped{background:#edf0ed;border-style:dashed}.scenario-card.is-skipped h2{color:#7a8580;font-weight:400}.scenario-card.is-skipped .scenario-toggle{background:transparent}
@@ -215,3 +215,39 @@ button:focus-visible,a:focus-visible{outline:3px solid #c28a28;outline-offset:3p
 .entry-actions button{flex-direction:row;min-height:54px;gap:0}
 @media(max-width:560px){.entry-actions button{min-height:48px}}
 @media(max-width:560px) and (max-height:560px){.entry-actions button{min-height:44px}}
+
+/* The question itself is the control; marks never cover its text. */
+.selection-card{--choice-ink:#b13735;--choice-soft:#fff2f0;--choice-border:#db7770;position:relative;appearance:none;width:100%;font:inherit;color:var(--ink);text-align:left;cursor:pointer;min-height:160px;padding:18px;gap:10px;align-items:stretch;box-shadow:0 2px 6px #183b2a04}
+[data-phase=pick] .selection-card{--choice-ink:#187348;--choice-soft:#edf8ef;--choice-border:#5caa79}
+.scenario-copy{display:block;font-size:18px;line-height:1.65;text-wrap:pretty}
+.selection-card .scenario-order{display:inline;min-height:0;padding:0;margin-right:.4em;font-size:13px;white-space:nowrap}
+.scenario-question{display:inline;max-width:100%;font-size:inherit;line-height:inherit}
+.scenario-mark{position:absolute;top:12px;right:14px;display:grid;place-items:center;width:40px;height:40px;border-radius:50%;background:var(--choice-ink);color:#fff;font-size:32px;font-weight:500;line-height:1;opacity:0;transform:scale(.8);pointer-events:none}
+.scenario-state{display:flex;align-items:center;min-height:30px;margin-top:auto;padding-right:44px;font-size:11px;color:#60756b;line-height:1.5}
+.selection-card .scenario-mark{width:34px;height:34px;font-size:28px}
+.selection-card .scenario-mark{top:auto;bottom:12px}
+.selection-card:focus-visible{outline:3px solid var(--choice-ink);outline-offset:4px;background:var(--choice-soft);border-color:var(--choice-border)}
+.selection-card:focus-visible .scenario-mark,.selection-card[aria-pressed=true] .scenario-mark{opacity:1;transform:scale(1)}
+.selection-card.is-skipped{background:#f3f2ef;border:1px solid #c5aaa5;box-shadow:none}
+.selection-card.is-skipped .scenario-question{color:#72746e;font-weight:400}
+.selection-card.is-skipped .scenario-state{color:#934b44}
+.selection-card.is-favourite{border-color:var(--choice-border);background:var(--choice-soft);box-shadow:inset 0 0 0 1px var(--choice-border)}
+.selection-card.is-favourite .scenario-state{color:var(--choice-ink);font-weight:600}
+@media(hover:hover){.selection-card:hover{border-color:var(--choice-border);background:var(--choice-soft);box-shadow:0 5px 18px #243d2810}.selection-card:hover .scenario-mark{opacity:1;transform:scale(1)}}
+@media(prefers-reduced-motion:no-preference){.selection-card{transition:background .16s,border-color .16s,box-shadow .16s}.scenario-mark{transition:opacity .16s,transform .16s}}
+@media(max-width:560px){.selection-card{display:flex;min-height:0;padding:10px 14px;gap:6px}.selection-card .scenario-copy{font-size:16px;line-height:1.6}.selection-card .scenario-order{display:inline;font-size:12px}.selection-card .scenario-question{font-size:inherit;line-height:inherit}.selection-card .scenario-mark{top:auto;bottom:12px;right:12px;width:28px;height:28px;font-size:24px;opacity:.4;transform:none}.selection-card .scenario-state{font-size:11px;min-height:26px;padding-right:36px}.screen-bottom{margin-top:14px;gap:8px}}
+
+/* Fit short task screens through spacing before reducing readable text. */
+body:is([data-view=screen],[data-view=final]) main{width:100%;margin:0 auto;padding-bottom:8px}
+body:is([data-view=screen],[data-view=final]) .site-footer{width:100%;margin:0 auto;padding-block:0;min-height:30px;align-items:center}
+.screening .flow-top,.screening .flow-top .text-button{min-height:30px}
+.screening progress{margin-top:6px}
+.screening h1{margin-top:12px;margin-bottom:6px}
+.screening>p.muted{margin-bottom:12px}
+.screening .scenario-grid{gap:8px}
+.screening .screen-bottom{margin-top:10px;gap:6px}
+.screening .error:not(:empty){margin:6px 0 0;font-size:11px;line-height:1.4}
+@media(max-width:560px){body:is([data-view=screen],[data-view=final]) main{padding-top:8px}.screening h1{margin-top:10px}.screening>p.muted{margin-bottom:10px}.screening .flow-actions button{padding-block:9px;min-height:44px}}
+
+.screen-bottom .flow-actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));width:min(100%,320px)}
+.screen-bottom .flow-actions>button{width:100%;min-width:0;min-height:44px}
