@@ -9,10 +9,32 @@
 ## 本機預覽
 
 ```powershell
+node tools/build_site_data.js   # 選用：產生部署時使用的精簡資料
 node tools/serve-site.js site 5173
 ```
 
-開啟 `http://127.0.0.1:5173/`。
+開啟 `http://127.0.0.1:5173/`。沒有先執行 `build_site_data.js` 也能預覽，網站會改讀完整的 `admissions_records.json`。
+
+## 載入速度
+
+`tools/build_site_data.js` 會把 `site/data/admissions_records.json` 拆成兩部分，部署時由 GitHub Actions 自動執行：
+
+- `records_core.json`：查詢、篩選與落點分析需要的欄位，首頁一次載入（約為原始檔的一半）。
+- `records_detail/*.json`：只在「校系詳情」顯示的長文字與來源網址，點開校系時才載入。
+
+這兩者都是產生檔，不需要提交到 git。原始的 `admissions_records.json` 維持不變，覆核頁與各工具腳本照常使用。
+
+若新增會在列表、篩選或落點判定中讀取的欄位，請確認它不在 `build_site_data.js` 的 `DETAIL_FIELDS` 中，並執行 `node tools/test_site_data_split.js` 檢查拆分前後結果一致。
+
+資料檔網址帶有 `site/app.js` 的 `DATA_VERSION`，瀏覽器會快取資料；**更新資料後請一併修改 `DATA_VERSION`**，學生才會拿到新版本。
+
+## 網址與分享
+
+目前頁面、查詢條件與開啟中的校系會記錄在網址 `#` 後面，可直接分享，例如：
+
+- `#workbench?channel=star_recommendation&year=115&q=資工`
+- `#placement`
+- `#workbench?record=<校系 id>`
 
 ## 支持作者
 
@@ -47,6 +69,6 @@ node tools/serve-site.js site 5173
 重新整理 115 學年度資料：
 
 ```powershell
-& "$env:USERPROFILE\.cache\codex-runtimes\codex-primary-runtime\dependencies\python\python.exe" tools/refresh_apply_details.py --year 115
-& "$env:USERPROFILE\.cache\codex-runtimes\codex-primary-runtime\dependencies\python\python.exe" tools/audit_apply_data.py
+python tools/refresh_apply_details.py --year 115
+python tools/audit_apply_data.py
 ```

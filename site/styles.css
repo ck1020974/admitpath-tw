@@ -4319,3 +4319,46 @@ tr:hover td {
 .explorer-assessment-entry:hover{background:#dcefe9}.explorer-assessment-entry:focus-visible{outline:3px solid #a67b2d;outline-offset:3px}
 @media(max-width:1020px){.nav-explorer-tools{grid-template-columns:repeat(2,minmax(0,1fr))}.nav-explorer-tools a.nav-item{justify-content:center}}
 @media(max-width:720px){.primary-nav .nav-explorer-row .nav-item{white-space:nowrap}.primary-nav .nav-explorer-row .nav-channels-toggle{flex-basis:18px}.explorer-assessment-entry{align-self:flex-start}}
+
+/* ── 資料載入中／載入失敗 ── */
+.load-banner {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+  margin: 0 0 16px;
+  padding: 14px 18px;
+  border: 1px solid rgba(184, 95, 103, .45);
+  border-radius: 12px;
+  background: #fff6f6;
+  color: var(--ink);
+}
+.load-banner[hidden] { display: none; }
+.load-banner p { margin: 0; flex: 1 1 240px; }
+.data-loading {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.loading-dot {
+  flex: 0 0 auto;
+  width: 14px;
+  height: 14px;
+  border: 2px solid var(--line);
+  border-top-color: var(--teal);
+  border-radius: 50%;
+  animation: loading-spin .8s linear infinite;
+}
+@keyframes loading-spin { to { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) {
+  .loading-dot { animation: none; border-top-color: var(--line); }
+}
+.load-error {
+  display: grid;
+  justify-items: start;
+  gap: 12px;
+  border-color: rgba(184, 95, 103, .45);
+  color: var(--ink);
+}
+.load-error p { margin: 0; }
+.detail-loading { margin-top: 8px; }

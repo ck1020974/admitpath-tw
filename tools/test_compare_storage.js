@@ -16,7 +16,7 @@ const localStorage = {
 };
 function session() {
   const context = vm.createContext({
-    console, Intl, URLSearchParams, window: { localStorage, alert() {} },
+    console, Intl, URLSearchParams, window: { localStorage, alert() {}, GroupIntroductions: require("../site/group-introductions.js") },
     document: { addEventListener() {} }, __records: records,
   });
   vm.runInContext(source, context);

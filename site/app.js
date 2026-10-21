@@ -40,7 +40,7 @@ const els = {};
 let advancedFilterDraft = null;
 
 const fmt = new Intl.NumberFormat("zh-Hant-TW");
-const DATA_VERSION = "20261012-special-116";
+const DATA_VERSION = "20261021-split-data";
 const COMPARE_STORAGE_KEY = "admitpath-tw:compare:v1";
 
 const APPLY_SIEVE_SCORE_OVERRIDES = {
@@ -855,11 +855,32 @@ async function init() {
   state.placement = defaultPlacementState();
   bindElements();
   bindEvents();
-  await loadData();
+  state.dataStatus = "loading";
+  // 從分享連結進來時，先切到該頁面並顯示載入中。
+  applyRoute({ ...parseRoute(window.location?.hash), record: "" });
+  renderTable();
+  try {
+    await loadData();
+  } catch (error) {
+    console.error(error);
+    showLoadError();
+    return;
+  }
+  state.dataStatus = "ready";
   restoreCompare();
   renderCompare();
   hydrateSchoolFilter();
   hydratePlacementFilters();
+  if (state.pendingHomeEntry) {
+    // 載入期間點過的入口，現在套用它的篩選。
+    const entry = state.pendingHomeEntry;
+    state.pendingHomeEntry = "";
+    state.applyingRoute = true;
+    try { activateHomeEntry(entry); } finally { state.applyingRoute = false; }
+    syncUrl();
+  } else {
+    applyRoute(parseRoute(window.location?.hash));
+  }
   applyFilters();
   renderPlacementAnalysis();
   renderExplorer();
@@ -871,8 +892,36 @@ async function init() {
     state.selectedExplorerStage = "group";
     state.selectedCategory = "";
     state.explorerKeyword = "";
-    setView("explorer");
+    state.applyingRoute = true;
+    try { setView("explorer"); } finally { state.applyingRoute = false; }
+    syncUrl();
   }
+}
+
+// 首次載入資料期間或載入失敗時，列表與落點結果顯示狀態，而不是「0 筆符合」。
+function dataPending() {
+  return state.dataStatus === "loading" || state.dataStatus === "error";
+}
+
+function loadStatusHtml() {
+  if (state.dataStatus === "error") {
+    return `
+      <div class="empty-state load-error" role="alert">
+        <p>招生資料載入失敗，可能是網路不穩。</p>
+        <button class="solid-button" type="button" data-reload-page>重新載入</button>
+      </div>
+    `;
+  }
+  return `<div class="empty-state data-loading" role="status"><span class="loading-dot" aria-hidden="true"></span>招生資料載入中，第一次開啟約需數秒…</div>`;
+}
+
+function showLoadError() {
+  state.dataStatus = "error";
+  if (els.sideRecordCount) els.sideRecordCount.textContent = "載入失敗";
+  const banner = document.getElementById("loadBanner");
+  if (banner) banner.hidden = false;
+  renderTable();
+  renderPlacementAnalysis();
 }
 
 function bindElements() {
@@ -965,6 +1014,13 @@ function bindEvents() {
     });
   });
   document.getElementById("closeDrawerButton").addEventListener("click", closeDrawer);
+  document.addEventListener("click", (event) => {
+    if (event.target.closest("[data-reload-page]")) window.location.reload();
+  });
+  els.detailBody.addEventListener("click", (event) => {
+    const retry = event.target.closest("[data-retry-detail]");
+    if (retry) openDetail(retry.dataset.retryDetail);
+  });
   document.getElementById("detailCompareButton").addEventListener("click", () => {
     const id = els.detailCompareButton.dataset.recordId;
     if (id) toggleCompare(id);
@@ -977,10 +1033,28 @@ function bindEvents() {
     if (detailDrawer?.classList.contains("open") && !detailDrawer.contains(event.target)) closeDrawer();
   });
   bindPlacementEvents();
+  window.addEventListener("popstate", () => {
+    state.detailInHistory = false;
+    if (state.pendingBack) {
+      // 這次是關閉詳情造成的返回：畫面已是正確狀態，只補上期間延後的網址更新。
+      const deferred = state.deferredSync;
+      state.pendingBack = false;
+      state.deferredSync = "";
+      if (deferred) syncUrl({ push: deferred === "push" });
+      return;
+    }
+    applyRoute(parseRoute(window.location?.hash));
+  });
 }
 
 function activateHomeEntry(entry) {
   if (!entry) return;
+  if (dataPending() && entry !== "group-explorer" && entry !== "compare-list") {
+    // 資料還沒到，先切到查詢頁顯示載入中，載入完成後再套用這個入口的篩選。
+    state.pendingHomeEntry = entry;
+    setView(entry === "placement-entry" ? "placement" : "workbench");
+    return;
+  }
   if (entry === "group-explorer") {
     resetExplorerState("overview");
     setView("explorer");
@@ -1043,7 +1117,7 @@ function activateHomeEntry(entry) {
 
 async function loadData() {
   const [records, results, groups, manifest, gsatStandards, categoryInsights, categoryRepresentatives, qualityReport] = await Promise.all([
-    fetchJson("./data/admissions_records.json"),
+    fetchRecords(),
     fetchJson("./data/distribution_results.json"),
     fetchJson("./data/group_departments.json"),
     fetchJson("./data/site_manifest.json"),
@@ -1092,11 +1166,57 @@ function buildRecordIndexes() {
   });
 }
 
+// 檔名帶有 DATA_VERSION，資料更新時改版本號即可讓瀏覽器重新下載；
+// 其餘時間沿用瀏覽器快取，第二次開啟不必再下載整份資料。
 async function fetchJson(path) {
   const separator = path.includes("?") ? "&" : "?";
-  const response = await fetch(`${path}${separator}v=${DATA_VERSION}`, { cache: "no-store" });
-  if (!response.ok) throw new Error(`Cannot load ${path}`);
+  const response = await fetch(`${path}${separator}v=${DATA_VERSION}`);
+  if (!response.ok) {
+    const error = new Error(`Cannot load ${path}`);
+    error.status = response.status;
+    throw error;
+  }
   return response.json();
+}
+
+// 部署時由 tools/build_site_data.js 產生精簡版 records_core.json；
+// 本機預覽若尚未產生，就改讀完整的 admissions_records.json。
+async function fetchRecords() {
+  try {
+    return await fetchJson("./data/records_core.json");
+  } catch (error) {
+    if (error.status !== 404) throw error;
+    return fetchJson("./data/admissions_records.json");
+  }
+}
+
+const recordDetailChunks = new Map();
+
+function loadRecordDetail(record) {
+  if (record.detailChunk === undefined || record.detailLoaded) return Promise.resolve(record);
+  const chunk = record.detailChunk;
+  if (!recordDetailChunks.has(chunk)) {
+    const request = fetchJson(`./data/records_detail/${chunk}.json`).catch((error) => {
+      recordDetailChunks.delete(chunk);
+      throw error;
+    });
+    recordDetailChunks.set(chunk, request);
+  }
+  return recordDetailChunks.get(chunk).then((details) => {
+    mergeRecordDetail(record, details[record.id]);
+    return record;
+  });
+}
+
+// 與 tools/build_site_data.js 的 merge 對應：把詳情欄位併回原本的校系物件。
+function mergeRecordDetail(record, detail) {
+  Object.entries(detail || {}).forEach(([key, value]) => {
+    const current = record[key];
+    record[key] = value && typeof value === "object" && !Array.isArray(value) && current && typeof current === "object"
+      ? { ...current, ...value }
+      : value;
+  });
+  record.detailLoaded = true;
 }
 
 function updateFilter() {
@@ -1599,6 +1719,7 @@ function applyFilters() {
   renderAdvancedFilterSummary();
   renderTable();
   if (state.placement?.stage === "results") renderPlacementAnalysis();
+  syncUrl();
 }
 
 function hydrateSchoolFilter() {
@@ -1611,6 +1732,80 @@ function setExplorerToolsExpanded(expanded) {
   toggle.setAttribute("aria-expanded", String(expanded));
   toggle.setAttribute("aria-label", expanded ? "收起學群探索工具" : "展開學群探索工具");
   document.getElementById("navExplorerTools").hidden = !expanded;
+}
+
+// ── 網址狀態 ──────────────────────────────────────────
+// 目前頁面、查詢條件與開啟中的校系會寫進網址 #，
+// 讓「上一頁」留在網站內，也能把查詢結果或校系詳情的連結直接分享給學生。
+//   #workbench?channel=star_recommendation&year=115&q=資工
+//   #placement
+//   #workbench?record=115-personal_application-001012-115_apply
+const ROUTE_FILTER_KEYS = { channel: "channel", year: "year", school: "school", q: "keyword" };
+
+function routeHash() {
+  if (state.view === "overview" && !state.openDetailId) return "";
+  const params = new URLSearchParams();
+  if (state.view === "workbench") {
+    Object.entries(ROUTE_FILTER_KEYS).forEach(([param, key]) => {
+      const value = state.filters[key];
+      if (value && value !== "all") params.set(param, value);
+    });
+  }
+  if (state.openDetailId) params.set("record", state.openDetailId);
+  const query = params.toString();
+  return `#${state.view}${query ? `?${query}` : ""}`;
+}
+
+function syncUrl({ push = false } = {}) {
+  if (state.applyingRoute || !window.history?.replaceState || !window.location) return;
+  if (state.pendingBack) {
+    // 關閉詳情的「上一頁」還在進行，等它完成再更新網址，避免把新頁面一起退掉。
+    state.deferredSync = push ? "push" : (state.deferredSync || "replace");
+    return;
+  }
+  const hash = routeHash();
+  if (hash === window.location.hash || (!hash && !window.location.hash)) return;
+  const url = `${window.location.pathname}${window.location.search}${hash}`;
+  if (push) window.history.pushState(null, "", url);
+  else window.history.replaceState(null, "", url);
+}
+
+function parseRoute(hash) {
+  const [view, query = ""] = String(hash || "").replace(/^#/, "").split("?");
+  const params = new URLSearchParams(query);
+  return {
+    view: view && document.getElementById(`${view}View`) ? view : "overview",
+    filters: Object.fromEntries(Object.entries(ROUTE_FILTER_KEYS).map(([param, key]) => [key, params.get(param) || ""])),
+    record: params.get("record") || "",
+  };
+}
+
+function applyRoute(route) {
+  state.applyingRoute = true;
+  try {
+    if (route.view === "workbench") {
+      const year = ["116", "115", "114"].includes(route.filters.year) ? route.filters.year : "all";
+      const channel = [...els.channelFilter.options].some((option) => option.value === route.filters.channel) ? route.filters.channel : "all";
+      const school = [...els.schoolFilter.options].some((option) => option.value === route.filters.school) ? route.filters.school : "all";
+      Object.assign(state.filters, { year, channel, school, keyword: route.filters.keyword });
+      els.yearFilter.value = year;
+      els.channelFilter.value = channel;
+      els.schoolFilter.value = school;
+      els.keywordInput.value = route.filters.keyword;
+          applyFilters();
+    }
+    if (state.view !== route.view) {
+      if (route.view === "explorer") resetExplorerState("overview");
+      setView(route.view);
+    }
+    if (route.record && state.records.some((record) => record.id === route.record)) {
+      if (state.openDetailId !== route.record) openDetail(route.record);
+    } else if (state.openDetailId) {
+      closeDrawer();
+    }
+  } finally {
+    state.applyingRoute = false;
+  }
 }
 
 function setView(view) {
@@ -1626,6 +1821,7 @@ function setView(view) {
   }
   if (view === "placement") renderPlacementAnalysis();
   if (view === "quality") renderQualityReport();
+  syncUrl({ push: true });
 }
 
 function defaultPlacementState() {
@@ -1915,6 +2111,11 @@ function renderPlacementAnalysis() {
   document.querySelectorAll("[data-placement-result-tab]").forEach((button) => {
     button.classList.toggle("active", (button.dataset.placementResultTab || "all") === state.placement.resultTab);
   });
+  if (dataPending()) {
+    els.placementResultCount.textContent = "—";
+    els.placementResults.innerHTML = loadStatusHtml();
+    return;
+  }
   if (!placementHasAnyInput(profile)) {
     els.placementResultCount.textContent = "0";
     if (els.placementResultCountLabel) els.placementResultCountLabel.textContent = "筆符合";
@@ -2300,6 +2501,11 @@ function placementChannelHasRequiredScores(record, profile) {
 }
 
 function renderTable() {
+  if (dataPending()) {
+    els.resultCount.textContent = "—";
+    els.recordTableBody.innerHTML = `<tr><td colspan="4">${loadStatusHtml()}</td></tr>`;
+    return;
+  }
   els.resultCount.textContent = fmt.format(state.filtered.length);
   // Special selection can be browsed in full across the available years.
   // Keep the all-channel workbench responsive when it contains tens of thousands of rows.
@@ -2963,6 +3169,10 @@ function displayCategoryKeyword(name) {
 
 function renderExplorer() {
   if (!els.explorerRoot) return;
+  if (dataPending()) {
+    els.explorerRoot.innerHTML = loadStatusHtml();
+    return;
+  }
   if (state.selectedExplorerStage === "overview" || !state.selectedGroup) {
     els.explorerRoot.innerHTML = explorerOverviewHtml();
   } else if (state.selectedExplorerStage === "group" || !state.selectedCategory) {
@@ -4222,9 +4432,34 @@ function openDetail(id) {
   els.detailTitle.textContent = `${record.schoolName} ${record.departmentName}`;
   els.detailCompareButton.dataset.recordId = record.id;
   updateDetailCompareButton(record.id);
-  els.detailBody.innerHTML = detailHtml(record, result);
+  const needsDetail = record.detailChunk !== undefined && !record.detailLoaded;
+  els.detailBody.innerHTML = needsDetail
+    ? `<div class="empty-state detail-loading" role="status">正在載入校系詳情…</div>`
+    : detailHtml(record, result);
+  const drawerWasOpen = Boolean(state.openDetailId);
   els.detailDrawer.classList.add("open");
   els.detailDrawer.setAttribute("aria-hidden", "false");
+  state.openDetailId = record.id;
+  if (!state.applyingRoute) {
+    // 從列表點開才新增一筆瀏覽紀錄，讓「上一頁」先關閉詳情。
+    if (!drawerWasOpen) state.detailInHistory = true;
+    syncUrl({ push: !drawerWasOpen });
+  }
+  if (!needsDetail) return;
+  loadRecordDetail(record)
+    .then(() => {
+      if (state.openDetailId === record.id) els.detailBody.innerHTML = detailHtml(record, result);
+    })
+    .catch(() => {
+      if (state.openDetailId !== record.id) return;
+      els.detailBody.innerHTML = `
+        <div class="empty-state load-error" role="alert">
+          <p>詳細資料暫時無法載入，以下先顯示主要資訊。</p>
+          <button class="ghost-button" type="button" data-retry-detail="${escapeAttr(record.id)}">重新載入</button>
+        </div>
+        ${detailHtml(record, result)}
+      `;
+    });
 }
 
 function updateDetailCompareButton(id) {
@@ -4237,6 +4472,15 @@ function updateDetailCompareButton(id) {
 function closeDrawer() {
   els.detailDrawer.classList.remove("open");
   els.detailDrawer.setAttribute("aria-hidden", "true");
+  state.openDetailId = "";
+  if (state.applyingRoute) return;
+  if (state.detailInHistory && window.history?.back) {
+    state.detailInHistory = false;
+    state.pendingBack = true;
+    window.history.back();
+  } else {
+    syncUrl();
+  }
 }
 
 function detailHtml(record, result) {
@@ -4293,7 +4537,9 @@ function detailHtml(record, result) {
     ` : ""}
     <section class="detail-section">
       <h3>來源</h3>
-      <a href="${escapeAttr(record.sourceUrl)}" target="_blank" rel="noreferrer noopener">${escapeHtml(record.sourceOrganization || record.sourceUrl)}</a>
+      ${record.sourceUrl
+        ? `<a href="${escapeAttr(record.sourceUrl)}" target="_blank" rel="noreferrer noopener">${escapeHtml(record.sourceOrganization || record.sourceUrl)}</a>`
+        : `<p>${escapeHtml(record.sourceOrganization || "--")}</p>`}
     </section>
   `;
 }
@@ -4617,6 +4863,10 @@ function toggleCompare(id) {
 }
 
 function renderCompare() {
+  if (dataPending()) {
+    if (els.compareGrid) els.compareGrid.innerHTML = loadStatusHtml();
+    return;
+  }
   const storageStatus = document.getElementById("compareStorageStatus");
   if (storageStatus) storageStatus.textContent = state.compareStorageStatus;
   const clearButton = document.getElementById("clearCompareButton");
@@ -4956,7 +5206,7 @@ function recordSearchText(record) {
     record.applySieveResult?.sieveResultRaw,
     record.weightedSubjectsText,
     record.selectionNotes,
-    Object.values(record.rawFields || {}).join(" "),
+    record.rawText ?? Object.values(record.rawFields || {}).join(" "),
   ].join(" "));
 }
 

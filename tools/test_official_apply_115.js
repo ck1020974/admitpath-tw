@@ -39,7 +39,7 @@ function stubElement() {
 const sandbox = {
   AdmissionRules: require("../site/admission-rules.js"),
   console,
-  window: { location: { search: "" } },
+  window: { location: { search: "" }, GroupIntroductions: require("../site/group-introductions.js") },
   location: { search: "" },
   history: { replaceState() {} },
   URLSearchParams,

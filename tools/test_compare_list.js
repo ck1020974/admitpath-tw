@@ -15,7 +15,7 @@ const context = { state, els: { compareGrid: grid, compareYearFilter: {}, compar
   document: { getElementById: () => clear, querySelectorAll: () => buttons }, window: { alert: () => alerts++, localStorage: { setItem() {} } },
   renderTable() {}, updateDetailCompareButton() {}, highlightHtml: r => `標準${r.id}`, channelBadge: r => r.channelKey, specialAdmissionBadgeHtml: () => '（軍校）', escapeHtml: String, escapeAttr: String };
 vm.createContext(context);
-const names = ['saveCompare', 'toggleCompare', 'renderCompare', 'filteredCompareRecords', 'workbenchRecordRowHtml'];
+const names = ['dataPending', 'saveCompare', 'toggleCompare', 'renderCompare', 'filteredCompareRecords', 'workbenchRecordRowHtml'];
 vm.runInContext(names.map(name => source.match(new RegExp(`function ${name}\\([\\s\\S]*?\\n\\}`))[0]).join('\n'), context);
 for (let i = 0; i < 100; i++) context.toggleCompare(String(i));
 assert.equal(state.compare.length, 100);

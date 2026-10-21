@@ -24,6 +24,8 @@ jobs:
         uses: actions/configure-pages@v6
       - name: Prepare exploration pages
         run: node tools/sync_explorer_site.js
+      - name: Split admissions data for faster loading
+        run: node tools/build_site_data.js
       - name: Upload website
         uses: actions/upload-pages-artifact@v5
         with:
