@@ -75,6 +75,13 @@
  const masteryOptions=['非常糟','不好','普通','好','非常強'].map((label,value)=>({label,value}));
  const subjects=subjectModel.subjects.map(s=>({...s,required:!['computing','technology','art','music','sport'].includes(s.id)}));
  const resultTypes={priority:{name:'優先探索',text:'有興趣，也有學習基礎，值得先了解。'},develop:{name:'能力培養',text:'有興趣，可以從相關內容逐步補強。'},potential:{name:'潛力發掘',text:'已有學習優勢，可以試著認識這個方向。'},interest:{name:'興趣延伸',text:'保留喜歡，先從體驗、選修或自主學習接觸。'},other:{name:'其他學群',text:'也可以認識這些方向，保留探索的可能。'}};
- const data={version:'yuhsin-four-routes-screening-20261018',profileGroups:[{id:'core',label:'國英數',subjects:['chinese','english','math']},{id:'social',label:'社會',subjects:['history','geography','civics']},{id:'science',label:'自然',subjects:['physics','chemistry','biology','earth']},{id:'other',label:'延伸科目・選填',optional:true,subjects:['computing','technology','art','music','sport']}],bank,groups,items,units,...subjectModel,...exploration,subjects,resultTypes,masteryOptions,curriculum:curriculumData.references,sources:curriculumData.sources};
+ // 快速探索固定 18 題：每個學群 1 題，全班看到同一組、同一順序，方便課堂對照討論。
+ // 順序刻意把相近學群錯開；要換題時，改這裡的題號即可（須每群一題）。
+ const quickSet=['A1','I9','D9','O2','B2','L5','E3','P7','G1','M9','C3','R3','K10','F3','N4','H2','Q5','J5'];
+ // 畫面由左到右：沒興趣、還好、想知道。
+ const interestOptions=[{value:0,label:'沒興趣'},{value:1,label:'還好'},{value:2,label:'想知道'}];
+ // 學科自評沿用原本的量表：非常糟 0、不好 1、普通 2、好 3、非常強 4。
+ const subjectOptions=masteryOptions;
+ const data={version:'yuhsin-single-route-20261022b',quickSet,interestOptions,subjectOptions,profileGroups:[{id:'core',label:'國英數',subjects:['chinese','english','math']},{id:'social',label:'社會',subjects:['history','geography','civics']},{id:'science',label:'自然',subjects:['physics','chemistry','biology','earth']},{id:'other',label:'延伸科目（選填）',optional:true,subjects:['computing','technology','art','music','sport']}],bank,groups,items,units,...subjectModel,...exploration,subjects,resultTypes,masteryOptions,curriculum:curriculumData.references,sources:curriculumData.sources};
  if(node)module.exports=data;else root.YuhsinCuriosityData=data;
 })(typeof window!=='undefined'?window:globalThis);

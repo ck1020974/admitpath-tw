@@ -888,10 +888,13 @@ async function init() {
   renderSources();
   const explorerLink = window.ExplorerLink?.parse(window.location.search, [...new Set(state.groups.map(row => row.groupName))]);
   if (explorerLink) {
+    const categoryInGroup = explorerLink.category && state.groups.some((row) => row.groupName === explorerLink.group && row.categoryName === explorerLink.category);
     state.selectedGroup = explorerLink.group;
-    state.selectedExplorerStage = "group";
-    state.selectedCategory = "";
+    state.selectedExplorerStage = categoryInGroup ? "category" : "group";
+    state.selectedCategory = categoryInGroup ? explorerLink.category : "";
     state.explorerKeyword = "";
+    const backLink = document.getElementById("curiosityBackLink");
+    if (backLink && explorerLink.fromCuriosity) backLink.hidden = false;
     state.applyingRoute = true;
     try { setView("explorer"); } finally { state.applyingRoute = false; }
     syncUrl();
