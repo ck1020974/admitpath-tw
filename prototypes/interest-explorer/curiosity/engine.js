@@ -4,7 +4,7 @@
  'use strict';
  const node=typeof module!=='undefined'&&module.exports;
  const data=node?require('./data.js'):root.YuhsinCuriosityData;
- const VERSION=2;
+ const VERSION=3;
  // 計分規則（本站編輯設定，未經測量驗證）
  const FAVOURITE=3;          // 最想知道＝3、想知道＝2、還好＝1、沒興趣＝0
  const THRESHOLD=1.5;        // 學群興趣平均達 1.5 視為「有興趣」
@@ -25,18 +25,18 @@
 
  function empty(){return {v:VERSION,answers:{},favourites:[],subjects:{},deep:null};}
 
- // 學科感覺 → 計分值。還沒修過、未填都不計入分子與分母。
+ // 學科自評 0–4 直接當計分值；未填（選填科目）不計入分子與分母。
  function numericSubject(value){return typeof value==='number'?value:null;}
  function weighted(values,weights){
   let sum=0,used=0,total=0;
   for(const [id,w] of Object.entries(weights)){total+=w;const v=values[id];if(typeof v==='number'&&Number.isFinite(v)){used+=w;sum+=v*w;}}
   return {score:used?sum/used:null,coverage:total?used/total:0};
  }
- // 跟自己的其他科目比較：2.5 以上、或高於自己平均且至少「普通」，視為有基礎。
+ // 跟自己的其他科目比較：2.75 以上、或高於自己平均且至少「普通」，視為有基礎。
  function level({score,coverage},own){
   if(score===null||coverage<0.5)return 'unknown';
-  if(score>=2.5||(own!==null&&score>=2&&score>=own+0.25))return 'strong';
-  if(score<1.75&&(own===null||score<own))return 'weak';
+  if(score>=2.75||(own!==null&&score>=2&&score>=own+0.25))return 'strong';
+  if(score<1.5&&(own===null||score<own))return 'weak';
   return 'middle';
  }
 
@@ -73,15 +73,15 @@
   function setSubject(id,value){
    if(!subjectIds.includes(id))throw Error('找不到這個科目。');
    if(value===null){if(required.includes(id))throw Error('這一科需要選一個答案。');if(id in state.subjects){cancelDeep();delete state.subjects[id];}return;}
-   if(!subjectValues.includes(value))throw Error('請選擇強項、普通、比較吃力或還沒修過。');
+   if(!subjectValues.includes(value))throw Error('請選擇非常糟、不好、普通、好或非常強。');
    if(state.subjects[id]!==value)cancelDeep();
    state.subjects[id]=value;
   }
 
-  // 每科的計分值；深入確認完成時，檢查過的科目改用具體內容的平均（0–4 換算成 1–3）。
+  // 每科的計分值；深入確認完成時，檢查過的科目改用具體內容的平均（同樣是 0–4）。
   function subjectScores(){
    const scores=Object.fromEntries(subjectIds.map(id=>[id,numericSubject(state.subjects[id])]));
-   if(deepComplete())state.deep.plan.forEach(row=>{const m=mean(row.goals.map(g=>state.deep.goals[g]));if(m!==null)scores[row.subject]=1+m/2;});
+   if(deepComplete())state.deep.plan.forEach(row=>{const m=mean(row.goals.map(g=>state.deep.goals[g]));if(m!==null)scores[row.subject]=m;});
    return scores;
   }
   function groupRows(){
@@ -112,10 +112,9 @@
    if(!complete())throw Error('請先完成三個步驟。');
    const groups=classify(groupRows()).map(r=>({...r,typeName:data.resultTypes[r.type].name,
     reason:r.evidence.slice().sort((a,b)=>b.value-a.value||Number(b.primary)-Number(a.primary))[0]||null,
-    strengths:r.subjects.filter(s=>s.weight>=2&&typeof s.value==='number'&&s.value>=2.5).map(s=>s.label),
-    notTaken:r.subjects.filter(s=>s.weight>=2&&s.answer==='na').map(s=>s.label)}));
+    strengths:r.subjects.filter(s=>s.weight>=2&&typeof s.value==='number'&&s.value>=2.75).map(s=>s.label)}));
    return clone({version:data.version,deep:deepComplete(),favourites:effectiveFavourites().map(id=>({id,text:itemById.get(id).text})),groups,
-    limits:['這是自評探索，不是能力測驗、科系適合率或錄取預測。','學群權重、題目連結與分類門檻為本站編輯規則，未經測量驗證。','還沒修過或未填的科目不算低分，也不放進計算。']});
+    limits:['這是自評探索，不是能力測驗、科系適合率或錄取預測。','學群權重、題目連結與分類門檻為本站編輯規則，未經測量驗證。','未填的選填科目不算低分，也不放進計算。']});
   }
 
   // 深入確認：針對前幾個方向補問其餘情境題，並檢查這些方向最需要的科目。
@@ -129,6 +128,7 @@
   function planFor(focus){
    const score={};
    focus.forEach(g=>Object.entries(data.weights[g]).forEach(([id,w])=>{if(w>=2&&typeof state.subjects[id]==='number')score[id]=(score[id]||0)+w;}));
+   // 選填科目沒填的不檢查；必填科目都會有答案。
    return Object.keys(score).sort((a,b)=>score[b]-score[a]||subjectIds.indexOf(a)-subjectIds.indexOf(b)).slice(0,PLAN_LIMIT).map(id=>{
     const context=focus.slice().sort((a,b)=>(data.weights[b][id]||0)-(data.weights[a][id]||0)||focus.indexOf(a)-focus.indexOf(b))[0];
     return {subject:id,context,goals:data.detailGoals(id,context).map(g=>g.id)};
@@ -178,12 +178,12 @@
  }
 
  // 結果連結：把作答壓成短字串再轉 base64url。只放作答與（選填的）名字，不放任何其他資料。
- //   a：18 題答案（快速題順序，- 表示未答）  f：最想知道的題目位置  s：15 科（3/2/1/n，- 未填）
+ //   a：18 題答案（快速題順序，- 表示未答）  f：最想知道的題目位置  s：15 科（0–4，- 未填）
  //   d：深入確認 f＝方向代碼、p＝科目.方向、q＝補問題答案、g＝具體內容 0–4
  function toBase64Url(text){const bytes=new TextEncoder().encode(text);let bin='';bytes.forEach(b=>{bin+=String.fromCharCode(b);});return btoa(bin).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');}
  function fromBase64Url(code){const bin=atob(code.replace(/-/g,'+').replace(/_/g,'/'));return new TextDecoder().decode(Uint8Array.from(bin,c=>c.charCodeAt(0)));}
- const subjectCode=v=>v==='na'?'n':typeof v==='number'?String(v):'-';
- const subjectFrom=c=>c==='n'?'na':/[123]/.test(c)?Number(c):undefined;
+ const subjectCode=v=>typeof v==='number'?String(v):'-';
+ const subjectFrom=c=>/[0-4]/.test(c)?Number(c):undefined;
  function encodeShare(snapshot,name=''){
   const payload={v:VERSION,a:data.quickSet.map(id=>[0,1,2].includes(snapshot.answers[id])?String(snapshot.answers[id]):'-').join(''),
    f:snapshot.favourites.map(id=>data.quickSet.indexOf(id)).filter(i=>i>=0),

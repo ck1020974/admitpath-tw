@@ -29,7 +29,7 @@ assert.equal(deployedData.subjects.filter(s=>s.required).length,10);
 assert.equal(deployedData.subjects.filter(s=>!s.required).length,5);
 // 一個入口：只有一個開始按鈕，沒有舊的四種版本入口。
 assert.equal([...html.matchAll(/id="start"/g)].length,1);
-assert.doesNotMatch(html,/data-depth=/);
-for(const id of ['curiosity','favourites','subjects','results','deepQuestions','deepDetails','evidenceDialog','aboutDialog','copyLink'])assert.match(html,new RegExp(`id="${id}"`),id);
+assert.doesNotMatch(html,/data-depth=|data-clear|還沒修過/);
+for(const id of ['question','favourites','subjects','results','resultTabs','deepDetails','evidenceDialog','aboutDialog','copyLink'])assert.match(html,new RegExp(`id="${id}"`),id);
 assert.equal(new URL('../../','https://example.org/admitpath-tw/explore/curiosity/').pathname,'/admitpath-tw/');
 console.log('Explorer integration: bundled assets, relative dependencies, main-site subnavigation, single entry, all 15 subjects and project-site base path passed.');

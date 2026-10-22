@@ -33,7 +33,7 @@ const typeOf=(report,id)=>report.groups.find(g=>g.id===id).type;
  s.setFavourites(s.wanted().slice(0,2));assert.equal(s.favouritesComplete(),false,'2 題還不夠');
  s.setFavourites(s.wanted().slice(0,3));assert.equal(s.favouritesComplete(),true);
  s.answer(s.wanted()[0],1);assert.equal(s.snapshot().favourites.length,2,'改成「還好」的題目會從最想知道移除');
- assert.throws(()=>s.setSubject('math',4));assert.throws(()=>s.setSubject('math',null));
+ assert.throws(()=>s.setSubject('math',5));assert.throws(()=>s.setSubject('math','na'));assert.throws(()=>s.setSubject('math',null));
  assert.doesNotThrow(()=>s.setSubject('art',null));
 }
 // 想知道不超過 3 題時，不需要第 2 步。
@@ -61,12 +61,14 @@ for(const likes of [{A:2},{I:2},{O:2},{D:2},{R:2}]){
  assert.equal(s.deepComplete(),true);
  assert.notEqual(typeOf(s.report(),target),'other',`${target} 深入確認後仍不是其他學群`);
 }
-// 還沒修過不算低分；相關科目大多沒修過時不判斷基礎，有興趣就列為興趣延伸。
+// 選填科目沒填不算低分；相關科目大多沒填時不判斷基礎，有興趣就列為興趣延伸。
 {
- const s=student({likes:{C:2},subjects:{physics:'na',chemistry:'na',math:2}});
- const c=s.report().groups.find(g=>g.id==='C');
- assert.equal(c.type,'interest');assert.ok(c.notTaken.includes('物理'));
+ const s=student({likes:{I:2}});
+ const art=s.report().groups.find(g=>g.id==='I');
+ assert.equal(art.level,'unknown');assert.equal(art.type,'interest');
  assert.equal(engine.weighted({math:3,physics:null},{math:3,physics:3}).score,3);
+ assert.equal(data.subjectOptions.length,5);assert.deepEqual(data.subjectOptions.map(o=>o.value),[0,1,2,3,4]);
+ assert.deepEqual(data.interestOptions.map(o=>o.label),['沒興趣','還好','想知道']);
 }
 // 跟自己比：全部普通時不會出現「強」；全部比較吃力的學生，自己的平均就是普通水準。
 assert.equal(engine.level({score:2,coverage:1},2),'middle');
@@ -86,12 +88,12 @@ assert.equal(engine.level({score:3,coverage:0.3},2),'unknown');
  assert.ok(r.groups.every(g=>g.type==='other'));
  s.startDeep();assert.equal(s.snapshot().deep.focus.length,4);
 }
-// 深入確認：補問題目來自前幾個方向，檢查科目不含「還沒修過」，改答快速題會取消深入確認。
+// 深入確認：補問題目來自前幾個方向，不檢查沒填的選填科目，改答快速題會取消深入確認。
 {
- const s=student({likes:{A:2,B:2,C:2},subjects:{physics:'na',math:3,computing:3}});
+ const s=student({likes:{A:2,B:2,C:2},subjects:{math:3,physics:3}});
  s.startDeep();const deep=s.snapshot().deep;
  assert.ok(s.deepQuestions().every(q=>deep.focus.includes(q.group)&&!data.quickSet.includes(q.id)));
- assert.ok(s.detailPlan().length<=4&&s.detailPlan().every(row=>row.subject!=='physics'));
+ assert.ok(s.detailPlan().length<=4&&s.detailPlan().every(row=>!['computing','technology'].includes(row.subject)));
  s.detailPlan().forEach(row=>assert.equal(row.goals.length,3));
  s.answer('A1',1);assert.equal(s.snapshot().deep,null);
 }
@@ -101,7 +103,7 @@ for(let seed=1;seed<=40;seed++){
  const s=engine.createSession();
  s.questions().forEach(q=>s.answer(q.id,Math.floor(r()*3)));
  if(s.favouritesNeeded())s.setFavourites(s.wanted().slice(0,3));
- data.subjects.forEach(x=>{if(x.required||r()>.5)s.setSubject(x.id,data.subjectOptions[Math.floor(r()*4)].value);});
+ data.subjects.forEach(x=>{if(x.required||r()>.5)s.setSubject(x.id,data.subjectOptions[Math.floor(r()*5)].value);});
  if(r()>.5){s.startDeep();s.deepQuestions().forEach(q=>s.answer(q.id,Math.floor(r()*3)));s.detailPlan().forEach(row=>row.goals.forEach(g=>s.goal(g.id,Math.floor(r()*5))));}
  const report=JSON.stringify(s.report());
  const restored=engine.createSession();restored.load(JSON.parse(JSON.stringify(s.snapshot())));
@@ -112,6 +114,7 @@ for(let seed=1;seed<=40;seed++){
  assert.equal(JSON.stringify(shared.session.report()),report);assert.equal(shared.name,'15 號 王小明');
 }
 assert.throws(()=>engine.decodeShare('not-a-code'));
-assert.throws(()=>engine.decodeShare(Buffer.from(JSON.stringify({v:2,a:'2',s:'3'})).toString('base64url')),/不完整/);
+assert.throws(()=>engine.decodeShare(Buffer.from(JSON.stringify({v:3,a:'2',s:'3'})).toString('base64url')),/不完整/);
+assert.throws(()=>engine.decodeShare(Buffer.from(JSON.stringify({v:2,a:'2',s:'3'})).toString('base64url')),/舊版本/);
 assert.throws(()=>engine.createSession().load({v:1}),/版本/);
-console.log('Curiosity explorer: fixed 18-question set, answer limits, favourites, relative subject levels, potential cap, deep check coverage, save/restore and 40 result-link round trips passed.');
+console.log('Curiosity explorer: fixed 18-question set, option order, 0–4 subject scale, answer limits, favourites, relative subject levels, potential cap, deep check coverage, save/restore and 40 result-link round trips passed.');
