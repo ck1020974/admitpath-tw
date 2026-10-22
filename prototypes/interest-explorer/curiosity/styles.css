@@ -34,24 +34,23 @@ h1[tabindex]:focus,h2[tabindex]:focus{outline:none}
 .quiz-progress{height:8px;border-radius:4px;background:#dfe9e5;overflow:hidden}
 .quiz-progress span{display:block;height:100%;width:0;background:var(--teal);border-radius:4px;transition:width .3s ease}
 
-/* 一題一畫面 */
-.question-view{text-align:center;padding-top:2vh}
-.q-number{font-size:13px;letter-spacing:.08em;color:var(--teal);margin:0 0 14px;font-variant-numeric:tabular-nums}
-.q-text{font-size:clamp(24px,3.6vw,34px);line-height:1.5;min-height:3em;display:flex;align-items:center;justify-content:center;margin:0 auto 10px;max-width:22em}
-.q-prompt{font-size:13px;color:var(--muted);margin:0 0 28px}
-.q-answers{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
-.q-answer{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;min-height:132px;padding:18px 8px;border:1.5px solid var(--line);border-radius:14px;background:#fff;color:var(--ink);cursor:pointer;transition:border-color .12s,background .12s,transform .12s}
-.q-answer:hover{border-color:#8bb2a5;background:#f6faf8}
+/* 好奇心：一頁 6 題，每題三個選項 */
+.question-view{max-width:880px!important}
+.q-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+.q-card{display:flex;flex-direction:column;gap:16px;min-width:0;margin:0;padding:18px 18px 16px;border:1.5px solid var(--line);border-radius:14px;background:#fff;transition:border-color .15s,background .15s}
+.q-card.is-answered{border-color:#b9d3ca;background:#fbfdfc}
+.q-card legend{float:left;width:100%;padding:0;display:flex;gap:10px;font-size:17px;font-weight:700;line-height:1.6}
+.q-card legend+*{clear:both}
+.q-no{flex:0 0 auto;display:grid;place-items:center;width:28px;height:28px;margin-top:1px;border-radius:50%;background:var(--want-soft);color:var(--teal);font-size:12px;font-weight:700;font-variant-numeric:tabular-nums}
+.q-card.is-answered .q-no{background:var(--teal);color:#fff}
+.q-options{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-top:auto}
+.q-answer{min-height:48px;padding:8px 4px;border:1.5px solid var(--line);border-radius:10px;background:#fff;color:var(--muted);font-size:15px;font-weight:700;cursor:pointer;transition:border-color .12s,background .12s,color .12s,transform .12s}
+.q-answer:hover{border-color:#8bb2a5;background:#f4f8f6;color:var(--ink)}
 .q-answer:active{transform:scale(.98)}
-.q-label{font-size:18px;font-weight:700}
-.q-key{display:grid;place-items:center;width:28px;height:28px;border:1px solid var(--line);border-radius:7px;font-size:12px;color:var(--muted);background:#fbfdfc}
 .q-answer.v0[aria-checked="true"]{border-color:var(--nope);background:var(--nope-soft);color:#713c33}
 .q-answer.v1[aria-checked="true"]{border-color:var(--meh);background:var(--meh-soft);color:#33474a}
 .q-answer.v2[aria-checked="true"]{border-color:var(--want);background:var(--want);color:#fff}
-.q-answer.v2[aria-checked="true"] .q-key{background:transparent;border-color:#ffffff88;color:#fff}
-.q-answer:focus-visible{outline:3px solid #c28a28;outline-offset:3px}
-.q-nav{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:26px}
-.key-hint{font-size:12px;color:var(--muted)}
+.q-answer:focus-visible{outline:3px solid #c28a28;outline-offset:2px}
 
 /* 其他步驟共用 */
 .view-head{margin-bottom:20px}
@@ -148,17 +147,14 @@ h1[tabindex]:focus,h2[tabindex]:focus{outline:none}
 @media(max-width:720px){
  .subject-row{grid-template-columns:1fr;gap:6px}
  .deep-panel{flex-direction:column;align-items:stretch}
- .q-answer{min-height:104px}
+ .q-grid{grid-template-columns:1fr}
 }
 @media(max-width:480px){
  main{padding-top:22px}
  .intro{margin-top:2vh}
  .quiz-bar{margin-bottom:24px}
- .q-text{font-size:22px;min-height:4.5em}
- .q-answers{gap:8px}
- .q-answer{min-height:92px;padding:14px 4px;gap:8px}
- .q-label{font-size:16px}
- .key-hint{display:none}
+ .q-card{padding:16px 14px 14px}
+ .q-card legend{font-size:16px}
  .subject-group{padding-inline:12px}
  .scale-options{gap:4px}
  .scale-option span{font-size:12px;padding-inline:1px}
@@ -170,3 +166,4 @@ h1[tabindex]:focus,h2[tabindex]:focus{outline:none}
  .view-actions .count{display:none}
 }
 @media(prefers-reduced-motion:reduce){*{transition:none!important}}
+body[data-view=question] .quiz-bar{max-width:880px}

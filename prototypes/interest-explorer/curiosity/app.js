@@ -14,7 +14,7 @@
  const reduceMotion=matchMedia('(prefers-reduced-motion: reduce)').matches;
 
  let session=engine.createSession();
- let view='intro',qMode='quick',qIndex=0,detailPage=0,report=null,shared=null,restartArmed=null,tab=null,advancing=false;
+ let view='intro',qMode='quick',qPage=0,detailPage=0,report=null,shared=null,restartArmed=null,tab=null;
 
  // ── 存檔 ──
  function save(){
@@ -55,12 +55,12 @@
  }
  function resumeView(){
   const snap=session.snapshot();
-  if(!session.interestComplete()){qMode='quick';qIndex=Math.max(0,data.quickSet.findIndex(id=>snap.answers[id]===undefined));return renderQuestion();}
+  if(!session.interestComplete()){qMode='quick';qPage=firstUnansweredPage();return renderQuestion();}
   if(!session.favouritesComplete())return renderFavourites();
   if(!session.subjectsComplete())return renderSubjects();
   if(snap.deep&&!session.deepComplete()){
    const missing=session.deepQuestions().findIndex(q=>snap.answers[q.id]===undefined);
-   if(missing>=0){qMode='deep';qIndex=missing;return renderQuestion();}
+   if(missing>=0){qMode='deep';qPage=0;return renderQuestion();}
    const plan=session.detailPlan();detailPage=Math.max(0,plan.findIndex(row=>row.goals.some(g=>snap.deep.goals[g.id]===undefined)));return renderDeepDetails();
   }
   renderResults();
@@ -82,37 +82,58 @@
  function disarmRestart(){restartArmed=null;document.querySelectorAll('[data-restart]').forEach(b=>{b.textContent='重新開始';});}
  function restart(button){
   if(restartArmed!==button){disarmRestart();restartArmed=button;button.textContent='確定清除作答？再按一次';return;}
-  clearSaved();session.reset();qIndex=0;detailPage=0;report=null;tab=null;disarmRestart();renderIntro();
+  clearSaved();session.reset();qPage=0;detailPage=0;report=null;tab=null;disarmRestart();renderIntro();
  }
 
- // ── 一題一題作答（快速題與深入補問共用） ──
+ // ── 好奇心作答：一頁 6 題（深入確認的補充問題一頁顯示完） ──
+ const PAGE_SIZE=6;
  const questionList=()=>qMode==='quick'?session.questions():session.deepQuestions();
+ const pageSize=()=>qMode==='quick'?PAGE_SIZE:Math.max(1,questionList().length);
+ const pageCount=()=>Math.ceil(questionList().length/pageSize());
+ const pageRows=()=>questionList().slice(qPage*pageSize(),(qPage+1)*pageSize());
+ function updateQuestionProgress(){
+  const list=questionList(),a=session.snapshot().answers,done=list.filter(q=>a[q.id]!==undefined).length;
+  const pages=pageCount(),pageText=pages>1?`第 ${qPage+1} / ${pages} 頁　`:'';
+  if(qMode==='quick')setBar('第 1 / 3 步・好奇心',`${pageText}已答 ${done} / ${list.length}`,done/list.length*0.6);
+  else setBar('深入確認・補充問題',`已答 ${done} / ${list.length}`,done/list.length*0.5);
+ }
  function renderQuestion(){
-  const list=questionList();qIndex=Math.min(Math.max(qIndex,0),list.length-1);
-  const q=list[qIndex],value=session.snapshot().answers[q.id];
-  if(qMode==='quick')setBar('第 1 / 3 步・好奇心',`${qIndex+1} / ${list.length}`,qIndex/list.length*0.6);
-  else setBar('深入確認・補充問題',`${qIndex+1} / ${list.length}`,qIndex/list.length*0.5);
-  el('qNumber').textContent=`第 ${qIndex+1} 題`;
-  el('qText').textContent=q.text;
-  el('qAnswers').innerHTML=data.interestOptions.map((o,i)=>`<button type="button" class="q-answer v${o.value}" role="radio" aria-checked="${value===o.value}" data-value="${o.value}"><span class="q-key" aria-hidden="true">${i+1}</span><span class="q-label">${esc(o.label)}</span></button>`).join('');
-  el('qPrevious').textContent=qIndex?'← 上一題':qMode==='quick'?'← 回到開始':'← 回到結果';
-  advancing=false;
-  show('question','qText');
+  qPage=Math.min(Math.max(qPage,0),pageCount()-1);
+  const a=session.snapshot().answers,offset=qPage*pageSize();
+  el('qTitle').textContent=qMode==='quick'?'你想知道這些問題的答案嗎？':'再看幾題和你的方向有關的問題';
+  el('qHint').textContent=qMode==='quick'?'每題選一個，憑直覺就好，沒有對錯。':`這些題目來自你的前幾個方向：${session.snapshot().deep.focus.map(g=>short(data.groups.find(x=>x.id===g).name)).join('、')}。`;
+  el('qCards').innerHTML=pageRows().map((q,i)=>{const v=a[q.id];return `<fieldset class="q-card ${v!==undefined?'is-answered':''}" data-card="${q.id}"><legend><span class="q-no" aria-hidden="true">${String(offset+i+1).padStart(2,'0')}</span><span class="q-text">${esc(q.text)}</span></legend><div class="q-options" role="radiogroup" aria-label="${esc(q.text)}">${data.interestOptions.map(o=>`<button type="button" class="q-answer v${o.value}" role="radio" aria-checked="${v===o.value}" data-question="${q.id}" data-value="${o.value}">${esc(o.label)}</button>`).join('')}</div></fieldset>`;}).join('');
+  el('qError').textContent='';
+  const last=qPage>=pageCount()-1;
+  el('qPrevious').textContent=qPage?'上一頁':qMode==='quick'?'回到開始':'回到結果';
+  el('qNext').textContent=!last?'下一頁':qMode==='quick'?'下一步':session.detailPlan().length?'下一步':'看更新後的結果';
+  updateQuestionProgress();
+  show('question','qTitle');
  }
- function choose(value){
-  if(advancing||view!=='question')return;
-  const q=questionList()[qIndex];
-  session.answer(q.id,value);save();
-  el('qAnswers').querySelectorAll('.q-answer').forEach(b=>b.setAttribute('aria-checked',String(Number(b.dataset.value)===value)));
-  advancing=true;
-  setTimeout(()=>{
-   if(qIndex<questionList().length-1){qIndex++;renderQuestion();return;}
-   advancing=false;
-   if(qMode==='quick'){if(session.favouritesNeeded())renderFavourites();else renderSubjects();}
-   else if(session.detailPlan().length){detailPage=0;renderDeepDetails();}
-   else renderResults();
-  },reduceMotion?0:220);
+ function choose(button){
+  const id=button.dataset.question,value=Number(button.dataset.value);
+  session.answer(id,value);save();
+  const cardEl=button.closest('.q-card');
+  cardEl.classList.add('is-answered');
+  cardEl.querySelectorAll('.q-answer').forEach(b=>b.setAttribute('aria-checked',String(b===button)));
+  el('qError').textContent='';
+  updateQuestionProgress();
+  // 手機一次看不到整頁時，自動捲到下一題沒答的題目。
+  const next=[...el('qCards').querySelectorAll('.q-card:not(.is-answered)')][0];
+  const target=next||el('qNext');
+  const rect=target.getBoundingClientRect();
+  if(rect.bottom>innerHeight||rect.top<0)target.scrollIntoView({block:'center',behavior:reduceMotion?'auto':'smooth'});
  }
+ function nextQuestionPage(){
+  const missing=[...el('qCards').querySelectorAll('.q-card:not(.is-answered)')];
+  if(missing.length){el('qError').textContent=`這一頁還有 ${missing.length} 題沒選。`;missing[0].scrollIntoView({block:'center',behavior:reduceMotion?'auto':'smooth'});return;}
+  if(qPage<pageCount()-1){qPage++;renderQuestion();return;}
+  if(qMode==='quick'){if(session.favouritesNeeded())renderFavourites();else renderSubjects();}
+  else if(session.detailPlan().length){detailPage=0;renderDeepDetails();}
+  else renderResults();
+ }
+ const pageCountFor=mode=>mode==='quick'?Math.ceil(data.quickSet.length/PAGE_SIZE):1;
+ const firstUnansweredPage=()=>{const a=session.snapshot().answers,i=questionList().findIndex(q=>a[q.id]===undefined);return Math.floor(Math.max(0,i)/pageSize());};
 
  // ── 最想知道 ──
  function renderFavourites(){
@@ -232,18 +253,15 @@
  }
 
  // ── 事件 ──
- el('start').addEventListener('click',()=>{qMode='quick';qIndex=0;renderQuestion();});
+ el('start').addEventListener('click',()=>{qMode='quick';qPage=0;renderQuestion();});
  el('resume').addEventListener('click',resumeView);
  document.querySelectorAll('[data-restart]').forEach(b=>b.addEventListener('click',()=>restart(b)));
  document.querySelectorAll('[data-about]').forEach(b=>b.addEventListener('click',()=>el('aboutDialog').showModal()));
  el('toIntro').addEventListener('click',renderIntro);
 
- el('qAnswers').addEventListener('click',e=>{const b=e.target.closest('[data-value]');if(b)choose(Number(b.dataset.value));});
- el('qPrevious').addEventListener('click',()=>{if(advancing)return;if(qIndex){qIndex--;renderQuestion();}else if(qMode==='quick')renderIntro();else renderResults();});
- document.addEventListener('keydown',e=>{
-  if(view!=='question'||e.repeat||e.altKey||e.ctrlKey||e.metaKey||document.querySelector('dialog[open]')||e.target.closest('input,textarea,select'))return;
-  const i=['1','2','3'].indexOf(e.key);if(i>=0){e.preventDefault();choose(data.interestOptions[i].value);}
- });
+ el('qCards').addEventListener('click',e=>{const b=e.target.closest('[data-question]');if(b)choose(b);});
+ el('qNext').addEventListener('click',nextQuestionPage);
+ el('qPrevious').addEventListener('click',()=>{if(qPage){qPage--;renderQuestion();}else if(qMode==='quick')renderIntro();else renderResults();});
 
  el('favouriteCards').addEventListener('change',e=>{
   const box=e.target.closest('input[data-favourite]');if(!box)return;
@@ -255,7 +273,7 @@
   box.closest('.pick-card').classList.toggle('is-picked',box.checked);
   updateFavouriteCount();save();
  });
- el('favouritesPrevious').addEventListener('click',()=>{qMode='quick';qIndex=data.quickSet.length-1;renderQuestion();});
+ el('favouritesPrevious').addEventListener('click',()=>{qMode='quick';qPage=pageCountFor('quick')-1;renderQuestion();});
  el('favouritesNext').addEventListener('click',()=>{
   const picked=session.snapshot().favourites.length;
   if(picked!==3){el('favouritesError').textContent=`還要再挑 ${3-picked} 題。`;return;}
@@ -267,14 +285,14 @@
   session.setSubject(input.dataset.subject,Number(input.value));
   el('subjectsError').textContent='';updateSubjectCount();save();
  });
- el('subjectsPrevious').addEventListener('click',()=>{if(session.favouritesNeeded())renderFavourites();else{qMode='quick';qIndex=data.quickSet.length-1;renderQuestion();}});
+ el('subjectsPrevious').addEventListener('click',()=>{if(session.favouritesNeeded())renderFavourites();else{qMode='quick';qPage=pageCountFor('quick')-1;renderQuestion();}});
  el('subjectsNext').addEventListener('click',()=>{
   const v=session.snapshot().subjects,missing=data.subjects.filter(s=>s.required&&v[s.id]===undefined).map(s=>s.label);
   if(missing.length){el('subjectsError').textContent=`還沒選：${missing.join('、')}。`;return;}
   renderResults();
  });
 
- el('startDeep').addEventListener('click',()=>{session.startDeep();save();detailPage=0;if(session.deepQuestions().length){qMode='deep';qIndex=0;renderQuestion();}else renderDeepDetails();});
+ el('startDeep').addEventListener('click',()=>{session.startDeep();save();detailPage=0;if(session.deepQuestions().length){qMode='deep';qPage=0;renderQuestion();}else renderDeepDetails();});
  el('goalRows').addEventListener('change',e=>{
   const input=e.target.closest('input[data-goal]');if(!input)return;
   session.goal(input.dataset.goal,Number(input.value));
@@ -282,7 +300,7 @@
   el('deepDetailsCount').textContent=`${row.goals.filter(g=>goals[g.id]!==undefined).length} / ${row.goals.length} 項`;
   el('deepDetailsError').textContent='';save();
  });
- el('deepDetailsPrevious').addEventListener('click',()=>{if(detailPage){detailPage--;renderDeepDetails();}else if(session.deepQuestions().length){qMode='deep';qIndex=session.deepQuestions().length-1;renderQuestion();}else renderResults();});
+ el('deepDetailsPrevious').addEventListener('click',()=>{if(detailPage){detailPage--;renderDeepDetails();}else if(session.deepQuestions().length){qMode='deep';qPage=0;renderQuestion();}else renderResults();});
  el('deepDetailsNext').addEventListener('click',()=>{
   const row=session.detailPlan()[detailPage],goals=session.snapshot().deep.goals,missing=row.goals.filter(g=>goals[g.id]===undefined).length;
   if(missing){el('deepDetailsError').textContent=`還有 ${missing} 項沒選。`;return;}
@@ -298,7 +316,7 @@
  });
  el('resultCards').addEventListener('click',e=>{const b=e.target.closest('[data-evidence]');if(b)evidence(b.dataset.evidence);});
  el('copyLink').addEventListener('click',copyLink);
- el('editCuriosity').addEventListener('click',()=>{qMode='quick';qIndex=0;renderQuestion();});
+ el('editCuriosity').addEventListener('click',()=>{qMode='quick';qPage=0;renderQuestion();});
  el('editSubjects').addEventListener('click',renderSubjects);
  el('startOwn').addEventListener('click',()=>{shared=null;session=engine.createSession();restore();tab=null;history.replaceState(null,'',location.pathname);renderIntro();});
  document.querySelectorAll('dialog').forEach(d=>d.addEventListener('click',e=>{if(e.target!==d)return;const r=d.getBoundingClientRect();if(e.clientX<r.left||e.clientX>r.right||e.clientY<r.top||e.clientY>r.bottom)d.close();}));

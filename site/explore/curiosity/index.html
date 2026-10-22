@@ -18,7 +18,7 @@
    <p class="eyebrow">學群探索</p>
    <h1 id="introTitle" tabindex="-1">從好奇心開始，<br>找到想認識的學群</h1>
    <p class="lead">回答 18 個生活中的問題，再評估各科表現，看看哪些學群值得先認識。</p>
-   <ul class="intro-meta" aria-label="測驗資訊"><li>18 題</li><li>3 個步驟</li><li>約 5 分鐘</li></ul>
+   <ul class="intro-meta" aria-label="測驗資訊"><li>18 題・3 頁</li><li>3 個步驟</li><li>約 5 分鐘</li></ul>
    <button class="primary start-button" id="start" type="button">開始探索</button>
   </div>
   <div id="introResume" hidden>
@@ -38,12 +38,17 @@
   <div class="quiz-progress" aria-hidden="true"><span id="quizProgress"></span></div>
  </div>
 
- <section id="question" class="view question-view" hidden aria-labelledby="qText">
-  <p class="q-number" id="qNumber"></p>
-  <h1 id="qText" class="q-text" tabindex="-1"></h1>
-  <p class="q-prompt">你想知道這個問題的答案嗎？</p>
-  <div class="q-answers" id="qAnswers" role="radiogroup" aria-labelledby="qText"></div>
-  <div class="q-nav"><button class="text-button" id="qPrevious" type="button">← 上一題</button><span class="key-hint">也可以按鍵盤 1、2、3 作答</span></div>
+ <section id="question" class="view question-view" hidden aria-labelledby="qTitle">
+  <div class="view-head">
+   <h1 id="qTitle" tabindex="-1">你想知道這些問題的答案嗎？</h1>
+   <p class="hint" id="qHint">每題選一個，憑直覺就好，沒有對錯。</p>
+  </div>
+  <div id="qCards" class="q-grid"></div>
+  <p class="error" id="qError" role="alert"></p>
+  <div class="view-actions">
+   <button class="secondary" id="qPrevious" type="button">回到開始</button>
+   <button class="primary" id="qNext" type="button">下一頁</button>
+  </div>
  </section>
 
  <section id="favourites" class="view" hidden aria-labelledby="favouritesTitle">
