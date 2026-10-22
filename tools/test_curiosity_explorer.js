@@ -1,49 +1,117 @@
 'use strict';
+// 學群探索單一路線：題組、作答限制、計分、深入確認、存檔與結果連結。
 const assert=require('node:assert/strict');
 const engine=require('../prototypes/interest-explorer/curiosity/engine');
 const data=require('../prototypes/interest-explorer/curiosity/data');
-const rng=()=>{let n=39;return()=>((n=(n*1664525+1013904223)>>>0)/4294967296);};
-function screen(s){for(let b=0;b<s.batches().length;b++){const ids=s.batches()[b].map(q=>q.id);assert.throws(()=>s.screen(b,[ids[0]]));s.screen(b,ids.slice(0,2));}s.finalize(s.pickBatches().flatMap(b=>b.slice(0,3).map(q=>q.id)));}
-function overview(s){for(const x of data.subjects.filter(x=>x.required))s.profile(x.id,3);s.finishProfiles();}
-function details(s){s.prepareDetails();const rows=s.detailPlan();assert.ok(rows.length>=3&&rows.length<=4);for(const row of rows){assert.equal(row.goals.length,3);assert.equal(new Set(row.goals.map(g=>g.id)).size,3);row.goals.forEach(g=>{assert.ok(g.references.every(k=>data.curriculum[k]));s.goal(g.id,3);});}}
-assert.equal(data.subjects.filter(s=>s.required).length,10);
-for(const mode of ['interest','ability'])for(const depth of ['quick','deep']){
- const s=engine.createSession({random:rng()});s.start(mode,depth);
- if(mode==='ability'){assert.throws(()=>s.prepareAbility());overview(s);s.prepareAbility();assert.equal(s.questions().length,depth==='quick'?10:15);assert.equal(s.snapshot().sampling.strength,depth==='quick'?6:9);s.questions().forEach((q,i)=>s.answer(i,3));}
- else{assert.equal(s.questions().length,depth==='quick'?18:36);assert.equal(new Set(s.questions().map(q=>q.id)).size,s.questions().length);screen(s);if(depth==='quick')overview(s);}
- if(depth==='deep')details(s);
- const report=s.report();assert.equal(report.mode,mode);assert.equal(report.depth,depth);assert.ok(report.groups.every(g=>['priority','develop','potential','interest','other'].includes(g.type)));assert.ok(!report.groups.some(g=>g.type==='pending'));
- assert.equal(report.profiles.art,null);assert.ok(report.groups.every(g=>(g.basis==='details')===(depth==='deep')));
- const clone=s.snapshot();clone.profiles.math=0;assert.equal(s.snapshot().profiles.math,mode==='interest'&&depth==='deep'?null:3);
+const item=id=>data.items.find(q=>q.id===id);
+const required=data.subjects.filter(s=>s.required);
+
+// 固定題組：18 題、每個學群 1 題，全班一致。
+assert.equal(data.quickSet.length,18);
+assert.equal(new Set(data.quickSet.map(id=>item(id).group)).size,18);
+assert.deepEqual(engine.createSession().questions().map(q=>q.id),engine.createSession().questions().map(q=>q.id));
+
+function student({likes={},subjects={},favourite=[]}={}){
+ const s=engine.createSession();
+ s.questions().forEach(q=>s.answer(q.id,likes[q.group]??1));
+ if(s.favouritesNeeded())s.setFavourites(favourite.length?favourite:s.wanted().slice(0,3));
+ required.forEach(x=>s.setSubject(x.id,subjects[x.id]??2));
+ Object.entries(subjects).filter(([id])=>!required.some(x=>x.id===id)).forEach(([id,v])=>s.setSubject(id,v));
+ return s;
 }
-const up=engine.createSession({random:rng()});up.start('interest','quick');screen(up);overview(up);const before=up.questions().map(q=>q.id),saved=up.snapshot().screens;up.upgrade();assert.equal(up.questions().length,36);assert.deepEqual(up.questions().slice(0,18).map(q=>q.id),before);assert.deepEqual(up.snapshot().screens,saved);assert.equal(up.interestComplete(),false);assert.equal(up.snapshot().profiles.math,3);
-const au=engine.createSession({random:rng()});au.start('ability','quick');overview(au);au.prepareAbility();au.questions().forEach((q,i)=>au.answer(i,2));const aq=au.questions().map(q=>q.id);au.upgrade();assert.deepEqual(au.questions().slice(0,10).map(q=>q.id),aq);assert.equal(au.questions().length,15);assert.equal(au.interestComplete(),false);
-assert.equal(engine.weighted({math:3,computing:null},{math:3,computing:3}).score,3);
-assert.equal(engine.weighted({math:3,computing:0},{math:3,computing:3}).score,1.5);
-assert.equal(engine.classify({interest:2.5,score:3,coverage:1}),'priority');
-assert.equal(engine.classify({interest:2.5,score:0.5,coverage:1}),'interest');
-assert.equal(engine.classify({interest:1,score:3,coverage:1}),'potential');
-assert.equal(engine.classify({interest:2.5,score:2,coverage:1}),'develop');
-assert.equal(engine.classify({interest:null,score:3,coverage:1}),'other');
-assert.equal(engine.classify({interest:3,score:4,coverage:0.2}),'other');
-assert.ok(Object.values(data.weights).every(w=>Object.values(w).every(v=>[1,2,3].includes(v))));
-assert.equal(data.weights.I.music,3);assert.equal(data.weights.H.art,3);
-assert.notDeepEqual(data.detailGoals('math','A').map(g=>g.id),data.detailGoals('math','Q').map(g=>g.id));
-console.log('Four routes: screening constraints, 18/36 and 10/15 counts, optional profiles, detail-only scores, weighting, upgrades and no pending classifications passed.');
-// Preserve a real art/music strength even when the interest ratings are flat.
-const arts=engine.createSession({random:rng()});arts.start('ability','deep');
-data.subjects.filter(s=>s.required).forEach(s=>arts.profile(s.id,0));arts.profile('art',4);arts.profile('music',4);arts.finishProfiles();arts.prepareAbility();arts.questions().forEach((q,i)=>arts.answer(i,0));arts.prepareDetails();assert.ok(arts.detailPlan().some(p=>p.subject==='art'));assert.ok(arts.detailPlan().some(p=>p.subject==='music'));
-// An unassessed optional field must not be treated as an art strength through Chinese alone.
-const sparse=engine.createSession({random:rng()});sparse.start('ability','quick');data.subjects.filter(s=>s.required).forEach(s=>sparse.profile(s.id,s.id==='chinese'?4:0));sparse.finishProfiles();sparse.prepareAbility();assert.ok(sparse.questions().slice(0,6).every(q=>!['H','I'].includes(q.group)));
-const early=engine.createSession({random:rng()});early.start('ability','quick');early.profile('math',3);assert.doesNotThrow(()=>early.upgrade());assert.equal(early.snapshot().depth,'deep');assert.equal(early.snapshot().profiles.math,3);assert.equal(early.profileComplete(),false);
-const seeded=n=>()=>((n=(n*1664525+1013904223)>>>0)/4294967296);
-const missingContext=engine.createSession({random:seeded(2)});missingContext.start('ability','deep');const marks={chinese:0,english:3,math:2,history:4,geography:2,civics:1,physics:3,chemistry:4,biology:2,earth:0,computing:3,technology:2,art:3,music:4,sport:4};Object.entries(marks).forEach(([id,v])=>missingContext.profile(id,v));missingContext.finishProfiles();missingContext.prepareAbility();missingContext.questions().forEach((q,i)=>missingContext.answer(i,2));assert.doesNotThrow(()=>missingContext.prepareDetails());assert.ok(missingContext.detailPlan().every(p=>data.groups.some(g=>g.id===p.context)));
-// Exercise diverse optional/missing/zero profiles and contextual plans across deterministic banks.
-for(let seed=1;seed<=16;seed++)for(const mode of ['interest','ability'])for(const depth of ['quick','deep']){
- const r=seeded(seed),s=engine.createSession({random:r});s.start(mode,depth);
- if(mode==='ability'||depth==='quick'){for(const x of data.subjects){if(x.required||r()>.5)s.profile(x.id,Math.floor(r()*5));}s.finishProfiles();}
- if(mode==='ability'){s.prepareAbility();s.questions().forEach((q,i)=>s.answer(i,Math.floor(r()*4)));}else screen(s);
- if(depth==='deep'){s.prepareDetails();s.detailPlan().forEach(row=>row.goals.forEach(g=>s.goal(g.id,Math.floor(r()*5))));}
- assert.doesNotThrow(()=>s.report());
+const typeOf=(report,id)=>report.groups.find(g=>g.id===id).type;
+
+// 作答限制
+{
+ const s=engine.createSession();
+ assert.throws(()=>s.answer('A1',3));assert.throws(()=>s.answer('A5',2),/找不到/);
+ s.answer('A1',2);assert.equal(s.interestComplete(),false);assert.throws(()=>s.report());
+ s.questions().forEach(q=>s.answer(q.id,2));
+ assert.equal(s.favouritesNeeded(),true);assert.equal(s.favouritesComplete(),false);
+ assert.throws(()=>s.setFavourites(s.wanted().slice(0,4)));
+ assert.throws(()=>s.setFavourites(['A5']));
+ s.setFavourites(s.wanted().slice(0,2));assert.equal(s.favouritesComplete(),false,'2 題還不夠');
+ s.setFavourites(s.wanted().slice(0,3));assert.equal(s.favouritesComplete(),true);
+ s.answer(s.wanted()[0],1);assert.equal(s.snapshot().favourites.length,2,'改成「還好」的題目會從最想知道移除');
+ assert.throws(()=>s.setSubject('math',4));assert.throws(()=>s.setSubject('math',null));
+ assert.doesNotThrow(()=>s.setSubject('art',null));
 }
-console.log('64 deterministic mixed-profile sessions, early upgrades, sparse optional strengths and missing-context regression checks passed.');
+// 想知道不超過 3 題時，不需要第 2 步。
+{
+ const s=engine.createSession();s.questions().forEach((q,i)=>s.answer(q.id,i<2?2:0));
+ assert.equal(s.favouritesNeeded(),false);assert.equal(s.favouritesComplete(),true);assert.equal(s.effectiveFavourites().length,2);
+}
+
+// 原本的問題 1：一科「普通」就從有基礎掉到要補強。
+{
+ const s=student({likes:{A:2,B:2},subjects:{chinese:2,english:3,math:3,physics:3,computing:3,technology:3},favourite:['A1','B2']});
+ const r=s.report();
+ assert.equal(typeOf(r,'A'),'priority','資訊：數學、資訊、英文都是強項，國文普通，仍是優先探索');
+ assert.equal(typeOf(r,'B'),'priority');
+}
+// 原本的問題 3：深入確認不會把最感興趣的學群歸到「其他」。
+for(const likes of [{A:2},{I:2},{O:2},{D:2},{R:2}]){
+ const s=student({likes,subjects:{computing:3,art:3,music:2,sport:3}});
+ const target=Object.keys(likes)[0],before=typeOf(s.report(),target);
+ assert.notEqual(before,'other',`${target} 快速版`);
+ s.startDeep();
+ assert.ok(s.snapshot().deep.focus.includes(target),'前幾個方向一定在深入確認範圍內');
+ s.deepQuestions().forEach(q=>s.answer(q.id,q.group===target?2:1));
+ s.detailPlan().forEach(row=>row.goals.forEach(g=>s.goal(g.id,2)));
+ assert.equal(s.deepComplete(),true);
+ assert.notEqual(typeOf(s.report(),target),'other',`${target} 深入確認後仍不是其他學群`);
+}
+// 還沒修過不算低分；相關科目大多沒修過時不判斷基礎，有興趣就列為興趣延伸。
+{
+ const s=student({likes:{C:2},subjects:{physics:'na',chemistry:'na',math:2}});
+ const c=s.report().groups.find(g=>g.id==='C');
+ assert.equal(c.type,'interest');assert.ok(c.notTaken.includes('物理'));
+ assert.equal(engine.weighted({math:3,physics:null},{math:3,physics:3}).score,3);
+}
+// 跟自己比：全部普通時不會出現「強」；全部比較吃力的學生，自己的平均就是普通水準。
+assert.equal(engine.level({score:2,coverage:1},2),'middle');
+assert.equal(engine.level({score:2.4,coverage:1},2),'strong');
+assert.equal(engine.level({score:1,coverage:1},1),'middle');
+assert.equal(engine.level({score:1.2,coverage:1},2),'weak');
+assert.equal(engine.level({score:3,coverage:0.3},2),'unknown');
+// 潛力發掘最多 3 個，也不列學生明確說「沒興趣」的方向。
+{
+ const s=student({likes:{A:0,B:0,C:0,D:0,E:0,F:0,G:0,H:0,I:0,J:0,K:0,L:0,M:0,N:0,O:0,P:1,Q:1,R:1},subjects:Object.fromEntries(required.map(x=>[x.id,3]))});
+ const r=s.report(),potential=r.groups.filter(g=>g.type==='potential');
+ assert.ok(potential.length<=3);assert.ok(potential.every(g=>g.primaryAnswer!==0));
+}
+// 都回答「還好、普通」：沒有推薦，深入確認仍能從學科找方向。
+{
+ const s=student();const r=s.report();
+ assert.ok(r.groups.every(g=>g.type==='other'));
+ s.startDeep();assert.equal(s.snapshot().deep.focus.length,4);
+}
+// 深入確認：補問題目來自前幾個方向，檢查科目不含「還沒修過」，改答快速題會取消深入確認。
+{
+ const s=student({likes:{A:2,B:2,C:2},subjects:{physics:'na',math:3,computing:3}});
+ s.startDeep();const deep=s.snapshot().deep;
+ assert.ok(s.deepQuestions().every(q=>deep.focus.includes(q.group)&&!data.quickSet.includes(q.id)));
+ assert.ok(s.detailPlan().length<=4&&s.detailPlan().every(row=>row.subject!=='physics'));
+ s.detailPlan().forEach(row=>assert.equal(row.goals.length,3));
+ s.answer('A1',1);assert.equal(s.snapshot().deep,null);
+}
+// 存檔與結果連結：還原後結果完全相同；壞掉的連結會被拒絕。
+for(let seed=1;seed<=40;seed++){
+ let n=seed;const r=()=>((n=(n*1664525+1013904223)>>>0)/4294967296);
+ const s=engine.createSession();
+ s.questions().forEach(q=>s.answer(q.id,Math.floor(r()*3)));
+ if(s.favouritesNeeded())s.setFavourites(s.wanted().slice(0,3));
+ data.subjects.forEach(x=>{if(x.required||r()>.5)s.setSubject(x.id,data.subjectOptions[Math.floor(r()*4)].value);});
+ if(r()>.5){s.startDeep();s.deepQuestions().forEach(q=>s.answer(q.id,Math.floor(r()*3)));s.detailPlan().forEach(row=>row.goals.forEach(g=>s.goal(g.id,Math.floor(r()*5))));}
+ const report=JSON.stringify(s.report());
+ const restored=engine.createSession();restored.load(JSON.parse(JSON.stringify(s.snapshot())));
+ assert.equal(JSON.stringify(restored.report()),report);
+ const code=engine.encodeShare(s.snapshot(),'15 號 王小明');
+ assert.ok(code.length<400,'結果連結要夠短，方便貼到 LINE');
+ const shared=engine.decodeShare(code);
+ assert.equal(JSON.stringify(shared.session.report()),report);assert.equal(shared.name,'15 號 王小明');
+}
+assert.throws(()=>engine.decodeShare('not-a-code'));
+assert.throws(()=>engine.decodeShare(Buffer.from(JSON.stringify({v:2,a:'2',s:'3'})).toString('base64url')),/不完整/);
+assert.throws(()=>engine.createSession().load({v:1}),/版本/);
+console.log('Curiosity explorer: fixed 18-question set, answer limits, favourites, relative subject levels, potential cap, deep check coverage, save/restore and 40 result-link round trips passed.');

@@ -1,54 +1,195 @@
 <!doctype html>
 <html lang="zh-Hant">
-<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="color-scheme" content="light"><title>學群探索｜祐馨升學網</title><link rel="stylesheet" href="./styles.css?v=screening-20261018"><link rel="stylesheet" href="../info-dialog.css?v=screening-20261018"></head>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="color-scheme" content="light">
+<meta name="description" content="回答生活裡的好奇問題，再想想各科的感覺，找到值得先認識的學群與學類。">
+<title>學群探索｜祐馨升學網</title>
+<link rel="icon" href="../../favicon.ico" sizes="any">
+<link rel="stylesheet" href="./styles.css?v=single-20261022">
+<link rel="stylesheet" href="../info-dialog.css?v=single-20261022">
+</head>
 <body data-view="intro">
 <header class="site-header"><a class="brand" href="../../"><span class="brand-mark">Y</span><span>YUHSIN<small>祐馨升學網</small></span></a><span class="header-label">學群探索</span></header>
 <main>
- <section id="intro" class="intro" aria-labelledby="introTitle">
-  <h1 id="introTitle" tabindex="-1">選一個起點來探索</h1>
-  <div class="entry-grid">
-   <article class="entry-card entry-interest"><span class="entry-symbol" aria-hidden="true">？</span><h2>從興趣出發</h2><p>從好奇心出發，找到最適合的路！</p><div class="entry-actions"><button class="primary" data-mode="interest" data-depth="quick">快速探索</button><button class="secondary" data-mode="interest" data-depth="deep">深入探索</button></div></article>
-   <article class="entry-card entry-ability"><span class="entry-symbol" aria-hidden="true">✦</span><h2>從能力出發</h2><p>從你的擅長優勢，探索更多可能！</p><div class="entry-actions"><button class="primary" data-mode="ability" data-depth="quick">快速探索</button><button class="secondary" data-mode="ability" data-depth="deep">深入探索</button></div></article>
-  </div><button class="text-button resume-button" id="resume" hidden>繼續本次探索 →</button>
+ <section id="intro" class="view intro" aria-labelledby="introTitle">
+  <div id="introFirst">
+   <p class="eyebrow">學群探索</p>
+   <h1 id="introTitle" tabindex="-1">從好奇心開始，找到想認識的學群</h1>
+   <p class="lead">回答一些生活裡的問題，再想想各科的感覺，最後會看到值得先認識的學群和學類。</p>
+   <ol class="intro-steps">
+    <li><span class="step-no" aria-hidden="true">1</span><div><strong>好奇心</strong><span>18 題，每題點一下</span></div><span class="step-time">約 3 分鐘</span></li>
+    <li><span class="step-no" aria-hidden="true">2</span><div><strong>最想知道</strong><span>從想知道的題目裡挑 3 題</span></div><span class="step-time">約 1 分鐘</span></li>
+    <li><span class="step-no" aria-hidden="true">3</span><div><strong>學科感覺</strong><span>各科是強項、普通還是比較吃力</span></div><span class="step-time">約 1 分鐘</span></li>
+   </ol>
+   <button class="primary wide" id="start" type="button">開始探索</button>
+   <p class="note">沒有標準答案。結果是值得認識的方向，不是適合率或錄取預測。不用登入，答案只存在這台電腦的瀏覽器裡。</p>
+  </div>
+  <div id="introResume" hidden>
+   <p class="eyebrow">學群探索</p>
+   <h1 id="resumeTitle" tabindex="-1">歡迎回來</h1>
+   <p class="lead" id="resumeText"></p>
+   <div class="resume-bar" aria-hidden="true"><span id="resumeBar"></span></div>
+   <button class="primary wide" id="resume" type="button">繼續上次的探索</button>
+   <button class="secondary wide" id="restartFromIntro" type="button" data-restart>重新開始</button>
+   <p class="note" id="restartNote">重新開始會清除這台電腦上的作答紀錄。</p>
+  </div>
+  <p class="error" id="introError" role="alert"></p>
+  <button class="text-button about-link" type="button" data-about>這份探索怎麼運作</button>
  </section>
- <section id="screening" class="screening" hidden aria-labelledby="screenTitle">
-  <div class="flow-top"><span id="screenStep"></span><button class="text-button" id="screenHome">返回首頁</button></div>
-  <progress id="screenProgress" aria-label="已完成的情境輪次" value="0" max="3"></progress>
-  <h1 id="screenTitle" tabindex="-1"></h1><p id="screenHint" class="muted"></p>
-  <div id="scenarioChoices" class="scenario-grid"></div>
-  <p id="screenError" class="error" role="alert"></p><div class="screen-bottom"><span id="screenCount" role="status"></span><div class="flow-actions"><button id="screenPrevious" class="secondary">返回</button><button id="screenNext" class="primary">下一步 →</button></div></div>
+
+ <div id="stepper" class="stepper" hidden>
+  <ol class="stepper-steps" aria-label="探索步驟">
+   <li data-step="1">好奇心</li><li data-step="2">最想知道</li><li data-step="3">學科感覺</li><li data-step="4">結果</li>
+  </ol>
+  <button class="text-button" id="toIntro" type="button">回到開始</button>
+ </div>
+
+ <section id="curiosity" class="view" hidden aria-labelledby="curiosityTitle">
+  <div class="view-head">
+   <p class="step-label" id="curiosityStep"></p>
+   <h1 id="curiosityTitle" tabindex="-1">你想知道這些問題的答案嗎？</h1>
+   <p class="hint" id="curiosityHint">憑直覺選就好，沒有對錯，也不用每題都想知道。</p>
+  </div>
+  <div id="curiosityCards" class="question-grid"></div>
+  <p class="error" id="curiosityError" role="alert"></p>
+  <div class="view-actions">
+   <button class="secondary" id="curiosityPrevious" type="button">上一頁</button>
+   <span class="count" id="curiosityCount" role="status"></span>
+   <button class="primary" id="curiosityNext" type="button">下一頁</button>
+  </div>
  </section>
- <section id="flow" class="flow" hidden aria-label="興趣探索作答">
-  <div class="flow-top"><span id="stepLabel"></span><button id="home" class="text-button">返回首頁</button></div><progress id="progress" value="0" max="15" aria-label="已完成的興趣題數"></progress>
-  <form id="flowForm" novalidate><div id="questionBody"></div><p class="error" id="flowError" role="alert"></p><div class="flow-actions"><button id="previous" class="secondary" type="button">返回</button><button id="next" class="primary" type="submit">下一題 →</button></div></form>
+
+ <section id="favourites" class="view" hidden aria-labelledby="favouritesTitle">
+  <div class="view-head">
+   <p class="step-label">第 2 步・最想知道</p>
+   <h1 id="favouritesTitle" tabindex="-1">挑出最想知道答案的 3 題</h1>
+   <p class="hint" id="favouritesHint"></p>
+  </div>
+  <div id="favouriteCards" class="pick-grid"></div>
+  <p class="error" id="favouritesError" role="alert"></p>
+  <div class="view-actions">
+   <button class="secondary" id="favouritesPrevious" type="button">上一步</button>
+   <span class="count" id="favouritesCount" role="status"></span>
+   <button class="primary" id="favouritesNext" type="button">下一步</button>
+  </div>
  </section>
- <section id="assessment" class="assessment" hidden aria-labelledby="assessmentTitle">
-  <div class="flow-top"><span id="assessmentStep"></span><button id="assessmentHome" class="text-button">返回首頁</button></div>
-  <h1 id="assessmentTitle" tabindex="-1"></h1><div class="assessment-meta"><p id="assessmentHint" class="muted"></p><button id="openSubjectInfo" class="text-button" aria-haspopup="dialog" aria-controls="subjectInfoDialog" hidden>課綱與課程依據</button></div>
-  <form id="assessmentForm" novalidate><div id="assessmentRows"></div><p id="assessmentError" class="error" role="alert"></p><div class="flow-actions"><button id="assessmentPrevious" class="secondary" type="button">返回</button><div class="assessment-forward"><button id="skipOptional" class="text-button" type="button" hidden>略過延伸科目</button><button id="assessmentNext" class="primary" type="submit">下一頁 →</button></div></div></form>
+
+ <section id="subjects" class="view" hidden aria-labelledby="subjectsTitle">
+  <div class="view-head">
+   <p class="step-label">第 3 步・學科感覺</p>
+   <h1 id="subjectsTitle" tabindex="-1">這些科目，對你來說是…</h1>
+   <p class="hint">跟你自己的其他科目比較就好。高一還沒分科修過的，選「還沒修過」，不會算成低分。</p>
+  </div>
+  <div id="subjectRows" class="subject-sections"></div>
+  <p class="error" id="subjectsError" role="alert"></p>
+  <div class="view-actions">
+   <button class="secondary" id="subjectsPrevious" type="button">上一步</button>
+   <span class="count" id="subjectsCount" role="status"></span>
+   <button class="primary" id="subjectsNext" type="button">看探索結果</button>
+  </div>
  </section>
- <section id="results" class="results" hidden aria-labelledby="resultsTitle">
-  <div class="results-heading"><h1 id="resultsTitle" tabindex="-1">你的探索方向</h1><span id="resultVersion" class="version-tag"></span></div>
-  <p class="result-intro muted">從這些學群開始，認識下一步。</p>
-  <nav id="resultTabs" class="result-tabs" role="tablist" aria-label="探索方向分類"></nav>
-  <section id="resultPanel" tabindex="0"><h2 id="categoryTitle"></h2><p id="categoryHint" class="muted"></p><div id="resultCards" class="academic-grid"></div></section>
-  <div class="result-links"><button id="otherGroups" class="text-button">看看其他學群 →</button><button id="openShortlist" class="secondary" aria-haspopup="dialog" aria-controls="shortlistDialog" hidden>我的探索清單</button></div>
-  <div id="upgradePanel" class="upgrade-panel" hidden><div><strong>想多了解一點？</strong><p>保留回答，繼續深入探索。</p></div><button id="upgrade" class="secondary">繼續深入探索 →</button></div>
-  <details class="result-tools"><summary>作答紀錄與說明</summary><p>這是探索用自評，不是能力實測或錄取機率。略過的科目不算低分；題目未涵蓋的方向不當作沒興趣。</p><div class="tool-buttons"><button id="editSelf" class="secondary">調整自評</button><button id="editAll" class="secondary">調整興趣回答</button><button id="download" class="secondary">下載探索筆記</button><button id="restart" class="text-button">重新探索</button></div><p id="downloadStatus" class="muted" role="status"></p></details>
+
+ <section id="deepQuestions" class="view" hidden aria-labelledby="deepQuestionsTitle">
+  <div class="view-head">
+   <p class="step-label">深入確認・1 / 2</p>
+   <h1 id="deepQuestionsTitle" tabindex="-1">再看幾題和你的方向有關的問題</h1>
+   <p class="hint" id="deepQuestionsHint"></p>
+  </div>
+  <div id="deepCards" class="question-grid"></div>
+  <p class="error" id="deepQuestionsError" role="alert"></p>
+  <div class="view-actions">
+   <button class="secondary" id="deepQuestionsPrevious" type="button">回到結果</button>
+   <span class="count" id="deepQuestionsCount" role="status"></span>
+   <button class="primary" id="deepQuestionsNext" type="button">下一步</button>
+  </div>
+ </section>
+
+ <section id="deepDetails" class="view" hidden aria-labelledby="deepDetailsTitle">
+  <div class="view-head">
+   <p class="step-label" id="deepDetailsStep"></p>
+   <h1 id="deepDetailsTitle" tabindex="-1"></h1>
+   <div class="hint-row"><p class="hint">想想上課或做作業時的狀況，選最接近的。</p><button class="text-button" id="openSubjectInfo" type="button" aria-haspopup="dialog" aria-controls="subjectInfoDialog">課綱與課程依據</button></div>
+  </div>
+  <div id="goalRows" class="goal-rows"></div>
+  <p class="error" id="deepDetailsError" role="alert"></p>
+  <div class="view-actions">
+   <button class="secondary" id="deepDetailsPrevious" type="button">上一步</button>
+   <span class="count" id="deepDetailsCount" role="status"></span>
+   <button class="primary" id="deepDetailsNext" type="button">下一科</button>
+  </div>
+ </section>
+
+ <section id="results" class="view results" hidden aria-labelledby="resultsTitle">
+  <div id="sharedBanner" class="shared-banner" hidden>
+   <p>這是一份分享的探索結果，只能瀏覽，不會改動你自己的作答。</p>
+   <button class="secondary" id="startOwn" type="button">開始我自己的探索</button>
+  </div>
+  <div class="results-head">
+   <h1 id="resultsTitle" tabindex="-1">你的探索方向</h1>
+   <span class="version-tag" id="resultVersion"></span>
+  </div>
+  <p class="lead">從這些學群開始，認識學類和校系。</p>
+  <section id="favouriteSummary" class="favourite-summary" hidden aria-labelledby="favouriteSummaryTitle">
+   <h2 id="favouriteSummaryTitle">你最想知道的問題</h2>
+   <ul id="favouriteList"></ul>
+  </section>
+  <div id="resultSections"></div>
+  <details id="otherGroups" class="other-groups">
+   <summary id="otherGroupsTitle">其他學群</summary>
+   <p class="hint">這次的回答沒有特別指向這些方向，不代表不適合，有興趣一樣可以點進去看看。</p>
+   <ul id="otherGroupList" class="other-list"></ul>
+  </details>
+  <section id="deepPanel" class="panel deep-panel" hidden aria-labelledby="deepPanelTitle">
+   <div>
+    <h2 id="deepPanelTitle">想更確定？</h2>
+    <p id="deepPanelText"></p>
+   </div>
+   <button class="secondary" id="startDeep" type="button">繼續深入確認</button>
+  </section>
+  <section id="sharePanel" class="panel share-panel" aria-labelledby="sharePanelTitle">
+   <h2 id="sharePanelTitle">把結果帶走</h2>
+   <p>產生一個結果連結，貼給老師或家長，對方打開就能看到同一份結果。連結裡有你的作答，只分享給你想給的人。</p>
+   <div class="share-row">
+    <label class="share-name"><span>名字或座號（選填）</span><input id="shareName" type="text" maxlength="20" autocomplete="off" placeholder="例：15 號 王小明"></label>
+    <button class="primary" id="copyLink" type="button">複製結果連結</button>
+   </div>
+   <input id="shareUrl" class="share-url" type="text" readonly aria-label="結果連結" hidden>
+   <p class="status" id="shareStatus" role="status"></p>
+  </section>
+  <div id="resultTools" class="result-tools">
+   <button class="text-button" id="editCuriosity" type="button">調整好奇心回答</button>
+   <button class="text-button" id="editSubjects" type="button">調整學科感覺</button>
+   <button class="text-button" id="restartFromResults" type="button" data-restart>重新開始</button>
+   <button class="text-button" type="button" data-about>這份探索怎麼運作</button>
+  </div>
  </section>
  <noscript>請啟用 JavaScript 以進行探索。</noscript>
 </main>
+
 <dialog id="evidenceDialog" class="about-dialog" aria-labelledby="evidenceTitle"><div class="about-dialog-head"><h2 id="evidenceTitle">推薦依據</h2><form method="dialog"><button class="about-close" aria-label="關閉推薦依據" autofocus>×</button></form></div><div id="evidenceContent" class="about-dialog-content"></div></dialog>
-<dialog id="shortlistDialog" class="about-dialog" aria-labelledby="shortlistTitle"><div class="about-dialog-head"><h2 id="shortlistTitle">我的探索清單</h2><form method="dialog"><button class="about-close" aria-label="關閉探索清單" autofocus>×</button></form></div><div id="shortlistContent" class="about-dialog-content"></div></dialog>
 <dialog id="subjectInfoDialog" class="about-dialog" aria-labelledby="subjectInfoTitle"><div class="about-dialog-head"><h2 id="subjectInfoTitle">課綱與課程依據</h2><form method="dialog"><button class="about-close" aria-label="關閉課程依據" autofocus>×</button></form></div><div id="subjectInfoContent" class="about-dialog-content"></div></dialog>
-<dialog id="aboutDialog" class="about-dialog" aria-labelledby="aboutTitle"><div class="about-dialog-head"><h2 id="aboutTitle">測驗說明與來源</h2><form method="dialog"><button class="about-close" aria-label="關閉測驗說明" autofocus>×</button></form></div><div class="about-dialog-content">
- <p>興趣快速版篩選3輪、18個情境，再填學科概覽；興趣深入版篩選6輪、36個情境，再評估3至4科的具體內容。每輪打叉2至3題，完成全部排除輪次後，將所有保留問題重新洗牌，快速版再分2輪、每輪勾選2至3題，共4至6題；深入版分4輪，共8至12題。手機分頁不增加輪次。這是相對偏好，不代表被略過的方向完全沒興趣。</p>
- <p>能力版先填概覽，再答快速10題或深入15題興趣題；配題保留四成跨領域題。深入版最後評估相關內容，概覽只用來配題，不重複計分。概覽十科必填、五科選填，略過不算零分。兩種自評都使用「非常糟、不好、普通、好、非常強」。</p>
- <p>興趣依每個學群實際出現的題目取平均。篩選版打叉0、保留1、最終勾選3；平均達1.5為較明確的相對興趣。能力版四點回答0至3，平均達2為興趣較明確。兩種方式與兩種深度不可視為等值測量。</p>
- <p>學習基礎依各學群相關科目的本站權重3、2、1取加權平均。快速版只使用概覽；深入版先平均每科三項掌握，再按科目權重計算。平均達3為較穩，1以下先從興趣延伸，其餘有興趣的方向列能力培養。只在至少涵蓋一半參考權重、且有興趣題時進行分類；其餘放在其他學群。不進行概覽與細項矛盾檢查。</p>
- <p>題目、配對、權重及門檻由本站編輯，尚未經測量驗證，不是考招採計權重、科系適合率或放棄建議。ColleGo! 提供重要學科與加深加廣參考，具體掌握題附課綱依據。陌生或尚未接觸內容不代表沒有學習能力。</p>
- <p>答案只留在本次頁面，重新整理會清除；可下載探索筆記。學群介紹以新分頁開啟，保留本次回答。</p><ul id="sources"></ul>
+<dialog id="aboutDialog" class="about-dialog" aria-labelledby="aboutTitle"><div class="about-dialog-head"><h2 id="aboutTitle">這份探索怎麼運作</h2><form method="dialog"><button class="about-close" aria-label="關閉說明" autofocus>×</button></form></div><div class="about-dialog-content">
+ <p>第 1 步有 18 個生活問題，每個學群 1 題，全班看到的題目和順序都一樣。每題選「想知道、還好、沒興趣」，不限數量。第 2 步只在「想知道」超過 3 題時出現，從中挑出最想知道的 3 題，用來分出先後。</p>
+ <p>每個學群的興趣，是相關題目的加權平均：最想知道 3、想知道 2、還好 1、沒興趣 0；題目所屬的學群算 2 倍，連到其他學群的算 1 倍。平均達 1.5 視為「有興趣」。</p>
+ <p>第 3 步的學科感覺：我的強項 3、普通 2、比較吃力 1；「還沒修過」和未填的科目不放進計算，也不算低分。每個學群依相關科目的本站權重（核心 3、支持 2、相關 1）取加權平均。平均達 2.5，或高於你自己各科的平均且至少「普通」，視為有基礎；低於 1.75 且低於自己的平均，視為比較吃力。相關科目大多還沒修過時，不判斷基礎。</p>
+ <p>有興趣也有基礎是「優先探索」；有興趣、基礎普通是「能力培養」；有興趣但比較吃力或還沒修過是「興趣延伸」；興趣不明顯但有基礎是「潛力發掘」，最多列 3 個，你選「沒興趣」的方向不會列入。</p>
+ <p>「深入確認」會針對前幾個方向，補問這些學群的其他問題，並用課綱內容檢查最相關的幾科。完成後，檢查過的科目改用具體內容的結果計算。</p>
+ <p>題目、配對、權重及門檻由本站編輯，尚未經測量驗證，不是考招採計權重、科系適合率或放棄建議。陌生或尚未接觸的內容，不代表沒有學習能力。</p>
+ <p>答案只存在這台電腦的瀏覽器裡，不會上傳。只有你按下「複製結果連結」並分享出去，別人才看得到。</p>
+ <ul id="sources"></ul>
 </div></dialog>
-<footer class="site-footer" id="aboutFooter"><button class="about-trigger" id="aboutButton" aria-haspopup="dialog" aria-controls="aboutDialog" aria-label="YUHSIN · 學群探索：測驗說明與來源">YUHSIN · 學群探索</button><span>自評探索版</span></footer>
-<script src="./group-introductions.js?v=screening-20261018"></script><script src="./bank.js?v=screening-20261018"></script><script src="./collego-reference.js?v=screening-20261018"></script><script src="./curriculum.js?v=screening-20261018"></script><script src="./units.js?v=screening-20261018"></script><script src="./subjects.js?v=screening-20261018"></script><script src="./exploration-model.js?v=screening-20261018"></script><script src="./data.js?v=screening-20261018"></script><script src="./engine.js?v=screening-20261018"></script><script src="./app.js?v=screening-20261018"></script><script src="../info-dialog.js?v=screening-20261018"></script>
-</body></html>
+<footer class="site-footer"><span>YUHSIN · 學群探索</span><span>自評探索版</span></footer>
+<script src="./group-introductions.js?v=single-20261022"></script>
+<script src="./bank.js?v=single-20261022"></script>
+<script src="./collego-reference.js?v=single-20261022"></script>
+<script src="./curriculum.js?v=single-20261022"></script>
+<script src="./units.js?v=single-20261022"></script>
+<script src="./subjects.js?v=single-20261022"></script>
+<script src="./exploration-model.js?v=single-20261022"></script>
+<script src="./data.js?v=single-20261022"></script>
+<script src="./engine.js?v=single-20261022"></script>
+<script src="./app.js?v=single-20261022"></script>
+</body>
+</html>

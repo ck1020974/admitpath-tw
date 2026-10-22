@@ -12,8 +12,13 @@
   }
   function build(rows){
     const groups=new Map();
-    rows.forEach(row=>{if(!groups.has(row.groupName))groups.set(row.groupName,new Set());groups.get(row.groupName).add(row.categoryName);});
-    return Object.fromEntries([...groups].map(([name,set])=>{const categories=[...set].sort((a,b)=>a.localeCompare(b,'zh-Hant'));return [name,{name,categories:categories.map(display),description:describe(name,categories)}];}));
+    rows.forEach(row=>{if(!groups.has(row.groupName))groups.set(row.groupName,new Map());const counts=groups.get(row.groupName);counts.set(row.categoryName,(counts.get(row.categoryName)||0)+1);});
+    return Object.fromEntries([...groups].map(([name,counts])=>{
+      const categories=[...counts.keys()].sort((a,b)=>a.localeCompare(b,'zh-Hant'));
+      // 學群探索結果頁列出校系數較多的學類，name 是主站使用的原始學類名稱。
+      const topCategories=[...counts].sort((a,b)=>b[1]-a[1]||a[0].localeCompare(b[0],'zh-Hant')).slice(0,4).map(([category,count])=>({name:category,label:display(category),count}));
+      return [name,{name,categories:categories.map(display),description:describe(name,categories),topCategories}];
+    }));
   }
   const api={aliases,describe,build};
   if(typeof module!=='undefined'&&module.exports)module.exports=api;else root.GroupIntroductions=api;

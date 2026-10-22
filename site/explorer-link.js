@@ -6,7 +6,9 @@
   if(params.getAll('view').length!==1||params.get('view')!=='explorer'||params.getAll('group').length!==1)return null;
   const group=params.get('group');
   if(!names.includes(group)||!available.includes(group))return null;
-  return {group,fromCuriosity:params.get('from')==='curiosity'};
+  // category 是主站的原始學類名稱；是否屬於這個學群由主站自己確認。
+  const category=params.getAll('category').length===1?params.get('category'):'';
+  return {group,category,fromCuriosity:params.get('from')==='curiosity'};
  }
  const api={names,parse};
  if(typeof module!=='undefined'&&module.exports)module.exports=api;else root.ExplorerLink=api;

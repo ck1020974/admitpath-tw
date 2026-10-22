@@ -4362,3 +4362,12 @@ tr:hover td {
 }
 .load-error p { margin: 0; }
 .detail-loading { margin-top: 8px; }
+
+/* 從學群探索結果點進來時，顯示返回連結 */
+.explorer-head-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: flex-start;
+  justify-content: flex-end;
+}
