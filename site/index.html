@@ -3,8 +3,25 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>YUHSIN</title>
-  <link rel="stylesheet" href="./styles.css?v=20261018-group-navigation">
+  <title>YUHSIN 祐馨升學網｜校系查詢・落點分析・十八學群</title>
+  <meta name="description" content="整合個人申請、繁星推薦、分發入學與特殊選才的大學校系查詢，依學測成績做落點分析，並從十八學群認識科系方向。由中學公民科教師整理，資料以官方公告為準。">
+  <meta name="theme-color" content="#102033">
+  <link rel="canonical" href="https://ck1020974.github.io/admitpath-tw/">
+  <link rel="icon" href="./favicon.ico" sizes="any">
+  <link rel="icon" type="image/png" sizes="32x32" href="./favicon-32.png">
+  <link rel="apple-touch-icon" href="./apple-touch-icon.png">
+  <meta property="og:type" content="website">
+  <meta property="og:locale" content="zh_TW">
+  <meta property="og:site_name" content="YUHSIN 祐馨升學網">
+  <meta property="og:title" content="YUHSIN 祐馨升學網｜把下一步，查清楚。">
+  <meta property="og:description" content="大學校系查詢、落點分析、十八學群探索與比較清單，一次整理四種入學管道。">
+  <meta property="og:url" content="https://ck1020974.github.io/admitpath-tw/">
+  <meta property="og:image" content="https://ck1020974.github.io/admitpath-tw/media/og-image.jpg">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="YUHSIN 祐馨升學網：校系查詢、落點分析、十八學群、比較清單">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="stylesheet" href="./styles.css?v=20261021-load-share">
   <link rel="stylesheet" href="./special.css?v=20260918-layout-fix">
   <link rel="stylesheet" href="./support.css?v=20261016-mobile-header">
 </head>
@@ -29,7 +46,7 @@
         </div>
         <div class="nav-channels" id="navChannels" role="group" aria-label="入學管道" hidden>
           <button class="nav-item" data-home-entry="special-entry">特殊選才</button>
-          <button class="nav-item" data-home-entry="star-entry">繁星入學</button>
+          <button class="nav-item" data-home-entry="star-entry">繁星推薦</button>
           <button class="nav-item" data-home-entry="personal-apply">個人申請</button>
           <button class="nav-item" data-home-entry="distribution-entry">分發入學</button>
         </div>
@@ -59,6 +76,10 @@
     </aside>
 
     <main class="main">
+      <div class="load-banner" id="loadBanner" role="alert" hidden>
+        <p>招生資料載入失敗，可能是網路不穩。請稍後再試。</p>
+        <button class="solid-button" type="button" data-reload-page>重新載入</button>
+      </div>
       <section class="view-panel active" id="overviewView">
         <div class="overview-grid home-overview">
           <section class="home-intro" aria-label="升學探索入口">
@@ -129,7 +150,7 @@
               <p>依年度、管道與條件，找出適合的校系。</p>
             </div>
             <div class="workbench-actions">
-              <div class="result-meta"><strong id="resultCount">0</strong><span>筆符合</span></div>
+              <div class="result-meta"><strong id="resultCount">—</strong><span>筆符合</span></div>
               <div class="action-group">
                 <button class="ghost-button precision-button" id="openAdvancedFiltersButton">精準篩選</button>
                 <button class="ghost-button" data-view-jump="compare">比較清單</button>
@@ -187,7 +208,7 @@
                 <th></th>
               </tr>
             </thead>
-            <tbody id="recordTableBody"></tbody>
+            <tbody id="recordTableBody"><tr><td colspan="4"><div class="empty-state data-loading" role="status"><span class="loading-dot" aria-hidden="true"></span>招生資料載入中，第一次開啟約需數秒…</div></td></tr></tbody>
           </table>
         </div>
       </section>
@@ -220,22 +241,22 @@
                   </div>
                 </div>
                 <div class="placement-score-grid">
-                  <label><span>國文</span><input data-placement-score="國文" type="number" min="0" max="15" placeholder="級分"></label>
-                  <label><span>英文</span><input data-placement-score="英文" type="number" min="0" max="15" placeholder="級分"></label>
-                  <label><span>數A</span><input data-placement-score="數A" type="number" min="0" max="15" placeholder="級分"></label>
-                  <label><span>數B</span><input data-placement-score="數B" type="number" min="0" max="15" placeholder="級分"></label>
-                  <label><span>社會</span><input data-placement-score="社會" type="number" min="0" max="15" placeholder="級分"></label>
-                  <label><span>自然</span><input data-placement-score="自然" type="number" min="0" max="15" placeholder="級分"></label>
-                  <label><span>英聽</span><input data-placement-score="英聽" type="text" placeholder="A/B/C"></label>
-                  <label><span>在校%</span><input data-placement-score="在校" type="number" min="0" max="100" placeholder="百分比"></label>
-                  <label><span>數甲</span><input data-placement-score="數甲" type="number" min="0" max="60" placeholder="分科"></label>
-                  <label><span>數乙</span><input data-placement-score="數乙" type="number" min="0" max="60" placeholder="分科"></label>
-                  <label><span>歷史</span><input data-placement-score="歷史" type="number" min="0" max="60" placeholder="分科"></label>
-                  <label><span>地理</span><input data-placement-score="地理" type="number" min="0" max="60" placeholder="分科"></label>
-                  <label><span>公民</span><input data-placement-score="公民" type="number" min="0" max="60" placeholder="分科"></label>
-                  <label><span>物理</span><input data-placement-score="物理" type="number" min="0" max="60" placeholder="分科"></label>
-                  <label><span>化學</span><input data-placement-score="化學" type="number" min="0" max="60" placeholder="分科"></label>
-                  <label><span>生物</span><input data-placement-score="生物" type="number" min="0" max="60" placeholder="分科"></label>
+                  <label><span>國文</span><input data-placement-score="國文" type="number" inputmode="numeric" min="0" max="15" placeholder="級分"></label>
+                  <label><span>英文</span><input data-placement-score="英文" type="number" inputmode="numeric" min="0" max="15" placeholder="級分"></label>
+                  <label><span>數A</span><input data-placement-score="數A" type="number" inputmode="numeric" min="0" max="15" placeholder="級分"></label>
+                  <label><span>數B</span><input data-placement-score="數B" type="number" inputmode="numeric" min="0" max="15" placeholder="級分"></label>
+                  <label><span>社會</span><input data-placement-score="社會" type="number" inputmode="numeric" min="0" max="15" placeholder="級分"></label>
+                  <label><span>自然</span><input data-placement-score="自然" type="number" inputmode="numeric" min="0" max="15" placeholder="級分"></label>
+                  <label><span>英聽</span><input data-placement-score="英聽" type="text" autocapitalize="characters" autocomplete="off" maxlength="1" placeholder="A/B/C/F"></label>
+                  <label><span>在校%</span><input data-placement-score="在校" type="number" inputmode="decimal" min="0" max="100" step="any" placeholder="百分比"></label>
+                  <label><span>數甲</span><input data-placement-score="數甲" type="number" inputmode="numeric" min="0" max="60" placeholder="分科"></label>
+                  <label><span>數乙</span><input data-placement-score="數乙" type="number" inputmode="numeric" min="0" max="60" placeholder="分科"></label>
+                  <label><span>歷史</span><input data-placement-score="歷史" type="number" inputmode="numeric" min="0" max="60" placeholder="分科"></label>
+                  <label><span>地理</span><input data-placement-score="地理" type="number" inputmode="numeric" min="0" max="60" placeholder="分科"></label>
+                  <label><span>公民</span><input data-placement-score="公民" type="number" inputmode="numeric" min="0" max="60" placeholder="分科"></label>
+                  <label><span>物理</span><input data-placement-score="物理" type="number" inputmode="numeric" min="0" max="60" placeholder="分科"></label>
+                  <label><span>化學</span><input data-placement-score="化學" type="number" inputmode="numeric" min="0" max="60" placeholder="分科"></label>
+                  <label><span>生物</span><input data-placement-score="生物" type="number" inputmode="numeric" min="0" max="60" placeholder="分科"></label>
                   <div class="placement-run-slot">
                     <button class="solid-button" id="runPlacementAnalysis" disabled>查看分析結果</button>
                   </div>
@@ -379,6 +400,6 @@
   <script src="./admission-catalog.js?v=20261012-special-116"></script>
   <script src="./explorer-link.js?v=20261017"></script>
   <script src="./group-introductions.js?v=20261017"></script>
-  <script src="./app.js?v=20261018-group-navigation"></script>
+  <script src="./app.js?v=20261021-load-share"></script>
 </body>
 </html>
