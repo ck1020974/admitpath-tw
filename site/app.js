@@ -858,6 +858,7 @@ async function init() {
   state.dataStatus = "loading";
   // 從分享連結進來時，先切到該頁面並顯示載入中。
   applyRoute({ ...parseRoute(window.location?.hash), record: "" });
+  trackPage(state.view);
   renderTable();
   try {
     await loadData();
@@ -895,6 +896,7 @@ async function init() {
     state.explorerKeyword = "";
     const backLink = document.getElementById("curiosityBackLink");
     if (backLink && explorerLink.fromCuriosity) backLink.hidden = false;
+    if (explorerLink.fromCuriosity) trackEvent("from-curiosity", "從學群探索結果進入", { once: true });
     state.applyingRoute = true;
     try { setView("explorer"); } finally { state.applyingRoute = false; }
     syncUrl();
@@ -1052,6 +1054,7 @@ function bindEvents() {
 }
 
 function activateHomeEntry(entry) {
+  trackEvent(`home-entry/${entry}`, "首頁入口");
   if (!entry) return;
   if (dataPending() && entry !== "group-explorer" && entry !== "compare-list") {
     // 資料還沒到，先切到查詢頁顯示載入中，載入完成後再套用這個入口的篩選。
@@ -1812,8 +1815,14 @@ function applyRoute(route) {
   }
 }
 
+// 使用次數統計（usage.js）：只記錄用了哪些功能，不記錄成績、篩選條件或校系以外的個人資料。
+const VIEW_TITLES = { overview: "首頁", workbench: "查詢工作台", placement: "落點分析", explorer: "十八學群", compare: "比較清單", quality: "資料品質" };
+function trackPage(view) { try { window.YuhsinUsage?.page(`view/${view}`, VIEW_TITLES[view] || view); } catch {} }
+function trackEvent(name, title, options) { try { window.YuhsinUsage?.event(name, title, options); } catch {} }
+
 function setView(view) {
   state.view = view;
+  trackPage(view);
   document.body.dataset.activeView = view;
   document.querySelectorAll(".nav-item").forEach((button) => button.classList.toggle("active", button.dataset.view === view));
   document.querySelectorAll(".view-panel").forEach((panel) => panel.classList.remove("active"));
@@ -1934,6 +1943,7 @@ function showPlacementResults() {
   const profile = placementProfile();
   if (!placementHasAnyInput(profile)) return;
   state.placement.stage = "results";
+  trackEvent("placement-run", "查看落點分析結果");
   state.placement.resultTab = "match";
   renderPlacementStage();
   renderPlacementAnalysis();
@@ -4468,6 +4478,7 @@ function bindExplorerEvents() {
       // 只有一個學類的學群（例如不分系），直接打開那個學類。
       const categories = explorerCategoriesForGroup(button.dataset.openGroup);
       state.selectedGroup = button.dataset.openGroup;
+      trackEvent(`explorer-group/${button.dataset.openGroup}`, "打開學群");
       state.selectedExplorerStage = categories.length === 1 ? "category" : "group";
       state.selectedCategory = categories.length === 1 ? categories[0].name : "";
       state.explorerKeyword = "";
@@ -4498,6 +4509,7 @@ function bindExplorerEvents() {
     button.addEventListener("click", () => {
       state.selectedExplorerStage = "category";
       state.selectedCategory = button.dataset.openCategory || "";
+      trackEvent(`explorer-category/${state.selectedCategory}`, "打開學類");
       state.explorerKeyword = "";
       renderExplorer();
     });
@@ -4535,6 +4547,7 @@ function bindExplorerEvents() {
 }
 
 function openDetail(id) {
+  trackEvent("detail-open", "打開校系詳情");
   const record = state.records.find((item) => item.id === id);
   if (!record) return;
   const result = record.channelKey === "exam_distribution" ? distributionResult(record) : null;
@@ -4960,7 +4973,7 @@ function toggleCompare(id) {
     state.compare = state.compare.filter((item) => item.id !== id);
   } else {
     const record = state.records.find((item) => item.id === id);
-    if (record && state.compare.length < 100) state.compare.push(record);
+    if (record && state.compare.length < 100) { state.compare.push(record); try { window.YuhsinUsage?.event("compare-add", "加入比較清單"); } catch {} }
     else {
       if (record) window.alert("比較清單最多可選取 100 個校系，請先移除部分校系再加入。");
       return;
