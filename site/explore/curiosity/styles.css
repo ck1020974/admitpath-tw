@@ -89,8 +89,8 @@ h1[tabindex]:focus,h2[tabindex]:focus{outline:none}
 .q-card.is-answered{border-color:#b9d3ca;background:#fbfdfc}
 .q-card legend{float:left;width:100%;padding:0;display:flex;gap:10px;font-size:17px;font-weight:700;line-height:1.6}
 .q-card legend+*{clear:both}
-/* 每題都保留兩行高度，卡片一樣高、按鈕對齊；優先在「，」後斷行、兩行平均分配，避免把「應該」拆開或第二行只剩「怕？」。題目最長 26 字，兩行放得下。 */
-.q-card .q-text{display:block;min-height:3.2em;word-break:keep-all;overflow-wrap:anywhere;text-wrap:balance}
+/* 每題都保留兩行高度，卡片一樣高、按鈕對齊；文字照原本自然換行。 */
+.q-card .q-text{display:block;min-height:3.2em}
 .q-no{flex:0 0 auto;display:grid;place-items:center;width:28px;height:28px;margin-top:1px;border-radius:50%;background:var(--want-soft);color:var(--teal);font-size:12px;font-weight:700;font-variant-numeric:tabular-nums}
 .q-card.is-answered .q-no{background:var(--teal);color:#fff}
 .q-options{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-top:auto}
