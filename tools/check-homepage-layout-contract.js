@@ -24,6 +24,6 @@ if (!/data-home-entry="group-explorer"/.test(html)) fail("Homepage should link t
 if (!/id="about"[\s\S]*?讓學生成為<br>自己未來的主人/.test(html)) fail("Homepage should introduce the author.");
 if (!/id="aboutActions"[^>]*hidden/.test(html) || !/function setupContactLinks/.test(app)) fail("Contact buttons should stay hidden until contact-config.js is filled.");
 if (!/class="site-foot"[\s\S]*?id="sideRecordCount"/.test(html)) fail("Footer should show the data status.");
-if (!/@media \(max-width: 1020px\)[\s\S]*?body\.menu-open \.top-nav \{ display: flex; \}/.test(css)) fail("The phone menu should open from the menu button.");
+if (!/@media \(max-width: 1020px\)[\s\S]*?body\.menu-open \.top-nav \{ display: grid; \}/.test(css)) fail("The phone menu should open from the menu button.");
 if (/home-campus-wide\.jpg|home-study\.jpg/.test(html)) fail("Homepage should not reuse the old stock photos.");
 console.log("Homepage layout contract passed.");

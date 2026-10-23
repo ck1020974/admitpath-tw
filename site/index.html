@@ -25,7 +25,7 @@
   <link rel="stylesheet" href="./special.css?v=20260918-layout-fix">
   <link rel="stylesheet" href="./support.css?v=20261016-mobile-header">
   <link rel="stylesheet" href="./workbench.css?v=20261023-list">
-  <link rel="stylesheet" href="./layout.css?v=20261023-top">
+  <link rel="stylesheet" href="./layout.css?v=20261023-mobile">
 </head>
 <body data-active-view="overview">
   <div class="app-shell">
@@ -43,11 +43,13 @@
           <span>選單</span>
         </button>
         <nav class="top-nav primary-nav" id="primaryNav" aria-label="主選單">
-          <a class="nav-item" data-curiosity-entry href="./explore/curiosity/">學群探索</a>
+          <div class="nav-group">
+          <a class="nav-item nav-primary" data-curiosity-entry href="./explore/curiosity/">學群探索</a>
           <button class="nav-item" type="button" data-view="explorer">十八學群</button>
           <button class="nav-item" type="button" data-view="workbench">校系查詢</button>
           <button class="nav-item" type="button" data-view="placement">落點分析</button>
           <button class="nav-item" type="button" data-view="compare">比較清單<span class="nav-count" id="navCompareCount" hidden></span></button>
+          </div>
           <a class="nav-cta" href="#about" id="navContactLink" data-contact-link hidden>預約諮詢</a>
           <button class="nav-support support-entry" id="supportAuthorButton" type="button" aria-haspopup="dialog" aria-controls="supportDialog" aria-label="支持作者" title="支持作者" hidden>
             <span class="support-entry-heart" aria-hidden="true">♡</span>
@@ -93,10 +95,10 @@
                 <strong>找適合的校系</strong>
                 <span class="home-card-text">依學測成績與條件，查校系和落點。</span>
                 <div class="home-channels" role="group" aria-label="入學管道">
-                  <button type="button" data-home-entry="special-entry">特殊選才</button>
-                  <button type="button" data-home-entry="star-entry">繁星推薦</button>
-                  <button type="button" data-home-entry="personal-apply">個人申請</button>
-                  <button type="button" data-home-entry="distribution-entry">分發入學</button>
+                  <button type="button" data-home-entry="special-entry" aria-label="特殊選才" title="特殊選才">特選</button>
+                  <button type="button" data-home-entry="star-entry" aria-label="繁星推薦" title="繁星推薦">繁星</button>
+                  <button type="button" data-home-entry="personal-apply" aria-label="個人申請" title="個人申請">個申</button>
+                  <button type="button" data-home-entry="distribution-entry" aria-label="分發入學" title="分發入學">分發</button>
                 </div>
               </div>
             </div>
@@ -392,7 +394,7 @@
     </div>
   </dialog>
 
-  <script src="./contact-config.js?v=20261023-top"></script>
+  <script src="./contact-config.js?v=20261023-tweak"></script>
   <script src="./usage-config.js?v=usage-20261023"></script>
   <script src="./usage.js?v=usage-20261023"></script>
   <script src="./support-config.js?v=20261015"></script>
@@ -401,6 +403,6 @@
   <script src="./admission-catalog.js?v=20261012-special-116"></script>
   <script src="./explorer-link.js?v=20261023-intros"></script>
   <script src="./group-introductions.js?v=20261023-intros"></script>
-  <script src="./app.js?v=20261023-top"></script>
+  <script src="./app.js?v=20261023-mobile"></script>
 </body>
 </html>

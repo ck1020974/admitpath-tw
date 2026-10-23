@@ -974,6 +974,7 @@ function bindEvents() {
   menuButton?.addEventListener("click", () => setMenu(menuButton.getAttribute("aria-expanded") !== "true"));
   primaryNav?.addEventListener("click", (event) => { if (event.target.closest("a, button")) setMenu(false); });
   document.addEventListener("keydown", (event) => { if (event.key === "Escape" && document.body.classList.contains("menu-open")) { setMenu(false); menuButton?.focus(); } });
+  document.addEventListener("click", (event) => { if (document.body.classList.contains("menu-open") && !event.target.closest(".topbar")) setMenu(false); });
   document.querySelectorAll("[data-curiosity-entry]").forEach((link) => {
     link.addEventListener("click", () => trackEvent("home-entry/curiosity", "前往學群探索"));
   });
