@@ -26,9 +26,19 @@ h1[tabindex]:focus,h2[tabindex]:focus{outline:none}
 .intro-meta{display:table;margin:0 auto 28px;padding:6px 16px;border-radius:20px;background:var(--want-soft);color:var(--teal);font-size:14px;font-weight:700;letter-spacing:.04em}
 .start-button{min-width:240px;min-height:54px;font-size:17px;border-radius:12px}
 .restart-link{display:block;margin:12px auto 0}
-.resume-bar{max-width:320px;height:8px;border-radius:4px;background:var(--line);overflow:hidden;margin:0 auto 26px}.resume-bar span{display:block;height:100%;width:0;background:var(--teal)}
+/* 18 個圓點：開始畫面的裝飾，也是第 1 步的進度。 */
+.dot-grid{display:grid;grid-template-columns:repeat(6,12px);gap:10px;justify-content:center;margin:0 auto 28px}
+.dot-grid span{width:12px;height:12px;border-radius:50%;background:#dbe7e2;transition:background .25s,box-shadow .25s}
+.dot-grid span.is-on{background:var(--teal)}
+.dot-grid span.is-current:not(.is-on){box-shadow:inset 0 0 0 2px #8fbfb2;background:#fff}
+.dot-grid.is-intro span{animation:dot-in 2.4s ease-in-out both}
+.dot-grid.is-intro span:nth-child(6n+1){animation-delay:.05s}.dot-grid.is-intro span:nth-child(6n+2){animation-delay:.15s}.dot-grid.is-intro span:nth-child(6n+3){animation-delay:.25s}.dot-grid.is-intro span:nth-child(6n+4){animation-delay:.35s}.dot-grid.is-intro span:nth-child(6n+5){animation-delay:.45s}.dot-grid.is-intro span:nth-child(6n){animation-delay:.55s}
+@keyframes dot-in{0%{background:#dbe7e2}45%{background:var(--teal)}100%{background:#a9cfc4}}
+@media (prefers-reduced-motion:reduce){.dot-grid.is-intro span{animation:none;background:#a9cfc4}}
+.dot-grid.is-strip{grid-template-columns:repeat(18,minmax(0,1fr));gap:6px;margin:0}
+.dot-grid.is-strip span{width:auto;height:8px;border-radius:4px}
 .intro-foot{margin:34px 0 0;font-size:12px;color:var(--muted)}
-.intro-foot .text-button{margin-left:8px;text-decoration:underline;text-decoration-style:dotted;text-underline-offset:4px}
+.intro-foot .text-button{margin-left:2px;text-decoration:underline;text-decoration-style:dotted;text-underline-offset:4px}
 
 /* 進度列 */
 .quiz-bar{max-width:760px;margin:0 auto 34px}

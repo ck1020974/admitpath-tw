@@ -7,35 +7,35 @@
 <meta name="description" content="回答生活裡的好奇問題，再評估各科表現，找到值得先認識的學群與學類。">
 <title>學群探索｜祐馨升學網</title>
 <link rel="icon" href="../../favicon.ico" sizes="any">
-<link rel="stylesheet" href="./styles.css?v=layout-20261023">
-<link rel="stylesheet" href="../info-dialog.css?v=layout-20261023">
+<link rel="stylesheet" href="./styles.css?v=dots-20261023">
+<link rel="stylesheet" href="../info-dialog.css?v=dots-20261023">
 </head>
 <body data-view="intro">
 <header class="site-header"><a class="brand" href="../../"><span class="brand-mark">Y</span><span>YUHSIN<small>祐馨升學網</small></span></a><span class="header-label">學群探索</span></header>
 <main>
  <section id="intro" class="view intro" aria-labelledby="introTitle">
   <div id="introFirst">
-   <p class="eyebrow">學群探索</p>
+   <div class="dot-grid is-intro" id="introDots" aria-hidden="true"></div>
    <h1 id="introTitle" tabindex="-1">從好奇心開始，<br>找到想認識的學群</h1>
    <p class="lead">從問題和表現評估哪些學群值得先探索。</p>
    <p class="intro-meta">18題、3步驟、5分鐘</p>
    <button class="primary start-button" id="start" type="button">開始探索</button>
   </div>
   <div id="introResume" hidden>
-   <p class="eyebrow">學群探索</p>
+   <div class="dot-grid" id="resumeDots" aria-hidden="true"></div>
    <h1 id="resumeTitle" tabindex="-1">歡迎回來</h1>
    <p class="lead" id="resumeText"></p>
-   <div class="resume-bar" aria-hidden="true"><span id="resumeBar"></span></div>
    <button class="primary start-button" id="resume" type="button">繼續上次的探索</button>
    <button class="text-button restart-link" id="restartFromIntro" type="button" data-restart>重新開始</button>
   </div>
   <p class="error" id="introError" role="alert"></p>
-  <p class="intro-foot">沒有標準答案，答案只存在這台電腦。<button class="text-button" type="button" data-about>這份探索怎麼運作</button></p>
+  <p class="intro-foot">答案只存在這台電腦・<button class="text-button" type="button" data-about>怎麼運作</button></p>
  </section>
 
  <div id="quizBar" class="quiz-bar" hidden>
   <div class="quiz-bar-row"><span id="quizStep"></span><span id="quizCount"></span><button class="text-button" id="toIntro" type="button">離開</button></div>
-  <div class="quiz-progress" aria-hidden="true"><span id="quizProgress"></span></div>
+  <div class="quiz-progress" id="quizProgressTrack" aria-hidden="true"><span id="quizProgress"></span></div>
+  <div class="dot-grid is-strip" id="quizDots" aria-hidden="true" hidden></div>
  </div>
 
  <section id="question" class="view question-view" hidden aria-labelledby="qTitle">
@@ -179,15 +179,15 @@
  <ul id="sources"></ul>
 </div></dialog>
 <footer class="site-footer"><span>YUHSIN · 學群探索</span><span>自評探索版</span></footer>
-<script src="./group-introductions.js?v=layout-20261023"></script>
-<script src="./bank.js?v=layout-20261023"></script>
-<script src="./collego-reference.js?v=layout-20261023"></script>
-<script src="./curriculum.js?v=layout-20261023"></script>
-<script src="./units.js?v=layout-20261023"></script>
-<script src="./subjects.js?v=layout-20261023"></script>
-<script src="./exploration-model.js?v=layout-20261023"></script>
-<script src="./data.js?v=layout-20261023"></script>
-<script src="./engine.js?v=layout-20261023"></script>
-<script src="./app.js?v=layout-20261023"></script>
+<script src="./group-introductions.js?v=dots-20261023"></script>
+<script src="./bank.js?v=dots-20261023"></script>
+<script src="./collego-reference.js?v=dots-20261023"></script>
+<script src="./curriculum.js?v=dots-20261023"></script>
+<script src="./units.js?v=dots-20261023"></script>
+<script src="./subjects.js?v=dots-20261023"></script>
+<script src="./exploration-model.js?v=dots-20261023"></script>
+<script src="./data.js?v=dots-20261023"></script>
+<script src="./engine.js?v=dots-20261023"></script>
+<script src="./app.js?v=dots-20261023"></script>
 </body>
 </html>
