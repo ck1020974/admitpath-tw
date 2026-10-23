@@ -113,7 +113,7 @@ assert.equal(engine.level({score:3,coverage:0.3},2),'unknown');
  s.startDeep();s.setPicks('weak',['chinese','earth']);assert.equal(s.snapshot().deep,null);
  assert.equal(s.report().undeclared,null,'興趣集中在理工，不建議不分系');
 }
-// 最想知道的 3 題分屬 3 個不同領域，且有興趣的學群橫跨 3 個以上領域：建議也可以考慮不分系。
+// 最想知道的 3 題分屬 3 個不同領域，且有興趣的學群橫跨至少 4 個領域：建議也可以考慮不分系。
 {
  const s=student({likes:{A:2,D:2,L:2,O:2},favourite:['A1','D9','L5']});
  const u=s.report().undeclared;assert.equal(u.reason,'broad');assert.deepEqual(u.domains.slice().sort(),['人文語言','理工','生醫'].sort());
@@ -140,4 +140,18 @@ assert.throws(()=>engine.decodeShare('not-a-code'));
 assert.throws(()=>engine.decodeShare(Buffer.from(JSON.stringify({v:4,a:'2',l:'m'})).toString('base64url')),/不完整/);
 assert.throws(()=>engine.decodeShare(Buffer.from(JSON.stringify({v:3,a:'2',s:'3'})).toString('base64url')),/舊版本/);
 assert.throws(()=>engine.createSession().load({v:1}),/版本/);
-console.log('Curiosity explorer: fixed 18-question set, option order, level plus 2–3 required subject picks, 不分系 suggestions, answer limits, favourites, relative subject levels, potential cap, deep check coverage, save/restore and 40 result-link round trips passed.');
+// 有興趣的學群只橫跨 3 個領域時，即使最想知道的 3 題分屬 3 個領域，也不建議不分系。
+{
+ const s=student({likes:{A:2,D:2,L:2},favourite:['A1','D9','L5']});
+ assert.equal(s.report().undeclared,null,'只橫跨 3 個領域');
+}
+// 每種方向最多 6 個學群，其餘移到其他學群；排序最前面的留下。
+{
+ const likes=Object.fromEntries(data.groups.map(g=>[g.id,2]));
+ const r=student({likes,level:'mid',strong:['history','geography'],weak:['earth','biology']}).report();
+ for(const t of ['priority','develop','interest','potential'])assert.ok(r.groups.filter(g=>g.type===t).length<=6,t+' 超過 6 個');
+ assert.ok(['priority','develop','interest'].some(t=>r.groups.filter(g=>g.type===t).length===6),'全部有興趣時至少一類剛好 6 個');
+ const kept=r.groups.filter(g=>g.type!=='other'&&g.type!=='potential');
+ assert.equal(r.groups.filter(g=>g.type==='other').length,18-kept.length-r.groups.filter(g=>g.type==='potential').length);
+}
+console.log('Curiosity explorer: fixed 18-question set, max 6 groups per type, option order, level plus 2–3 required subject picks, 不分系 suggestions, answer limits, favourites, relative subject levels, potential cap, deep check coverage, save/restore and 40 result-link round trips passed.');

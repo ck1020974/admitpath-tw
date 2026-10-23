@@ -223,7 +223,7 @@
   const name=short(row.name);
   return `<article class="group-card"><div class="card-head"><h3><a class="group-link" href="${esc(mainLink(row.name))}">${esc(name)}</a></h3><button class="info-button" type="button" data-evidence="${row.id}" aria-haspopup="dialog" aria-controls="evidenceDialog" aria-label="${esc(name)}的推薦依據" title="推薦依據">${infoIcon}</button></div>${cats.length?`<p class="card-cats">${cats.map(esc).join('、')}</p>`:''}${cardWhy(row)}${cardFoot(cardMeta(row),'看學群介紹')}</article>`;
  }
- // 不分系：不屬於任何一種方向，所以每個分頁最後都放一張，用虛線框和其他學群區分。
+ // 不分系：不屬於任何一種方向，只在第一個分頁的最後放一張，用虛線框和其他學群區分。
  function undeclaredCard(){
   const und=report&&report.undeclared;if(!und)return '';
   const text=und.reason==='broad'?`你想知道的問題橫跨${und.domains.join('、')}，可以先入學，大一大二多修課再選主修。`:'還沒有明確的方向也沒關係，可以先入學，大一大二多修課再選主修。';
@@ -238,7 +238,7 @@
   // 整張底紙的顏色跟著目前的分頁（見 styles.css 的 [data-type]）。
   el('sheet').dataset.type=tab;
   el('panelHint').textContent=data.resultTypes[tab].text;
-  el('resultCards').innerHTML=report.groups.filter(g=>g.type===tab).map(card).join('')+undeclaredCard();
+  el('resultCards').innerHTML=report.groups.filter(g=>g.type===tab).map(card).join('')+(tab===types[0]?undeclaredCard():'');
   if(focus)el('tab-'+tab).focus();
  }
  function renderResults(){
