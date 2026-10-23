@@ -4371,3 +4371,28 @@ tr:hover td {
   align-items: flex-start;
   justify-content: flex-end;
 }
+
+/* 學群介紹：精簡標題與尚未整理介紹的學類 */
+.explorer-stage-meta {
+  margin: 4px 0 0;
+  font-size: 13px;
+  color: var(--muted);
+}
+.explorer-category-hero-copy .explorer-stage-meta {
+  margin: 0 0 6px;
+  font-weight: 700;
+  color: var(--teal);
+}
+.explorer-pending-note {
+  color: var(--muted);
+}
+.explorer-compare-title {
+  display: block;
+  margin-top: 16px;
+}
+.explorer-category-card.is-brief {
+  min-height: 0;
+}
+.explorer-category-brief:not(:has(.explorer-brief-side)) {
+  grid-template-columns: 1fr;
+}

@@ -102,7 +102,7 @@
   qPage=Math.min(Math.max(qPage,0),pageCount()-1);
   const a=session.snapshot().answers,offset=qPage*pageSize();
   el('qTitle').textContent=qMode==='quick'?'你想知道這些問題的答案嗎？':'再看幾題和你的方向有關的問題';
-  el('qHint').textContent=qMode==='quick'?'每題選一個，憑直覺就好，沒有對錯。':`這些題目來自你的前幾個方向：${session.snapshot().deep.focus.map(g=>short(data.groups.find(x=>x.id===g).name)).join('、')}。`;
+  el('qHint').textContent=qMode==='quick'?'憑直覺選就好。':`這些題目來自你的前幾個方向：${session.snapshot().deep.focus.map(g=>short(data.groups.find(x=>x.id===g).name)).join('、')}。`;
   el('qCards').innerHTML=pageRows().map((q,i)=>{const v=a[q.id];return `<fieldset class="q-card ${v!==undefined?'is-answered':''}" data-card="${q.id}"><legend><span class="q-no" aria-hidden="true">${String(offset+i+1).padStart(2,'0')}</span><span class="q-text">${esc(q.text)}</span></legend><div class="q-options" role="radiogroup" aria-label="${esc(q.text)}">${data.interestOptions.map(o=>`<button type="button" class="q-answer v${o.value}" role="radio" aria-checked="${v===o.value}" data-question="${q.id}" data-value="${o.value}">${esc(o.label)}</button>`).join('')}</div></fieldset>`;}).join('');
   el('qError').textContent='';
   const last=qPage>=pageCount()-1;
@@ -140,7 +140,7 @@
  function renderFavourites(){
   const wanted=session.wanted(),chosen=session.snapshot().favourites;
   setBar('第 2 / 3 步・最想知道','',0.62);
-  el('favouritesHint').textContent=`你有 ${wanted.length} 題想知道，從裡面挑出最想知道答案的 3 題。`;
+  el('favouritesHint').textContent=`從你想知道的 ${wanted.length} 題中挑選。`;
   el('favouriteCards').innerHTML=wanted.map(id=>{const q=data.items.find(x=>x.id===id),on=chosen.includes(id);return `<label class="pick-card ${on?'is-picked':''}"><input type="checkbox" value="${id}" data-favourite ${on?'checked':''}><span class="pick-mark" aria-hidden="true"></span><span>${esc(q.text)}</span></label>`;}).join('');
   el('favouritesError').textContent='';
   updateFavouriteCount();
@@ -166,7 +166,7 @@
    const other=p[kind==='strong'?'weak':'strong'];
    el(kind+'Chips').querySelectorAll('input').forEach(i=>{i.checked=p[kind].includes(i.value);i.disabled=other.includes(i.value);i.closest('.subject-chip').classList.toggle('is-other',other.includes(i.value));});
   });
-  el('subjectsCount').textContent=p.level?`強項 ${p.strong.length} / ${data.strongLimit}・吃力 ${p.weak.length} / ${data.weakLimit}`:'先選整體成績';
+  el('subjectsCount').textContent=`強項 ${p.strong.length} / ${data.strongLimit}・吃力 ${p.weak.length} / ${data.weakLimit}`;
  }
 
  // ── 深入確認：具體內容 ──
@@ -193,10 +193,9 @@
  // ── 結果 ──
  function nextStep(row){
   const collego=data.groups.find(g=>g.id===row.id).collego,courses=(collego.advanced||[]).slice(0,2).join('、');
-  if(row.type==='priority')return '下一步：點進學類，比較課程和校系的差別。';
+  if(row.type==='priority'||row.type==='potential')return '';
   if(row.type==='develop'){const core=row.subjects.filter(s=>s.weight===3&&typeof s.value==='number'&&s.value<2.75).map(s=>s.label);return `下一步：${core.length?`多投入${core.join('、')}，`:''}${courses?`也可以留意選修「${courses}」。`:'再讀讀學類介紹。'}`;}
   if(row.type==='interest')return `下一步：先從體驗開始，${courses?`例如選修「${courses}」、`:''}營隊或自主學習。`;
-  if(row.type==='potential')return '下一步：你的強項用得上，讀讀學類介紹，看看會不會有興趣。';
   return '';
  }
  function reasonHtml(row){
@@ -207,7 +206,7 @@
  }
  function card(row){
   const cats=(intros[row.name]||{}).topCategories||[];
-  return `<article class="group-card"><h3>${esc(short(row.name))}</h3><p class="group-description">${esc(data.descriptions[row.id])}</p>${reasonHtml(row)}${cats.length?`<div class="category-links"><span>常見學類</span>${cats.map(c=>`<a href="${esc(mainLink(row.name,c.name))}">${esc(c.label.replace(/學類$/,''))}</a>`).join('')}</div>`:''}<p class="next-step">${esc(nextStep(row))}</p><div class="card-actions"><a class="group-link" href="${esc(mainLink(row.name))}">認識這個學群 <span aria-hidden="true">→</span></a><button class="text-button" type="button" data-evidence="${row.id}" aria-haspopup="dialog" aria-controls="evidenceDialog">推薦依據</button></div></article>`;
+  return `<article class="group-card"><h3>${esc(short(row.name))}</h3><p class="group-description">${esc(data.descriptions[row.id])}</p>${reasonHtml(row)}${cats.length?`<div class="category-links"><span>常見學類</span>${cats.map(c=>`<a href="${esc(mainLink(row.name,c.name))}">${esc(c.label.replace(/學類$/,''))}</a>`).join('')}</div>`:''}${nextStep(row)?`<p class="next-step">${esc(nextStep(row))}</p>`:''}<div class="card-actions"><a class="group-link" href="${esc(mainLink(row.name))}">認識這個學群 <span aria-hidden="true">→</span></a><button class="text-button" type="button" data-evidence="${row.id}" aria-haspopup="dialog" aria-controls="evidenceDialog">推薦依據</button></div></article>`;
  }
  const availableTypes=()=>sectionTypes.filter(t=>report.groups.some(g=>g.type===t));
  function renderTabs(focus=false){
@@ -227,7 +226,6 @@
   el('resultVersion').textContent=report.deep?'已深入確認':'快速探索';
   el('sharedBanner').hidden=!shared;
   el('resultTabs').hidden=!types.length;el('resultPanel').hidden=!types.length;el('emptyResult').hidden=Boolean(types.length);
-  document.querySelector('.results>.lead').hidden=!types.length;
   if(types.length)renderTabs();
   const others=report.groups.filter(g=>g.type==='other');
   el('otherGroups').hidden=!others.length;
@@ -240,7 +238,13 @@
   if(!report.deep&&!shared){
    const preview=engine.createSession();preview.load(session.snapshot());preview.startDeep();
    const q=preview.deepQuestions().length,subjects=preview.detailPlan().length;
-   el('deepPanelText').textContent=`針對你的前幾個方向，再回答 ${q} 題相關問題${subjects?`，並檢查 ${subjects} 科的具體內容`:''}，大約 3 分鐘。完成後結果會更新。`;
+   el('deepPanelText').textContent=`再答 ${q} 題${subjects?`、檢查 ${subjects} 科`:''}，約 3 分鐘，結果會更準。`;
+  }
+  const und=report.undeclared;
+  el('undeclaredPanel').hidden=!und;
+  if(und){
+   el('undeclaredText').textContent=und.reason==='broad'?`你最想知道的問題分屬${und.domains.join('、')}，可以先讀不分系，大一大二多修課再選主修。`:'這次還沒有明確的方向，可以先讀不分系，大一大二多修課再選主修。';
+   el('undeclaredLink').href=mainLink(und.group,'不分系學類');
   }
   el('sharePanel').hidden=Boolean(shared);el('resultTools').hidden=Boolean(shared);
   el('shareStatus').textContent='';el('shareUrl').hidden=true;
@@ -302,7 +306,9 @@
  }));
  el('subjectsPrevious').addEventListener('click',()=>{if(session.favouritesNeeded())renderFavourites();else{qMode='quick';qPage=pageCountFor('quick')-1;renderQuestion();}});
  el('subjectsNext').addEventListener('click',()=>{
-  if(!session.subjectsComplete()){el('subjectsError').textContent='請先選第 1 題：整體成績大約在班上哪裡。';el('levelBlock').scrollIntoView({block:'center',behavior:reduceMotion?'auto':'smooth'});return;}
+  const p=session.snapshot().profile;
+  const missing=!p.level?['levelBlock','請選整體成績。']:p.strong.length<data.pickMin?['strongBlock','最拿手的科目請選 2–3 科。']:p.weak.length<data.pickMin?['weakBlock','比較吃力的科目請選 2–3 科。']:null;
+  if(missing){el('subjectsError').textContent=missing[1];el(missing[0]).scrollIntoView({block:'center',behavior:reduceMotion?'auto':'smooth'});return;}
   renderResults();
  });
 

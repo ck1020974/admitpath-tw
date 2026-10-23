@@ -20,7 +20,7 @@
  const subjectIds=data.subjects.map(s=>s.id);
  const required=data.subjects.filter(s=>s.required).map(s=>s.id);
  const levelBase=Object.fromEntries(data.levelOptions.map(o=>[o.value,o.base]));
- const STRONG_LIMIT=data.strongLimit,WEAK_LIMIT=data.weakLimit;
+ const STRONG_LIMIT=data.strongLimit,WEAK_LIMIT=data.weakLimit,PICK_MIN=data.pickMin;
  const groupOrder=new Map(quick.map((q,i)=>[q.group,i]));
  const typeOrder=['priority','develop','interest','potential','other'];
 
@@ -60,7 +60,7 @@
   const effectiveFavourites=()=>favouritesNeeded()?state.favourites.filter(id=>wanted().includes(id)):wanted();
   const interestComplete=()=>quick.every(q=>[0,1,2].includes(state.answers[q.id]));
   const favouritesComplete=()=>interestComplete()&&(!favouritesNeeded()||effectiveFavourites().length===FAVOURITES);
-  const subjectsComplete=()=>levelBase[state.profile.level]!==undefined;
+  const subjectsComplete=()=>levelBase[state.profile.level]!==undefined&&state.profile.strong.length>=PICK_MIN&&state.profile.weak.length>=PICK_MIN;
   const complete=()=>interestComplete()&&favouritesComplete()&&subjectsComplete();
   const deepComplete=()=>Boolean(state.deep)&&state.deep.questions.every(id=>[0,1,2].includes(state.answers[id]))&&state.deep.plan.every(row=>row.goals.every(g=>Number.isInteger(state.deep.goals[g])&&state.deep.goals[g]>=0&&state.deep.goals[g]<=4));
 
@@ -133,10 +133,19 @@
    const groups=classify(groupRows()).map(r=>({...r,typeName:data.resultTypes[r.type].name,
     reason:r.evidence.slice().sort((a,b)=>b.value-a.value||Number(b.primary)-Number(a.primary))[0]||null,
     strengths:r.subjects.filter(s=>s.weight>=2&&s.pick==='strong').map(s=>s.label)}));
-   return clone({version:data.version,deep:deepComplete(),favourites:effectiveFavourites().map(id=>({id,text:itemById.get(id).text})),groups,
+   return clone({version:data.version,deep:deepComplete(),favourites:effectiveFavourites().map(id=>({id,text:itemById.get(id).text})),groups,undeclared:undeclaredFor(groups),
     limits:['這是自評探索，不是能力測驗、科系適合率或錄取預測。','學群權重、題目連結與分類門檻為本站編輯規則，未經測量驗證。','沒勾選的延伸科目（資訊、生活科技、美術、音樂、體育）不算低分，也不放進計算。']});
   }
 
+  // 不分系：最想知道的題目分屬不同領域、有興趣的方向也很分散（broad），或完全沒有明確方向（unclear）時提出。
+  function undeclaredFor(groups){
+   const rule=data.undeclared,interested=groups.filter(g=>['priority','develop','interest'].includes(g.type));
+   const domains=[...new Set(interested.map(g=>rule.domains[g.id]))];
+   const favDomains=[...new Set(effectiveFavourites().map(id=>rule.domains[itemById.get(id).group]))];
+   if(effectiveFavourites().length===FAVOURITES&&favDomains.length===FAVOURITES&&domains.length>=rule.minDomains)return {reason:'broad',domains:favDomains,group:rule.group};
+   if(!interested.length)return {reason:'unclear',domains:[],group:rule.group};
+   return null;
+  }
   // 深入確認：針對前幾個方向補問其餘情境題，並檢查這些方向最需要的科目。
   function focusGroups(){
    const groups=classify(groupRows());
