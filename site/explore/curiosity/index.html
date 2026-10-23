@@ -7,8 +7,8 @@
 <meta name="description" content="回答生活裡的好奇問題，再評估各科表現，找到值得先認識的學群與學類。">
 <title>學群探索｜祐馨升學網</title>
 <link rel="icon" href="../../favicon.ico" sizes="any">
-<link rel="stylesheet" href="./styles.css?v=picks-20261023">
-<link rel="stylesheet" href="../info-dialog.css?v=picks-20261023">
+<link rel="stylesheet" href="./styles.css?v=results-20261023">
+<link rel="stylesheet" href="../info-dialog.css?v=results-20261023">
 </head>
 <body data-view="intro">
 <header class="site-header"><a class="brand" href="../../"><span class="brand-mark">Y</span><span>YUHSIN<small>祐馨升學網</small></span></a><span class="header-label">學群探索</span></header>
@@ -116,7 +116,6 @@
   </div>
   <div id="resultTabs" class="result-tabs" role="tablist" aria-label="探索方向分類"></div>
   <section id="resultPanel" class="result-panel" role="tabpanel" tabindex="0">
-   <p class="hint" id="panelHint"></p>
    <div id="resultCards" class="group-grid"></div>
   </section>
   <div id="emptyResult" class="panel empty-result" hidden>
@@ -134,15 +133,14 @@
    <summary id="otherGroupsTitle">其他學群</summary>
    <ul id="otherGroupList" class="other-list"></ul>
   </details>
-  <section id="deepPanel" class="panel deep-panel" hidden aria-labelledby="deepPanelTitle">
-   <div>
-    <h2 id="deepPanelTitle">想更確定？</h2>
-    <p id="deepPanelText"></p>
+  <section id="resultActions" class="panel result-actions" aria-label="下一步">
+   <p id="deepPanelText" class="action-text"></p>
+   <div class="action-buttons">
+    <button class="primary" id="startDeep" type="button">深入確認</button>
+    <button class="secondary" id="toggleShare" type="button" aria-expanded="false" aria-controls="sharePanel">分享結果</button>
    </div>
-   <button class="secondary" id="startDeep" type="button">繼續深入確認</button>
   </section>
-  <section id="sharePanel" class="panel share-panel" aria-labelledby="sharePanelTitle">
-   <h2 id="sharePanelTitle">把結果帶走</h2>
+  <section id="sharePanel" class="panel share-panel" hidden aria-label="分享結果">
    <p>貼給老師或家長，對方打開就能看到這份結果。</p>
    <div class="share-row">
     <label class="share-name"><span>名字或座號（選填）</span><input id="shareName" type="text" maxlength="20" autocomplete="off" placeholder="例：15 號 王小明"></label>
@@ -150,10 +148,6 @@
    </div>
    <input id="shareUrl" class="share-url" type="text" readonly aria-label="結果連結" hidden>
    <p class="status" id="shareStatus" role="status"></p>
-  </section>
-  <section id="favouriteSummary" class="favourite-summary" hidden aria-labelledby="favouriteSummaryTitle">
-   <h2 id="favouriteSummaryTitle">你最想知道的問題</h2>
-   <ul id="favouriteList"></ul>
   </section>
   <div id="resultTools" class="result-tools">
    <button class="text-button" id="editCuriosity" type="button">重新回答好奇心</button>
@@ -179,15 +173,15 @@
  <ul id="sources"></ul>
 </div></dialog>
 <footer class="site-footer"><span>YUHSIN · 學群探索</span><span>自評探索版</span></footer>
-<script src="./group-introductions.js?v=picks-20261023"></script>
-<script src="./bank.js?v=picks-20261023"></script>
-<script src="./collego-reference.js?v=picks-20261023"></script>
-<script src="./curriculum.js?v=picks-20261023"></script>
-<script src="./units.js?v=picks-20261023"></script>
-<script src="./subjects.js?v=picks-20261023"></script>
-<script src="./exploration-model.js?v=picks-20261023"></script>
-<script src="./data.js?v=picks-20261023"></script>
-<script src="./engine.js?v=picks-20261023"></script>
-<script src="./app.js?v=picks-20261023"></script>
+<script src="./group-introductions.js?v=results-20261023"></script>
+<script src="./bank.js?v=results-20261023"></script>
+<script src="./collego-reference.js?v=results-20261023"></script>
+<script src="./curriculum.js?v=results-20261023"></script>
+<script src="./units.js?v=results-20261023"></script>
+<script src="./subjects.js?v=results-20261023"></script>
+<script src="./exploration-model.js?v=results-20261023"></script>
+<script src="./data.js?v=results-20261023"></script>
+<script src="./engine.js?v=results-20261023"></script>
+<script src="./app.js?v=results-20261023"></script>
 </body>
 </html>
