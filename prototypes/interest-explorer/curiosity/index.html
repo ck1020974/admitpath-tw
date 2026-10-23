@@ -7,15 +7,16 @@
 <meta name="description" content="回答生活裡的好奇問題，再評估各科表現，找到值得先認識的學群與學類。">
 <title>學群探索｜祐馨升學網</title>
 <link rel="icon" href="../../favicon.ico" sizes="any">
-<link rel="stylesheet" href="./styles.css?v=header-20261023">
-<link rel="stylesheet" href="../info-dialog.css?v=header-20261023">
+<link rel="stylesheet" href="../../support.css?v=20261016-mobile-header">
+<link rel="stylesheet" href="./styles.css?v=header-20261023b">
+<link rel="stylesheet" href="../info-dialog.css?v=header-20261023b">
 </head>
 <body data-view="intro">
 <header class="site-header">
  <div class="site-header-inner">
   <a class="brand" href="../../"><span class="brand-mark">Y</span><span class="brand-text"><strong>YUHSIN</strong><small>祐馨升學網</small></span></a>
   <button class="site-menu" id="siteMenu" type="button" aria-expanded="false" aria-controls="siteNav"><svg viewBox="0 0 20 20" width="20" height="20" aria-hidden="true"><path d="M3 6h14M3 10h14M3 14h14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg><span>選單</span></button>
-  <nav class="site-nav" id="siteNav" aria-label="主選單"><a href="./" aria-current="page">學群探索</a><a href="../../#explorer">十八學群</a><a href="../../#workbench">校系查詢</a><a href="../../#placement">落點分析</a><a href="../../#compare">比較清單</a></nav>
+  <nav class="site-nav" id="siteNav" aria-label="主選單"><div class="nav-group"><a class="nav-primary" href="./" aria-current="page">學群探索</a><a href="../../#explorer">十八學群</a><a href="../../#workbench">校系查詢</a><a href="../../#placement">落點分析</a><a href="../../#compare">比較清單</a></div><a class="nav-cta" href="../../#about" id="navContactLink" hidden>預約諮詢</a><button class="nav-support support-entry" id="supportAuthorButton" type="button" aria-haspopup="dialog" aria-controls="supportDialog" aria-label="支持作者" title="支持作者" hidden><span class="support-entry-heart" aria-hidden="true">♡</span><span class="nav-support-label">支持作者</span></button></nav>
  </div>
 </header>
 <main>
@@ -173,18 +174,44 @@
  <p>答案只存在這台電腦的瀏覽器裡，不會上傳。網站只統計匿名的使用次數（例如有幾個人做完探索），不記錄作答內容、科目或名字。只有你按下「複製結果連結」並分享出去，別人才看得到。</p>
  <ul id="sources"></ul>
 </div></dialog>
+<!-- 支持作者視窗：和主站 index.html 的同一段，主站修改文字時這裡也要一起改。 -->
+<dialog class="support-dialog" id="supportDialog" aria-labelledby="supportTitle" aria-describedby="supportIntro">
+    <div class="support-dialog-top">
+      <span class="support-eyebrow">YUHSIN · 祐馨升學網</span>
+      <form method="dialog"><button class="support-close" type="submit" aria-label="關閉支持作者視窗" autofocus>×</button></form>
+    </div>
+    <div class="support-content">
+      <div class="support-heading">
+        <span class="support-heart" aria-hidden="true">♡</span>
+        <h2 id="supportTitle">讓升學路上少一點迷惘</h2>
+      </div>
+      <p class="support-intro" id="supportIntro">我是一位中學公民科教師，自學程式設計，希望透過這個網站，陪學生把升學的選擇看得更清楚。你的支持，讓這份課堂外的陪伴持續下去。</p>
+      <div class="support-purpose">
+        <p><strong>每一份支持，都用在這裡</strong></p>
+        <ul><li>招生資料整理與更新</li><li>查詢工具改善與網站維護</li></ul>
+      </div>
+      <div class="support-payment">
+        <button class="support-pay-button" id="supportPaymentPending" type="button" disabled>尚未開放贊助</button>
+        <a class="support-pay-button" id="supportPaymentLink" target="_blank" rel="noopener noreferrer" hidden>前往贊助 <span aria-hidden="true">↗</span><span class="support-sr-only">（在新分頁開啟付款平台）</span></a>
+        <p class="support-payment-note" id="supportPaymentNote" hidden>單次自由贊助，金額於付款平台填寫。付款、交易紀錄及相關聯絡方式請於平台確認。</p>
+      </div>
+    </div>
+  </dialog>
 <footer class="site-footer"><span>YUHSIN · 學群探索</span><span>自評探索版</span></footer>
-<script src="../../usage-config.js?v=header-20261023"></script>
-<script src="../../usage.js?v=header-20261023"></script>
-<script src="./group-introductions.js?v=header-20261023"></script>
-<script src="./bank.js?v=header-20261023"></script>
-<script src="./collego-reference.js?v=header-20261023"></script>
-<script src="./curriculum.js?v=header-20261023"></script>
-<script src="./units.js?v=header-20261023"></script>
-<script src="./subjects.js?v=header-20261023"></script>
-<script src="./exploration-model.js?v=header-20261023"></script>
-<script src="./data.js?v=header-20261023"></script>
-<script src="./engine.js?v=header-20261023"></script>
-<script src="./app.js?v=header-20261023"></script>
+<script src="../../usage-config.js?v=header-20261023b"></script>
+<script src="../../usage.js?v=header-20261023b"></script>
+<script src="../../contact-config.js?v=20261023-tweak"></script>
+<script src="../../support-config.js?v=20261015"></script>
+<script src="../../support.js?v=20261023-top"></script>
+<script src="./group-introductions.js?v=header-20261023b"></script>
+<script src="./bank.js?v=header-20261023b"></script>
+<script src="./collego-reference.js?v=header-20261023b"></script>
+<script src="./curriculum.js?v=header-20261023b"></script>
+<script src="./units.js?v=header-20261023b"></script>
+<script src="./subjects.js?v=header-20261023b"></script>
+<script src="./exploration-model.js?v=header-20261023b"></script>
+<script src="./data.js?v=header-20261023b"></script>
+<script src="./engine.js?v=header-20261023b"></script>
+<script src="./app.js?v=header-20261023b"></script>
 </body>
 </html>
