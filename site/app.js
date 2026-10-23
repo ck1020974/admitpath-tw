@@ -40,7 +40,7 @@ const els = {};
 let advancedFilterDraft = null;
 
 const fmt = new Intl.NumberFormat("zh-Hant-TW");
-const DATA_VERSION = "20261021-split-data";
+const DATA_VERSION = "20261023-category-intros";
 const COMPARE_STORAGE_KEY = "admitpath-tw:compare:v1";
 
 const APPLY_SIEVE_SCORE_OVERRIDES = {
@@ -3213,10 +3213,22 @@ function groupSummaries() {
     const group = groupMap.get(row.groupName);
     group.count += 1;
     group.categories.set(row.categoryName, (group.categories.get(row.categoryName) || 0) + 1);
-    group.keywords.add(displayCategoryKeyword(row.categoryName));
     group.departments.add(row.schoolDepartmentName);
   });
-  return [...groupMap.values()].sort((a, b) => a.name.localeCompare(b.name, "zh-Hant"));
+  // 卡片上的關鍵字用校系數最多的學類；不分系學群放在十八學群之後。
+  groupMap.forEach((group) => {
+    group.keywords = new Set([...group.categories].sort((a, b) => b[1] - a[1]).map(([name]) => displayCategoryKeyword(name)));
+  });
+  return [...groupMap.values()].sort((a, b) => (a.name === "不分系學群") - (b.name === "不分系學群") || a.name.localeCompare(b.name, "zh-Hant"));
+}
+
+// 只有人工整理過介紹的學類，才顯示課程、特質與能力；其餘不顯示套版文字，避免誤導。
+function isCuratedCategory(categoryName) {
+  return Boolean(state.categoryInsights?.[categoryName]);
+}
+
+function shortSchoolName(name) {
+  return String(name || "").replace(/^國立/, "");
 }
 
 function explorerCategoriesForGroup(groupName) {
@@ -3224,20 +3236,18 @@ function explorerCategoriesForGroup(groupName) {
     visibleGroupRows()
       .filter((row) => row.groupName === groupName)
       .map((row) => [row.categoryName, row.categoryName])
-  ).values()].sort((a, b) => a.localeCompare(b, "zh-Hant")).map((name) => {
+  ).values()].map((name) => {
     const rows = visibleGroupRows().filter((row) => row.groupName === groupName && row.categoryName === name);
-    const representative = rows
-      .slice(0, 4)
-      .map((row) => splitSchoolDepartmentName(row.schoolDepartmentName).departmentName)
-      .filter(Boolean);
+    const representative = categoryRepresentativeSchools(name, rows).slice(0, 3).map((item) => shortSchoolName(item.school));
     return {
       name,
       rows,
       count: rows.length,
       representative,
       insight: getCategoryInsight(name, groupName, rows),
+      curated: isCuratedCategory(name),
     };
-  });
+  }).sort((a, b) => b.count - a.count || a.name.localeCompare(b.name, "zh-Hant"));
 }
 
 function explorerRowKey(row) {
@@ -3463,11 +3473,6 @@ function explorerOverviewHtml() {
   const groups = groupSummaries();
   return `
     <div class="explorer-overview">
-      <div class="explorer-intro">
-        <p class="eyebrow">18 Groups</p>
-        <h3>先從學群理解方向，再一路看到學類與相關校系</h3>
-        <p>這一頁先幫學生看見有哪些可能，再從單一學群往下探索相關學類與學校科系。</p>
-      </div>
       <div class="explorer-group-grid">
         ${groups.map((group) => `
           <button class="explorer-group-card" data-open-group="${escapeAttr(group.name)}">
@@ -3490,32 +3495,26 @@ function explorerGroupIntroHtml() {
     <div class="explorer-stage explorer-group-stage">
       <div class="explorer-stage-head">
         <div class="explorer-stage-copy">
-          <p class="eyebrow">Group Overview</p>
           <h3>${escapeHtml(state.selectedGroup)}</h3>
-          <p>${fmt.format(categories.length)} 個學類｜先理解學類差別，再往下看相關校系。</p>
+          <p>${escapeHtml(window.GroupIntroductions.summaries?.[state.selectedGroup] || groupSummaryLine(state.selectedGroup, categories))}</p>
+          <p class="explorer-stage-meta">${fmt.format(categories.length)} 個學類・${fmt.format(categories.reduce((sum, item) => sum + item.count, 0))} 個校系</p>
         </div>
         <div class="explorer-stage-actions">
           <button class="explorer-back-link" data-explorer-back-overview>返回學群</button>
         </div>
       </div>
-      <section class="explorer-group-brief">
-        <div class="explorer-brief-card">
-          <strong>這個學群可以怎麼看</strong>
-          <p>${escapeHtml(groupSummaryLine(state.selectedGroup, categories))}</p>
-        </div>
-      </section>
       <div class="explorer-category-grid">
         ${categories.map((category) => `
-          <button class="explorer-category-card" data-open-category="${escapeAttr(category.name)}">
+          <button class="explorer-category-card ${category.curated ? "" : "is-brief"}" data-open-category="${escapeAttr(category.name)}">
             <div class="explorer-category-top">
               <span class="section-tag">${fmt.format(category.count)} 校系</span>
               <strong>${escapeHtml(displayCategoryName(category.name))}</strong>
-              <p>${escapeHtml(category.insight.summary)}</p>
+              ${category.curated ? `<p>${escapeHtml(category.insight.summary)}</p>` : ""}
             </div>
-            <div class="explorer-course-cluster compact">
+            ${category.curated ? `<div class="explorer-course-cluster compact">
               ${category.insight.coreCourses.slice(0, 5).map((course) => `<span class="course-chip">${escapeHtml(course)}</span>`).join("")}
-            </div>
-            ${category.representative.length ? `<div class="explorer-category-foot">${escapeHtml(category.representative.slice(0, 3).join("、"))}</div>` : ""}
+            </div>` : ""}
+            ${category.representative.length ? `<div class="explorer-category-foot">${escapeHtml(category.representative.join("、"))}</div>` : ""}
           </button>
         `).join("")}
       </div>
@@ -3531,32 +3530,39 @@ function explorerCategoryIntroHtml() {
   const representativeSchools = categoryRepresentativeSchools(state.selectedCategory, rows);
   const categorySummary = categorySummaryProfile(state.selectedCategory, insight, state.selectedGroup);
   const representativeCount = representativeSchools.length ? Math.min(representativeSchools.length, 6) : 0;
+  const curated = isCuratedCategory(state.selectedCategory);
+  // 特質與能力目前是依學類名稱推測的，人工整理過才顯示，避免出現不貼切的標籤。
+  const curatedProfile = Boolean(state.categoryInsights?.[state.selectedCategory]?.traits?.length);
+  // 只有一個學類的學群（例如不分系）跳過學群頁，所以用學群介紹當說明，返回時回到十八學群。
+  const onlyCategory = explorerCategoriesForGroup(state.selectedGroup).length === 1;
+  const groupLine = onlyCategory ? window.GroupIntroductions.summaries?.[state.selectedGroup] : "";
   return `
     <div class="explorer-stage explorer-category-stage">
       <section class="explorer-category-hero">
         <div class="explorer-category-hero-copy">
-          <p class="eyebrow">Category Overview</p>
+          <p class="explorer-stage-meta">${escapeHtml(state.selectedGroup)}</p>
           <h3>${escapeHtml(displayCategoryName(state.selectedCategory))}</h3>
-          <p>${escapeHtml(insight.summary)}</p>
+          ${curated ? `<p>${escapeHtml(insight.summary)}</p>` : groupLine ? `<p>${escapeHtml(groupLine)}</p>` : `<p class="explorer-pending-note">這個學類的課程介紹整理中，可以先看相關校系。</p>`}
         </div>
         <aside class="explorer-category-statpack">
           <div class="explorer-stat-card is-clickable" data-open-category-results>
-            <button class="explorer-back-link stat-back-link" data-explorer-back-group>返回學類</button>
+            <button class="explorer-back-link stat-back-link" data-explorer-back-group>${onlyCategory ? "返回學群" : "返回學類"}</button>
             <span>相關校系</span>
             <strong>${fmt.format(rows.length)}</strong>
-            <p>先掌握學類輪廓，再往下看課程與學校整理。</p>
+            <p>看全部校系 →</p>
           </div>
         </aside>
       </section>
-      <section class="explorer-category-brief">
+      ${curated ? `<section class="explorer-category-brief">
         <article class="explorer-brief-main">
           <strong>${escapeHtml(insight.focusTitle)}</strong>
           <p>${escapeHtml(insight.focusDescription)}</p>
           <div class="explorer-brief-courses">
             ${renderCategoryCourseHighlights(insight)}
           </div>
+          ${state.categoryInsights?.[state.selectedCategory]?.compareDescription ? `<strong class="explorer-compare-title">${escapeHtml(insight.compareTitle)}</strong><p>${escapeHtml(insight.compareDescription)}</p>` : ""}
         </article>
-        <aside class="explorer-brief-side">
+        ${curatedProfile ? `<aside class="explorer-brief-side">
           <div class="explorer-brief-combined">
             <div class="explorer-brief-block is-mint">
               <h5 class="explorer-brief-title">適合特質</h5>
@@ -3572,8 +3578,8 @@ function explorerCategoryIntroHtml() {
               </div>
             </div>
           </div>
-        </aside>
-      </section>
+        </aside>` : ""}
+      </section>` : ""}
       <section class="explorer-category-academics explorer-category-academics-single">
         <aside class="explorer-reference-panel featured is-clickable" data-open-category-results>
           <div class="explorer-panel-head">
@@ -3586,7 +3592,7 @@ function explorerCategoryIntroHtml() {
             <div class="explorer-representative-grid">
               ${representativeSchools.slice(0, 6).map((item) => `
                 <article class="representative-school-card">
-                  <strong class="representative-school-name">${escapeHtml(item.school)}</strong>
+                  <strong class="representative-school-name">${escapeHtml(shortSchoolName(item.school))}</strong>
                   <p class="representative-departments" title="${escapeAttr(item.departments.join("、") || "此校在本學類有相關校系")}">${escapeHtml(item.departments.join("、") || "此校在本學類有相關校系")}</p>
                 </article>
               `).join("")}
@@ -4179,17 +4185,20 @@ function mergeProfileItems(primary, fallback, count) {
 }
 
 function renderCategoryCourseHighlights(insight) {
-  const allCourses = [
-    ...(insight.foundationCourses || []),
-    ...(insight.coreCourses || []),
-    ...(insight.appliedCourses || []),
-  ];
-  const uniqueCourses = [...new Set(allCourses)].slice(0, 10);
-  return `
-    <div class="explorer-course-cluster">
-      ${uniqueCourses.map((item) => `<span class="course-chip">${escapeHtml(item)}</span>`).join("")}
+  // 依基礎、核心、應用分三列，學生看得出課程的先後。
+  const rows = [
+    ["基礎", insight.foundationCourses],
+    ["核心", insight.coreCourses],
+    ["應用", insight.appliedCourses],
+  ].filter(([, items]) => items?.length);
+  return rows.map(([label, items]) => `
+    <div class="explorer-course-row">
+      <span class="explorer-course-label">${label}</span>
+      <div class="explorer-course-cluster">
+        ${items.map((item) => `<span class="course-chip">${escapeHtml(item)}</span>`).join("")}
+      </div>
     </div>
-  `;
+  `).join("");
 }
 
 function explorerDepartmentListHtml() {
@@ -4198,7 +4207,6 @@ function explorerDepartmentListHtml() {
     <div class="explorer-stage explorer-department-stage">
       <div class="explorer-detail-head">
         <div class="explorer-detail-copy">
-          <p class="eyebrow">Department Explorer</p>
           <h3>${escapeHtml(explorerResultTitle())}</h3>
           <div class="explorer-detail-meta-row">
             <p>${fmt.format(rows.length)} 個相關校系｜點卡片可直接看詳細資料</p>
@@ -4362,9 +4370,11 @@ function inferCategoryInsight(categoryName, groupName, rows = []) {
 function bindExplorerEvents() {
   document.querySelectorAll("[data-open-group]").forEach((button) => {
     button.addEventListener("click", () => {
+      // 只有一個學類的學群（例如不分系），直接打開那個學類。
+      const categories = explorerCategoriesForGroup(button.dataset.openGroup);
       state.selectedGroup = button.dataset.openGroup;
-      state.selectedExplorerStage = "group";
-      state.selectedCategory = "";
+      state.selectedExplorerStage = categories.length === 1 ? "category" : "group";
+      state.selectedCategory = categories.length === 1 ? categories[0].name : "";
       state.explorerKeyword = "";
       renderExplorer();
     });
@@ -4376,7 +4386,9 @@ function bindExplorerEvents() {
   document.querySelectorAll("[data-explorer-back-group]").forEach((button) => {
     button.addEventListener("click", (event) => {
       event.stopPropagation();
-      state.selectedExplorerStage = "group";
+      const onlyCategory = explorerCategoriesForGroup(state.selectedGroup).length === 1;
+      state.selectedExplorerStage = onlyCategory ? "overview" : "group";
+      if (onlyCategory) state.selectedGroup = "";
       state.selectedCategory = "";
       state.explorerKeyword = "";
       renderExplorer();
