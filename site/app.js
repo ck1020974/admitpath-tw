@@ -40,7 +40,7 @@ const els = {};
 let advancedFilterDraft = null;
 
 const fmt = new Intl.NumberFormat("zh-Hant-TW");
-const DATA_VERSION = "20261021-split-data";
+const DATA_VERSION = "20261023-category-intros";
 const COMPARE_STORAGE_KEY = "admitpath-tw:compare:v1";
 
 const APPLY_SIEVE_SCORE_OVERRIDES = {
@@ -4185,17 +4185,20 @@ function mergeProfileItems(primary, fallback, count) {
 }
 
 function renderCategoryCourseHighlights(insight) {
-  const allCourses = [
-    ...(insight.foundationCourses || []),
-    ...(insight.coreCourses || []),
-    ...(insight.appliedCourses || []),
-  ];
-  const uniqueCourses = [...new Set(allCourses)].slice(0, 10);
-  return `
-    <div class="explorer-course-cluster">
-      ${uniqueCourses.map((item) => `<span class="course-chip">${escapeHtml(item)}</span>`).join("")}
+  // 依基礎、核心、應用分三列，學生看得出課程的先後。
+  const rows = [
+    ["基礎", insight.foundationCourses],
+    ["核心", insight.coreCourses],
+    ["應用", insight.appliedCourses],
+  ].filter(([, items]) => items?.length);
+  return rows.map(([label, items]) => `
+    <div class="explorer-course-row">
+      <span class="explorer-course-label">${label}</span>
+      <div class="explorer-course-cluster">
+        ${items.map((item) => `<span class="course-chip">${escapeHtml(item)}</span>`).join("")}
+      </div>
     </div>
-  `;
+  `).join("");
 }
 
 function explorerDepartmentListHtml() {

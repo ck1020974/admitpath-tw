@@ -4388,7 +4388,29 @@ tr:hover td {
 }
 .explorer-compare-title {
   display: block;
+  margin-top: 24px;
+}
+.explorer-course-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+.explorer-course-row .explorer-course-cluster {
+  margin-top: 0;
+}
+.explorer-brief-courses {
   margin-top: 16px;
+}
+.explorer-course-row + .explorer-course-row {
+  margin-top: 8px;
+}
+.explorer-course-label {
+  flex: 0 0 auto;
+  line-height: 28px;
+  min-width: 2.5em;
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 700;
 }
 .explorer-category-card.is-brief {
   min-height: 0;

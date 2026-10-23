@@ -5,9 +5,23 @@
     "focusDescription": "除了傳播理論，也會實際碰到新聞寫作、節目企劃、媒體經營與內容製作。",
     "compareTitle": "和新聞或廣告的差別",
     "compareDescription": "大眾傳播通常較綜合，會同時接觸媒體理論、內容實作與傳播產業觀察。",
-    "foundationCourses": ["傳播學概論", "媒體識讀", "基礎寫作"],
-    "coreCourses": ["傳播理論", "媒體企劃", "受眾分析", "新聞編採"],
-    "appliedCourses": ["專題報導", "節目製作", "社群內容規劃", "傳播專題"]
+    "foundationCourses": [
+      "傳播學概論",
+      "媒體識讀",
+      "基礎寫作"
+    ],
+    "coreCourses": [
+      "傳播理論",
+      "媒體企劃",
+      "受眾分析",
+      "新聞編採"
+    ],
+    "appliedCourses": [
+      "專題報導",
+      "節目製作",
+      "社群內容規劃",
+      "傳播專題"
+    ]
   },
   "新聞學類": {
     "summary": "新聞學類重點在採訪、查證、寫作與編輯，會訓練學生如何把公共事件整理成可閱讀、可發布的內容。",
@@ -15,9 +29,23 @@
     "focusDescription": "常見課程會從採訪寫作出發，再延伸到編採實務、媒體倫理與新聞資料判讀。",
     "compareTitle": "和大眾傳播的差別",
     "compareDescription": "新聞學類通常更聚焦採訪、編輯與公共資訊傳遞，大眾傳播則更綜合。",
-    "foundationCourses": ["新聞學概論", "媒體倫理", "基礎寫作"],
-    "coreCourses": ["採訪寫作", "新聞編輯", "新聞攝影", "事實查核"],
-    "appliedCourses": ["深度報導", "新聞專題", "數位敘事", "新聞資料視覺化"]
+    "foundationCourses": [
+      "新聞學概論",
+      "媒體倫理",
+      "基礎寫作"
+    ],
+    "coreCourses": [
+      "採訪寫作",
+      "新聞編輯",
+      "新聞攝影",
+      "事實查核"
+    ],
+    "appliedCourses": [
+      "深度報導",
+      "新聞專題",
+      "數位敘事",
+      "新聞資料視覺化"
+    ]
   },
   "資訊傳播學類": {
     "summary": "資訊傳播學類常結合數位內容、互動設計與資訊技術，會讓學生理解媒體內容如何在數位平台被設計與傳遞。",
@@ -25,9 +53,23 @@
     "focusDescription": "除了傳播觀點，也常碰到網頁設計、互動媒體、資訊架構與數位內容企劃。",
     "compareTitle": "和資訊工程的差別",
     "compareDescription": "資訊傳播較重內容與互動設計，資訊工程則更重程式系統與技術架構。",
-    "foundationCourses": ["傳播學概論", "程式設計", "設計基礎"],
-    "coreCourses": ["互動設計", "資訊架構", "數位內容製作", "使用者經驗"],
-    "appliedCourses": ["網頁專題", "多媒體企劃", "介面設計", "數位敘事專題"]
+    "foundationCourses": [
+      "傳播學概論",
+      "程式設計",
+      "設計基礎"
+    ],
+    "coreCourses": [
+      "互動設計",
+      "資訊架構",
+      "數位內容製作",
+      "使用者經驗"
+    ],
+    "appliedCourses": [
+      "網頁專題",
+      "多媒體企劃",
+      "介面設計",
+      "數位敘事專題"
+    ]
   },
   "廣告公關學類": {
     "summary": "廣告公關學類著重品牌溝通、行銷策略與公眾關係，常會從訊息設計、企劃提案到媒體投放一路學起。",
@@ -35,9 +77,23 @@
     "focusDescription": "學生常會學到廣告企劃、公關策略、品牌管理與社群內容規劃。",
     "compareTitle": "和大眾傳播的差別",
     "compareDescription": "廣告公關更聚焦品牌與行銷溝通，大眾傳播則較重媒體與內容本身。",
-    "foundationCourses": ["行銷學", "傳播學概論", "消費者行為"],
-    "coreCourses": ["廣告企劃", "品牌管理", "公關策略", "媒體規劃"],
-    "appliedCourses": ["提案實作", "社群行銷", "整合傳播", "品牌專題"]
+    "foundationCourses": [
+      "行銷學",
+      "傳播學概論",
+      "消費者行為"
+    ],
+    "coreCourses": [
+      "廣告企劃",
+      "品牌管理",
+      "公關策略",
+      "媒體規劃"
+    ],
+    "appliedCourses": [
+      "提案實作",
+      "社群行銷",
+      "整合傳播",
+      "品牌專題"
+    ]
   },
   "廣電電影學類": {
     "summary": "廣電電影學類通常會把影像敘事、聲音設計與節目製作放在核心，讓學生理解影音內容如何從概念走到成品。",
@@ -45,9 +101,23 @@
     "focusDescription": "常見課程包括劇本、攝影、剪輯、燈光、導演與影像敘事。",
     "compareTitle": "和新聞或大眾傳播的差別",
     "compareDescription": "廣電電影更重影像與聲音實作，新聞與大傳則較偏文字、企劃或媒體觀察。",
-    "foundationCourses": ["影像概論", "聲音基礎", "視覺敘事"],
-    "coreCourses": ["攝影", "剪輯", "劇本寫作", "節目製作"],
-    "appliedCourses": ["短片創作", "導演實務", "紀錄片製作", "影音專題"]
+    "foundationCourses": [
+      "影像概論",
+      "聲音基礎",
+      "視覺敘事"
+    ],
+    "coreCourses": [
+      "攝影",
+      "剪輯",
+      "劇本寫作",
+      "節目製作"
+    ],
+    "appliedCourses": [
+      "短片創作",
+      "導演實務",
+      "紀錄片製作",
+      "影音專題"
+    ]
   },
   "資訊工程學類": {
     "summary": "資訊工程學類重點在程式、系統與演算法，會用技術方式處理資料、建構系統並解決問題。",
@@ -55,9 +125,23 @@
     "focusDescription": "常從程式設計與數學基礎開始，再進到資料結構、演算法、作業系統與資料庫。",
     "compareTitle": "和資訊管理的差別",
     "compareDescription": "資訊工程較重技術架構與系統實作，資訊管理則更靠近商業應用與管理。",
-    "foundationCourses": ["程式設計", "微積分", "離散數學"],
-    "coreCourses": ["資料結構", "演算法", "作業系統", "資料庫系統"],
-    "appliedCourses": ["軟體工程", "網路程式設計", "人工智慧", "專題實作"]
+    "foundationCourses": [
+      "程式設計",
+      "微積分",
+      "離散數學"
+    ],
+    "coreCourses": [
+      "資料結構",
+      "演算法",
+      "作業系統",
+      "資料庫系統"
+    ],
+    "appliedCourses": [
+      "軟體工程",
+      "網路程式設計",
+      "人工智慧",
+      "專題實作"
+    ]
   },
   "資訊管理學類": {
     "summary": "資訊管理學類通常把資訊技術和企業應用放在一起，讓學生理解系統如何支援組織與商業決策。",
@@ -65,9 +149,23 @@
     "focusDescription": "除了基礎程式與資料庫，也會學管理學、系統分析與商業流程。",
     "compareTitle": "和資訊工程的差別",
     "compareDescription": "資訊管理較重組織應用、系統導入與資料決策，資訊工程則更偏底層技術。",
-    "foundationCourses": ["程式設計", "管理學", "經濟學"],
-    "coreCourses": ["資料庫管理", "系統分析", "資訊系統", "商業智慧"],
-    "appliedCourses": ["ERP應用", "資料分析", "電子商務", "資訊管理專題"]
+    "foundationCourses": [
+      "程式設計",
+      "管理學",
+      "經濟學"
+    ],
+    "coreCourses": [
+      "資料庫管理",
+      "系統分析",
+      "資訊系統",
+      "商業智慧"
+    ],
+    "appliedCourses": [
+      "ERP應用",
+      "資料分析",
+      "電子商務",
+      "資訊管理專題"
+    ]
   },
   "財務金融學類": {
     "summary": "財務金融學類多半會從資金流動、投資判斷與市場運作切入，讓學生理解金融工具與企業財務決策。",
@@ -75,9 +173,23 @@
     "focusDescription": "常從經濟、會計與統計打底，再進到投資、公司理財與金融市場。",
     "compareTitle": "和會計或經濟的差別",
     "compareDescription": "財金更聚焦資本市場與投資決策，會計偏報表與制度，經濟偏市場理論。",
-    "foundationCourses": ["經濟學", "會計學", "統計學"],
-    "coreCourses": ["公司理財", "投資學", "金融市場", "衍生性金融商品"],
-    "appliedCourses": ["財務分析", "投資組合", "風險管理", "金融專題"]
+    "foundationCourses": [
+      "經濟學",
+      "會計學",
+      "統計學"
+    ],
+    "coreCourses": [
+      "公司理財",
+      "投資學",
+      "金融市場",
+      "衍生性金融商品"
+    ],
+    "appliedCourses": [
+      "財務分析",
+      "投資組合",
+      "風險管理",
+      "金融專題"
+    ]
   },
   "心理學類": {
     "summary": "心理學類會讓學生從認知、情緒、人格與行為切入，理解人是如何思考、感受與互動的。",
@@ -85,9 +197,23 @@
     "focusDescription": "除了心理理論，也常需要學研究方法、統計與實驗設計。",
     "compareTitle": "和社會工作的差別",
     "compareDescription": "心理學較重個體心理與研究，社會工作更聚焦助人實務與社會支持系統。",
-    "foundationCourses": ["普通心理學", "統計學", "研究方法"],
-    "coreCourses": ["人格心理學", "發展心理學", "認知心理學", "心理衡鑑"],
-    "appliedCourses": ["諮商技巧", "心理實驗", "行為觀察", "心理專題"]
+    "foundationCourses": [
+      "普通心理學",
+      "統計學",
+      "研究方法"
+    ],
+    "coreCourses": [
+      "人格心理學",
+      "發展心理學",
+      "認知心理學",
+      "心理衡鑑"
+    ],
+    "appliedCourses": [
+      "諮商技巧",
+      "心理實驗",
+      "行為觀察",
+      "心理專題"
+    ]
   },
   "法律學類": {
     "summary": "法律學類從規則、權利義務與案例推理切入，讓學生理解社會制度如何被建立與運作。",
@@ -95,9 +221,23 @@
     "focusDescription": "常見課程會從法學緒論開始，再延伸到民法、刑法、公法與程序法。",
     "compareTitle": "和政治或行政的差別",
     "compareDescription": "法律學類更重法條、案例與論理推演，政治與行政則較偏制度與治理。",
-    "foundationCourses": ["法學緒論", "憲法", "法學方法"],
-    "coreCourses": ["民法", "刑法", "行政法", "民事訴訟法"],
-    "appliedCourses": ["案例研習", "模擬法庭", "法律實務", "法政專題"]
+    "foundationCourses": [
+      "法學緒論",
+      "憲法",
+      "法學方法"
+    ],
+    "coreCourses": [
+      "民法",
+      "刑法",
+      "行政法",
+      "民事訴訟法"
+    ],
+    "appliedCourses": [
+      "案例研習",
+      "模擬法庭",
+      "法律實務",
+      "法政專題"
+    ]
   },
   "醫學學類": {
     "summary": "醫學學類從人體、疾病與臨床判斷出發，訓練學生用科學與照護知識理解健康與治療。",
@@ -105,8 +245,3526 @@
     "focusDescription": "常見課程會從基礎醫學開始，逐步延伸到病理、藥理與臨床訓練。",
     "compareTitle": "和生命科學的差別",
     "compareDescription": "醫學更貼近臨床判斷與照護情境，生命科學則較偏基礎研究與實驗。",
-    "foundationCourses": ["普通生物", "普通化學", "人體解剖學"],
-    "coreCourses": ["生理學", "病理學", "藥理學", "微生物學"],
-    "appliedCourses": ["臨床技能", "見實習", "病例討論", "醫學專題"]
+    "foundationCourses": [
+      "普通生物",
+      "普通化學",
+      "人體解剖學"
+    ],
+    "coreCourses": [
+      "生理學",
+      "病理學",
+      "藥理學",
+      "微生物學"
+    ],
+    "appliedCourses": [
+      "臨床技能",
+      "見實習",
+      "病例討論",
+      "醫學專題"
+    ]
+  },
+  "電機工程學類": {
+    "summary": "以「電」為核心，學電路、電子和電磁的原理，再用來設計、控制各種裝置與系統。",
+    "focusTitle": "這個學類在學什麼",
+    "focusDescription": "大一先打微積分、普通物理、程式設計的基礎，接著學電路學、電子學、電磁學，之後可往晶片、通訊、控制或電力發展，實驗和專題的比重很高。",
+    "compareTitle": "和電子、資訊工程的差別",
+    "compareDescription": "電機涵蓋最廣，電力、控制、通訊都會學到；電子工程專注小電流的電路與訊號；資訊工程以程式和軟體為主。",
+    "foundationCourses": [
+      "微積分",
+      "普通物理",
+      "程式設計"
+    ],
+    "coreCourses": [
+      "電路學",
+      "電子學",
+      "電磁學",
+      "訊號與系統"
+    ],
+    "appliedCourses": [
+      "邏輯設計實驗",
+      "控制系統",
+      "通訊系統",
+      "專題研究"
+    ],
+    "source": {
+      "name": "Collego 大學選才與高中教學資源平台",
+      "url": "https://collego.edu.tw/Highschool/MajorIntro?current_major_id=9",
+      "checked": "2026-10-23"
+    }
+  },
+  "企業管理學類": {
+    "summary": "學習怎麼規劃、組織、帶領團隊，讓一家企業的人、錢、產品和行銷順利運作。",
+    "focusTitle": "這個學類在學什麼",
+    "focusDescription": "先修會計、經濟、統計和管理學，再分別認識人力資源、行銷、財務、生產與策略管理，常用個案討論和小組報告上課。",
+    "compareTitle": "和國際企業、財務金融的差別",
+    "compareDescription": "企管是最全面的管理訓練；國際企業把同樣的內容延伸到跨國經營；財務金融和會計則專注在企業的錢。",
+    "foundationCourses": [
+      "管理學",
+      "會計學",
+      "經濟學"
+    ],
+    "coreCourses": [
+      "組織行為",
+      "行銷管理",
+      "財務管理",
+      "人力資源管理"
+    ],
+    "appliedCourses": [
+      "策略管理",
+      "消費者行為",
+      "生產與作業管理",
+      "供應鏈管理"
+    ],
+    "source": {
+      "name": "Collego 大學選才與高中教學資源平台",
+      "url": "https://collego.edu.tw/Highschool/MajorIntro?current_major_id=108",
+      "checked": "2026-10-23"
+    }
+  },
+  "藝術設計學類": {
+    "summary": "結合純藝術創作與設計應用，在多種媒材中練習把想法變成作品。",
+    "focusTitle": "這個學類在學什麼",
+    "focusDescription": "從素描、色彩學、造型基礎開始，再碰平面設計、攝影、陶藝或金工等媒材，搭配東西方美術史和設計史，最後完成專題創作。",
+    "compareTitle": "和商業設計、工業設計的差別",
+    "compareDescription": "藝術設計兼顧創作與設計，媒材最多元；商業設計更重市場與傳達效果；工業設計以產品的功能和造型為主。",
+    "foundationCourses": [
+      "素描",
+      "色彩學",
+      "造型基礎"
+    ],
+    "coreCourses": [
+      "平面設計",
+      "攝影",
+      "設計方法",
+      "美術史"
+    ],
+    "appliedCourses": [
+      "陶藝與金工",
+      "影像創作",
+      "設計企劃",
+      "專題製作"
+    ],
+    "source": {
+      "name": "Collego 大學選才與高中教學資源平台",
+      "url": "https://collego.edu.tw/Highschool/MajorIntro?current_major_id=73",
+      "checked": "2026-10-23"
+    }
+  },
+  "國際企業學類": {
+    "summary": "研究企業如何跨國經營，在不同國家安排資源、行銷和策略。",
+    "focusTitle": "這個學類在學什麼",
+    "focusDescription": "基礎和企管相近，先學經濟、會計、統計與管理學，再延伸到國際行銷、國際貿易與跨國策略，也很重視外語和簡報表達。",
+    "compareTitle": "和企業管理的差別",
+    "compareDescription": "兩者基礎課程很像；國際企業多了國際貿易、跨國管理與商用外語，視野放在全球市場。",
+    "foundationCourses": [
+      "經濟學",
+      "會計學",
+      "管理學"
+    ],
+    "coreCourses": [
+      "國際企業管理",
+      "國際行銷",
+      "財務管理",
+      "國際貿易實務"
+    ],
+    "appliedCourses": [
+      "跨境電子商務",
+      "商用英文",
+      "國際經營策略",
+      "商事法"
+    ],
+    "source": {
+      "name": "Collego 大學選才與高中教學資源平台",
+      "url": "https://collego.edu.tw/Highschool/MajorIntro?current_major_id=114",
+      "checked": "2026-10-23"
+    }
+  },
+  "工程科學學類": {
+    "summary": "用數學和科學原理，整合機械、電機、資訊等領域，解決較大型的系統問題。",
+    "focusTitle": "這個學類在學什麼",
+    "focusDescription": "基礎是微積分、普通物理與工程數學，之後同時修電路、程式和力學課程，應用範圍包括能源、機電、船舶與綠能系統。",
+    "compareTitle": "和機械、電機工程的差別",
+    "compareDescription": "機械專注機構設計與製造，電機專注電路與電力；工程科學則跨領域學一點，著重系統整合。",
+    "foundationCourses": [
+      "微積分",
+      "普通物理",
+      "工程數學"
+    ],
+    "coreCourses": [
+      "電路學",
+      "材料力學",
+      "工程力學",
+      "程式設計"
+    ],
+    "appliedCourses": [
+      "電子學",
+      "計算機概論",
+      "機電整合",
+      "專題實作"
+    ],
+    "source": {
+      "name": "Collego 大學選才與高中教學資源平台",
+      "url": "https://collego.edu.tw/Highschool/MajorIntro?current_major_id=13",
+      "checked": "2026-10-23"
+    }
+  },
+  "英語文學類": {
+    "summary": "學習英語語言、文學與文化，同時把聽說讀寫譯練到專業程度。",
+    "focusTitle": "這個學類在學什麼",
+    "focusDescription": "課程包括英美文學、語言學概論、英文寫作與口語訓練，也會接觸英語教學、翻譯和第二外語。英文系偏文學閱讀，應用英語系偏職場實用。",
+    "compareTitle": "和應用英語、英語教育的差別",
+    "compareDescription": "英文系重文學與文本分析；應用英語偏商務、翻譯等職場英文；英語教育則以培養英語老師為目標。",
+    "foundationCourses": [
+      "英文閱讀與寫作",
+      "英語口語訓練",
+      "西洋文學概論"
+    ],
+    "coreCourses": [
+      "英國文學",
+      "美國文學",
+      "語言學概論",
+      "翻譯"
+    ],
+    "appliedCourses": [
+      "英語教學",
+      "商用英文",
+      "第二外語",
+      "專題研究"
+    ],
+    "source": {
+      "name": "Collego 大學選才與高中教學資源平台",
+      "url": "https://collego.edu.tw/Highschool/MajorIntro?current_major_id=88",
+      "checked": "2026-10-23"
+    }
+  },
+  "觀光事業學類": {
+    "summary": "結合各地的地理與文化，學習規劃旅遊行程，並經營觀光相關產業。",
+    "focusTitle": "這個學類在學什麼",
+    "focusDescription": "從觀光學概論、旅行業經營開始，學行程設計、領隊導遊實務、觀光行銷與法規，外語和多媒體運用也是重點。",
+    "compareTitle": "和餐旅、休閒管理的差別",
+    "compareDescription": "觀光以旅遊行程與旅行業為主；餐旅管理偏旅館和餐飲經營；休閒管理偏遊樂場地、戶外活動與渡假村。",
+    "foundationCourses": [
+      "觀光學概論",
+      "管理學",
+      "觀光英文"
+    ],
+    "coreCourses": [
+      "旅行業經營",
+      "觀光行銷",
+      "行程設計",
+      "觀光法規"
+    ],
+    "appliedCourses": [
+      "領隊導遊實務",
+      "訂位系統",
+      "會議展覽管理",
+      "觀光資源規劃"
+    ],
+    "source": {
+      "name": "Collego 大學選才與高中教學資源平台",
+      "url": "https://collego.edu.tw/Highschool/MajorIntro?current_major_id=120",
+      "checked": "2026-10-23"
+    }
+  },
+  "媒體設計學類": {
+    "summary": "以動畫、遊戲和互動媒體為主，學習用數位工具做視覺設計。",
+    "focusTitle": "這個學類在學什麼",
+    "focusDescription": "先學設計基礎、色彩學和電腦繪圖，再往 2D、3D 動畫、遊戲企劃與程式、網頁互動設計發展，軟體操作是日常。",
+    "compareTitle": "和商業設計、工業設計的差別",
+    "compareDescription": "三者都有設計基礎；媒體設計更著重軟體與數位媒體，作品多是動畫、遊戲或互動介面。",
+    "foundationCourses": [
+      "基礎設計",
+      "色彩學",
+      "電腦繪圖"
+    ],
+    "coreCourses": [
+      "3D 電腦動畫",
+      "遊戲企劃",
+      "程式設計",
+      "多媒體設計"
+    ],
+    "appliedCourses": [
+      "角色與分鏡設計",
+      "遊戲程式設計",
+      "網頁視覺設計",
+      "數位互動設計"
+    ],
+    "source": {
+      "name": "Collego 大學選才與高中教學資源平台",
+      "url": "https://collego.edu.tw/Highschool/MajorIntro?current_major_id=4",
+      "checked": "2026-10-23"
+    }
+  },
+  "行政管理學類": {
+    "summary": "研究政府怎麼推動公共事務，如何分配資源來解決社會問題。",
+    "focusTitle": "這個學類在學什麼",
+    "focusDescription": "課程橫跨行政學、公共政策、法律與政治學，例如組織理論、公共管理、財務行政，也會學社會科學研究方法。",
+    "compareTitle": "和政治學類的差別",
+    "compareDescription": "政治學以「人」和政治行為為核心；行政管理以「事」為核心，研究政策和管理如何落實。",
+    "foundationCourses": [
+      "行政學",
+      "政治學",
+      "法學緒論"
+    ],
+    "coreCourses": [
+      "公共政策",
+      "公共管理",
+      "組織理論",
+      "行政法"
+    ],
+    "appliedCourses": [
+      "財務行政",
+      "人事行政",
+      "研究方法",
+      "比較政府"
+    ],
+    "source": {
+      "name": "Collego 大學選才與高中教學資源平台",
+      "url": "https://collego.edu.tw/Highschool/MajorIntro?current_major_id=107",
+      "checked": "2026-10-23"
+    }
+  },
+  "音樂學類": {
+    "summary": "演奏、創作、理論與實務並重，培養音樂專業人才。",
+    "focusTitle": "這個學類在學什麼",
+    "focusDescription": "每個人都有主修術科，同時要上音樂史、和聲學、對位法與曲式分析，也要參加合唱或合奏，畢業前完成音樂會或作品。",
+    "compareTitle": "音樂系與應用音樂系的差別",
+    "compareDescription": "音樂系偏古典表演與教學；應用音樂系另有錄音工程、配樂創作等課程；傳統或中國音樂系專注國樂等傳統音樂。",
+    "foundationCourses": [
+      "主修術科",
+      "音樂基礎訓練",
+      "音樂史"
+    ],
+    "coreCourses": [
+      "和聲學",
+      "對位法",
+      "曲式與分析",
+      "合唱與合奏"
+    ],
+    "appliedCourses": [
+      "錄音製作",
+      "配樂創作",
+      "音樂教學",
+      "畢業製作"
+    ],
+    "source": {
+      "name": "Collego 大學選才與高中教學資源平台",
+      "url": "https://collego.edu.tw/Highschool/MajorIntro?current_major_id=71",
+      "checked": "2026-10-23"
+    }
+  },
+  "電子工程學類": {
+    "summary": "學習控制半導體裡的電子，把它們做成積體電路，再組成會記憶、運算或通訊的智慧系統。",
+    "focusTitle": "這個學類在學什麼",
+    "focusDescription": "數學和物理是基礎，核心是電子學、電路學和數位邏輯，之後往晶片設計、半導體元件與製程、微處理機發展，實驗課不少。",
+    "compareTitle": "和電機、資訊工程的差別",
+    "compareDescription": "電機涵蓋電力等較大型的系統；電子工程聚焦晶片與電路，越做越小；資訊工程則偏軟體。",
+    "foundationCourses": [
+      "微積分",
+      "普通物理",
+      "程式設計"
+    ],
+    "coreCourses": [
+      "電子學",
+      "電路學",
+      "數位邏輯設計",
+      "半導體元件物理"
+    ],
+    "appliedCourses": [
+      "電子電路實驗",
+      "超大型積體電路設計",
+      "積體電路製程",
+      "微處理機原理"
+    ],
+    "source": {
+      "name": "Collego 大學選才與高中教學資源平台",
+      "url": "https://collego.edu.tw/Highschool/MajorIntro?current_major_id=11",
+      "checked": "2026-10-23"
+    }
+  },
+  "環境工程學類": {
+    "summary": "用科學和工程方法，解決水、空氣、廢棄物與土壤的污染問題。",
+    "focusTitle": "這個學類在學什麼",
+    "focusDescription": "先打好微積分、物理、化學的基礎，再學環境化學、微生物與流體力學，接著是給水與污水處理、空氣污染控制、廢棄物處理等工程課。",
+    "compareTitle": "和土木工程的差別",
+    "compareDescription": "土木工程蓋道路、橋梁等結構物；環境工程設計污水廠、空污防制等設施，處理的是污染和環境品質。",
+    "foundationCourses": [
+      "普通化學",
+      "微積分",
+      "環境科學概論"
+    ],
+    "coreCourses": [
+      "環境化學",
+      "流體力學",
+      "給水與污水處理",
+      "空氣污染控制"
+    ],
+    "appliedCourses": [
+      "廢棄物處理工程",
+      "環境工程設計",
+      "環境規劃與管理",
+      "風險評估"
+    ],
+    "source": {
+      "name": "Collego 大學選才與高中教學資源平台",
+      "url": "https://collego.edu.tw/Highschool/MajorIntro?current_major_id=21",
+      "checked": "2026-10-23"
+    }
+  },
+  "建築學類": {
+    "summary": "結合人文藝術與工程技術，從室內空間到城市尺度，設計人居住的環境。",
+    "focusTitle": "這個學類在學什麼",
+    "focusDescription": "每學期都有建築設計課，在設計室畫圖、做模型、接受評圖；同時學建築史、結構、施工與建築物理環境。",
+    "compareTitle": "和土木、空間設計、都市計畫的差別",
+    "compareDescription": "土木重結構計算與大地工程；空間設計專注室內與氛圍；都市計畫看整座城市的交通與土地使用；建築則介於其間。",
+    "foundationCourses": [
+      "建築圖學",
+      "設計基礎",
+      "建築史"
+    ],
+    "coreCourses": [
+      "建築設計",
+      "建築結構系統",
+      "建築物理環境",
+      "都市設計"
+    ],
+    "appliedCourses": [
+      "建築施工",
+      "環境行為",
+      "建築職業實務",
+      "畢業設計"
+    ],
+    "source": {
+      "name": "Collego 大學選才與高中教學資源平台",
+      "url": "https://collego.edu.tw/Highschool/MajorIntro?current_major_id=22",
+      "checked": "2026-10-23"
+    }
+  },
+  "餐旅管理學類": {
+    "summary": "學習旅館與餐飲的規劃和經營，讓顧客吃得好、住得好。",
+    "focusTitle": "這個學類在學什麼",
+    "focusDescription": "分成旅館管理和餐飲管理兩大方向，除了管理、會計、行銷等商管課，也會實際練廚藝、烘焙、飲料調製，還有校外實習。",
+    "compareTitle": "和觀光、休閒管理的差別",
+    "compareDescription": "餐旅聚焦旅館和餐廳的經營；觀光以旅遊行程和旅行業為主；休閒管理偏遊樂場地與活動規劃。",
+    "foundationCourses": [
+      "餐旅管理導論",
+      "管理學",
+      "會計學"
+    ],
+    "coreCourses": [
+      "旅館管理",
+      "菜單設計與成本控制",
+      "餐旅行銷",
+      "食品衛生與安全"
+    ],
+    "appliedCourses": [
+      "西餐廚藝",
+      "烘焙學",
+      "飲料管理",
+      "餐旅實習"
+    ],
+    "source": {
+      "name": "Collego 大學選才與高中教學資源平台",
+      "url": "https://collego.edu.tw/Highschool/MajorIntro?current_major_id=122",
+      "checked": "2026-10-23"
+    }
+  },
+  "機械工程學類": {
+    "summary": "研究機械的原理與應用，從設計、製造到控制，讓機器動起來。",
+    "focusTitle": "這個學類在學什麼",
+    "focusDescription": "大一學微積分、物理與工程圖學，之後是熱力學、流體力學、材料力學、動力學四大力學，再往自動控制、精密製造或機械設計發展。",
+    "compareTitle": "和電機、航太工程的差別",
+    "compareDescription": "機械重結構、力學與製造，電學比電機少；航太工程和機械很像，但多了飛機與太空系統。",
+    "foundationCourses": [
+      "微積分",
+      "普通物理",
+      "工程圖學"
+    ],
+    "coreCourses": [
+      "熱力學",
+      "流體力學",
+      "材料力學",
+      "動力學"
+    ],
+    "appliedCourses": [
+      "自動控制",
+      "電腦輔助設計",
+      "機械製造",
+      "機械設計"
+    ],
+    "source": {
+      "name": "Collego 大學選才與高中教學資源平台",
+      "url": "https://collego.edu.tw/Highschool/MajorIntro?current_major_id=14",
+      "checked": "2026-10-23"
+    }
+  },
+  "體育學類": {
+    "summary": "以身體活動為基礎，術科訓練和運動科學理論並重。",
+    "focusTitle": "這個學類在學什麼",
+    "focusDescription": "術科要練田徑、球類、游泳等項目，學科則有運動生理學、運動心理學、運動生物力學與運動教育學，也會學運動傷害防護。",
+    "compareTitle": "和休閒、運動管理的差別",
+    "compareDescription": "體育系重自身運動能力、運動科學與體育教學；休閒與運動管理偏活動企劃、場館經營與行銷。",
+    "foundationCourses": [
+      "田徑與球類術科",
+      "解剖生理學",
+      "運動休閒概論"
+    ],
+    "coreCourses": [
+      "運動生理學",
+      "運動心理學",
+      "運動生物力學",
+      "運動教育學"
+    ],
+    "appliedCourses": [
+      "運動傷害與急救",
+      "運動貼紮",
+      "運動社會學",
+      "運動管理學"
+    ],
+    "source": {
+      "name": "Collego 大學選才與高中教學資源平台",
+      "url": "https://collego.edu.tw/Highschool/MajorIntro?current_major_id=118",
+      "checked": "2026-10-23"
+    }
+  },
+  "社會工作學類": {
+    "summary": "一門助人的專業，協助個人、家庭和社區解決困難，也關心弱勢與社會正義。",
+    "focusTitle": "這個學類在學什麼",
+    "focusDescription": "先理解人類行為與社會環境、社會福利與政策，再學個案、團體、社區三大工作方法，也會分兒少、老人、身障、醫務等領域，最後一定要實習。",
+    "compareTitle": "和社會學、心理學的差別",
+    "compareDescription": "社會學研究整個社會的現象；心理學理解個人內在；社會工作則是實際介入、陪伴並連結資源。",
+    "foundationCourses": [
+      "社會工作概論",
+      "社會學",
+      "心理學"
+    ],
+    "coreCourses": [
+      "人類行為與社會環境",
+      "社會個案工作",
+      "社會團體工作",
+      "社區組織與發展"
+    ],
+    "appliedCourses": [
+      "社會政策與立法",
+      "方案設計與評估",
+      "醫務社會工作",
+      "社會工作實習"
+    ],
+    "source": {
+      "name": "Collego 大學選才與高中教學資源平台",
+      "url": "https://collego.edu.tw/Highschool/MajorIntro?current_major_id=76",
+      "checked": "2026-10-23"
+    }
+  },
+  "工業設計學類": {
+    "summary": "以使用者為中心，設計生活中的各種產品，從構想、建模一路做到可以量產。",
+    "focusTitle": "這個學類在學什麼",
+    "focusDescription": "學產品創意發想、手繪與 2D/3D 軟體、模型製作，也要懂材料、製程、機構和人因工程，常以專題完成一件產品。",
+    "compareTitle": "和商業、媒體、空間設計的差別",
+    "compareDescription": "商業設計用圖文傳達訊息，例如商標包裝；媒體設計做動畫與遊戲；空間設計處理室內配置；工業設計做的是實體產品。",
+    "foundationCourses": [
+      "設計基礎",
+      "表現技法",
+      "色彩學"
+    ],
+    "coreCourses": [
+      "產品設計",
+      "人因工程",
+      "材料與製造程序",
+      "設計方法"
+    ],
+    "appliedCourses": [
+      "電腦輔助設計",
+      "模型製作",
+      "專題設計",
+      "校外實習"
+    ],
+    "source": {
+      "name": "Collego 大學選才與高中教學資源平台",
+      "url": "https://collego.edu.tw/Highschool/MajorIntro?current_major_id=66",
+      "checked": "2026-10-23"
+    }
+  },
+  "中國語文學類": {
+    "summary": "閱讀中國文學經典、思想與語言文字，也培養寫作與表達能力。",
+    "focusTitle": "這個學類在學什麼",
+    "focusDescription": "基礎是文字、聲韻、訓詁、文學史與思想史，之後讀詩經、莊子、李杜詩、紅樓夢等專書，也有現代文學、臺灣文學與創作課。",
+    "compareTitle": "和台灣語文、華語文教學的差別",
+    "compareDescription": "中文系偏傳統經典；台灣語文重臺灣文學與本土語言；華語文相關系所則著重當代華文與對外華語教學。",
+    "foundationCourses": [
+      "國學概論",
+      "文學概論",
+      "歷代文選"
+    ],
+    "coreCourses": [
+      "文字學",
+      "聲韻學",
+      "中國文學史",
+      "中國思想史"
+    ],
+    "appliedCourses": [
+      "詩選與習作",
+      "現代文學",
+      "古典文學專題",
+      "創作實務"
+    ],
+    "source": {
+      "name": "Collego 大學選才與高中教學資源平台",
+      "url": "https://collego.edu.tw/Highschool/MajorIntro?current_major_id=93",
+      "checked": "2026-10-23"
+    }
+  },
+  "會計學類": {
+    "summary": "會計是企業的共同語言，學習記錄、編製和查核財務資訊，幫助做決策。",
+    "focusTitle": "這個學類在學什麼",
+    "focusDescription": "先修會計學、經濟學、統計與商事法，再學中級會計、成本與管理會計、審計和稅務，許多人以會計師考試為目標。",
+    "compareTitle": "和財務金融、財稅的差別",
+    "compareDescription": "會計重帳務與財報的正確；財務金融重資金運用與投資；財稅則專注稅法與政府財政。",
+    "foundationCourses": [
+      "會計學原理",
+      "經濟學原理",
+      "統計學"
+    ],
+    "coreCourses": [
+      "中級會計學",
+      "成本與管理會計",
+      "審計學",
+      "稅務會計"
+    ],
+    "appliedCourses": [
+      "高級會計學",
+      "政府會計",
+      "稅務法規",
+      "商業會計法"
+    ],
+    "source": {
+      "name": "Collego 大學選才與高中教學資源平台",
+      "url": "https://collego.edu.tw/Highschool/MajorIntro?current_major_id=112",
+      "checked": "2026-10-23"
+    }
+  },
+  "生醫工程學類": {
+    "summary": "把工程原理用在醫學上，量測、分析人體的訊號，開發協助診斷和治療的器材。",
+    "focusTitle": "這個學類在學什麼",
+    "focusDescription": "要同時學數理、人體解剖和電路，之後學訊號與系統、生醫材料、生物力學、醫學影像處理與生醫感測，實驗課比例高。",
+    "compareTitle": "和生物科技的差別",
+    "compareDescription": "生物科技著重基因、蛋白質等生物技術；生醫工程以工程為主，做的是醫療儀器、材料與感測系統。",
+    "foundationCourses": [
+      "微積分",
+      "普通物理",
+      "人體解剖學"
+    ],
+    "coreCourses": [
+      "訊號與系統",
+      "生醫材料",
+      "生物力學",
+      "電子電路學"
+    ],
+    "appliedCourses": [
+      "醫學影像處理",
+      "生醫訊號處理",
+      "生醫感測",
+      "醫學工程實驗"
+    ],
+    "source": {
+      "name": "Collego 大學選才與高中教學資源平台",
+      "url": "https://collego.edu.tw/Highschool/MajorIntro?current_major_id=20",
+      "checked": "2026-10-23"
+    }
+  },
+  "數學學類": {
+    "summary": "用抽象和邏輯推理，研究數量、結構與變化。",
+    "focusTitle": "這個學類在學什麼",
+    "focusDescription": "從微積分、線性代數開始，進到高等微積分、代數、複變與拓樸；應用數學系還會加重機率統計、數值方法與程式。",
+    "compareTitle": "數學系和應用數學系的差別",
+    "compareDescription": "數學系偏純粹理論與證明；應用數學系把數學用在統計、計算與科學問題上，程式比重較高。",
+    "foundationCourses": [
+      "微積分",
+      "線性代數",
+      "數學導論"
+    ],
+    "coreCourses": [
+      "高等微積分",
+      "代數",
+      "機率論",
+      "微分方程"
+    ],
+    "appliedCourses": [
+      "數值方法",
+      "複變函數論",
+      "拓樸學",
+      "程式設計"
+    ],
+    "source": {
+      "name": "Collego 大學選才與高中教學資源平台",
+      "url": "https://collego.edu.tw/Highschool/MajorIntro?current_major_id=25",
+      "checked": "2026-10-23"
+    }
+  },
+  "物理學類": {
+    "summary": "研究時空、物質與交互作用，是其他自然科學和工程的基礎。",
+    "focusTitle": "這個學類在學什麼",
+    "focusDescription": "先學普通物理、微積分和實驗，再進入力學、電磁學、熱與統計物理、量子物理，之後可往固態、光電、天文或生物物理發展。",
+    "compareTitle": "和光電、材料工程的差別",
+    "compareDescription": "物理重基礎原理與實驗、理論能力；光電與材料工程則把物理用在元件和材料開發，更貼近產業。",
+    "foundationCourses": [
+      "普通物理",
+      "微積分",
+      "普通物理實驗"
+    ],
+    "coreCourses": [
+      "力學",
+      "電磁學",
+      "量子物理",
+      "統計物理"
+    ],
+    "appliedCourses": [
+      "固態物理",
+      "光電物理",
+      "天文物理",
+      "半導體物理"
+    ],
+    "source": {
+      "name": "Collego 大學選才與高中教學資源平台",
+      "url": "https://collego.edu.tw/Highschool/MajorIntro?current_major_id=27",
+      "checked": "2026-10-23"
+    }
+  },
+  "生物科技學類": {
+    "summary": "以生物學為基礎，把生物體或它的產物用在醫療、食品、農業等產業。",
+    "focusTitle": "這個學類在學什麼",
+    "focusDescription": "先學普通生物、化學、物理，再學分子生物學、生物化學、微生物與免疫學，大部分課都搭配實驗，也有產業實習。",
+    "compareTitle": "和生命科學的差別",
+    "compareDescription": "生命科學偏基礎學理與生態保育；生物科技偏應用，目標是發展產業技術與產品。",
+    "foundationCourses": [
+      "普通生物學",
+      "普通化學",
+      "微積分"
+    ],
+    "coreCourses": [
+      "分子生物學",
+      "生物化學",
+      "細胞生物學",
+      "微生物學"
+    ],
+    "appliedCourses": [
+      "生物技術實驗",
+      "免疫學",
+      "生物資訊",
+      "產業實習"
+    ],
+    "source": {
+      "name": "Collego 大學選才與高中教學資源平台",
+      "url": "https://collego.edu.tw/Highschool/MajorIntro?current_major_id=50",
+      "checked": "2026-10-23"
+    }
+  },
+  "數據統計學類": {
+    "summary": "學習蒐集、整理和分析資料，用統計和程式找出意義、預測結果，協助做決策。",
+    "focusTitle": "這個學類在學什麼",
+    "focusDescription": "數學基礎是微積分、線性代數與機率，核心是統計學與數理統計，再學迴歸、實驗設計、多變量分析和大數據分析，統計軟體天天用。",
+    "compareTitle": "和數學、資訊管理的差別",
+    "compareDescription": "數學偏抽象理論；資訊工程、資管以程式與系統為主；數據統計則專注從資料中做出可靠的推論。",
+    "foundationCourses": [
+      "微積分",
+      "線性代數",
+      "機率論"
+    ],
+    "coreCourses": [
+      "統計學",
+      "數理統計",
+      "迴歸分析",
+      "抽樣調查方法"
+    ],
+    "appliedCourses": [
+      "多變量分析",
+      "時間序列分析",
+      "大數據分析",
+      "統計軟體應用"
+    ],
+    "source": {
+      "name": "Collego 大學選才與高中教學資源平台",
+      "url": "https://collego.edu.tw/Highschool/MajorIntro?current_major_id=132",
+      "checked": "2026-10-23"
+    }
+  },
+  "經濟學類": {
+    "summary": "研究在資源有限時，人和社會怎麼做選擇、如何分配最好。",
+    "focusTitle": "這個學類在學什麼",
+    "focusDescription": "分成個體經濟（消費與生產的決策）和總體經濟（成長、失業、政策），會大量用數學模型和資料分析，例如計量經濟學。",
+    "compareTitle": "和財務金融、數據統計的差別",
+    "compareDescription": "財務金融偏金融市場與投資；數據統計偏分析方法；經濟學則用理論和資料解釋整個社會的選擇。",
+    "foundationCourses": [
+      "經濟學原理",
+      "微積分",
+      "統計學"
+    ],
+    "coreCourses": [
+      "個體經濟學",
+      "總體經濟學",
+      "計量經濟學",
+      "貨幣銀行學"
+    ],
+    "appliedCourses": [
+      "國際貿易",
+      "財政學",
+      "產業經濟學",
+      "勞動經濟學"
+    ],
+    "source": {
+      "name": "Collego 大學選才與高中教學資源平台",
+      "url": "https://collego.edu.tw/Highschool/MajorIntro?current_major_id=117",
+      "checked": "2026-10-23"
+    }
+  },
+  "工業管理學類": {
+    "summary": "結合工程和管理，設計、改善人力、物料、資訊與能源系統，讓生產更有效率。",
+    "focusTitle": "這個學類在學什麼",
+    "focusDescription": "課程包括製造程序、生產管制、品質管制、供應鏈，以及統計、作業研究、系統模擬與資料庫，常到工廠做專題。",
+    "compareTitle": "和企業管理的差別",
+    "compareDescription": "企業管理著重組織、行銷與財務；工業管理偏工程背景，用數學和資料改善生產流程與品質。",
+    "foundationCourses": [
+      "統計學",
+      "程式設計",
+      "工程經濟"
+    ],
+    "coreCourses": [
+      "生產管制",
+      "品質管制",
+      "設施規劃",
+      "作業研究"
+    ],
+    "appliedCourses": [
+      "供應鏈管理",
+      "系統模擬",
+      "企業資源規劃",
+      "精實生產"
+    ],
+    "source": {
+      "name": "Collego 大學選才與高中教學資源平台",
+      "url": "https://collego.edu.tw/Highschool/MajorIntro?current_major_id=24",
+      "checked": "2026-10-23"
+    }
+  },
+  "休閒管理學類": {
+    "summary": "以管理學為基礎，學習規劃休閒、運動與遊憩活動，並經營相關場館。",
+    "focusTitle": "這個學類在學什麼",
+    "focusDescription": "除了管理、行銷、會計等商管課，也學休閒心理、戶外遊憩與觀光規劃，會實際企劃活動、到業界實習。",
+    "compareTitle": "和觀光、運動管理的差別",
+    "compareDescription": "觀光著重旅行社、航空與旅館；運動管理專注運動場館與賽事；休閒管理範圍較廣，包含各種休閒活動。",
+    "foundationCourses": [
+      "管理學",
+      "休閒產業概論",
+      "行銷學"
+    ],
+    "coreCourses": [
+      "休閒活動規劃",
+      "休閒心理學",
+      "戶外遊憩",
+      "人力資源管理"
+    ],
+    "appliedCourses": [
+      "觀光規劃",
+      "運動設施管理",
+      "活動企劃",
+      "產業實習"
+    ],
+    "source": {
+      "name": "Collego 大學選才與高中教學資源平台",
+      "url": "https://collego.edu.tw/Highschool/MajorIntro?current_major_id=123",
+      "checked": "2026-10-23"
+    }
+  },
+  "生命科學學類": {
+    "summary": "從分子、細胞到生態和演化，研究各種生命現象。",
+    "focusTitle": "這個學類在學什麼",
+    "focusDescription": "必修普通生物、化學、物理，再學生物化學、分子生物、遺傳、細胞生物，也有動植物生理、微生物與生態學，大多搭配實驗。",
+    "compareTitle": "和生物科技的差別",
+    "compareDescription": "生物科技偏產業應用；生命科學更重基礎學理、生物多樣性與生態保育。",
+    "foundationCourses": [
+      "普通生物學",
+      "普通化學",
+      "有機化學"
+    ],
+    "coreCourses": [
+      "生物化學",
+      "分子生物學",
+      "遺傳學",
+      "細胞生物學"
+    ],
+    "appliedCourses": [
+      "動物生理學",
+      "植物生理學",
+      "生態學",
+      "演化學"
+    ],
+    "source": {
+      "name": "Collego 大學選才與高中教學資源平台",
+      "url": "https://collego.edu.tw/Highschool/MajorIntro?current_major_id=49",
+      "checked": "2026-10-23"
+    }
+  },
+  "教育學類": {
+    "summary": "研究人為什麼要受教育、怎麼學得好，以及教育制度與政策。",
+    "focusTitle": "這個學類在學什麼",
+    "focusDescription": "先學教育心理、教育哲學、教育社會學，再學課程設計、教學方法、班級經營與教學評量，也會比較各國教育制度。",
+    "compareTitle": "和幼兒、特殊教育的差別",
+    "compareDescription": "幼兒教育專門培養幼兒園老師；特殊教育服務身心障礙與資賦優異學生；教育學類則研究整體教育理論與制度。",
+    "foundationCourses": [
+      "教育概論",
+      "教育心理學",
+      "教育哲學"
+    ],
+    "coreCourses": [
+      "課程理論",
+      "教學原理",
+      "班級經營",
+      "教育測驗與評量"
+    ],
+    "appliedCourses": [
+      "教育行政",
+      "比較教育",
+      "數位學習",
+      "教育研究法"
+    ],
+    "source": {
+      "name": "Collego 大學選才與高中教學資源平台",
+      "url": "https://collego.edu.tw/Highschool/MajorIntro?current_major_id=99",
+      "checked": "2026-10-23"
+    }
+  },
+  "化學學類": {
+    "summary": "研究物質的組成、結構、性質與變化，再延伸到生化、材料、藥物與能源。",
+    "focusTitle": "這個學類在學什麼",
+    "focusDescription": "核心是有機、無機、分析、物理化學四大化學，每一門幾乎都有實驗課；高年級可選儀器分析、藥物化學、能源材料，並做專題研究。",
+    "compareTitle": "和化學工程、材料工程的差別",
+    "compareDescription": "化學重理論與實驗室裡的反應；化工把反應放大成工廠製程；材料工程專注金屬、陶瓷、半導體等材料應用。",
+    "foundationCourses": [
+      "普通化學",
+      "微積分",
+      "普通物理"
+    ],
+    "coreCourses": [
+      "有機化學",
+      "無機化學",
+      "分析化學",
+      "物理化學"
+    ],
+    "appliedCourses": [
+      "儀器分析",
+      "生物化學",
+      "藥物化學",
+      "專題研究"
+    ],
+    "source": {
+      "name": "Collego 大學選才與高中教學資源平台",
+      "url": "https://collego.edu.tw/Highschool/MajorIntro?current_major_id=26",
+      "checked": "2026-10-23"
+    }
+  },
+  "護理學類": {
+    "summary": "以基礎醫學為本，學習照顧病人與促進健康，畢業可以考護理師執照。",
+    "focusTitle": "這個學類在學什麼",
+    "focusDescription": "先學解剖、生理、病理、藥理與微生物，再學內外科、產科、兒科、精神科和社區護理，每一科都有醫院臨床實習。",
+    "compareTitle": "和健康照護的差別",
+    "compareDescription": "護理以醫院臨床照護為主，有國家考試證照；健康照護偏長期照顧與照護管理，沒有專屬的國考證照。",
+    "foundationCourses": [
+      "解剖學",
+      "生理學",
+      "護理學導論"
+    ],
+    "coreCourses": [
+      "藥理學",
+      "病理學",
+      "內外科護理學",
+      "身體檢查與評估"
+    ],
+    "appliedCourses": [
+      "產兒科護理學",
+      "精神科護理學",
+      "社區衛生護理學",
+      "綜合臨床實習"
+    ],
+    "source": {
+      "name": "Collego 大學選才與高中教學資源平台",
+      "url": "https://collego.edu.tw/Highschool/MajorIntro?current_major_id=37",
+      "checked": "2026-10-23"
+    }
+  },
+  "美術學類": {
+    "summary": "在打好術科基礎後，學習用不同媒材表達自己的想法，創作出作品。",
+    "focusTitle": "這個學類在學什麼",
+    "focusDescription": "素描、色彩、水墨等基礎之外，可選繪畫、雕塑、版畫、新媒體等創作方向，也要讀美術史、藝術理論並練習論述與評論。",
+    "compareTitle": "和設計學類的差別",
+    "compareDescription": "設計以實用、服務他人為出發點；美術以創作者自己的想法與表達為核心。",
+    "foundationCourses": [
+      "素描",
+      "色彩學",
+      "水墨基礎"
+    ],
+    "coreCourses": [
+      "西洋美術史",
+      "中國美術史",
+      "藝術理論",
+      "當代藝術"
+    ],
+    "appliedCourses": [
+      "繪畫創作",
+      "雕塑",
+      "版畫",
+      "新媒體創作"
+    ],
+    "source": {
+      "name": "Collego 大學選才與高中教學資源平台",
+      "url": "https://collego.edu.tw/Highschool/MajorIntro?current_major_id=70",
+      "checked": "2026-10-23"
+    }
+  },
+  "文化產業學類": {
+    "summary": "以文化為基礎，結合設計、企劃與行銷，讓文創商品和展演發揮價值。",
+    "focusTitle": "這個學類在學什麼",
+    "focusDescription": "主要有文創商品設計、品牌經營、文化行政三個方向，課程包括文化產業概論、藝術行銷、展覽策劃，也有業界實習。",
+    "compareTitle": "和商業設計、企業管理的差別",
+    "compareDescription": "商業設計偏視覺與廣告設計；企業管理是通用的經營訓練；文化產業結合兩者，專門處理文化與藝術的內容。",
+    "foundationCourses": [
+      "文化產業概論",
+      "文化與藝術概論",
+      "文化研究概論"
+    ],
+    "coreCourses": [
+      "藝術行銷",
+      "品牌經營",
+      "文化行政",
+      "研究方法"
+    ],
+    "appliedCourses": [
+      "展覽策劃",
+      "數位策展",
+      "文創實習",
+      "企業實習"
+    ],
+    "source": {
+      "name": "Collego 大學選才與高中教學資源平台",
+      "url": "https://collego.edu.tw/Highschool/MajorIntro?current_major_id=80",
+      "checked": "2026-10-23"
+    }
+  },
+  "光電工程學類": {
+    "summary": "研究光和電的交互作用，應用在太陽能、LED、顯示器、雷射與生醫儀器。",
+    "focusTitle": "這個學類在學什麼",
+    "focusDescription": "基礎和電機相近，數學、物理、電子學都要學，再加上幾何光學、物理光學、光電子學，搭配光學實驗與專題。",
+    "compareTitle": "和電機工程的差別",
+    "compareDescription": "兩者基礎課很像；電機偏電學、控制與訊號處理，光電則專注光學理論與光電元件的設計。",
+    "foundationCourses": [
+      "微積分",
+      "普通物理",
+      "電子學"
+    ],
+    "coreCourses": [
+      "幾何光學",
+      "物理光學",
+      "光電子學",
+      "電磁學"
+    ],
+    "appliedCourses": [
+      "雷射原理",
+      "光電元件",
+      "光學實驗",
+      "光電工程專題"
+    ],
+    "source": {
+      "name": "Collego 大學選才與高中教學資源平台",
+      "url": "https://collego.edu.tw/Highschool/MajorIntro?current_major_id=10",
+      "checked": "2026-10-23"
+    }
+  },
+  "空間設計學類": {
+    "summary": "觀察人與環境的關係，設計兼顧美感與生態的室內外空間。",
+    "focusTitle": "這個學類在學什麼",
+    "focusDescription": "包括景觀和室內設計兩個方向：景觀學植栽、敷地與景觀工程，室內學住宅與商業空間、傢飾材料，都要不斷做設計和施工圖。",
+    "compareTitle": "和建築學類的差別",
+    "compareDescription": "建築著重建築物的量體、造型與結構安全；空間設計專注室內或戶外開放空間的使用與氛圍。",
+    "foundationCourses": [
+      "設計基礎",
+      "設計圖學",
+      "植栽概論"
+    ],
+    "coreCourses": [
+      "住宅空間設計",
+      "商業空間設計",
+      "景觀設計",
+      "材料與構造"
+    ],
+    "appliedCourses": [
+      "施工圖",
+      "工程管理與估價",
+      "景觀工程",
+      "畢業設計"
+    ],
+    "source": {
+      "name": "Collego 大學選才與高中教學資源平台",
+      "url": "https://collego.edu.tw/Highschool/MajorIntro?current_major_id=65",
+      "checked": "2026-10-23"
+    }
+  },
+  "日語文學類": {
+    "summary": "學習日語的聽說讀寫譯，並認識日本的文學、歷史與文化。",
+    "focusTitle": "這個學類在學什麼",
+    "focusDescription": "前兩年密集練語法、會話、聽力與寫作，之後學日本文學、日本史與社會、語言學，也有商業、觀光日語和口譯。",
+    "compareTitle": "日文系與應用日文系的差別",
+    "compareDescription": "日文系重日本文學與文化的深入理解；應用日文系偏商務日語與實務。",
+    "foundationCourses": [
+      "日語語法",
+      "日語會話",
+      "日語聽力"
+    ],
+    "coreCourses": [
+      "日語寫作",
+      "日本文學選讀",
+      "日本文化",
+      "日本語言學概論"
+    ],
+    "appliedCourses": [
+      "日語翻譯",
+      "商業日語",
+      "觀光日語",
+      "日語口譯"
+    ],
+    "source": {
+      "name": "Collego 大學選才與高中教學資源平台",
+      "url": "https://collego.edu.tw/Highschool/MajorIntro?current_major_id=90",
+      "checked": "2026-10-23"
+    }
+  },
+  "運輸物流學類": {
+    "summary": "學習陸、海、空各種運輸和物流系統怎麼有效運作。",
+    "focusTitle": "這個學類在學什麼",
+    "focusDescription": "結合工程、資訊與管理，課程有運輸學、作業研究、公共與航空運輸、物流與供應鏈，也學交通工程與智慧運輸。",
+    "compareTitle": "和企業管理、土木、都市計畫的差別",
+    "compareDescription": "企管偏公司經營；土木的交通組偏道路與橋梁工程；都市計畫整合交通和土地使用；運輸物流聚焦人和貨怎麼移動。",
+    "foundationCourses": [
+      "運輸學",
+      "經濟學",
+      "統計學"
+    ],
+    "coreCourses": [
+      "作業研究",
+      "物流管理",
+      "供應鏈管理",
+      "航空運輸"
+    ],
+    "appliedCourses": [
+      "交通工程",
+      "智慧型運輸系統",
+      "運輸規劃",
+      "交通政策"
+    ],
+    "source": {
+      "name": "Collego 大學選才與高中教學資源平台",
+      "url": "https://collego.edu.tw/Highschool/MajorIntro?current_major_id=110",
+      "checked": "2026-10-23"
+    }
+  },
+  "化學工程學類": {
+    "summary": "運用化學、物理與工程原理設計工業製程，以合理成本大量生產化學產品。",
+    "focusTitle": "這個學類在學什麼",
+    "focusDescription": "重點是質能平衡、熱力學、輸送現象、單元操作與反應工程，再學程序控制與化工程序設計，應用在石化、製藥、半導體與能源。",
+    "compareTitle": "和化學學類的差別",
+    "compareDescription": "化學偏學科理論與實驗；化工要把反應放大到工廠規模，處理設計、成本與安全。",
+    "foundationCourses": [
+      "普通化學",
+      "微積分",
+      "工程數學"
+    ],
+    "coreCourses": [
+      "質能均衡",
+      "化工熱力學",
+      "單元操作",
+      "化學反應工程"
+    ],
+    "appliedCourses": [
+      "程序控制",
+      "化工程序設計",
+      "化工實驗",
+      "專題研究"
+    ],
+    "source": {
+      "name": "Collego 大學選才與高中教學資源平台",
+      "url": "https://collego.edu.tw/Highschool/MajorIntro?current_major_id=18",
+      "checked": "2026-10-23"
+    }
+  },
+  "材料工程學類": {
+    "summary": "以物理、化學為基礎，研究材料的結構、製程與性質，改良或設計新材料。",
+    "focusTitle": "這個學類在學什麼",
+    "focusDescription": "學材料科學導論、材料熱力學與動力學、物理冶金、材料分析，對象包括金屬、陶瓷、高分子和半導體材料。",
+    "compareTitle": "和化工、光電、機械工程的差別",
+    "compareDescription": "化工偏石化製程；光電偏光學元件；機械偏元件設計製造；材料工程則專注材料本身的性質與製程。",
+    "foundationCourses": [
+      "普通化學",
+      "普通物理",
+      "材料科學導論"
+    ],
+    "coreCourses": [
+      "材料熱力學",
+      "物理冶金",
+      "晶體結構與缺陷",
+      "材料分析"
+    ],
+    "appliedCourses": [
+      "材料性質",
+      "半導體材料",
+      "材料實驗",
+      "專題研究"
+    ],
+    "source": {
+      "name": "Collego 大學選才與高中教學資源平台",
+      "url": "https://collego.edu.tw/Highschool/MajorIntro?current_major_id=19",
+      "checked": "2026-10-23"
+    }
+  },
+  "特殊教育學類": {
+    "summary": "為身心障礙或資賦優異等有特殊需求的學生，設計個別化的教學與支持。",
+    "focusTitle": "這個學類在學什麼",
+    "focusDescription": "學特殊教育導論、評量與鑑定、個別化教育計畫、行為改變技術與課程調整，再分別學身障與資優學生的教材教法，大四到學校教學實習。",
+    "compareTitle": "和教育學類的差別",
+    "compareDescription": "兩者理論基礎相近；教育學類培養一般學生的老師，特殊教育專門支援有特殊需求的學生。",
+    "foundationCourses": [
+      "特殊教育導論",
+      "教育心理學",
+      "資優教育概論"
+    ],
+    "coreCourses": [
+      "評量與鑑定",
+      "個別化教育計畫",
+      "行為改變技術",
+      "課程調整與教學設計"
+    ],
+    "appliedCourses": [
+      "融合教育",
+      "正向行為支持",
+      "身障教材教法",
+      "教學實習"
+    ],
+    "source": {
+      "name": "Collego 大學選才與高中教學資源平台",
+      "url": "https://collego.edu.tw/Highschool/MajorIntro?current_major_id=100",
+      "checked": "2026-10-23"
+    }
+  },
+  "數位學習學類": {
+    "summary": "結合教育、資訊與媒體設計，用數位工具做教材，打造互動的學習環境。",
+    "focusTitle": "這個學類在學什麼",
+    "focusDescription": "學習理論、教學設計與程式設計並重，會實際做互動教材和線上課程，並學專案管理，最後完成畢業專題與展覽。",
+    "compareTitle": "和科技教育、媒體設計的差別",
+    "compareDescription": "科技教育培養生活科技老師；媒體設計做動畫與遊戲；數位學習則專注把科技和媒體用在「學習」上。",
+    "foundationCourses": [
+      "數位學習概論",
+      "學習心理學",
+      "程式設計"
+    ],
+    "coreCourses": [
+      "教學設計",
+      "互動教材設計",
+      "課程發展與設計",
+      "教育科技"
+    ],
+    "appliedCourses": [
+      "系統化教學專案",
+      "學習設計實作",
+      "畢業專題",
+      "專業實習"
+    ],
+    "source": {
+      "name": "Collego 大學選才與高中教學資源平台",
+      "url": "https://collego.edu.tw/Highschool/MajorIntro?current_major_id=6",
+      "checked": "2026-10-23"
+    }
+  },
+  "醫務管理學類": {
+    "summary": "學習醫院等醫療機構的流程、人力與資訊管理，是不直接照顧病人的醫療工作。",
+    "focusTitle": "這個學類在學什麼",
+    "focusDescription": "先學管理、會計、統計和解剖生理，再學醫務管理、醫療品質、醫療法規、醫療資訊與健康保險，並到醫院見習或實習。",
+    "compareTitle": "和行政管理、護理的差別",
+    "compareDescription": "行政管理面對一般公部門；護理在臨床照護病人；醫務管理專注醫療機構的營運與品質。",
+    "foundationCourses": [
+      "管理學",
+      "會計學",
+      "解剖生理學"
+    ],
+    "coreCourses": [
+      "醫務管理",
+      "醫療品質管理",
+      "醫療衛生法規",
+      "醫療資訊學"
+    ],
+    "appliedCourses": [
+      "健康保險與支付制度",
+      "病歷管理",
+      "流行病學",
+      "醫務管理實習"
+    ],
+    "source": {
+      "name": "Collego 大學選才與高中教學資源平台",
+      "url": "https://collego.edu.tw/Highschool/MajorIntro?current_major_id=47",
+      "checked": "2026-10-23"
+    }
+  },
+  "輔導諮商學類": {
+    "summary": "運用心理學，協助人面對人際、情緒與自我發展的困擾。",
+    "focusTitle": "這個學類在學什麼",
+    "focusDescription": "先學發展、人格、變態、社會心理學與心理測驗，再學輔導原理、諮商理論與技術、團體諮商，並在實習中練習晤談。",
+    "compareTitle": "和心理學、社會工作的差別",
+    "compareDescription": "心理學偏理論與科學研究；社會工作著重連結社會資源；輔導諮商則透過晤談與團體，直接陪伴個人。",
+    "foundationCourses": [
+      "普通心理學",
+      "發展心理學",
+      "教育心理學"
+    ],
+    "coreCourses": [
+      "諮商理論與技術",
+      "心理測驗與評量",
+      "團體諮商",
+      "變態心理學"
+    ],
+    "appliedCourses": [
+      "輔導方案設計",
+      "危機處理",
+      "助人專業倫理",
+      "諮商實習"
+    ],
+    "source": {
+      "name": "Collego 大學選才與高中教學資源平台",
+      "url": "https://collego.edu.tw/Highschool/MajorIntro?current_major_id=81",
+      "checked": "2026-10-23"
+    }
+  },
+  "公共衛生學類": {
+    "summary": "從群體的角度預防疾病、促進健康，讓更多人活得更久、更健康。",
+    "focusTitle": "這個學類在學什麼",
+    "focusDescription": "五大領域是生物統計、流行病學、衛生行政與政策、環境與職業衛生、健康行為與衛生教育，常用資料分析研究整個族群的健康。",
+    "compareTitle": "和醫學、護理、食品營養的差別",
+    "compareDescription": "醫學、牙醫和護理照顧個別病人；食品營養專注飲食；公共衛生關心整個社會的健康與政策。",
+    "foundationCourses": [
+      "生物統計學",
+      "公共衛生概論",
+      "普通生物學"
+    ],
+    "coreCourses": [
+      "流行病學",
+      "衛生行政",
+      "環境衛生學",
+      "職業衛生學"
+    ],
+    "appliedCourses": [
+      "健康政策",
+      "健康促進與衛生教育",
+      "傳染病流行病學",
+      "公衛實習"
+    ],
+    "source": {
+      "name": "Collego 大學選才與高中教學資源平台",
+      "url": "https://collego.edu.tw/Highschool/MajorIntro?current_major_id=33",
+      "checked": "2026-10-23"
+    }
+  },
+  "商業設計學類": {
+    "summary": "結合視覺傳達、行銷與數位科技，用設計解決廣告、品牌、包裝等問題。",
+    "focusTitle": "這個學類在學什麼",
+    "focusDescription": "從素描、基本設計、色彩學開始，學編排、字體、插畫、廣告與包裝設計，也碰網頁、動畫與影像，最後做畢業專題與作品集。",
+    "compareTitle": "和工業設計、媒體設計的差別",
+    "compareDescription": "工業設計做實體產品；媒體設計做動畫與遊戲；商業設計用圖像與文字傳遞訊息、建立品牌。",
+    "foundationCourses": [
+      "設計素描",
+      "基本設計",
+      "色彩學"
+    ],
+    "coreCourses": [
+      "視覺傳達設計",
+      "編排設計",
+      "廣告設計",
+      "品牌設計"
+    ],
+    "appliedCourses": [
+      "包裝設計",
+      "網頁設計",
+      "作品集設計",
+      "畢業專題"
+    ],
+    "source": {
+      "name": "Collego 大學選才與高中教學資源平台",
+      "url": "https://collego.edu.tw/Highschool/MajorIntro?current_major_id=68",
+      "checked": "2026-10-23"
+    }
+  },
+  "幼兒教育學類": {
+    "summary": "以 2 到 6 歲幼兒的發展與學習為核心，培養幼兒園老師與教保員。",
+    "focusTitle": "這個學類在學什麼",
+    "focusDescription": "學幼兒發展、幼兒觀察、課程設計與教材教法，也學幼兒文學、藝術、戲劇、體能和學習環境規劃，最後到幼兒園實習。",
+    "compareTitle": "和教育學類的差別",
+    "compareDescription": "幼兒教育專門培養幼兒園師資；教育學類主要培養國小以上師資與教育行政人才。",
+    "foundationCourses": [
+      "教育概論",
+      "幼兒發展",
+      "幼兒觀察"
+    ],
+    "coreCourses": [
+      "幼兒園課程設計",
+      "幼兒遊戲",
+      "幼兒學習環境設計",
+      "幼兒園教材教法"
+    ],
+    "appliedCourses": [
+      "幼兒文學",
+      "幼兒藝術",
+      "特殊幼兒教育",
+      "幼兒園教學實習"
+    ],
+    "source": {
+      "name": "Collego 大學選才與高中教學資源平台",
+      "url": "https://collego.edu.tw/Highschool/MajorIntro?current_major_id=101",
+      "checked": "2026-10-23"
+    }
+  },
+  "土木工程學類": {
+    "summary": "規劃、設計、建造和維護道路、橋梁、隧道、堤防等公共建設。",
+    "focusTitle": "這個學類在學什麼",
+    "focusDescription": "核心是結構、大地、水利三大領域，學材料力學、結構學、土壤力學與流體力學，也學測量、營建管理和防災，會用到無人機和 AI 新技術。",
+    "compareTitle": "和建築學類的差別",
+    "compareDescription": "建築偏美學與空間配置；土木偏結構安全與施工，處理的尺度常是整座橋或整條路。",
+    "foundationCourses": [
+      "微積分",
+      "普通物理",
+      "工程圖學"
+    ],
+    "coreCourses": [
+      "材料力學",
+      "結構學",
+      "土壤力學",
+      "流體力學"
+    ],
+    "appliedCourses": [
+      "鋼筋混凝土",
+      "測量學",
+      "營建管理",
+      "運輸工程"
+    ],
+    "source": {
+      "name": "Collego 大學選才與高中教學資源平台",
+      "url": "https://collego.edu.tw/Highschool/MajorIntro?current_major_id=16",
+      "checked": "2026-10-23"
+    }
+  },
+  "社會學學類": {
+    "summary": "從社會結構與制度的角度，分析社會現象和人的行為。",
+    "focusTitle": "這個學類在學什麼",
+    "focusDescription": "學社會學理論、社會心理學、性別與族群議題、社會福利與政策，研究方法很重要，包括社會統計、問卷和質性訪談。",
+    "compareTitle": "和政治、經濟、心理、社工的差別",
+    "compareDescription": "政治學看國家與制度；經濟學看生產與分配；心理學看個人；社工是助人專業；社會學則分析整個社會的結構。",
+    "foundationCourses": [
+      "社會學",
+      "社會學理論",
+      "政治學"
+    ],
+    "coreCourses": [
+      "社會統計學",
+      "社會研究法",
+      "社會心理學",
+      "性別研究"
+    ],
+    "appliedCourses": [
+      "質性研究",
+      "多元文化",
+      "社會福利概論",
+      "社會實踐"
+    ],
+    "source": {
+      "name": "Collego 大學選才與高中教學資源平台",
+      "url": "https://collego.edu.tw/Highschool/MajorIntro?current_major_id=75",
+      "checked": "2026-10-23"
+    }
+  },
+  "食品營養學類": {
+    "summary": "研究食物中的營養素如何影響健康，以及不同年齡或疾病時需要怎麼吃。",
+    "focusTitle": "這個學類在學什麼",
+    "focusDescription": "基礎是化學、生化與生理學，核心是營養學、膳食療養、營養評估與社區營養，也學營養諮商與教育，許多人以營養師為目標。",
+    "compareTitle": "和食品生技、餐旅管理的差別",
+    "compareDescription": "食品生技偏食品加工製造；餐旅管理偏烹調與餐飲經營；食品營養關心吃進去後對健康的影響。",
+    "foundationCourses": [
+      "有機化學",
+      "生物化學",
+      "生理學"
+    ],
+    "coreCourses": [
+      "營養學",
+      "食物學原理",
+      "膳食療養學",
+      "營養評估"
+    ],
+    "appliedCourses": [
+      "社區營養",
+      "團體膳食管理",
+      "營養諮商與教育",
+      "食品衛生與法規"
+    ],
+    "source": {
+      "name": "Collego 大學選才與高中教學資源平台",
+      "url": "https://collego.edu.tw/Highschool/MajorIntro?current_major_id=41",
+      "checked": "2026-10-23"
+    }
+  },
+  "食品生技學類": {
+    "summary": "研究食品怎麼加工、保存和檢驗，兼顧效率、成本、安全與美味。",
+    "focusTitle": "這個學類在學什麼",
+    "focusDescription": "以化學和微生物為基礎，學食品化學、食品分析、食品加工、食品工程與品質管制，也會在食品工廠實習。",
+    "compareTitle": "和食品營養的差別",
+    "compareDescription": "食品生技談的是「吃以前」的加工與安全；食品營養談「吃以後」的吸收與健康。",
+    "foundationCourses": [
+      "有機化學",
+      "分析化學",
+      "生物化學"
+    ],
+    "coreCourses": [
+      "食品化學",
+      "食品加工學",
+      "食品微生物學",
+      "食品分析"
+    ],
+    "appliedCourses": [
+      "食品工程",
+      "品質管制",
+      "食品法規",
+      "食品加工實習"
+    ],
+    "source": {
+      "name": "Collego 大學選才與高中教學資源平台",
+      "url": "https://collego.edu.tw/Highschool/MajorIntro?current_major_id=58",
+      "checked": "2026-10-23"
+    }
+  },
+  "政治學類": {
+    "summary": "用科學方法研究權力與公共資源如何分配，分析政治現象並提出政策建議。",
+    "focusTitle": "這個學類在學什麼",
+    "focusDescription": "基礎是政治學、憲法與政府、研究方法，之後分成政治理論、國際關係、比較政治、公共行政等方向，也會學民意調查。",
+    "compareTitle": "和法律、社會學的差別",
+    "compareDescription": "法律關注法條的內容與適用；社會學探討社會群體；政治學聚焦政府、權力與國際之間的互動。",
+    "foundationCourses": [
+      "政治學",
+      "憲法與政府",
+      "統計學"
+    ],
+    "coreCourses": [
+      "政治哲學",
+      "國際關係",
+      "比較政府與政治",
+      "公共政策"
+    ],
+    "appliedCourses": [
+      "兩岸關係",
+      "國際公法",
+      "外交決策",
+      "民意調查"
+    ],
+    "source": {
+      "name": "Collego 大學選才與高中教學資源平台",
+      "url": "https://collego.edu.tw/Highschool/MajorIntro?current_major_id=106",
+      "checked": "2026-10-23"
+    }
+  },
+  "表演藝術學類": {
+    "summary": "以劇場為核心，培養舞台上的表演者和幕後的創作與技術人才。",
+    "focusTitle": "這個學類在學什麼",
+    "focusDescription": "幕前學表演、聲音、肢體與導演；幕後學舞台、燈光、服裝設計與技術；也讀劇本分析和中西戲劇史，每年都有戲劇製作。",
+    "compareTitle": "和音樂、舞蹈、廣電電影的差別",
+    "compareDescription": "音樂與舞蹈各自專精一種表演；廣電電影面對鏡頭；表演藝術以現場劇場為主，整合各種幕前幕後工作。",
+    "foundationCourses": [
+      "戲劇與劇場導論",
+      "表演",
+      "劇本分析"
+    ],
+    "coreCourses": [
+      "導演",
+      "編劇",
+      "舞台設計",
+      "燈光設計"
+    ],
+    "appliedCourses": [
+      "戲劇製作",
+      "舞台監督",
+      "化妝與造型",
+      "畢業製作"
+    ],
+    "source": {
+      "name": "Collego 大學選才與高中教學資源平台",
+      "url": "https://collego.edu.tw/Highschool/MajorIntro?current_major_id=72",
+      "checked": "2026-10-23"
+    }
+  },
+  "歷史學類": {
+    "summary": "從留下來的資料探究過去的人、事和環境，培養閱讀、寫作與批判能力。",
+    "focusTitle": "這個學類在學什麼",
+    "focusDescription": "先學中國史、臺灣史、世界史和史學方法，再選各個朝代或地區的專史，也有影像史學、飲食文化史等貼近生活的課。",
+    "compareTitle": "和人類民族、中文的差別",
+    "compareDescription": "人類民族學用田野調查研究當代族群；中文系重文學與經典；歷史學則從史料重建和解釋過去。",
+    "foundationCourses": [
+      "史學導論",
+      "中國通史",
+      "世界通史"
+    ],
+    "coreCourses": [
+      "臺灣通史",
+      "史學方法",
+      "斷代史",
+      "區域史"
+    ],
+    "appliedCourses": [
+      "影像史學",
+      "歷史與記憶",
+      "文化史",
+      "專題研究"
+    ],
+    "source": {
+      "name": "Collego 大學選才與高中教學資源平台",
+      "url": "https://collego.edu.tw/Highschool/MajorIntro?current_major_id=94",
+      "checked": "2026-10-23"
+    }
+  },
+  "土地資產學類": {
+    "summary": "結合測量、法規與經濟，學習規劃和管理土地與不動產。",
+    "focusTitle": "這個學類在學什麼",
+    "focusDescription": "課程包括土地法、民法、土地經濟、不動產估價與投資、都市計畫，也要學測量、地籍測量與遙感探測，有實際的規劃實務課。",
+    "compareTitle": "和都市計畫、法律的差別",
+    "compareDescription": "都市計畫偏城市規劃，法律偏法制；土地資產兩者都學，還要會測量和估價。",
+    "foundationCourses": [
+      "土地法",
+      "民法",
+      "土地經濟學"
+    ],
+    "coreCourses": [
+      "不動產估價",
+      "都市計畫",
+      "不動產投資",
+      "地籍測量"
+    ],
+    "appliedCourses": [
+      "土地使用管制",
+      "遙感探測",
+      "不動產登記",
+      "規劃實務"
+    ],
+    "source": {
+      "name": "Collego 大學選才與高中教學資源平台",
+      "url": "https://collego.edu.tw/Highschool/MajorIntro?current_major_id=111",
+      "checked": "2026-10-23"
+    }
+  },
+  "運動管理學類": {
+    "summary": "用管理理論經營運動事業，例如舉辦賽事或經營運動場館。",
+    "focusTitle": "這個學類在學什麼",
+    "focusDescription": "一半是管理學、行銷與財務，一半是運動生理、運動心理等運動科學，再學運動組織行政、賽會管理與運動行銷，常到業界實習。",
+    "compareTitle": "和體育、休閒管理的差別",
+    "compareDescription": "體育重運動能力與教學；休閒管理範圍廣，涵蓋各種休閒觀光；運動管理專注運動組織和賽事的經營。",
+    "foundationCourses": [
+      "管理學",
+      "運動生理學",
+      "運動心理學"
+    ],
+    "coreCourses": [
+      "運動組織與行政",
+      "運動賽會管理",
+      "運動行銷",
+      "財務管理"
+    ],
+    "appliedCourses": [
+      "運動場館經營",
+      "運動產業實習",
+      "活動企劃",
+      "運動媒體"
+    ],
+    "source": {
+      "name": "Collego 大學選才與高中教學資源平台",
+      "url": "https://collego.edu.tw/Highschool/MajorIntro?current_major_id=121",
+      "checked": "2026-10-23"
+    }
+  },
+  "運動保健學類": {
+    "summary": "結合運動和醫學，學習預防與處理運動傷害，並指導體適能訓練。",
+    "focusTitle": "這個學類在學什麼",
+    "focusDescription": "基礎是解剖學、生理學與運動醫學，之後學運動傷害防護、運動貼紮、急救與運動處方，也練肌力訓練和體適能指導。",
+    "compareTitle": "和物理治療、運動管理的差別",
+    "compareDescription": "物理治療照顧受傷或生病後的病人復健；運動管理經營運動事業；運動保健專注運動員的防護與體能。",
+    "foundationCourses": [
+      "人體解剖學",
+      "人體生理學",
+      "運動保健學導論"
+    ],
+    "coreCourses": [
+      "運動傷害防護學",
+      "健康體適能",
+      "運動處方",
+      "運動貼紮"
+    ],
+    "appliedCourses": [
+      "急救學與實習",
+      "肌力訓練",
+      "體適能指導",
+      "健康管理"
+    ],
+    "source": {
+      "name": "Collego 大學選才與高中教學資源平台",
+      "url": "https://collego.edu.tw/Highschool/MajorIntro?current_major_id=48",
+      "checked": "2026-10-23"
+    }
+  },
+  "行銷經營學類": {
+    "summary": "研究市場和消費者，規劃產品、價格、通路與推廣的行銷策略。",
+    "focusTitle": "這個學類在學什麼",
+    "focusDescription": "先修商管共同基礎，再學行銷管理、消費者行為、行銷研究、品牌管理與網路行銷，常用市場資料做決策。",
+    "compareTitle": "和企業管理的差別",
+    "compareDescription": "企業管理同時學財務、人資、生產，偏通才；行銷經營集中在市場與行銷策略。",
+    "foundationCourses": [
+      "管理學",
+      "經濟學",
+      "統計學"
+    ],
+    "coreCourses": [
+      "行銷管理",
+      "消費者行為",
+      "行銷研究",
+      "品牌管理"
+    ],
+    "appliedCourses": [
+      "網路行銷",
+      "顧客關係管理",
+      "廣告學",
+      "行銷策略"
+    ],
+    "source": {
+      "name": "Collego 大學選才與高中教學資源平台",
+      "url": "https://collego.edu.tw/Highschool/MajorIntro?current_major_id=109",
+      "checked": "2026-10-23"
+    }
+  },
+  "醫學檢驗學類": {
+    "summary": "結合基礎醫學與檢驗技術，分析血液等檢體，提供醫師診斷的依據。",
+    "focusTitle": "這個學類在學什麼",
+    "focusDescription": "先學生物、化學、生理與病理，再學臨床血液、臨床生化、臨床微生物、血清免疫等，每科都有實驗，最後在醫院實習，可考醫事檢驗師。",
+    "compareTitle": "和生物科技的差別",
+    "compareDescription": "生物科技把生物技術用在各種產業；醫學檢驗聚焦臨床檢體的分析與品管。",
+    "foundationCourses": [
+      "普通生物學",
+      "生物化學",
+      "生理學"
+    ],
+    "coreCourses": [
+      "臨床血液學",
+      "臨床生化學",
+      "臨床微生物學",
+      "臨床血清免疫學"
+    ],
+    "appliedCourses": [
+      "分子診斷",
+      "實驗室品管",
+      "病理與細胞診斷",
+      "醫院實習"
+    ],
+    "source": {
+      "name": "Collego 大學選才與高中教學資源平台",
+      "url": "https://collego.edu.tw/Highschool/MajorIntro?current_major_id=38",
+      "checked": "2026-10-23"
+    }
+  },
+  "通訊工程學類": {
+    "summary": "運用數學與電子科學，研究訊息怎麼傳送、轉換，例如手機與無線網路。",
+    "focusTitle": "這個學類在學什麼",
+    "focusDescription": "先學電路、電子學與工程數學，再學訊號與系統、通訊原理、數位通訊和無線通訊，也有數位訊號處理與程式實驗。",
+    "compareTitle": "和電機、資訊工程的差別",
+    "compareDescription": "通訊是電機的重要分支，更專注訊號與傳輸；資訊工程偏軟體、電腦與網路。",
+    "foundationCourses": [
+      "微積分",
+      "電路學",
+      "程式設計"
+    ],
+    "coreCourses": [
+      "訊號與系統",
+      "通訊原理",
+      "數位通訊",
+      "電磁學"
+    ],
+    "appliedCourses": [
+      "無線通訊",
+      "數位訊號處理",
+      "網路通訊",
+      "微處理機實驗"
+    ],
+    "source": {
+      "name": "Collego 大學選才與高中教學資源平台",
+      "url": "https://collego.edu.tw/Highschool/MajorIntro?current_major_id=12",
+      "checked": "2026-10-23"
+    }
+  },
+  "歐語文學類": {
+    "summary": "學習法、德、西等歐洲語言的聽說讀寫譯，並認識歐洲的文學、藝術與社會。",
+    "focusTitle": "這個學類在學什麼",
+    "focusDescription": "前兩年從零開始練讀本、文法、作文、會話與發音，之後進到進階語言課、翻譯與文學賞析，也有歐洲歷史與文化課。",
+    "compareTitle": "和英語文、日語文的差別",
+    "compareDescription": "英語文多數人已有基礎，偏英美文學；歐語文大多從零學起，接觸的是歐陸國家的語言與文化。",
+    "foundationCourses": [
+      "初級文法",
+      "初級會話",
+      "發音與聽力訓練"
+    ],
+    "coreCourses": [
+      "進階讀本",
+      "進階文法",
+      "進階作文",
+      "進階會話"
+    ],
+    "appliedCourses": [
+      "翻譯",
+      "文學賞析",
+      "歐洲文化",
+      "歐洲歷史"
+    ],
+    "source": {
+      "name": "Collego 大學選才與高中教學資源平台",
+      "url": "https://collego.edu.tw/Highschool/MajorIntro?current_major_id=89",
+      "checked": "2026-10-23"
+    }
+  },
+  "都市計畫學類": {
+    "summary": "整合社會、經濟、土地與交通，規劃一座城市該怎麼發展。",
+    "focusTitle": "這個學類在學什麼",
+    "focusDescription": "學規劃理論、土地使用、都市設計、都市交通與防災，也學都市經濟和法規，常用地理資訊系統分析，並在實習課實際提出規劃方案。",
+    "compareTitle": "和建築、空間設計、土地資產的差別",
+    "compareDescription": "建築設計單一建築物；空間設計聚焦室內與景觀；土地資產偏土地管理；都市計畫看的是整座城市。",
+    "foundationCourses": [
+      "都市環境概論",
+      "統計學",
+      "設計概論"
+    ],
+    "coreCourses": [
+      "都市及區域規劃理論",
+      "都市土地使用計畫",
+      "都市設計",
+      "都市交通計畫"
+    ],
+    "appliedCourses": [
+      "地理資訊系統",
+      "都市更新",
+      "都市防災",
+      "規劃與設計實習"
+    ],
+    "source": {
+      "name": "Collego 大學選才與高中教學資源平台",
+      "url": "https://collego.edu.tw/Highschool/MajorIntro?current_major_id=64",
+      "checked": "2026-10-23"
+    }
+  },
+  "水利工程學類": {
+    "summary": "以水文和流體力學為基礎，處理水資源開發、防洪排水與河川海岸問題。",
+    "focusTitle": "這個學類在學什麼",
+    "focusDescription": "先學工程數學與流體力學，再學水文學、明渠水力學、水資源工程，搭配流體實驗與防洪排水工程設計。",
+    "compareTitle": "和環境、土木工程的差別",
+    "compareDescription": "環境工程偏污染防治；土木工程偏結構與耐震；水利工程專注「水」的調度與防災。",
+    "foundationCourses": [
+      "工程數學",
+      "微積分",
+      "普通物理"
+    ],
+    "coreCourses": [
+      "流體力學",
+      "水文學",
+      "明渠水力學",
+      "水資源工程"
+    ],
+    "appliedCourses": [
+      "流體力學實驗",
+      "防洪及排水工程設計",
+      "海岸工程",
+      "生態工程"
+    ],
+    "source": {
+      "name": "Collego 大學選才與高中教學資源平台",
+      "url": "https://collego.edu.tw/Highschool/MajorIntro?current_major_id=17",
+      "checked": "2026-10-23"
+    }
+  },
+  "生物資訊學類": {
+    "summary": "結合生物、電腦與數學，用程式和統計分析基因等大量資料，研究基因與疾病。",
+    "focusTitle": "這個學類在學什麼",
+    "focusDescription": "一邊學生物學、分子生物與生物化學，一邊學程式設計、資料結構與統計，再把兩者結合分析基因定序資料。",
+    "compareTitle": "和生物科技的差別",
+    "compareDescription": "生物科技在實驗室做分子實驗；生物資訊在電腦上處理和分析生物資料。",
+    "foundationCourses": [
+      "普通生物學",
+      "微積分",
+      "程式設計"
+    ],
+    "coreCourses": [
+      "分子生物學",
+      "生物化學",
+      "資料結構",
+      "統計學"
+    ],
+    "appliedCourses": [
+      "基因體資料分析",
+      "生物資料庫",
+      "演算法",
+      "實驗室實習"
+    ],
+    "source": {
+      "name": "Collego 大學選才與高中教學資源平台",
+      "url": "https://collego.edu.tw/Highschool/MajorIntro?current_major_id=2",
+      "checked": "2026-10-23"
+    }
+  },
+  "工程跨學類": {
+    "summary": "以數理和基礎科學為根基，跨電機、機械、資訊、材料等工程領域學習，再延伸到能源、生醫與 AI 等新興方向。",
+    "focusTitle": "這個學類在學什麼",
+    "focusDescription": "多是工學院學士班或跨領域學程，大一大二修共同的數理與工程基礎，之後依興趣選定專長，各校的課程路徑差異很大。",
+    "compareTitle": "和單一工程學類的差別",
+    "compareDescription": "電機、資訊、環工等學類一進去就走固定專業；工程跨學類讓你先廣泛接觸，再決定方向。",
+    "foundationCourses": [
+      "微積分",
+      "普通物理",
+      "程式設計"
+    ],
+    "coreCourses": [
+      "工程數學",
+      "電路學",
+      "工程力學",
+      "材料科學導論"
+    ],
+    "appliedCourses": [
+      "綠色能源",
+      "人工智慧應用",
+      "生醫工程",
+      "跨域專題"
+    ],
+    "source": {
+      "name": "Collego 大學選才與高中教學資源平台",
+      "url": "https://collego.edu.tw/Highschool/MajorIntro?current_major_id=127",
+      "checked": "2026-10-23"
+    }
+  },
+  "自然科學學類": {
+    "summary": "以物理、化學、生物、地球科學為基礎，培養科學思考與實驗能力。",
+    "focusTitle": "這個學類在學什麼",
+    "focusDescription": "四門基礎科學都要修，再依興趣深入，也可結合資訊、管理或教育，發展應用科學或科學教育專長。",
+    "compareTitle": "和化學、物理學類的差別",
+    "compareDescription": "化學、物理各自深入一門科學；自然科學學類範圍較廣，適合還想多方接觸的人。",
+    "foundationCourses": [
+      "普通化學",
+      "普通物理",
+      "普通生物學"
+    ],
+    "coreCourses": [
+      "地球科學導論",
+      "有機化學",
+      "電磁學",
+      "古典力學"
+    ],
+    "appliedCourses": [
+      "環境化學",
+      "熱力學",
+      "科學史哲",
+      "專題研究"
+    ],
+    "source": {
+      "name": "Collego 大學選才與高中教學資源平台",
+      "url": "https://collego.edu.tw/Highschool/MajorIntro?current_major_id=28",
+      "checked": "2026-10-23"
+    }
+  },
+  "職能治療學類": {
+    "summary": "透過有目的的活動，幫助身心受損的人恢復功能，重新獨立生活。",
+    "focusTitle": "這個學類在學什麼",
+    "focusDescription": "先學解剖、生理、心理等醫學基礎，再學職能治療評估、活動分析，分成生理、兒童、心理、社區四個領域，最後到醫院臨床實習。",
+    "compareTitle": "和物理治療的差別",
+    "compareDescription": "物理治療以運動、儀器等物理方式處理身體問題；職能治療聚焦日常活動、心智與生活能力的恢復。",
+    "foundationCourses": [
+      "解剖學",
+      "生理學",
+      "職能治療導論"
+    ],
+    "coreCourses": [
+      "職能治療評估學",
+      "活動分析與應用",
+      "兒童職能治療",
+      "心理職能治療"
+    ],
+    "appliedCourses": [
+      "生理職能治療",
+      "社區職能治療",
+      "輔具應用",
+      "臨床實習"
+    ],
+    "source": {
+      "name": "Collego 大學選才與高中教學資源平台",
+      "url": "https://collego.edu.tw/Highschool/MajorIntro?current_major_id=36",
+      "checked": "2026-10-23"
+    }
+  },
+  "藥學學類": {
+    "summary": "學習藥物從研發、製造到使用的過程，以及藥在人體內怎麼作用。",
+    "focusTitle": "這個學類在學什麼",
+    "focusDescription": "先學化學與基礎醫學，再學藥物化學、藥理學、藥劑學、藥物分析與藥物治療學，畢業可考藥師，也有中藥方向的系。",
+    "compareTitle": "藥學系與中藥資源系的差別",
+    "compareDescription": "藥學系以培養藥師為主；中國藥學暨中藥資源學系側重中藥與藥用資源。",
+    "foundationCourses": [
+      "普通化學",
+      "有機化學",
+      "生理學"
+    ],
+    "coreCourses": [
+      "藥物化學",
+      "藥理學",
+      "藥劑學",
+      "生藥學"
+    ],
+    "appliedCourses": [
+      "藥物分析",
+      "藥物治療學",
+      "生物藥劑學",
+      "藥事法規"
+    ],
+    "source": {
+      "name": "Collego 大學選才與高中教學資源平台",
+      "url": "https://collego.edu.tw/Highschool/MajorIntro?current_major_id=40",
+      "checked": "2026-10-23"
+    }
+  },
+  "電機資訊學類": {
+    "summary": "融合電機、電子與資訊工程，從電學一路學到程式開發。",
+    "focusTitle": "這個學類在學什麼",
+    "focusDescription": "低年級打數理與電路、電子學、程式設計的基礎，同時學資料結構、演算法與作業系統，高年級再依興趣分流。",
+    "compareTitle": "和電機、資訊工程的差別",
+    "compareDescription": "電機偏硬體與控制，資訊工程偏軟體與網路；電機資訊兩邊都學，到高年級才選方向。",
+    "foundationCourses": [
+      "微積分",
+      "普通物理",
+      "程式設計"
+    ],
+    "coreCourses": [
+      "電路學",
+      "電子學",
+      "資料結構",
+      "演算法"
+    ],
+    "appliedCourses": [
+      "信號與系統",
+      "邏輯設計",
+      "作業系統",
+      "微處理機"
+    ],
+    "source": {
+      "name": "Collego 大學選才與高中教學資源平台",
+      "url": "https://collego.edu.tw/Highschool/MajorIntro?current_major_id=130",
+      "checked": "2026-10-23"
+    }
+  },
+  "史地學類": {
+    "summary": "融合歷史與地理，研究人類活動與空間環境的關係。",
+    "focusTitle": "這個學類在學什麼",
+    "focusDescription": "歷史課有中國史、臺灣史、世界史與史學方法；地理課有人文與自然地理；再加上歷史地理、文化地理，常做田野調查，也會用 GIS。",
+    "compareTitle": "和歷史、地理學類的差別",
+    "compareDescription": "歷史和地理各自專精一門；史地學類兩門都學，更重視兩者的結合。",
+    "foundationCourses": [
+      "人文地理",
+      "自然地理",
+      "史學導論"
+    ],
+    "coreCourses": [
+      "臺灣史",
+      "中國史",
+      "世界史",
+      "歷史地理學"
+    ],
+    "appliedCourses": [
+      "文化地理",
+      "地理資訊系統",
+      "田野調查",
+      "旅行與歷史"
+    ],
+    "source": {
+      "name": "Collego 大學選才與高中教學資源平台",
+      "url": "https://collego.edu.tw/Highschool/MajorIntro?current_major_id=97",
+      "checked": "2026-10-23"
+    }
+  },
+  "語療聽力學類": {
+    "summary": "培養語言治療師和聽力師，協助有說話、吞嚥或聽力問題的人。",
+    "focusTitle": "這個學類在學什麼",
+    "focusDescription": "先學聽語解剖與神經生理、語音學和心理學，再分語言治療（構音、失語、吞嚥、嗓音）和聽力（聽力評估、助聽器選配、聽能復健）兩方向，最後臨床實習。",
+    "compareTitle": "和物理、職能治療的差別",
+    "compareDescription": "三者都屬於復健；物理治療改善肢體動作，職能治療恢復生活能力，語療聽力專注溝通與聽覺。",
+    "foundationCourses": [
+      "聽語解剖及神經生理學",
+      "語音學",
+      "普通心理學"
+    ],
+    "coreCourses": [
+      "語言障礙學",
+      "吞嚥障礙學",
+      "臨床聽力學",
+      "助聽輔具原理"
+    ],
+    "appliedCourses": [
+      "聽能復健學",
+      "輔助溝通系統",
+      "聽語專業倫理",
+      "臨床實習"
+    ],
+    "source": {
+      "name": "Collego 大學選才與高中教學資源平台",
+      "url": "https://collego.edu.tw/Highschool/MajorIntro?current_major_id=126",
+      "checked": "2026-10-23"
+    }
+  },
+  "牙醫學類": {
+    "summary": "研究口腔和顎顏面的健康，學習預防、診斷和治療牙齒與口腔疾病。",
+    "focusTitle": "這個學類在學什麼",
+    "focusDescription": "低年級先學解剖、組織、生理、藥理、病理等全身醫學基礎，之後學牙體復形、牙髓病、牙周病、齒顎矯正、口腔外科，最後在醫院實習。",
+    "compareTitle": "和醫學系的差別",
+    "compareDescription": "醫學系照顧全身；牙醫一樣要學全身醫學基礎，但專業聚焦在口腔與咬合，動手操作的比重很高。",
+    "foundationCourses": [
+      "普通生物學",
+      "生物化學",
+      "大體解剖學"
+    ],
+    "coreCourses": [
+      "口腔解剖學",
+      "牙體復形學",
+      "牙周病學",
+      "牙髓病學"
+    ],
+    "appliedCourses": [
+      "齒顎矯正學",
+      "口腔顎面外科學",
+      "兒童牙科學",
+      "臨床實習"
+    ],
+    "source": {
+      "name": "Collego 大學選才與高中教學資源平台",
+      "url": "https://collego.edu.tw/Highschool/MajorIntro?current_major_id=34",
+      "checked": "2026-10-23"
+    }
+  },
+  "財經法律學類": {
+    "summary": "在法律基礎上，加入財經與金融知識，處理公司、證券、稅務等商業法律問題。",
+    "focusTitle": "這個學類在學什麼",
+    "focusDescription": "和法律系一樣要學民法、刑法、憲法、訴訟法，另外加修經濟、會計與財政學，再延伸到公司法、證券交易法、稅法和智慧財產權法。",
+    "compareTitle": "和財務金融的差別",
+    "compareDescription": "財務金融在商學院，學金融商品與操作；財經法律在法學院，主軸仍是法律專業訓練。",
+    "foundationCourses": [
+      "民法總則",
+      "刑法總則",
+      "經濟學"
+    ],
+    "coreCourses": [
+      "債法",
+      "公司法",
+      "證券交易法",
+      "行政法"
+    ],
+    "appliedCourses": [
+      "稅捐法",
+      "智慧財產權法",
+      "公平交易法",
+      "案例研習"
+    ],
+    "source": {
+      "name": "Collego 大學選才與高中教學資源平台",
+      "url": "https://collego.edu.tw/Highschool/MajorIntro?current_major_id=105",
+      "checked": "2026-10-23"
+    }
+  },
+  "英語教育學類": {
+    "summary": "培養英語教學的專業，畢業後可擔任中小學英語老師或從事英語教學相關工作。",
+    "focusTitle": "這個學類在學什麼",
+    "focusDescription": "先把英語聽說讀寫和發音練扎實，再學英語教學概論、外語習得、教材教法與教學評量，也讀兒童與青少年文學、語言學。",
+    "compareTitle": "和英語文學類的差別",
+    "compareDescription": "英語文學類偏文學與語言學；英語教育以「怎麼教英語」為核心。",
+    "foundationCourses": [
+      "英文寫作",
+      "英語聽講訓練",
+      "英語發音訓練"
+    ],
+    "coreCourses": [
+      "英語教學概論",
+      "外語習得",
+      "英語教材教法",
+      "英語語言學概論"
+    ],
+    "appliedCourses": [
+      "語言課程設計",
+      "英語教學評量",
+      "兒童文學",
+      "教學實習"
+    ],
+    "source": {
+      "name": "Collego 大學選才與高中教學資源平台",
+      "url": "https://collego.edu.tw/Highschool/MajorIntro?current_major_id=92",
+      "checked": "2026-10-23"
+    }
+  },
+  "華語文教育學類": {
+    "summary": "研究如何把華語和華人文化，教給母語不是中文的人。",
+    "focusTitle": "這個學類在學什麼",
+    "focusDescription": "學漢語語言學、華語語音與語法、第二語言習得與教學法，再學教材教法、測驗評量，也結合數位科技與跨文化溝通，並到華語中心實習。",
+    "compareTitle": "和中國語文學類的差別",
+    "compareDescription": "中文系以古典文學、訓詁與聲韻為主；華語文教育以華語本身和教學應用為主。",
+    "foundationCourses": [
+      "漢語語言學",
+      "華語語音學",
+      "中國文化導論"
+    ],
+    "coreCourses": [
+      "華語語法學",
+      "第二語言習得",
+      "第二語言教學法",
+      "華語課程設計"
+    ],
+    "appliedCourses": [
+      "華語文教材教法",
+      "華語文測驗與評量",
+      "多媒體華語教學",
+      "華語文教學實習"
+    ],
+    "source": {
+      "name": "Collego 大學選才與高中教學資源平台",
+      "url": "https://collego.edu.tw/Highschool/MajorIntro?current_major_id=98",
+      "checked": "2026-10-23"
+    }
+  },
+  "視光學類": {
+    "summary": "學習檢查和評估眼睛與視覺，用光學方法矯正或訓練視力，畢業可考驗光師。",
+    "focusTitle": "這個學類在學什麼",
+    "focusDescription": "生物學眼球解剖生理與眼疾病，物理學幾何光學與眼鏡光學，再學視光學、雙眼視覺、配鏡學、隱形眼鏡與低視力，有很多實驗和實習。",
+    "compareTitle": "和醫學、物理治療的差別",
+    "compareDescription": "眼科醫師診治眼睛疾病；視光負責視力檢查、配鏡與視覺訓練，結合醫學和光學。",
+    "foundationCourses": [
+      "普通生物學",
+      "普通物理學",
+      "眼球解剖生理"
+    ],
+    "coreCourses": [
+      "幾何光學",
+      "視光學",
+      "雙眼視覺學",
+      "配鏡學"
+    ],
+    "appliedCourses": [
+      "隱形眼鏡學",
+      "低視力學",
+      "臨床視光學",
+      "眼視光實習"
+    ],
+    "source": {
+      "name": "Collego 大學選才與高中教學資源平台",
+      "url": "https://collego.edu.tw/Highschool/MajorIntro?current_major_id=125",
+      "checked": "2026-10-23"
+    }
+  },
+  "物理治療學類": {
+    "summary": "運用力、熱、聲、光、電等物理方法和運動治療，改善人體的動作與功能。",
+    "focusTitle": "這個學類在學什麼",
+    "focusDescription": "先學解剖、生理、病理等基礎，再依骨科、神經、小兒、心肺四大領域學評估與治療技術，最後在醫院臨床實習，可考物理治療師。",
+    "compareTitle": "和職能治療的差別",
+    "compareDescription": "物理治療著重肢體動作與身體機能；職能治療透過日常活動，幫助生活獨立與認知恢復。",
+    "foundationCourses": [
+      "解剖學",
+      "生理學",
+      "普通物理學"
+    ],
+    "coreCourses": [
+      "肌動學",
+      "骨科物理治療學",
+      "神經物理治療學",
+      "物理因子治療學"
+    ],
+    "appliedCourses": [
+      "小兒物理治療學",
+      "心肺物理治療學",
+      "運動治療",
+      "臨床實習"
+    ],
+    "source": {
+      "name": "Collego 大學選才與高中教學資源平台",
+      "url": "https://collego.edu.tw/Highschool/MajorIntro?current_major_id=35",
+      "checked": "2026-10-23"
+    }
+  },
+  "健康照護學類": {
+    "summary": "認識人體運作，學習健康促進、長期照顧與照護機構的管理。",
+    "focusTitle": "這個學類在學什麼",
+    "focusDescription": "基礎是生理、解剖與營養學，之後學健康促進、長期照護、慢性病防治、衛生法規與機構管理，可以到衛生單位或照護機構實習。",
+    "compareTitle": "和護理的差別",
+    "compareDescription": "護理以醫院臨床照護為主，需要護理師執照；健康照護偏長期照顧、健康促進與機構管理。",
+    "foundationCourses": [
+      "人體生物學",
+      "生理學",
+      "營養學"
+    ],
+    "coreCourses": [
+      "健康促進",
+      "長期照護",
+      "慢性病防治",
+      "公共衛生法規"
+    ],
+    "appliedCourses": [
+      "健康照護管理",
+      "管理學",
+      "照護機構經營",
+      "機構實習"
+    ],
+    "source": {
+      "name": "Collego 大學選才與高中教學資源平台",
+      "url": "https://collego.edu.tw/Highschool/MajorIntro?current_major_id=43",
+      "checked": "2026-10-23"
+    }
+  },
+  "植物保護學類": {
+    "summary": "研究昆蟲、植物病害與微生物，找出作物生病的原因並加以防治。",
+    "focusTitle": "這個學類在學什麼",
+    "focusDescription": "以生物、化學和遺傳學為基礎，學植物生理、植物病理、普通昆蟲學與應用昆蟲學，再學病蟲害管理與農藥。",
+    "compareTitle": "和農藝、園藝的差別",
+    "compareDescription": "農藝和園藝重在作物的栽培與育種；植物保護則專注保護作物不被病蟲害破壞。",
+    "foundationCourses": [
+      "普通生物學",
+      "有機化學",
+      "微生物學"
+    ],
+    "coreCourses": [
+      "植物病理學",
+      "普通昆蟲學",
+      "植物生理學",
+      "遺傳學"
+    ],
+    "appliedCourses": [
+      "蟲害管理",
+      "植物病害防治",
+      "害物藥劑學",
+      "昆蟲分類學"
+    ],
+    "source": {
+      "name": "Collego 大學選才與高中教學資源平台",
+      "url": "https://collego.edu.tw/Highschool/MajorIntro?current_major_id=51",
+      "checked": "2026-10-23"
+    }
+  },
+  "生態學類": {
+    "summary": "以生態學為主軸，研究生物與環境的互動，常到野外調查。",
+    "focusTitle": "這個學類在學什麼",
+    "focusDescription": "結合生物學、地球科學與環境科學，學生態學、生物多樣性與自然資源經營，也學環境經濟與社會，並做生態田野調查與環境影響評估。",
+    "compareTitle": "和環境工程的差別",
+    "compareDescription": "環境工程偏重非生物環境的污染診斷與修復；生態學類關注生物和環境之間的關係。",
+    "foundationCourses": [
+      "普通生物學",
+      "環境科學概論",
+      "地球科學概論"
+    ],
+    "coreCourses": [
+      "生態學",
+      "生物多樣性",
+      "自然資源經營管理",
+      "環境經濟學"
+    ],
+    "appliedCourses": [
+      "生態田野調查",
+      "環境影響評估",
+      "環境解說",
+      "社會科學研究法"
+    ],
+    "source": {
+      "name": "Collego 大學選才與高中教學資源平台",
+      "url": "https://collego.edu.tw/Highschool/MajorIntro?current_major_id=52",
+      "checked": "2026-10-23"
+    }
+  },
+  "地球科學學類": {
+    "summary": "研究地殼、海洋、大氣和太空，以及它們之間如何互相影響。",
+    "focusTitle": "這個學類在學什麼",
+    "focusDescription": "數理化是基礎，之後學普通地質、礦物、岩石、構造地質與地球物理、地震學，也會到野外實察，並用程式處理資料。",
+    "compareTitle": "和環境工程的差別",
+    "compareDescription": "環境工程偏環保工程與污染治理；地球科學著重理解整個地球系統怎麼運作，例如地震與氣候。",
+    "foundationCourses": [
+      "普通物理",
+      "普通化學",
+      "普通地質學"
+    ],
+    "coreCourses": [
+      "礦物學",
+      "岩石學",
+      "構造地質學",
+      "地球物理學"
+    ],
+    "appliedCourses": [
+      "地震學",
+      "野外地質學",
+      "地球物理探勘",
+      "程式語言應用"
+    ],
+    "source": {
+      "name": "Collego 大學選才與高中教學資源平台",
+      "url": "https://collego.edu.tw/Highschool/MajorIntro?current_major_id=59",
+      "checked": "2026-10-23"
+    }
+  },
+  "地理學類": {
+    "summary": "探討地表各種現象的空間分布與成因，以及人類活動和環境的關係。",
+    "focusTitle": "這個學類在學什麼",
+    "focusDescription": "分成自然地理（地形、氣候、水文）與人文地理（都市、經濟、區域發展），研究方法包括地圖學、地理資訊系統和實地調查。",
+    "compareTitle": "和地球科學的差別",
+    "compareDescription": "地球科學著重地球物質的成因與構造；地理學會同時考慮人、社會、政治等因素。",
+    "foundationCourses": [
+      "自然地理學",
+      "人文地理學",
+      "地圖學"
+    ],
+    "coreCourses": [
+      "地形學",
+      "氣候學",
+      "都市地理",
+      "地理資訊系統"
+    ],
+    "appliedCourses": [
+      "臺灣地理",
+      "區域地理",
+      "地理調查法",
+      "地理專題"
+    ],
+    "source": {
+      "name": "Collego 大學選才與高中教學資源平台",
+      "url": "https://collego.edu.tw/Highschool/MajorIntro?current_major_id=60",
+      "checked": "2026-10-23"
+    }
+  },
+  "東方語文學類": {
+    "summary": "學習韓語、俄語、土耳其語、阿拉伯語等東方語言，並認識這些國家的文化與社會。",
+    "focusTitle": "這個學類在學什麼",
+    "focusDescription": "大部分從零開始，密集練讀本、文法、會話與寫作，再學該地區的政治、經濟、歷史與文學，各系主修的語言不同，課程差異也大。",
+    "compareTitle": "和日語文、歐語文的差別",
+    "compareDescription": "三者都是外語學習；東方語文涵蓋韓國、斯拉夫、中東等地區，選系時要先看主修哪一種語言。",
+    "foundationCourses": [
+      "初級讀本",
+      "基礎文法",
+      "會話練習"
+    ],
+    "coreCourses": [
+      "進階閱讀",
+      "寫作",
+      "翻譯",
+      "國情概況"
+    ],
+    "appliedCourses": [
+      "區域研究",
+      "文學選讀",
+      "口譯",
+      "第二外語"
+    ],
+    "source": {
+      "name": "Collego 大學選才與高中教學資源平台",
+      "url": "https://collego.edu.tw/Highschool/MajorIntro?current_major_id=91",
+      "checked": "2026-10-23"
+    }
+  },
+  "森林學類": {
+    "summary": "以森林生態系為對象，學習森林的經營、保育與林產資源的永續利用。",
+    "focusTitle": "這個學類在學什麼",
+    "focusDescription": "課程有樹木學、育林學、森林生態學、森林經營與林政，也學木材化學、木材物理與生物材料，寒暑假常到實驗林場實習。",
+    "compareTitle": "和園藝、農藝的差別",
+    "compareDescription": "園藝專注果樹、花卉與景觀；農藝研究經濟作物；森林學類面對的是整片森林與林產資源。",
+    "foundationCourses": [
+      "普通生物學",
+      "樹木學",
+      "森林生態學"
+    ],
+    "coreCourses": [
+      "育林學",
+      "森林經營學",
+      "林政學",
+      "林產學"
+    ],
+    "appliedCourses": [
+      "木材化學",
+      "木材物理",
+      "生物材料與再生能源",
+      "林場實習"
+    ],
+    "source": {
+      "name": "Collego 大學選才與高中教學資源平台",
+      "url": "https://collego.edu.tw/Highschool/MajorIntro?current_major_id=56",
+      "checked": "2026-10-23"
+    }
+  },
+  "宗教學類": {
+    "summary": "從歷史、經典、心理和社會等角度，研究宗教思想、儀式與人群。",
+    "focusTitle": "這個學類在學什麼",
+    "focusDescription": "學宗教學概論、世界宗教文化、佛教與道教經典、宗教心理學和宗教社會學，也有田野調查，並延伸到生命教育、臨終關懷與宗教文創。",
+    "compareTitle": "和哲學、歷史的差別",
+    "compareDescription": "哲學以邏輯思辨探究根本問題；歷史研究過去的事件；宗教學專注宗教本身與信仰者的生活。",
+    "foundationCourses": [
+      "宗教學概論",
+      "世界宗教文化導論",
+      "研究方法"
+    ],
+    "coreCourses": [
+      "佛教經典",
+      "道教經典",
+      "宗教心理學",
+      "宗教社會學"
+    ],
+    "appliedCourses": [
+      "神話學",
+      "田野調查",
+      "臨終關懷",
+      "宗教文化紀錄片"
+    ],
+    "source": {
+      "name": "Collego 大學選才與高中教學資源平台",
+      "url": "https://collego.edu.tw/Highschool/MajorIntro?current_major_id=79",
+      "checked": "2026-10-23"
+    }
+  },
+  "管理跨學類": {
+    "summary": "以管理為基礎，再結合資訊、語言或其他領域，走跨領域的學習路徑。",
+    "focusTitle": "這個學類在學什麼",
+    "focusDescription": "多是商學雙學位、大數據分析或全英語學程，共同課程是會計、經濟、統計與管理學，其餘依各校設計差異很大，選擇前要先看課程規劃。",
+    "compareTitle": "和企業管理的差別",
+    "compareDescription": "企業管理有固定的管理專業課；管理跨學類會加上大數據、資訊或外語等第二專長。",
+    "foundationCourses": [
+      "管理學",
+      "會計學",
+      "經濟學"
+    ],
+    "coreCourses": [
+      "統計學",
+      "行銷管理",
+      "財務管理",
+      "資訊管理"
+    ],
+    "appliedCourses": [
+      "商業數據分析",
+      "創新創業",
+      "跨域專題",
+      "英語授課課程"
+    ],
+    "source": {
+      "name": "Collego 大學選才與高中教學資源平台",
+      "url": "https://collego.edu.tw/Highschool/MajorIntro?current_major_id=128",
+      "checked": "2026-10-23"
+    }
+  },
+  "科技教育學類": {
+    "summary": "學習設計思考與動手實作，培養生活科技老師與科技培訓人才。",
+    "focusTitle": "這個學類在學什麼",
+    "focusDescription": "課程包括圖學、電腦輔助製圖、產品與工程設計、機構學、電子電路和程式語言，也學教材設計與教材教法，並有教學實習。",
+    "compareTitle": "和數位學習、工業管理的差別",
+    "compareDescription": "數位學習專注數位教材；工業管理改善生產流程；科技教育重在實作，並把科技教給中學生。",
+    "foundationCourses": [
+      "工業科技教育概論",
+      "圖學",
+      "基本設計"
+    ],
+    "coreCourses": [
+      "產品設計",
+      "工程設計",
+      "電子電路",
+      "程式語言"
+    ],
+    "appliedCourses": [
+      "機電整合實務",
+      "教材教法",
+      "專題製作",
+      "教學實習"
+    ],
+    "source": {
+      "name": "Collego 大學選才與高中教學資源平台",
+      "url": "https://collego.edu.tw/Highschool/MajorIntro?current_major_id=23",
+      "checked": "2026-10-23"
+    }
+  },
+  "數學教育學類": {
+    "summary": "學習數學本身，也學怎麼把數學教好。",
+    "focusTitle": "這個學類在學什麼",
+    "focusDescription": "一方面修微積分、線性代數、機率統計與程式，另一方面學數學教育概論、數學概念發展、解題與思維、教材教法與評量。",
+    "compareTitle": "和數學學類的差別",
+    "compareDescription": "數學系專心研究數學；數學教育多了教育理論與教學實務，目標多是成為數學老師。",
+    "foundationCourses": [
+      "微積分",
+      "線性代數",
+      "數學教育概論"
+    ],
+    "coreCourses": [
+      "機率論",
+      "統計學",
+      "數學概念發展",
+      "數學解題與思維"
+    ],
+    "appliedCourses": [
+      "數學教材教法",
+      "數學教學與評量",
+      "數學課程通論",
+      "程式設計"
+    ],
+    "source": {
+      "name": "Collego 大學選才與高中教學資源平台",
+      "url": "https://collego.edu.tw/Highschool/MajorIntro?current_major_id=30",
+      "checked": "2026-10-23"
+    }
+  },
+  "化妝品學類": {
+    "summary": "結合化學、皮膚生理與材料科學，學習化妝品的研發、製造、檢驗與行銷。",
+    "focusTitle": "這個學類在學什麼",
+    "focusDescription": "化學課程很多，再學皮膚生理、化妝品原料化學、香料化學、化妝品調製與檢驗、法規，也有色彩學與彩妝藝術。",
+    "compareTitle": "和化學、生物學類的差別",
+    "compareDescription": "化學和生物學類打基礎科學；化妝品學類把它們應用在美妝和保養產品上。",
+    "foundationCourses": [
+      "普通化學",
+      "有機化學",
+      "皮膚生理學"
+    ],
+    "coreCourses": [
+      "化妝品原料化學",
+      "化妝品調製學",
+      "界面化學",
+      "香料化學"
+    ],
+    "appliedCourses": [
+      "化妝品檢驗",
+      "化妝品法規",
+      "彩妝藝術",
+      "商品開發"
+    ],
+    "source": {
+      "name": "Collego 大學選才與高中教學資源平台",
+      "url": "https://collego.edu.tw/Highschool/MajorIntro?current_major_id=44",
+      "checked": "2026-10-23"
+    }
+  },
+  "生化學類": {
+    "summary": "以化學和生物為核心，透過實驗研究生命分子，應用在醫學、農業與環境。",
+    "focusTitle": "這個學類在學什麼",
+    "focusDescription": "先修普通化學、物理、生物與微積分，再學有機、分析、物理化學、生物化學與分子生物學，也有土壤化學、食品化學等應用課。",
+    "compareTitle": "和生命科學、生物科技的差別",
+    "compareDescription": "生命科學從生物學角度看生命現象；生物科技著重技術研發；生化學類從化學角度研究生命分子。",
+    "foundationCourses": [
+      "普通化學",
+      "普通生物學",
+      "微積分"
+    ],
+    "coreCourses": [
+      "有機化學",
+      "分析化學",
+      "生物化學",
+      "分子生物學"
+    ],
+    "appliedCourses": [
+      "生物技術實驗",
+      "微生物學",
+      "土壤化學",
+      "食品化學"
+    ],
+    "source": {
+      "name": "Collego 大學選才與高中教學資源平台",
+      "url": "https://collego.edu.tw/Highschool/MajorIntro?current_major_id=29",
+      "checked": "2026-10-23"
+    }
+  },
+  "動物科學學類": {
+    "summary": "結合生物技術、遺傳育種與動物飼養，提升經濟動物的生產與產業永續。",
+    "focusTitle": "這個學類在學什麼",
+    "focusDescription": "以分子生物、遺傳與生理為基礎，學動物育種、營養與飼料、家禽與豬學、動物福祉，也有牧場實務與保健產品開發。",
+    "compareTitle": "和獸醫學類的差別",
+    "compareDescription": "獸醫負責動物疾病的診斷與醫療；動物科學著重動物的生產、育種與營養，畢業不能考獸醫師。",
+    "foundationCourses": [
+      "普通生物學",
+      "有機化學",
+      "動物解剖生理學"
+    ],
+    "coreCourses": [
+      "動物育種學",
+      "動物營養學",
+      "分子遺傳學",
+      "生物技術學"
+    ],
+    "appliedCourses": [
+      "家禽學",
+      "飼料製造學",
+      "動物福祉",
+      "牧場實務"
+    ],
+    "source": {
+      "name": "Collego 大學選才與高中教學資源平台",
+      "url": "https://collego.edu.tw/Highschool/MajorIntro?current_major_id=54",
+      "checked": "2026-10-23"
+    }
+  },
+  "服裝設計學類": {
+    "summary": "學習服裝設計、打版與製作，從開發、生產一路走到銷售。",
+    "focusTitle": "這個學類在學什麼",
+    "focusDescription": "課程包括織品材料、服裝史、立體裁剪、服裝構成製作與設計，也有彩妝髮型等整體造型、服飾行銷與 3D 電腦輔助設計。",
+    "compareTitle": "和藝術、商業設計的差別",
+    "compareDescription": "藝術設計和商業設計做平面或多媒材作品；服裝設計專注衣服本身，要懂布料和打版製作。",
+    "foundationCourses": [
+      "織品材料學",
+      "服裝史",
+      "設計素描"
+    ],
+    "coreCourses": [
+      "服裝設計",
+      "立體裁剪",
+      "服裝構成製作",
+      "打版"
+    ],
+    "appliedCourses": [
+      "整體造型設計",
+      "服飾行銷",
+      "3D 服裝設計",
+      "畢業展"
+    ],
+    "source": {
+      "name": "Collego 大學選才與高中教學資源平台",
+      "url": "https://collego.edu.tw/Highschool/MajorIntro?current_major_id=69",
+      "checked": "2026-10-23"
+    }
+  },
+  "藝術跨學類": {
+    "summary": "以人文藝術為基礎，跨音樂、舞蹈、設計與數位媒體學習，再延伸到文創與藝術管理。",
+    "focusTitle": "這個學類在學什麼",
+    "focusDescription": "多是藝術學院學士班或跨域學程，例如新媒體藝術、音樂結合設計與藝術管理，各校課程差異大，選擇前要先看課程規劃。",
+    "compareTitle": "和單一藝術學類的差別",
+    "compareDescription": "音樂、舞蹈、設計各自專精一種藝術；藝術跨學類讓你在幾種藝術和產業管理之間組合專長。",
+    "foundationCourses": [
+      "藝術概論",
+      "設計基礎",
+      "藝術史"
+    ],
+    "coreCourses": [
+      "跨域創作",
+      "數位媒體",
+      "藝術管理",
+      "表演藝術"
+    ],
+    "appliedCourses": [
+      "新媒體藝術",
+      "文創產業",
+      "跨域專題",
+      "作品展演"
+    ],
+    "source": {
+      "name": "Collego 大學選才與高中教學資源平台",
+      "url": "https://collego.edu.tw/Highschool/MajorIntro?current_major_id=131",
+      "checked": "2026-10-23"
+    }
+  },
+  "兒童家庭學類": {
+    "summary": "研究從嬰兒到老年各階段的發展，以及家庭關係的經營。",
+    "focusTitle": "這個學類在學什麼",
+    "focusDescription": "課程結合心理、社會與統計，學家庭概論、婚姻與家人關係、兒童發展，也有幼兒教保、親職教育與諮商助人技巧，重視實習。",
+    "compareTitle": "和幼兒教育的差別",
+    "compareDescription": "幼兒教育聚焦 2 到 6 歲幼兒，培養幼兒園老師；兒童家庭範圍更廣，關心各年齡與整個家庭。",
+    "foundationCourses": [
+      "家庭概論",
+      "兒童發展",
+      "心理學"
+    ],
+    "coreCourses": [
+      "婚姻與家人關係",
+      "兒童行為觀察",
+      "親職教育",
+      "統計學"
+    ],
+    "appliedCourses": [
+      "幼兒教保概論",
+      "諮商與助人技巧",
+      "家庭教育",
+      "教保實習"
+    ],
+    "source": {
+      "name": "Collego 大學選才與高中教學資源平台",
+      "url": "https://collego.edu.tw/Highschool/MajorIntro?current_major_id=78",
+      "checked": "2026-10-23"
+    }
+  },
+  "文史哲跨學類": {
+    "summary": "以文學、歷史、哲學的人文思考為起點，連結傳播、商管、資訊或設計等應用領域。",
+    "focusTitle": "這個學類在學什麼",
+    "focusDescription": "多是文學院學士班、人文創新或跨域學程，先打人文基礎，再組合第二專長，各校課程差異大，選擇前要先看課程規劃。",
+    "compareTitle": "和中文、歷史、哲學的差別",
+    "compareDescription": "中文、歷史、哲學各自深入一門；文史哲跨學類重在把人文素養用到其他領域。",
+    "foundationCourses": [
+      "文學概論",
+      "史學導論",
+      "哲學概論"
+    ],
+    "coreCourses": [
+      "人文思想",
+      "社會學",
+      "文化研究",
+      "寫作與表達"
+    ],
+    "appliedCourses": [
+      "地方創生",
+      "影像與傳播",
+      "人文跨域專題",
+      "社區實作"
+    ],
+    "source": {
+      "name": "Collego 大學選才與高中教學資源平台",
+      "url": "https://collego.edu.tw/Highschool/MajorIntro?current_major_id=133",
+      "checked": "2026-10-23"
+    }
+  },
+  "哲學學類": {
+    "summary": "探討宇宙、生命、知識與道德的基本問題，訓練用邏輯論證和批判思考。",
+    "focusTitle": "這個學類在學什麼",
+    "focusDescription": "核心是形上學、知識論、倫理學和邏輯，再讀西洋與中國哲學史，也可延伸到美學、政治哲學、科學哲學與應用倫理。",
+    "compareTitle": "和政治、藝術等學科的差別",
+    "compareDescription": "其他學科也會碰到哲學問題，例如政治思想或美學；哲學系提供完整的理論脈絡，並反思各學科的基礎。",
+    "foundationCourses": [
+      "哲學概論",
+      "邏輯",
+      "中國哲學史"
+    ],
+    "coreCourses": [
+      "形上學",
+      "知識論",
+      "倫理學",
+      "西洋哲學史"
+    ],
+    "appliedCourses": [
+      "美學",
+      "政治哲學",
+      "科學哲學",
+      "應用倫理"
+    ],
+    "source": {
+      "name": "Collego 大學選才與高中教學資源平台",
+      "url": "https://collego.edu.tw/Highschool/MajorIntro?current_major_id=95",
+      "checked": "2026-10-23"
+    }
+  },
+  "台灣語文學類": {
+    "summary": "研究臺灣的文學、歷史、文化與台語等本土語言。",
+    "focusTitle": "這個學類在學什麼",
+    "focusDescription": "學臺灣文化與民俗、臺灣史、臺灣文學史、現代詩與小說，也學台語文，再應用到教育、新聞採寫、編輯與文學館導覽。",
+    "compareTitle": "和中文、華語文教育的差別",
+    "compareDescription": "中文系以中國古典文學與漢學為主；華語文教育著重華語教學；台灣語文聚焦臺灣在地的文學與語言。",
+    "foundationCourses": [
+      "臺灣文化概論",
+      "臺灣民俗概論",
+      "臺灣史"
+    ],
+    "coreCourses": [
+      "臺灣文學史",
+      "臺灣現代詩",
+      "臺灣現代小說",
+      "台語文"
+    ],
+    "appliedCourses": [
+      "新聞採訪寫作",
+      "編輯實務",
+      "文學館導覽實習",
+      "本土語言教學"
+    ],
+    "source": {
+      "name": "Collego 大學選才與高中教學資源平台",
+      "url": "https://collego.edu.tw/Highschool/MajorIntro?current_major_id=96",
+      "checked": "2026-10-23"
+    }
+  },
+  "財稅學類": {
+    "summary": "結合經濟、法律與會計，研究政府財政和各種租稅。",
+    "focusTitle": "這個學類在學什麼",
+    "focusDescription": "基礎是經濟、會計、統計與民法，進階學財政學、所得稅、消費稅、財產稅與國際租稅，也學審計與租稅法。",
+    "compareTitle": "和財務金融、會計的差別",
+    "compareDescription": "財務金融以企業與投資為主；會計重財報；財稅聚焦政府財政與稅務規劃。",
+    "foundationCourses": [
+      "經濟學",
+      "會計學",
+      "民法概要"
+    ],
+    "coreCourses": [
+      "財政學",
+      "所得稅",
+      "中級會計學",
+      "租稅法"
+    ],
+    "appliedCourses": [
+      "國際租稅",
+      "審計學",
+      "財產稅",
+      "貨幣銀行學"
+    ],
+    "source": {
+      "name": "Collego 大學選才與高中教學資源平台",
+      "url": "https://collego.edu.tw/Highschool/MajorIntro?current_major_id=115",
+      "checked": "2026-10-23"
+    }
+  },
+  "影像放射學類": {
+    "summary": "以放射線和醫學影像為核心，用精密儀器拍攝人體影像、執行放射治療。",
+    "focusTitle": "這個學類在學什麼",
+    "focusDescription": "數理化與基礎醫學都要學，再學放射物理、放射生物、保健物理和影像原理，接著是放射診斷、放射治療、核子醫學三大技術，最後到醫院實習，可考醫事放射師。",
+    "compareTitle": "和醫學檢驗的差別",
+    "compareDescription": "醫學檢驗分析血液等檢體，較重化學；影像放射操作儀器取得影像與治療，較重物理與輻射安全。",
+    "foundationCourses": [
+      "普通物理",
+      "解剖學",
+      "生理學"
+    ],
+    "coreCourses": [
+      "放射物理學",
+      "放射生物學",
+      "放射影像原理",
+      "保健物理學"
+    ],
+    "appliedCourses": [
+      "放射診斷技術學",
+      "放射治療技術學",
+      "核子醫學技術學",
+      "臨床實習"
+    ],
+    "source": {
+      "name": "Collego 大學選才與高中教學資源平台",
+      "url": "https://collego.edu.tw/Highschool/MajorIntro?current_major_id=39",
+      "checked": "2026-10-23"
+    }
+  },
+  "圖書資訊學類": {
+    "summary": "以圖書館學為基礎結合資訊科學，研究資訊怎麼收集、整理、檢索和保存。",
+    "focusTitle": "這個學類在學什麼",
+    "focusDescription": "核心是資訊組織、參考服務、館藏發展與圖書館管理，也學資料庫、程式設計與資訊視覺化，並到圖書館或資訊機構實習。",
+    "compareTitle": "和資訊工程、資訊管理的差別",
+    "compareDescription": "資訊工程建構電腦軟硬體；資訊管理用系統提升企業效率；圖書資訊關心人怎麼找到並使用資訊。",
+    "foundationCourses": [
+      "圖書資訊學導論",
+      "計算機概論",
+      "統計學"
+    ],
+    "coreCourses": [
+      "資訊組織",
+      "參考資訊服務",
+      "館藏發展",
+      "資訊檢索"
+    ],
+    "appliedCourses": [
+      "資料庫",
+      "資訊視覺化",
+      "數位典藏",
+      "圖書館實務"
+    ],
+    "source": {
+      "name": "Collego 大學選才與高中教學資源平台",
+      "url": "https://collego.edu.tw/Highschool/MajorIntro?current_major_id=5",
+      "checked": "2026-10-23"
+    }
+  },
+  "社科教育學類": {
+    "summary": "以教育、經濟、法律、社會和政治等社會科學為基礎，培養公民教育與活動領導人才。",
+    "focusTitle": "這個學類在學什麼",
+    "focusDescription": "分成公民教育和活動領導兩大方向：前者學經濟、民主政治、憲法與民法、文化人類學；後者學團體動力、活動規劃與戶外體驗。",
+    "compareTitle": "和教育、政治、法律的差別",
+    "compareDescription": "教育學類研究整體教育；政治和法律各自深入一門；社科教育把多門社會科學整合起來，用在教學與帶領活動。",
+    "foundationCourses": [
+      "經濟學",
+      "民主政治",
+      "憲法"
+    ],
+    "coreCourses": [
+      "民法",
+      "文化人類學",
+      "多元文化通論",
+      "團體動力學"
+    ],
+    "appliedCourses": [
+      "童軍教育原理",
+      "活動規劃",
+      "戶外體驗",
+      "教材教法"
+    ],
+    "source": {
+      "name": "Collego 大學選才與高中教學資源平台",
+      "url": "https://collego.edu.tw/Highschool/MajorIntro?current_major_id=103",
+      "checked": "2026-10-23"
+    }
+  },
+  "獸醫學類": {
+    "summary": "研究動物疾病的預防、診斷和治療，也照顧畜產品安全與動物福利。",
+    "focusTitle": "這個學類在學什麼",
+    "focusDescription": "先學獸醫解剖、生理、組織、微生物與免疫，再學獸醫病理、藥理和公共衛生，接著是小動物與大動物的內外科與實習，畢業可考獸醫師。",
+    "compareTitle": "和動物科學的差別",
+    "compareDescription": "動物科學著重動物的飼養、育種與生產；獸醫學類聚焦動物疾病的診療。",
+    "foundationCourses": [
+      "獸醫解剖學",
+      "獸醫生理學",
+      "組織學"
+    ],
+    "coreCourses": [
+      "獸醫病理學",
+      "獸醫藥理學",
+      "免疫學",
+      "寄生蟲學"
+    ],
+    "appliedCourses": [
+      "小動物內外科",
+      "大動物疾病學",
+      "獸醫影像學",
+      "臨床實習"
+    ],
+    "source": {
+      "name": "Collego 大學選才與高中教學資源平台",
+      "url": "https://collego.edu.tw/Highschool/MajorIntro?current_major_id=46",
+      "checked": "2026-10-23"
+    }
+  },
+  "人類民族學類": {
+    "summary": "研究人類的演化和不同文化，從認識別的文化來反思自己的社會。",
+    "focusTitle": "這個學類在學什麼",
+    "focusDescription": "課程包括文化人類學、體質人類學、考古學、語言學與世界民族誌，也學民族理論與研究方法，常做田野調查，有些系還會教原住民族語。",
+    "compareTitle": "和歷史、社會學的差別",
+    "compareDescription": "歷史從史料研究過去；社會學分析社會結構；人類民族學透過田野調查，深入理解不同族群的生活與文化。",
+    "foundationCourses": [
+      "文化人類學",
+      "體質人類學",
+      "考古學概論"
+    ],
+    "coreCourses": [
+      "民族學",
+      "世界民族誌",
+      "語言學",
+      "民族學研究方法"
+    ],
+    "appliedCourses": [
+      "田野調查",
+      "民族政策",
+      "族語",
+      "民族史"
+    ],
+    "source": {
+      "name": "Collego 大學選才與高中教學資源平台",
+      "url": "https://collego.edu.tw/Highschool/MajorIntro?current_major_id=77",
+      "checked": "2026-10-23"
+    }
+  },
+  "外語跨學類": {
+    "summary": "以外國語文為基礎，延伸到傳播、管理、行銷、外交或資訊等實務領域。",
+    "focusTitle": "這個學類在學什麼",
+    "focusDescription": "多是應用外語、語文學系或國際溝通學程，先練好外語能力，再搭配一個應用專長，各校課程差異大，選擇前要先看課程規劃。",
+    "compareTitle": "和英語文、歐語文的差別",
+    "compareDescription": "英語文、歐語文等以單一語言與文化為主軸；外語跨學類把語言當工具，結合其他領域。",
+    "foundationCourses": [
+      "外語聽講",
+      "外語閱讀與寫作",
+      "語言學概論"
+    ],
+    "coreCourses": [
+      "翻譯",
+      "跨文化溝通",
+      "商務外語",
+      "第二外語"
+    ],
+    "appliedCourses": [
+      "國際行銷",
+      "數位傳播",
+      "口譯",
+      "跨域專題"
+    ],
+    "source": {
+      "name": "Collego 大學選才與高中教學資源平台",
+      "url": "https://collego.edu.tw/Highschool/MajorIntro?current_major_id=134",
+      "checked": "2026-10-23"
+    }
+  },
+  "成人教育學類": {
+    "summary": "以成人為對象，規劃讓大人持續學習、精進專業的教育活動。",
+    "focusTitle": "這個學類在學什麼",
+    "focusDescription": "學成人學習理論、成人教育心理與社會學，再學方案規劃、課程與教材設計、教育訓練與人才發展，也延伸到高齡者教育和樂齡產業。",
+    "compareTitle": "和教育學類、企業管理的差別",
+    "compareDescription": "教育學類聚焦學校裡的學生；企業管理從管理面看人力資源；成人教育專注設計成人的學習與培訓。",
+    "foundationCourses": [
+      "成人教育導論",
+      "成人學習理論",
+      "教育研究法"
+    ],
+    "coreCourses": [
+      "成人教育方案規劃",
+      "課程設計",
+      "教育訓練與人才發展",
+      "成人教育心理學"
+    ],
+    "appliedCourses": [
+      "高齡者教育",
+      "網路學習",
+      "成人教育行銷",
+      "非營利組織"
+    ],
+    "source": {
+      "name": "Collego 大學選才與高中教學資源平台",
+      "url": "https://collego.edu.tw/Highschool/MajorIntro?current_major_id=102",
+      "checked": "2026-10-23"
+    }
+  },
+  "保險學類": {
+    "summary": "結合經濟、法律、精算統計與財務，培養保險與風險管理的專業人才。",
+    "focusTitle": "這個學類在學什麼",
+    "focusDescription": "課程包括保險學、風險管理、保險法與商事法，精算方向要學機率、統計與壽險數學，也學人壽、財產保險的經營。",
+    "compareTitle": "和財務金融的差別",
+    "compareDescription": "兩者都研究金融市場；財務金融重銀行與證券，保險學類專注保險與風險管理。",
+    "foundationCourses": [
+      "經濟學",
+      "統計學",
+      "保險學"
+    ],
+    "coreCourses": [
+      "風險管理",
+      "保險法",
+      "保險數理",
+      "人壽保險"
+    ],
+    "appliedCourses": [
+      "財產保險",
+      "再保險",
+      "壽險數學",
+      "保險經營"
+    ],
+    "source": {
+      "name": "Collego 大學選才與高中教學資源平台",
+      "url": "https://collego.edu.tw/Highschool/MajorIntro?current_major_id=116",
+      "checked": "2026-10-23"
+    }
+  },
+  "園藝學類": {
+    "summary": "研究果樹、蔬菜、花卉等作物的栽培、育種與利用。",
+    "focusTitle": "這個學類在學什麼",
+    "focusDescription": "以植物學、植物生理與園藝學原理為基礎，再分成作物栽培、景觀造園、園產品處理與加工等方向，常在溫室和農場實際操作。",
+    "compareTitle": "和農藝學類的差別",
+    "compareDescription": "農藝偏重稻米、小麥、茶等大量生產的作物；園藝作物量較小，著重品種的多樣變化。",
+    "foundationCourses": [
+      "普通植物學",
+      "園藝學原理",
+      "普通化學"
+    ],
+    "coreCourses": [
+      "植物生理學",
+      "園藝作物育種",
+      "作物繁殖",
+      "生物統計學"
+    ],
+    "appliedCourses": [
+      "造園學",
+      "園產品處理",
+      "園產品加工",
+      "農場實習"
+    ],
+    "source": {
+      "name": "Collego 大學選才與高中教學資源平台",
+      "url": "https://collego.edu.tw/Highschool/MajorIntro?current_major_id=55",
+      "checked": "2026-10-23"
+    }
+  },
+  "犯罪防治學類": {
+    "summary": "融合心理學、社會學與刑事法學，研究犯罪的原因、預防和矯正。",
+    "focusTitle": "這個學類在學什麼",
+    "focusDescription": "課程有社會學、犯罪心理學、變態心理學、諮商理論，以及刑法、刑事訴訟法、少年事件處理法，也重視青少年犯罪防治。",
+    "compareTitle": "和社工、法律、心理學的差別",
+    "compareDescription": "社工偏實務助人；法律偏法條；心理學偏個人；犯罪防治把三者結合，專門面對犯罪問題。",
+    "foundationCourses": [
+      "社會學",
+      "心理學",
+      "法學緒論"
+    ],
+    "coreCourses": [
+      "犯罪學",
+      "犯罪心理學",
+      "刑法總則",
+      "變態心理學"
+    ],
+    "appliedCourses": [
+      "少年犯罪",
+      "刑事訴訟法",
+      "諮商理論",
+      "矯治實務"
+    ],
+    "source": {
+      "name": "Collego 大學選才與高中教學資源平台",
+      "url": "https://collego.edu.tw/Highschool/MajorIntro?current_major_id=82",
+      "checked": "2026-10-23"
+    }
+  },
+  "勞工關係學類": {
+    "summary": "研究勞動者的權益與保障，以及勞方、資方和政府之間的協調。",
+    "focusTitle": "這個學類在學什麼",
+    "focusDescription": "結合經濟、社會、心理與法律，學勞動法、勞動基準法、集體協商、勞資爭議處理與勞工政策，也學人力資源管理。",
+    "compareTitle": "和人力資源管理的差別",
+    "compareDescription": "人力資源從組織效能出發，把人視為資源；勞工關係以勞動者為主體，關心權益與勞資關係。",
+    "foundationCourses": [
+      "社會學",
+      "經濟學",
+      "民法概論"
+    ],
+    "coreCourses": [
+      "勞動法概論",
+      "勞動基準法",
+      "集體協商",
+      "勞動經濟學"
+    ],
+    "appliedCourses": [
+      "勞資爭議處理",
+      "勞工政策",
+      "人力資源管理",
+      "實習"
+    ],
+    "source": {
+      "name": "Collego 大學選才與高中教學資源平台",
+      "url": "https://collego.edu.tw/Highschool/MajorIntro?current_major_id=83",
+      "checked": "2026-10-23"
+    }
+  },
+  "航空工程學類": {
+    "summary": "研究飛機和太空飛行器的科技，包括空氣動力、推進、結構與控制。",
+    "focusTitle": "這個學類在學什麼",
+    "focusDescription": "從機械工程分出來，課程和機械很像：工程數學、熱力學、流體與材料力學，再加上空氣動力學、航空發動機、飛行力學與飛具結構，最後做飛具設計。",
+    "compareTitle": "和機械工程的差別",
+    "compareDescription": "航太工程源自機械工程，必修課很像；差別是航太多了空氣動力、飛行力學等飛行器專門課。",
+    "foundationCourses": [
+      "微積分",
+      "普通物理",
+      "工程圖學"
+    ],
+    "coreCourses": [
+      "空氣動力學",
+      "飛具結構學",
+      "熱力學",
+      "材料力學"
+    ],
+    "appliedCourses": [
+      "航空發動機",
+      "飛行力學",
+      "自動控制",
+      "飛具設計"
+    ],
+    "source": {
+      "name": "Collego 大學選才與高中教學資源平台",
+      "url": "https://collego.edu.tw/Highschool/MajorIntro?current_major_id=15",
+      "checked": "2026-10-23"
+    }
+  },
+  "數理化跨學類": {
+    "summary": "以數學、物理、化學等自然科學為基礎，連結生態、資訊、機電或管理等應用領域。",
+    "focusTitle": "這個學類在學什麼",
+    "focusDescription": "多是理學院學士班或永續科學學程，先修共同的數理基礎，再依興趣選擇主修或組合跨域專長，各校課程差異大，選擇前要先看課程規劃。",
+    "compareTitle": "和數學、物理、化學學類的差別",
+    "compareDescription": "數學、物理、化學學類一進去就專攻一門；數理化跨學類讓你先廣泛學習，之後再決定方向。",
+    "foundationCourses": [
+      "微積分",
+      "普通物理",
+      "普通化學"
+    ],
+    "coreCourses": [
+      "普通生物學",
+      "線性代數",
+      "程式設計",
+      "科學實驗"
+    ],
+    "appliedCourses": [
+      "永續科學",
+      "資料科學",
+      "跨域專題",
+      "自選主修"
+    ],
+    "source": {
+      "name": "Collego 大學選才與高中教學資源平台",
+      "url": "https://collego.edu.tw/Highschool/MajorIntro?current_major_id=129",
+      "checked": "2026-10-23"
+    }
+  },
+  "呼吸治療學類": {
+    "summary": "研究呼吸系統的運作與疾病，照顧從新生兒到成人的急重症與長期呼吸病人。",
+    "focusTitle": "這個學類在學什麼",
+    "focusDescription": "先學解剖、生理、病理、藥理等醫學基礎，再學呼吸治療設備、呼吸器原理、心肺疾病與重症、小兒、長期呼吸照護，有多段醫院臨床實習，可考呼吸治療師。",
+    "compareTitle": "和物理、職能治療的差別",
+    "compareDescription": "物理治療改善身體動作，職能治療恢復生活能力；呼吸治療專注呼吸功能，常在加護病房工作。",
+    "foundationCourses": [
+      "解剖學",
+      "生理學",
+      "普通物理學"
+    ],
+    "coreCourses": [
+      "呼吸治療設備學",
+      "呼吸器原理及應用",
+      "心肺疾病學",
+      "成人重症呼吸治療"
+    ],
+    "appliedCourses": [
+      "小兒呼吸治療",
+      "長期呼吸照護",
+      "肺部影像學",
+      "臨床實習"
+    ],
+    "source": {
+      "name": "Collego 大學選才與高中教學資源平台",
+      "url": "https://collego.edu.tw/Highschool/MajorIntro?current_major_id=42",
+      "checked": "2026-10-23"
+    }
+  },
+  "職業安全學類": {
+    "summary": "研究職場的安全與工作者健康，預防各種職業災害。",
+    "focusTitle": "這個學類在學什麼",
+    "focusDescription": "學工業安全、人因工程、風險評估、工業通風、作業環境測定與工業毒物學，也學防火防爆、消防安全和職安法規。",
+    "compareTitle": "和公共衛生的差別",
+    "compareDescription": "公共衛生關心整個社會的健康；職業安全專注職場作業人員的災害風險，已經獨立成一個專業。",
+    "foundationCourses": [
+      "工業安全概論",
+      "普通化學",
+      "勞動生理學"
+    ],
+    "coreCourses": [
+      "風險評估",
+      "人因工程",
+      "工業通風",
+      "作業環境測定"
+    ],
+    "appliedCourses": [
+      "工業毒物學",
+      "防火防爆",
+      "職安法規",
+      "消防安全"
+    ],
+    "source": {
+      "name": "Collego 大學選才與高中教學資源平台",
+      "url": "https://collego.edu.tw/Highschool/MajorIntro?current_major_id=45",
+      "checked": "2026-10-23"
+    }
+  },
+  "海洋資源學類": {
+    "summary": "研究水產養殖、漁業資源管理，以及海洋生物資源的開發與保育。",
+    "focusTitle": "這個學類在學什麼",
+    "focusDescription": "以生物、化學和生物化學為基礎，學養殖學、魚類學、水質學、營養與飼料、水族病理，也有海洋生物多樣性、生物科技與漁業法規。",
+    "compareTitle": "和生態學類的差別",
+    "compareDescription": "生態學類著重生物與環境的互動；海洋資源學類著重水生生物的養殖，以及在食品、醫藥上的應用。",
+    "foundationCourses": [
+      "普通生物學",
+      "有機化學",
+      "生物化學"
+    ],
+    "coreCourses": [
+      "養殖學",
+      "魚類學",
+      "水質學",
+      "海洋生物多樣性"
+    ],
+    "appliedCourses": [
+      "水族病理學",
+      "營養與飼料學",
+      "漁業法規",
+      "海洋生物科技"
+    ],
+    "source": {
+      "name": "Collego 大學選才與高中教學資源平台",
+      "url": "https://collego.edu.tw/Highschool/MajorIntro?current_major_id=57",
+      "checked": "2026-10-23"
+    }
+  },
+  "工藝學類": {
+    "summary": "結合藝術、人文與設計，學習金屬、陶瓷、木工、玻璃、編織等材料的設計與技法。",
+    "focusTitle": "這個學類在學什麼",
+    "focusDescription": "從素描、色彩學、立體造型與工藝史開始，再進入金工、木工、陶瓷工藝等工作室實作，也學傳統工藝的修復與產品行銷，最後完成畢業專題。",
+    "compareTitle": "和商業、工業設計的差別",
+    "compareDescription": "商業設計偏包裝與品牌；工業設計偏機械量產；工藝重視材料手作與技法，也保存傳統工藝。",
+    "foundationCourses": [
+      "素描",
+      "色彩學",
+      "工藝史"
+    ],
+    "coreCourses": [
+      "工藝設計",
+      "金屬工藝",
+      "木材工藝",
+      "陶瓷工藝"
+    ],
+    "appliedCourses": [
+      "修護材料學",
+      "電腦輔助設計",
+      "行銷與企劃",
+      "畢業專題"
+    ],
+    "source": {
+      "name": "Collego 大學選才與高中教學資源平台",
+      "url": "https://collego.edu.tw/Highschool/MajorIntro?current_major_id=67",
+      "checked": "2026-10-23"
+    }
+  },
+  "農藝學類": {
+    "summary": "研究稻米、雜糧和茶等作物的栽培與育種改良，培育優良品種。",
+    "focusTitle": "這個學類在學什麼",
+    "focusDescription": "以植物學、植物生理、土壤學與遺傳學為基礎，再學作物育種、食用與特用作物、病蟲害防治與試驗設計，常到農場實習。",
+    "compareTitle": "和園藝學類的差別",
+    "compareDescription": "兩者都重栽培與育種；園藝以蔬果花卉為主，農藝以糧食和特用作物為主。",
+    "foundationCourses": [
+      "普通植物學",
+      "植物生理學",
+      "土壤學"
+    ],
+    "coreCourses": [
+      "遺傳學",
+      "作物育種學",
+      "作物生產概論",
+      "生物統計學"
+    ],
+    "appliedCourses": [
+      "食用作物學",
+      "特用作物學",
+      "試驗設計學",
+      "農場實習"
+    ],
+    "source": {
+      "name": "Collego 大學選才與高中教學資源平台",
+      "url": "https://collego.edu.tw/Highschool/MajorIntro?current_major_id=53",
+      "checked": "2026-10-23"
+    }
+  },
+  "大氣科學學類": {
+    "summary": "運用數理和資訊科技研究大氣，從雲的形成到颱風、氣候與空氣污染。",
+    "focusTitle": "這個學類在學什麼",
+    "focusDescription": "基礎是微積分、普通物理、化學與應用數學，核心是大氣熱力學、大氣動力學、天氣學，再學大氣化學、大氣輻射，寫程式分析資料是日常。",
+    "compareTitle": "和物理、地球科學的差別",
+    "compareDescription": "物理範圍更廣；地球科學涵蓋地、海、天文，大氣只是一部分；大氣科學專攻天氣與氣候。",
+    "foundationCourses": [
+      "大氣科學概論",
+      "微積分",
+      "普通物理"
+    ],
+    "coreCourses": [
+      "大氣熱力學",
+      "大氣動力學",
+      "天氣學",
+      "應用數學"
+    ],
+    "appliedCourses": [
+      "大氣化學",
+      "大氣輻射",
+      "氣候學",
+      "程式與資料分析"
+    ],
+    "source": {
+      "name": "Collego 大學選才與高中教學資源平台",
+      "url": "https://collego.edu.tw/Highschool/MajorIntro?current_major_id=62",
+      "checked": "2026-10-23"
+    }
+  },
+  "營建安全學類": {
+    "summary": "結合土木、建築與消防知識，預防工地與建築物的事故和災害。",
+    "focusTitle": "這個學類在學什麼",
+    "focusDescription": "學測量、結構學、工程材料等工程基礎，再學營建安全、風險評估、火災學、消防設備、建築防火與災害搶救，也要熟悉建築與消防法規。",
+    "compareTitle": "和土木工程的差別",
+    "compareDescription": "土木工程偏結構設計與施工；營建安全更重法規、工地安全與災害預防。",
+    "foundationCourses": [
+      "普通物理學",
+      "工程圖學",
+      "測量學"
+    ],
+    "coreCourses": [
+      "營建安全",
+      "結構學",
+      "火災學",
+      "風險評估"
+    ],
+    "appliedCourses": [
+      "消防安全設備",
+      "建築防火",
+      "災害搶救",
+      "建築與消防法規"
+    ],
+    "source": {
+      "name": "Collego 大學選才與高中教學資源平台",
+      "url": "https://collego.edu.tw/Highschool/MajorIntro?current_major_id=63",
+      "checked": "2026-10-23"
+    }
+  },
+  "海洋科學學類": {
+    "summary": "用科學和工程技術研究海洋的物理、化學、生物與地質。",
+    "focusTitle": "這個學類在學什麼",
+    "focusDescription": "先學物理、化學、生物與海洋系統科學，再分海洋物理、海洋化學、海洋生物等方向，也結合遙測、資訊與機電技術探測海洋。",
+    "compareTitle": "和水利工程、海洋資源的差別",
+    "compareDescription": "水利工程用工程方法管理水資源；海洋資源偏養殖與漁業；海洋科學研究海洋本身怎麼運作。",
+    "foundationCourses": [
+      "普通物理",
+      "普通化學",
+      "普通生物學"
+    ],
+    "coreCourses": [
+      "物理海洋概論",
+      "海洋化學概論",
+      "海洋生物概論",
+      "海洋地質"
+    ],
+    "appliedCourses": [
+      "海洋遙測",
+      "海洋環境變遷",
+      "海洋污染防治",
+      "海上實習"
+    ],
+    "source": {
+      "name": "Collego 大學選才與高中教學資源平台",
+      "url": "https://collego.edu.tw/Highschool/MajorIntro?current_major_id=61",
+      "checked": "2026-10-23"
+    }
+  },
+  "一般跨學類": {
+    "summary": "以人文、社會與自然科學為基礎，先接觸多元領域，再依興趣分流專精。",
+    "focusTitle": "這個學類在學什麼",
+    "focusDescription": "多是學院學士班或國際學院，先修跨領域基礎課，再選定一個或多個專長，各校學習路徑差異大，選擇前要先看課程規劃。",
+    "compareTitle": "和其他跨學類的差別",
+    "compareDescription": "工程、管理、藝術、數理化跨學類各有專門方向；一般跨學類範圍最廣，不限定領域。",
+    "foundationCourses": [
+      "通識課程",
+      "跨領域基礎課",
+      "寫作與表達"
+    ],
+    "coreCourses": [
+      "自選專長課程",
+      "專題研討",
+      "研究方法",
+      "第二專長"
+    ],
+    "appliedCourses": [
+      "跨域專題",
+      "國際交流",
+      "實習",
+      "畢業專題"
+    ],
+    "source": {
+      "name": "Collego 大學選才與高中教學資源平台",
+      "url": "https://collego.edu.tw/Highschool/MajorIntro?current_major_id=124",
+      "checked": "2026-10-23"
+    }
+  },
+  "不分系學類": {
+    "summary": "大一大二先不分系，修過不同領域的課程後，再決定主修。",
+    "focusTitle": "這個學類在學什麼",
+    "focusDescription": "前兩年廣泛修各學院的基礎課，搭配導師或學涯諮詢，找到方向後再選主修或自己組合學程，各校規定不同，要先看申請主修的條件。",
+    "compareTitle": "和一般科系的差別",
+    "compareDescription": "一般科系一入學就確定專業；不分系保留探索的時間，但要主動規劃課程。",
+    "foundationCourses": [
+      "通識課程",
+      "各學院基礎課",
+      "學涯探索"
+    ],
+    "coreCourses": [
+      "自選學程",
+      "跨領域課程",
+      "專題研討",
+      "導師諮詢"
+    ],
+    "appliedCourses": [
+      "主修選擇",
+      "第二專長",
+      "跨域專題",
+      "實習"
+    ]
   }
 }
