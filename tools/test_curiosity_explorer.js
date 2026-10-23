@@ -78,7 +78,7 @@ for(const likes of [{A:2},{I:2},{O:2},{D:2},{R:2}]){
  const art=s.report().groups.find(g=>g.id==='I');
  assert.equal(art.level,'unknown');assert.equal(art.type,'interest');
  assert.equal(engine.weighted({math:3,physics:null},{math:3,physics:3}).score,3);
- assert.deepEqual(data.levelOptions.map(o=>o.label),['前段','中間','後段']);
+ assert.deepEqual(data.levelOptions.map(o=>o.label),['後段','中間','前段'],'右邊固定是最好');
  assert.deepEqual(data.interestOptions.map(o=>o.label),['沒興趣','還好','想知道']);
 }
 // 跟自己比：全部普通時不會出現「強」；全部比較吃力的學生，自己的平均就是普通水準。
