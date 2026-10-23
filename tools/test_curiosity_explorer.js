@@ -6,6 +6,13 @@ const data=require('../prototypes/interest-explorer/curiosity/data');
 const item=id=>data.items.find(q=>q.id===id);
 const required=data.subjects.filter(s=>s.required);
 
+// 題庫 108 題：每個學群 6 題，沒有重複題文；體育已取消。
+assert.equal(data.items.length,108);
+for(const g of data.groups)assert.equal(data.items.filter(q=>q.group===g.id).length,6,g.id);
+assert.equal(new Set(data.items.map(q=>q.text)).size,108);
+assert.ok(data.items.every(q=>q.interestGroups.includes(q.group)&&q.units.length&&q.concept&&q.reason));
+assert.ok(!data.subjects.some(s=>s.id==='sport')&&!data.weights.R.sport);
+
 // 固定題組：18 題、每個學群 1 題，全班一致。
 assert.equal(data.quickSet.length,18);
 assert.equal(new Set(data.quickSet.map(id=>item(id).group)).size,18);
@@ -64,7 +71,7 @@ const typeOf=(report,id)=>report.groups.find(g=>g.id===id).type;
 }
 // 原本的問題 3：深入確認不會把最感興趣的學群歸到「其他」。
 for(const likes of [{A:2},{I:2},{O:2},{D:2},{R:2}]){
- const s=student({likes,strong:['computing','art','sport'],weak:['history','earth']});
+ const s=student({likes,strong:['computing','art','music'],weak:['history','earth']});
  const target=Object.keys(likes)[0],before=typeOf(s.report(),target);
  assert.notEqual(before,'other',`${target} 快速版`);
  s.startDeep();
@@ -107,6 +114,7 @@ assert.equal(engine.level({score:3,coverage:0.3},2),'unknown');
  const s=student({likes:{A:2,B:2,C:2},strong:['math','physics'],weak:['history','earth']});
  s.startDeep();const deep=s.snapshot().deep;
  assert.ok(s.deepQuestions().every(q=>deep.focus.includes(q.group)&&!data.quickSet.includes(q.id)));
+ assert.equal(s.deepQuestions().length,deep.focus.length*3,'每個方向補問 3 題');
  assert.ok(s.detailPlan().length<=4&&s.detailPlan().every(row=>!['computing','technology'].includes(row.subject)));
  s.detailPlan().forEach(row=>assert.equal(row.goals.length,3));
  s.answer('A1',1);assert.equal(s.snapshot().deep,null);
@@ -119,6 +127,31 @@ assert.equal(engine.level({score:3,coverage:0.3},2),'unknown');
  const u=s.report().undeclared;assert.equal(u.reason,'broad');assert.deepEqual(u.domains.slice().sort(),['人文語言','理工','生醫'].sort());
  const t=student({likes:{A:2,B:2,C:2,D:2},favourite:['A1','B2','D9']});assert.equal(t.report().undeclared,null,'最想知道只分屬 2 個領域');
 }
+// 換一批題目：每個學群 1 題沒看過的題目；答完才計入，可以一直換到題目用完。
+{
+ const s=student({likes:{A:2,D:2}});
+ assert.equal(s.report().canExplore,true);
+ const seen=new Set(data.quickSet);let rounds=0;
+ while(s.canExplore()){
+  s.startExtra();const round=s.extraQuestions();rounds++;
+  assert.ok(round.every(q=>!seen.has(q.id)),'不會出現看過的題目');round.forEach(q=>seen.add(q.id));
+  assert.equal(new Set(round.map(q=>q.group)).size,round.length,'每個學群最多 1 題');
+  const before=s.report().extraRounds;round.forEach(q=>s.answer(q.id,q.group==='O'?2:0));
+  assert.equal(s.report().extraRounds,before+1);
+ }
+ assert.equal(rounds,5,'每個學群 5 題補充題，可以換 5 批');
+ assert.ok(s.report().groups.find(g=>g.id==='O').evidence.length>=6,'再探索的答案會計入興趣');
+ // 先換題再深入確認：深入確認不會重複再探索問過的題。
+ const t=student({likes:{A:2}});t.startExtra();t.extraQuestions().forEach(q=>t.answer(q.id,1));t.startDeep();
+ const extraIds=t.snapshot().extra.flat();assert.ok(t.deepQuestions().every(q=>!extraIds.includes(q.id)));
+}
+// 舊版（v4）結果連結：深入確認每個方向 2 題、勾過體育，仍能顯示。
+{
+ const v4=Buffer.from(JSON.stringify({v:4,a:'222111111111111111',f:[],l:'m',s:[1,14],w:[3,4],d:{f:'AID',p:'math.A',q:'222222',g:'333'}})).toString('base64url');
+ const old=engine.decodeShare(v4).session;assert.equal(old.complete(),true);
+ assert.deepEqual(old.snapshot().profile.strong,['english']);assert.equal(old.snapshot().deep.questions.length,6);
+ assert.equal(old.report().deep,true);
+}
 // 存檔與結果連結：還原後結果完全相同；壞掉的連結會被拒絕。
 for(let seed=1;seed<=40;seed++){
  let n=seed;const r=()=>((n=(n*1664525+1013904223)>>>0)/4294967296);
@@ -127,17 +160,19 @@ for(let seed=1;seed<=40;seed++){
  if(s.favouritesNeeded())s.setFavourites(s.wanted().slice(0,3));
  const ids=data.subjects.map(x=>x.id).sort(()=>r()-.5);
  s.setLevel(data.levelOptions[Math.floor(r()*3)].value);s.setPicks('strong',ids.slice(0,2+Math.floor(r()*2)));s.setPicks('weak',ids.slice(5,7+Math.floor(r()*2)));
+ if(r()>.6){s.startExtra();s.extraQuestions().forEach(q=>s.answer(q.id,Math.floor(r()*3)));}
  if(r()>.5){s.startDeep();s.deepQuestions().forEach(q=>s.answer(q.id,Math.floor(r()*3)));s.detailPlan().forEach(row=>row.goals.forEach(g=>s.goal(g.id,Math.floor(r()*5))));}
+ if(r()>.6&&s.canExplore()){s.startExtra();s.extraQuestions().forEach(q=>s.answer(q.id,Math.floor(r()*3)));}
  const report=JSON.stringify(s.report());
  const restored=engine.createSession();restored.load(JSON.parse(JSON.stringify(s.snapshot())));
  assert.equal(JSON.stringify(restored.report()),report);
  const code=engine.encodeShare(s.snapshot(),'15 號 王小明');
- assert.ok(code.length<400,'結果連結要夠短，方便貼到 LINE');
+ assert.ok(code.length<500,'結果連結要夠短，方便貼到 LINE');
  const shared=engine.decodeShare(code);
  assert.equal(JSON.stringify(shared.session.report()),report);assert.equal(shared.name,'15 號 王小明');
 }
 assert.throws(()=>engine.decodeShare('not-a-code'));
-assert.throws(()=>engine.decodeShare(Buffer.from(JSON.stringify({v:4,a:'2',l:'m'})).toString('base64url')),/不完整/);
+assert.throws(()=>engine.decodeShare(Buffer.from(JSON.stringify({v:5,a:'2',l:'m'})).toString('base64url')),/不完整/);
 assert.throws(()=>engine.decodeShare(Buffer.from(JSON.stringify({v:3,a:'2',s:'3'})).toString('base64url')),/舊版本/);
 assert.throws(()=>engine.createSession().load({v:1}),/版本/);
 // 有興趣的學群只橫跨 3 個領域時，即使最想知道的 3 題分屬 3 個領域，也不建議不分系。
@@ -154,4 +189,4 @@ assert.throws(()=>engine.createSession().load({v:1}),/版本/);
  const kept=r.groups.filter(g=>g.type!=='other'&&g.type!=='potential');
  assert.equal(r.groups.filter(g=>g.type==='other').length,18-kept.length-r.groups.filter(g=>g.type==='potential').length);
 }
-console.log('Curiosity explorer: fixed 18-question set, max 6 groups per type, option order, level plus 2–3 required subject picks, 不分系 suggestions, answer limits, favourites, relative subject levels, potential cap, deep check coverage, save/restore and 40 result-link round trips passed.');
+console.log('Curiosity explorer: 108-question bank, extra rounds, v4 links, fixed 18-question set, max 6 groups per type, option order, level plus 2–3 required subject picks, 不分系 suggestions, answer limits, favourites, relative subject levels, potential cap, deep check coverage, save/restore and 40 result-link round trips passed.');
