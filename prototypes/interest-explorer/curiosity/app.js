@@ -3,26 +3,26 @@
  'use strict';
  const data=window.YuhsinCuriosityData,engine=window.YuhsinCuriosityEngine,intros=window.YuhsinGroupIntroductions||{};
  if(!data||!engine)return;
- const STORAGE_KEY='yuhsin-curiosity:v3';
+ const STORAGE_KEY='yuhsin-curiosity:v4';
  const el=id=>document.getElementById(id);
  const esc=t=>String(t??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
  const subject=id=>data.subjects.find(s=>s.id===id);
  const short=name=>name.replace(/學群$/,'');
  const interestLabel={3:'最想知道',2:'想知道',1:'還好',0:'沒興趣'};
- const subjectLabel=v=>(data.subjectOptions.find(o=>o.value===v)||{label:'未填'}).label;
+ const pickLabel={strong:'最拿手',weak:'比較吃力',base:'跟整體程度一樣',null:'沒勾選'};
  const sectionTypes=['priority','develop','interest','potential'];
  const reduceMotion=matchMedia('(prefers-reduced-motion: reduce)').matches;
 
  let session=engine.createSession();
- let view='intro',qMode='quick',qPage=0,detailPage=0,report=null,shared=null,restartArmed=null,tab=null;
+ let lastSavedView=null,view='intro',qMode='quick',qPage=0,detailPage=0,report=null,shared=null,restartArmed=null,tab=null;
 
  // ── 存檔 ──
  function save(){
   if(shared)return;
-  try{localStorage.setItem(STORAGE_KEY,JSON.stringify({snapshot:session.snapshot(),savedAt:Date.now()}));}catch{}
+  try{localStorage.setItem(STORAGE_KEY,JSON.stringify({snapshot:session.snapshot(),view:view==='intro'?lastSavedView:view,savedAt:Date.now()}));}catch{}
  }
  function restore(){
-  try{const raw=JSON.parse(localStorage.getItem(STORAGE_KEY)||'null');if(!raw)return null;session.load(raw.snapshot);return raw;}
+  try{const raw=JSON.parse(localStorage.getItem(STORAGE_KEY)||'null');if(!raw)return null;session.load(raw.snapshot);lastSavedView=raw.view||null;return raw;}
   catch{session.reset();return null;}
  }
  function clearSaved(){try{localStorage.removeItem(STORAGE_KEY);}catch{}}
@@ -44,7 +44,7 @@
   el('quizProgress').style.width=`${Math.round(Math.min(1,Math.max(0,progress))*100)}%`;
  }
  function show(name,focusId){
-  view=name;document.body.dataset.view=name;
+  view=name;document.body.dataset.view=name;if(name!=='intro')lastSavedView=name;
   document.querySelectorAll('main > .view').forEach(s=>{s.hidden=s.id!==name;});
   el('quizBar').hidden=['intro','results'].includes(name)||Boolean(shared);
   if(name!=='results'&&!shared&&location.hash)history.replaceState(null,'',location.pathname+location.search);
@@ -57,7 +57,8 @@
   const snap=session.snapshot();
   if(!session.interestComplete()){qMode='quick';qPage=firstUnansweredPage();return renderQuestion();}
   if(!session.favouritesComplete())return renderFavourites();
-  if(!session.subjectsComplete())return renderSubjects();
+  // 第 3 步做到一半（已選整體程度、還在勾科目）時，回到同一頁繼續勾。
+  if(!session.subjectsComplete()||lastSavedView==='subjects')return renderSubjects();
   if(snap.deep&&!session.deepComplete()){
    const missing=session.deepQuestions().findIndex(q=>snap.answers[q.id]===undefined);
    if(missing>=0){qMode='deep';qPage=0;return renderQuestion();}
@@ -147,16 +148,26 @@
  }
  function updateFavouriteCount(){el('favouritesCount').textContent=`已挑 ${session.snapshot().favourites.length} / 3 題`;}
 
- // ── 學科自評 ──
+ // ── 學科：整體程度＋勾選強項與吃力科目 ──
  function renderSubjects(){
-  const values=session.snapshot().subjects;
-  setBar('第 3 / 3 步・學科自評','',0.78);
-  el('subjectRows').innerHTML=data.profileGroups.map(group=>`<fieldset class="subject-group"><legend>${esc(group.label)}</legend>${group.subjects.map(id=>{const v=values[id];return `<div class="subject-row" role="radiogroup" aria-labelledby="label-${id}"><span class="subject-name" id="label-${id}">${esc(subject(id).label)}</span><div class="scale-options">${data.subjectOptions.map(o=>`<label class="scale-option"><input type="radio" name="s-${id}" value="${o.value}" data-subject="${id}" ${v===o.value?'checked':''}><span>${esc(o.label)}</span></label>`).join('')}</div></div>`;}).join('')}</fieldset>`).join('');
+  setBar('第 3 / 3 步・學科表現','',0.78);
+  el('levelOptions').innerHTML=data.levelOptions.map(o=>`<label class="level-option"><input type="radio" name="level" value="${o.value}" data-level><span>${esc(o.label)}</span></label>`).join('');
+  const chips=kind=>data.subjects.map(s=>`<label class="subject-chip"><input type="checkbox" value="${s.id}" data-pick="${kind}"><span>${esc(s.label)}</span></label>`).join('');
+  el('strongChips').innerHTML=chips('strong');el('weakChips').innerHTML=chips('weak');
   el('subjectsError').textContent='';
-  updateSubjectCount();
+  syncProfile();
   show('subjects','subjectsTitle');
  }
- function updateSubjectCount(){const v=session.snapshot().subjects,req=data.subjects.filter(s=>s.required);el('subjectsCount').textContent=`必填 ${req.filter(s=>v[s.id]!==undefined).length} / ${req.length} 科`;}
+ // 依目前作答更新勾選狀態；已勾成強項的科目在「吃力」裡停用，反之亦然。
+ function syncProfile(){
+  const p=session.snapshot().profile;
+  el('levelOptions').querySelectorAll('input').forEach(i=>{i.checked=i.value===p.level;});
+  ['strong','weak'].forEach(kind=>{
+   const other=p[kind==='strong'?'weak':'strong'];
+   el(kind+'Chips').querySelectorAll('input').forEach(i=>{i.checked=p[kind].includes(i.value);i.disabled=other.includes(i.value);i.closest('.subject-chip').classList.toggle('is-other',other.includes(i.value));});
+  });
+  el('subjectsCount').textContent=p.level?`強項 ${p.strong.length} / ${data.strongLimit}・吃力 ${p.weak.length} / ${data.weakLimit}`:'先選整體成績';
+ }
 
  // ── 深入確認：具體內容 ──
  function renderDeepDetails(){
@@ -238,10 +249,10 @@
  function evidence(id){
   const row=report.groups.find(g=>g.id===id);
   el('evidenceTitle').textContent=short(row.name)+'｜推薦依據';
-  const answered=row.subjects.filter(s=>s.answer!==null);
+  const answered=row.subjects.filter(s=>s.pick!==null);
   el('evidenceContent').innerHTML=`<p>${esc(data.resultTypes[row.type].text)}</p>
    <h3>好奇心</h3>${row.evidence.length?`<ul>${row.evidence.map(e=>`<li>${esc(e.text)}<small class="evidence-value">${interestLabel[e.value]}${e.primary?'・本學群的題目':''}</small></li>`).join('')}</ul><p>興趣平均 ${row.interest.toFixed(1)}（達 ${engine.THRESHOLD} 視為有興趣）。</p>`:'<p>這次的題目沒有直接連到這個方向。</p>'}
-   <h3>學科</h3>${answered.length?`<ul>${row.subjects.map(s=>`<li>${esc(s.label)}：${esc(subjectLabel(s.answer))}${typeof s.value==='number'&&report.deep&&s.value!==s.answer?`（深入確認 ${s.value.toFixed(1)}）`:''}<small class="evidence-value">本站權重 ${s.weight}</small></li>`).join('')}</ul>${row.score!==null?`<p>加權平均 ${row.score.toFixed(1)} / 4，已評估的科目占參考權重的 ${Math.round(row.coverage*100)}%。</p>`:''}`:'<p>相關科目都沒填，這次不判斷基礎。</p>'}
+   <h3>學科</h3>${answered.length?`<ul>${row.subjects.map(s=>`<li>${esc(s.label)}：${esc(pickLabel[s.pick])}${typeof s.value==='number'?`（${s.value%1?s.value.toFixed(1):s.value} / 4）`:''}<small class="evidence-value">本站權重 ${s.weight}</small></li>`).join('')}</ul>${row.score!==null?`<p>加權平均 ${row.score.toFixed(1)} / 4，已評估的科目占參考權重的 ${Math.round(row.coverage*100)}%。</p>`:''}`:'<p>相關科目都沒有資料，這次不判斷基礎。</p>'}
    <p>權重、門檻與題目連結是本站編輯規則，不是錄取條件或適合率。</p><a href="${row.source}" target="_blank" rel="noopener noreferrer">ColleGo! 學群參考 ↗</a>`;
   el('evidenceDialog').showModal();
  }
@@ -280,15 +291,18 @@
   renderSubjects();
  });
 
- el('subjectRows').addEventListener('change',e=>{
-  const input=e.target.closest('input[data-subject]');if(!input)return;
-  session.setSubject(input.dataset.subject,Number(input.value));
-  el('subjectsError').textContent='';updateSubjectCount();save();
- });
+ el('levelOptions').addEventListener('change',e=>{const i=e.target.closest('input[data-level]');if(!i)return;session.setLevel(i.value);el('subjectsError').textContent='';syncProfile();save();});
+ ['strongChips','weakChips'].forEach(id=>el(id).addEventListener('change',e=>{
+  const box=e.target.closest('input[data-pick]');if(!box)return;
+  const kind=box.dataset.pick,current=session.snapshot().profile[kind];
+  const next=box.checked?current.concat(box.value):current.filter(x=>x!==box.value);
+  try{session.setPicks(kind,next);el('subjectsError').textContent='';}
+  catch(err){box.checked=false;el('subjectsError').textContent=err.message;}
+  syncProfile();save();
+ }));
  el('subjectsPrevious').addEventListener('click',()=>{if(session.favouritesNeeded())renderFavourites();else{qMode='quick';qPage=pageCountFor('quick')-1;renderQuestion();}});
  el('subjectsNext').addEventListener('click',()=>{
-  const v=session.snapshot().subjects,missing=data.subjects.filter(s=>s.required&&v[s.id]===undefined).map(s=>s.label);
-  if(missing.length){el('subjectsError').textContent=`還沒選：${missing.join('、')}。`;return;}
+  if(!session.subjectsComplete()){el('subjectsError').textContent='請先選第 1 題：整體成績大約在班上哪裡。';el('levelBlock').scrollIntoView({block:'center',behavior:reduceMotion?'auto':'smooth'});return;}
   renderResults();
  });
 

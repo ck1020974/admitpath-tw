@@ -80,8 +80,10 @@
  const quickSet=['A1','I9','D9','O2','B2','L5','E3','P7','G1','M9','C3','R3','K10','F3','N4','H2','Q5','J5'];
  // 畫面由左到右：沒興趣、還好、想知道。
  const interestOptions=[{value:0,label:'沒興趣'},{value:1,label:'還好'},{value:2,label:'想知道'}];
- // 學科自評沿用原本的量表：非常糟 0、不好 1、普通 2、好 3、非常強 4。
+ // 學科：先問整體成績，再勾最拿手（最多 3 科）與比較吃力（最多 2 科）的科目。
+ // 換算：前段＝好 3、中間＝普通 2、後段＝不好 1；強項高一級、吃力低一級，其餘等於整體程度。
+ const levelOptions=[{value:'high',label:'前段',base:3},{value:'mid',label:'中間',base:2},{value:'low',label:'後段',base:1}];
  const subjectOptions=masteryOptions;
- const data={version:'yuhsin-single-route-20261022b',quickSet,interestOptions,subjectOptions,profileGroups:[{id:'core',label:'國英數',subjects:['chinese','english','math']},{id:'social',label:'社會',subjects:['history','geography','civics']},{id:'science',label:'自然',subjects:['physics','chemistry','biology','earth']},{id:'other',label:'延伸科目（選填）',optional:true,subjects:['computing','technology','art','music','sport']}],bank,groups,items,units,...subjectModel,...exploration,subjects,resultTypes,masteryOptions,curriculum:curriculumData.references,sources:curriculumData.sources};
+ const data={version:'yuhsin-single-route-20261023',quickSet,interestOptions,subjectOptions,levelOptions,strongLimit:3,weakLimit:2,profileGroups:[{id:'core',label:'國英數',subjects:['chinese','english','math']},{id:'social',label:'社會',subjects:['history','geography','civics']},{id:'science',label:'自然',subjects:['physics','chemistry','biology','earth']},{id:'other',label:'延伸科目（選填）',optional:true,subjects:['computing','technology','art','music','sport']}],bank,groups,items,units,...subjectModel,...exploration,subjects,resultTypes,masteryOptions,curriculum:curriculumData.references,sources:curriculumData.sources};
  if(node)module.exports=data;else root.YuhsinCuriosityData=data;
 })(typeof window!=='undefined'?window:globalThis);
