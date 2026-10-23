@@ -1,0 +1,470 @@
+/* 查詢工作台與比較清單。
+   獨立於 styles.css，讓首頁和工作台可以分開修改而不互相衝突。
+   原則：每列只突出一個重點數字，其餘條件是一行灰字；年度、管道在電腦上直接點，手機維持下拉選單。 */
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* ── 標題列：筆數與重設 ── */
+#workbenchView .workbench-actions {
+  align-items: baseline;
+  gap: 16px;
+}
+
+#workbenchView .result-meta {
+  min-width: 0;
+  min-height: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+  align-items: baseline;
+  gap: 6px;
+}
+
+#workbenchView .result-meta strong {
+  font-size: 22px;
+  font-variant-numeric: tabular-nums;
+}
+
+.text-link-button {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--muted);
+  font-size: 13px;
+  text-decoration: underline;
+  text-decoration-color: rgba(102, 112, 133, .4);
+  text-underline-offset: 4px;
+  cursor: pointer;
+}
+
+.text-link-button:hover {
+  color: var(--ink);
+  text-decoration-color: currentColor;
+}
+
+/* ── 篩選區 ── */
+#workbenchView .workbench-filters {
+  grid-template-columns: minmax(180px, 240px) minmax(0, 1fr) auto;
+  grid-template-areas:
+    "quick quick quick"
+    "school search precision";
+  align-items: end;
+  gap: 14px 12px;
+  padding: 16px;
+}
+
+#workbenchView .wb-quick {
+  grid-area: quick;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 16px;
+}
+
+#workbenchView .wb-school { grid-area: school; }
+#workbenchView .search-field { grid-area: search; }
+#workbenchView .precision-button { grid-area: precision; min-height: 44px; }
+
+/* 電腦版：年度、管道用下方的快速選項，下拉選單隱藏（仍是同一組設定）。 */
+#workbenchView .wb-year,
+#workbenchView .wb-channel {
+  display: none;
+}
+
+.wb-seg {
+  display: inline-flex;
+  padding: 3px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--soft);
+}
+
+.wb-seg-option {
+  min-height: 36px;
+  padding: 0 14px;
+  border: 0;
+  border-radius: 9px;
+  background: transparent;
+  color: var(--muted);
+  font: inherit;
+  font-size: 14px;
+  font-weight: 700;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: background .15s, color .15s;
+}
+
+.wb-seg-option:hover {
+  color: var(--ink);
+  background: rgba(23, 32, 45, .05);
+}
+
+.wb-seg-option[aria-pressed="true"] {
+  background: var(--side);
+  color: #fff;
+}
+
+.wb-seg-option:focus-visible {
+  outline: 3px solid rgba(14, 143, 145, .45);
+  outline-offset: 1px;
+}
+
+/* ── 結果清單（工作台與比較清單共用） ── */
+.table-shell.rec-list {
+  margin-bottom: 72px;
+  max-width: none;
+  max-height: none;
+  overflow: visible;
+  border-radius: 14px;
+  box-shadow: 0 10px 30px rgba(22, 32, 45, .06);
+}
+
+.rec-list table {
+  display: block;
+  min-width: 0;
+  table-layout: auto;
+}
+
+.rec-list tbody {
+  display: block;
+}
+
+.rec-list tbody > tr:not(.rec-row) > td {
+  display: block;
+}
+
+.rec-row {
+  position: relative;
+  display: grid;
+  grid-template-columns: 52px minmax(0, 1fr) auto;
+  column-gap: 18px;
+  align-items: start;
+  padding: 16px 22px 15px;
+  border-bottom: 1px solid #e7edf3;
+  transition: background .12s;
+}
+
+.rec-row:last-child {
+  border-bottom: 0;
+}
+
+.rec-row:hover {
+  background: #f7fafc;
+}
+
+.rec-row > td {
+  display: block;
+  padding: 0;
+  border: 0;
+}
+
+.rec-channel {
+  display: flex !important;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 5px;
+  padding-top: 2px !important;
+}
+
+.rec-channel .year-number {
+  color: var(--subtle);
+  font-size: 12px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+/* 校系名稱是整列的開啟按鈕：點列上任何地方都會開詳情。 */
+.rec-open {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 2px 10px;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--ink);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.rec-open::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+}
+
+.rec-open:focus-visible {
+  outline: none;
+}
+
+.rec-row:has(.rec-open:focus-visible) {
+  outline: 3px solid rgba(14, 143, 145, .45);
+  outline-offset: -3px;
+}
+
+.rec-school {
+  font-size: 16px;
+  font-weight: 800;
+}
+
+.rec-dept {
+  font-size: 15px;
+}
+
+.rec-key,
+.rec-sub {
+  display: flex;
+  align-items: baseline;
+  gap: 4px 12px;
+  margin: 0;
+}
+
+.rec-key {
+  margin-top: 9px;
+}
+
+.rec-sub {
+  margin-top: 4px;
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.rec-label {
+  flex: 0 0 auto;
+  min-width: 56px;
+  color: var(--subtle);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.rec-key-value {
+  min-width: 0;
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  row-gap: 2px;
+  font-size: 15px;
+}
+
+.rec-key-value b {
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.rec-step {
+  margin: 0 9px;
+  color: #b3bdc9;
+  font-style: normal;
+  font-weight: 700;
+}
+
+.rec-after {
+  margin-left: 16px;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.rec-item {
+  white-space: nowrap;
+}
+
+.rec-muted {
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.rec-action {
+  position: relative;
+  z-index: 1;
+  align-self: center;
+}
+
+.rec-compare.small-button {
+  min-height: 34px;
+  padding: 0 14px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--paper);
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.rec-compare.small-button:hover {
+  border-color: #9fb0c2;
+  color: var(--ink);
+}
+
+.rec-compare.small-button.is-on {
+  border-color: #b7dfda;
+  background: #e8f6f4;
+  color: #0f6e70;
+}
+
+/* ── 比較清單浮動列 ── */
+.compare-tray {
+  /* 主內容區設了 overflow，sticky 不會生效，所以固定在視窗右下角。 */
+  position: fixed;
+  right: 28px;
+  bottom: 24px;
+  z-index: 9; /* 在校系詳情抽屜（z-index 10）之下 */
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  width: max-content;
+  margin: 0;
+  padding: 7px 7px 7px 18px;
+  border: 0;
+  border-radius: 999px;
+  background: var(--side);
+  color: #fff;
+  font: inherit;
+  font-size: 14px;
+  box-shadow: 0 12px 28px rgba(16, 32, 51, .28);
+  cursor: pointer;
+}
+
+.compare-tray strong {
+  font-variant-numeric: tabular-nums;
+}
+
+.compare-tray-go {
+  padding: 7px 16px;
+  border-radius: 999px;
+  background: #fff;
+  color: var(--side);
+  font-weight: 800;
+}
+
+.compare-tray:hover .compare-tray-go {
+  background: #e8f6f4;
+}
+
+/* ── 比較清單頁：管道切換和工作台的快速選項同一種樣式（可複選） ── */
+#compareView .compare-channel-buttons {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 0;
+  padding: 3px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--soft);
+}
+
+#compareView .compare-channel-buttons .ghost-button {
+  min-height: 36px;
+  padding: 0 14px;
+  border: 0;
+  border-radius: 9px;
+  background: transparent;
+  color: var(--muted);
+  font-size: 14px;
+  font-weight: 700;
+  box-shadow: none;
+}
+
+#compareView .compare-channel-buttons .ghost-button.active {
+  background: var(--side);
+  color: #fff;
+}
+
+/* ── 手機與窄螢幕 ── */
+@media (max-width: 720px) {
+  #workbenchView .workbench-filters {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    grid-template-areas:
+      "search search"
+      "year channel"
+      "school precision";
+    gap: 8px;
+    padding: 10px;
+  }
+
+  #workbenchView .wb-quick {
+    display: none;
+  }
+
+  #workbenchView .wb-year,
+  #workbenchView .wb-channel {
+    display: block;
+  }
+
+  #workbenchView .wb-year { grid-area: year; }
+  #workbenchView .wb-channel { grid-area: channel; }
+
+  /* 選單本身已寫「全部年度」「全部管道」，上方的小標只留給螢幕閱讀器。 */
+  #workbenchView .workbench-filters label > span {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+  }
+
+  #workbenchView .workbench-filters label {
+    padding: 0;
+  }
+
+  #workbenchView .workbench-filters select,
+  #workbenchView .workbench-filters input,
+  #workbenchView .precision-button {
+    width: 100%;
+    min-height: 42px;
+  }
+
+  .rec-row {
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-areas:
+      "channel action"
+      "main main";
+    row-gap: 8px;
+    padding: 14px 16px;
+  }
+
+  .rec-channel {
+    grid-area: channel;
+    flex-direction: row !important;
+    align-items: center !important;
+    gap: 8px;
+  }
+
+  .rec-main { grid-area: main; }
+  .rec-action { grid-area: action; }
+
+  .rec-label {
+    min-width: 0;
+  }
+
+  .rec-after {
+    margin-left: 0;
+    flex-basis: 100%;
+  }
+
+  .compare-tray {
+    right: 50%;
+    bottom: 14px;
+    transform: translateX(50%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rec-row,
+  .wb-seg-option {
+    transition: none;
+  }
+}

@@ -996,6 +996,7 @@ function bindEvents() {
     });
   });
 
+  setupWorkbenchSegments();
   els.yearFilter.addEventListener("change", updateFilter);
   els.channelFilter.addEventListener("change", updateFilter);
   els.schoolFilter.addEventListener("change", updateFilter);
@@ -2506,15 +2507,16 @@ function placementChannelHasRequiredScores(record, profile) {
 function renderTable() {
   if (dataPending()) {
     els.resultCount.textContent = "—";
-    els.recordTableBody.innerHTML = `<tr><td colspan="4">${loadStatusHtml()}</td></tr>`;
+    els.recordTableBody.innerHTML = `<tr><td colspan="3">${loadStatusHtml()}</td></tr>`;
     return;
   }
   els.resultCount.textContent = fmt.format(state.filtered.length);
+  syncWorkbenchControls();
   // Special selection can be browsed in full across the available years.
   // Keep the all-channel workbench responsive when it contains tens of thousands of rows.
   const rows = state.filters.channel === "special_selection" ? state.filtered : state.filtered.slice(0, 350);
   if (!rows.length) {
-    els.recordTableBody.innerHTML = `<tr><td colspan="4"><div class="empty-state">目前沒有符合條件的資料</div></td></tr>`;
+    els.recordTableBody.innerHTML = `<tr><td colspan="3"><div class="empty-state">目前沒有符合條件的資料</div></td></tr>`;
     return;
   }
   els.recordTableBody.innerHTML = rows.map(record => workbenchRecordRowHtml(record)).join("");
@@ -2527,33 +2529,126 @@ function renderTable() {
   });
 }
 
+// 工作臺上方：年度與管道的快速選項、「重設」只在有篩選時出現、比較清單浮動列。
+function workbenchFiltersActive() {
+  const f = state.filters;
+  return f.year !== "all" || f.channel !== "all" || f.school !== "all" || Boolean(f.keyword)
+    || Boolean(state.linkedGroup) || Boolean(advancedFilterSummaryText());
+}
+
+function setupWorkbenchSegments() {
+  document.querySelectorAll("[data-seg-for]").forEach((group) => {
+    const select = document.getElementById(group.dataset.segFor);
+    if (!select) return;
+    group.innerHTML = [...select.options].map((option) => (
+      `<button type="button" class="wb-seg-option" data-seg-value="${escapeAttr(option.value)}" aria-pressed="false">${escapeHtml(group.dataset.segAllLabel && option.value === "all" ? group.dataset.segAllLabel : option.textContent)}</button>`
+    )).join("");
+    group.addEventListener("click", (event) => {
+      const button = event.target.closest("[data-seg-value]");
+      if (!button || select.value === button.dataset.segValue) return;
+      select.value = button.dataset.segValue;
+      select.dispatchEvent(new Event("change", { bubbles: true }));
+    });
+  });
+}
+
+function syncWorkbenchControls() {
+  document.querySelectorAll("[data-seg-for]").forEach((group) => {
+    const select = document.getElementById(group.dataset.segFor);
+    group.querySelectorAll("[data-seg-value]").forEach((button) => {
+      button.setAttribute("aria-pressed", String(button.dataset.segValue === select?.value));
+    });
+  });
+  const reset = document.getElementById("resetFiltersButton");
+  if (reset) reset.hidden = !workbenchFiltersActive();
+  const tray = document.getElementById("compareTray");
+  if (tray) {
+    tray.hidden = !state.compare.length;
+    const count = document.getElementById("compareTrayCount");
+    if (count) count.textContent = fmt.format(state.compare.length);
+  }
+}
+
 // 工作臺與比較清單共用同一列，確保管道、標準與軍校等備註一致。
+// 每列只突出一個重點（個申一階篩選、繁星一階、分發最低錄取、特選名額），其餘條件用一行灰字。
 function workbenchRecordRowHtml(record, comparing = false) {
-  const highlight = highlightHtml(record);
-  const compareText = state.compare.some((item) => item.id === record.id) ? "已加入" : "比較";
+  const summary = recordSummary(record);
+  const inCompare = state.compare.some((item) => item.id === record.id);
+  const name = `${record.schoolName}${record.departmentName}`;
   return `
-      <tr>
-        <td>
-          <div class="channel-stack">
-            <span class="year-number">${record.year}</span>
-            ${channelBadge(record)}
-          </div>
+      <tr class="rec-row">
+        <td class="rec-channel">
+          ${channelBadge(record)}
+          <span class="year-number">${record.year}</span>
         </td>
-        <td>
-          <div class="cell-main">${escapeHtml(record.schoolName)}</div>
-          <div class="cell-sub program-name">${escapeHtml(record.departmentName)}${specialAdmissionBadgeHtml(record)}</div>
+        <td class="rec-main">
+          <button class="rec-open" type="button" data-detail="${escapeAttr(record.id)}">
+            <span class="rec-school">${escapeHtml(record.schoolName)}</span>
+            <span class="rec-dept program-name">${escapeHtml(record.departmentName)}${specialAdmissionBadgeHtml(record)}</span>
+          </button>
+          ${summary.key ? `<p class="rec-key"><span class="rec-label">${escapeHtml(summary.key.label)}</span><span class="rec-key-value">${summary.key.html}</span></p>` : ""}
+          ${summary.sub ? `<p class="rec-sub"><span class="rec-label">${escapeHtml(summary.sub.label)}</span><span>${String(summary.sub.text).split("、").map((item) => `<span class="rec-item">${escapeHtml(item)}</span>`).join("、")}</span></p>` : ""}
         </td>
-        <td>${highlight || "--"}</td>
-        <td>
-          <div class="row-actions">
-            <button class="small-button" data-detail="${escapeAttr(record.id)}">詳情</button>
-            ${comparing
-              ? `<button class="small-button" data-remove-compare="${escapeAttr(record.id)}" aria-label="移除 ${escapeAttr(record.schoolName + record.departmentName)}">移除</button>`
-              : `<button class="small-button" data-compare="${escapeAttr(record.id)}">${compareText}</button>`}
-          </div>
+        <td class="rec-action">
+          ${comparing
+            ? `<button class="small-button rec-compare" type="button" data-remove-compare="${escapeAttr(record.id)}" aria-label="移除 ${escapeAttr(name)}">移除</button>`
+            : `<button class="small-button rec-compare${inCompare ? " is-on" : ""}" type="button" data-compare="${escapeAttr(record.id)}" aria-pressed="${inCompare}" aria-label="${inCompare ? "從比較清單移除" : "加入比較清單"}：${escapeAttr(name)}">${inCompare ? "已比較" : "＋ 比較"}</button>`}
         </td>
       </tr>
     `;
+}
+
+// 依管道挑出列上最重要的一項（key）與一行補充（sub）；文字固定，不依年份改寫。
+function recordSummary(record) {
+  const steps = (items) => items.map((text) => `<b>${escapeHtml(text)}</b>`).join('<i class="rec-step" aria-hidden="true">›</i><span class="sr-only">，</span>');
+  if (record.specialSelection) {
+    const tags = AdmissionCatalog.examTags(record.specialSelection);
+    const plan = record.specialSelection.plan === "資安外加" ? ["資安外加"] : [];
+    return {
+      key: { label: "名額", html: `<b>${escapeHtml(record.quota)} 名</b>` },
+      sub: { label: tags.conditional ? "甄選（分階段）" : "甄選", text: [...plan, ...tags.tags].join("、") },
+    };
+  }
+  if (record.channelKey === "personal_application") {
+    const parts = personalApplicationStandardParts(record);
+    const screening = parts.filter((part) => part.type === "screening").map((part) => part.text);
+    const status = parts.filter((part) => part.type === "status").map((part) => part.text);
+    const thresholds = parts.filter((part) => part.type === "threshold").map((part) => part.text);
+    const key = screening.length
+      ? { label: "一階篩選", html: steps(screening) }
+      : status.length ? { label: "一階篩選", html: `<span class="rec-muted">${escapeHtml(status.join("、"))}</span>` } : null;
+    return { key, sub: thresholds.length ? { label: "檢定", text: thresholds.join("、") } : null };
+  }
+  if (record.channelKey === "star_recommendation") {
+    const thresholds = starThresholdParts(record);
+    const [first, second] = starRoundRows(record);
+    const firstItems = first?.items || [];
+    const secondItems = second?.items || [];
+    const key = firstItems.length
+      ? { label: "一階", html: `${steps(firstItems)}${secondItems.length ? `<span class="rec-after">二階 ${escapeHtml(secondItems.join("、"))}</span>` : ""}` }
+      : (first ? { label: "一階", html: '<span class="rec-muted">從缺</span>' } : null);
+    return { key, sub: thresholds.length ? { label: "檢定", text: thresholds.join("、") } : null };
+  }
+  if (record.channelKey === "exam_distribution") {
+    const result = distributionResult(record);
+    const tie = result?.regularTieBreak && result.regularTieBreak !== "-----" ? result.regularTieBreak : "";
+    const weights = (record.weightedSubjects || [])
+      .filter((item) => item?.raw && item.raw !== "--" && item.raw !== "---")
+      .map((item) => {
+        const subject = distributionSubjectLabel(item.subject);
+        const weight = distributionWeightLabel(item.weight);
+        return subject && weight ? `${subject}×${weight}` : "";
+      })
+      .filter(Boolean);
+    return {
+      key: result?.regularTotalScore
+        ? { label: "最低錄取", html: `<b>${escapeHtml(result.regularTotalScore)}</b>${tie ? `<span class="rec-after">同分 ${escapeHtml(tie)}</span>` : ""}` }
+        : null,
+      sub: weights.length ? { label: "採計", text: weights.join("、") } : (record.weightedSubjectsText ? { label: "採計", text: record.weightedSubjectsText } : null),
+    };
+  }
+  const text = getHighlight(record);
+  return { key: text ? { label: "條件", html: escapeHtml(text) } : null, sub: null };
 }
 
 function getHighlight(record) {
@@ -4938,9 +5033,9 @@ function renderCompare() {
     });
     return;
   }
-  els.compareGrid.innerHTML = `<div class="table-shell"><table aria-label="已選校系比較表"><colgroup><col class="col-channel"><col class="col-program"><col class="col-highlight"><col class="col-actions"></colgroup><thead><tr><th scope="col">管道</th><th scope="col">學校 / 校系</th><th scope="col">篩選標準</th><th scope="col">操作</th></tr></thead><tbody>${visible.length
+  els.compareGrid.innerHTML = `<div class="table-shell rec-list"><table aria-label="已選校系比較表"><thead class="sr-only"><tr><th scope="col">管道</th><th scope="col">學校 / 校系與條件</th><th scope="col">操作</th></tr></thead><tbody>${visible.length
     ? visible.map(record => workbenchRecordRowHtml(record, true)).join('')
-    : `<tr><td colspan="4"><div class="empty-state">${state.compareFilters.channels.length ? '目前篩選條件沒有符合的已選校系' : '尚未選取入學管道，請點選上方按鈕'}<br>篩選只影響顯示，不會移除已選校系。</div></td></tr>`}</tbody></table></div>`;
+    : `<tr><td colspan="3"><div class="empty-state">${state.compareFilters.channels.length ? '目前篩選條件沒有符合的已選校系' : '尚未選取入學管道，請點選上方按鈕'}<br>篩選只影響顯示，不會移除已選校系。</div></td></tr>`}</tbody></table></div>`;
   els.compareGrid.querySelectorAll("[data-remove-compare]").forEach((button) => {
     button.addEventListener("click", () => toggleCompare(button.dataset.removeCompare));
   });

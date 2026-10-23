@@ -24,6 +24,7 @@
   <link rel="stylesheet" href="./styles.css?v=20261023-intros">
   <link rel="stylesheet" href="./special.css?v=20260918-layout-fix">
   <link rel="stylesheet" href="./support.css?v=20261016-mobile-header">
+  <link rel="stylesheet" href="./workbench.css?v=20261023-list">
 </head>
 <body data-active-view="overview">
   <div class="app-shell">
@@ -151,34 +152,34 @@
             </div>
             <div class="workbench-actions">
               <div class="result-meta"><strong id="resultCount">—</strong><span>筆符合</span></div>
-              <div class="action-group">
-                <button class="ghost-button precision-button" id="openAdvancedFiltersButton">精準篩選</button>
-                <button class="ghost-button" data-view-jump="compare">比較清單</button>
-                <button class="ghost-button" id="resetFiltersButton">重設篩選</button>
-              </div>
+              <button class="text-link-button" id="resetFiltersButton" type="button" hidden>重設篩選</button>
             </div>
           </div>
           <section class="filter-band workbench-filters" aria-label="查詢篩選">
-            <label>
+            <div class="wb-quick">
+              <div class="wb-seg" role="group" aria-label="年度" data-seg-for="yearFilter" data-seg-all-label="全部年度"></div>
+              <div class="wb-seg" role="group" aria-label="入學管道" data-seg-for="channelFilter" data-seg-all-label="全部管道"></div>
+            </div>
+            <label class="wb-select wb-year">
               <span>年度</span>
               <select id="yearFilter">
-                <option value="all">全部</option>
+                <option value="all">全部年度</option>
                 <option value="116">116</option>
                 <option value="115">115</option>
                 <option value="114">114</option>
               </select>
             </label>
-            <label>
+            <label class="wb-select wb-channel">
               <span>入學管道</span>
               <select id="channelFilter">
-                <option value="all">全部</option>
+                <option value="all">全部管道</option>
                 <option value="personal_application">個人申請</option>
                 <option value="star_recommendation">繁星推薦</option>
                 <option value="exam_distribution">分發入學</option>
                 <option value="special_selection">特殊選才</option>
               </select>
             </label>
-            <label>
+            <label class="wb-select wb-school">
               <span>學校</span>
               <select id="schoolFilter">
                 <option value="all">全部學校</option>
@@ -188,29 +189,27 @@
               <span>關鍵字</span>
               <input id="keywordInput" type="search" placeholder="系組代碼、學校、學系、採計科目">
             </label>
+            <button class="ghost-button precision-button" id="openAdvancedFiltersButton" type="button">精準篩選</button>
           </section>
           <div class="advanced-filter-summary" id="advancedFilterSummary"></div>
         </section>
 
-        <div class="table-shell">
-          <table>
-            <colgroup>
-              <col class="col-channel">
-              <col class="col-program">
-              <col class="col-highlight">
-              <col class="col-actions">
-            </colgroup>
-            <thead>
+        <div class="table-shell rec-list">
+          <table aria-label="校系查詢結果">
+            <thead class="sr-only">
               <tr>
-                <th>管道</th>
-                <th>學校 / 校系</th>
-                <th>篩選標準</th>
-                <th></th>
+                <th scope="col">管道</th>
+                <th scope="col">學校 / 校系與條件</th>
+                <th scope="col">操作</th>
               </tr>
             </thead>
-            <tbody id="recordTableBody"><tr><td colspan="4"><div class="empty-state data-loading" role="status"><span class="loading-dot" aria-hidden="true"></span>招生資料載入中，第一次開啟約需數秒…</div></td></tr></tbody>
+            <tbody id="recordTableBody"><tr><td colspan="3"><div class="empty-state data-loading" role="status"><span class="loading-dot" aria-hidden="true"></span>招生資料載入中，第一次開啟約需數秒…</div></td></tr></tbody>
           </table>
         </div>
+        <button class="compare-tray" id="compareTray" type="button" data-view-jump="compare" hidden>
+          <span>比較清單 <strong id="compareTrayCount">0</strong> 個校系</span>
+          <span class="compare-tray-go">開始比較</span>
+        </button>
       </section>
 
       <section class="view-panel" id="placementView">
@@ -403,6 +402,6 @@
   <script src="./admission-catalog.js?v=20261012-special-116"></script>
   <script src="./explorer-link.js?v=20261023-intros"></script>
   <script src="./group-introductions.js?v=20261023-intros"></script>
-  <script src="./app.js?v=20261023-intros"></script>
+  <script src="./app.js?v=20261023-list"></script>
 </body>
 </html>
