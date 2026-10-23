@@ -4,6 +4,8 @@ const assert=require('node:assert/strict');
 const engine=require('../prototypes/interest-explorer/curiosity/engine');
 const data=require('../prototypes/interest-explorer/curiosity/data');
 const item=id=>data.items.find(q=>q.id===id);
+// 大部分測試用原本的固定題組，方便指定題號；隨機抽題另外測。
+const fixed=()=>engine.createSession({quick:data.quickSet});
 const required=data.subjects.filter(s=>s.required);
 
 // 題庫 108 題：每個學群 6 題，沒有重複題文；體育已取消。
@@ -13,13 +15,32 @@ assert.equal(new Set(data.items.map(q=>q.text)).size,108);
 assert.ok(data.items.every(q=>q.interestGroups.includes(q.group)&&q.units.length&&q.concept&&q.reason));
 assert.ok(!data.subjects.some(s=>s.id==='sport')&&!data.weights.R.sport);
 
-// 固定題組：18 題、每個學群 1 題，全班一致。
+// 學群順序：18 個學群各 1 題，順序固定（題目本身隨機抽）。
 assert.equal(data.quickSet.length,18);
 assert.equal(new Set(data.quickSet.map(id=>item(id).group)).size,18);
-assert.deepEqual(engine.createSession().questions().map(q=>q.id),engine.createSession().questions().map(q=>q.id));
+// 隨機抽題：每個學群 1 題、學群順序固定；不同學生題目會不同；存檔與連結還原同一組。
+{
+ const draws=Array.from({length:30},()=>engine.createSession().questions());
+ draws.forEach(d=>assert.deepEqual(d.map(q=>q.group),data.quickSet.map(id=>item(id).group)));
+ assert.ok(new Set(draws.map(d=>d.map(q=>q.id).join())).size>20,'不同學生抽到不同題組');
+ const counts={};draws.flat().forEach(q=>{counts[q.id]=1;});assert.ok(Object.keys(counts).length>60,'題庫大部分題目都可能出現在第 1 步');
+ const s=engine.createSession();const ids=s.questions().map(q=>q.id);
+ const t=engine.createSession();t.load(JSON.parse(JSON.stringify(s.snapshot())));assert.deepEqual(t.questions().map(q=>q.id),ids,'存檔還原同一組題目');
+ s.reset();assert.equal(s.questions().length,18);
+ // 第 1 步抽到的題目不會再出現在深入確認或換一批題目。
+ const u=engine.createSession();u.questions().forEach(q=>u.answer(q.id,2));u.setFavourites(u.wanted().slice(0,3));u.setLevel('mid');u.setPicks('strong',['math','english']);u.setPicks('weak',['history','earth']);
+ const first=new Set(u.questions().map(q=>q.id));u.startDeep();assert.ok(u.deepQuestions().every(q=>!first.has(q.id)));
+ u.startExtra();assert.ok(u.extraQuestions().every(q=>!first.has(q.id)));
+ u.extraQuestions().forEach(q=>u.answer(q.id,1));
+ const back=engine.decodeShare(engine.encodeShare(u.snapshot())).session;assert.deepEqual(back.questions().map(q=>q.id),[...first]);
+ assert.equal(JSON.stringify(back.report()),JSON.stringify(u.report()));
+ // v5 連結（沒有 k）用原本的固定題組。
+ const v5=Buffer.from(JSON.stringify({v:5,a:'111111111111111111',f:[],l:'m',s:[0,1],w:[3,4]})).toString('base64url');
+ assert.deepEqual(engine.decodeShare(v5).session.questions().map(q=>q.id),data.quickSet);
+}
 
 function student({likes={},level='mid',strong=['history','geography'],weak=['earth','biology'],favourite=[]}={}){
- const s=engine.createSession();
+ const s=fixed();
  s.questions().forEach(q=>s.answer(q.id,likes[q.group]??1));
  if(s.favouritesNeeded())s.setFavourites(favourite.length?favourite:s.wanted().slice(0,3));
  s.setLevel(level);s.setPicks('strong',strong);s.setPicks('weak',weak);
@@ -29,7 +50,7 @@ const typeOf=(report,id)=>report.groups.find(g=>g.id===id).type;
 
 // 作答限制
 {
- const s=engine.createSession();
+ const s=fixed();
  assert.throws(()=>s.answer('A1',3));assert.throws(()=>s.answer('A5',2),/找不到/);
  s.answer('A1',2);assert.equal(s.interestComplete(),false);assert.throws(()=>s.report());
  s.questions().forEach(q=>s.answer(q.id,2));
@@ -50,7 +71,7 @@ const typeOf=(report,id)=>report.groups.find(g=>g.id===id).type;
 }
 // 想知道不超過 3 題時，不需要第 2 步。
 {
- const s=engine.createSession();s.questions().forEach((q,i)=>s.answer(q.id,i<2?2:0));
+ const s=fixed();s.questions().forEach((q,i)=>s.answer(q.id,i<2?2:0));
  assert.equal(s.favouritesNeeded(),false);assert.equal(s.favouritesComplete(),true);assert.equal(s.effectiveFavourites().length,2);
 }
 
@@ -155,7 +176,7 @@ assert.equal(engine.level({score:3,coverage:0.3},2),'unknown');
 // 存檔與結果連結：還原後結果完全相同；壞掉的連結會被拒絕。
 for(let seed=1;seed<=40;seed++){
  let n=seed;const r=()=>((n=(n*1664525+1013904223)>>>0)/4294967296);
- const s=engine.createSession();
+ const s=engine.createSession({random:r});
  s.questions().forEach(q=>s.answer(q.id,Math.floor(r()*3)));
  if(s.favouritesNeeded())s.setFavourites(s.wanted().slice(0,3));
  const ids=data.subjects.map(x=>x.id).sort(()=>r()-.5);
@@ -164,7 +185,7 @@ for(let seed=1;seed<=40;seed++){
  if(r()>.5){s.startDeep();s.deepQuestions().forEach(q=>s.answer(q.id,Math.floor(r()*3)));s.detailPlan().forEach(row=>row.goals.forEach(g=>s.goal(g.id,Math.floor(r()*5))));}
  if(r()>.6&&s.canExplore()){s.startExtra();s.extraQuestions().forEach(q=>s.answer(q.id,Math.floor(r()*3)));}
  const report=JSON.stringify(s.report());
- const restored=engine.createSession();restored.load(JSON.parse(JSON.stringify(s.snapshot())));
+ const restored=fixed();restored.load(JSON.parse(JSON.stringify(s.snapshot())));
  assert.equal(JSON.stringify(restored.report()),report);
  const code=engine.encodeShare(s.snapshot(),'15 號 王小明');
  assert.ok(code.length<500,'結果連結要夠短，方便貼到 LINE');
@@ -172,9 +193,9 @@ for(let seed=1;seed<=40;seed++){
  assert.equal(JSON.stringify(shared.session.report()),report);assert.equal(shared.name,'15 號 王小明');
 }
 assert.throws(()=>engine.decodeShare('not-a-code'));
-assert.throws(()=>engine.decodeShare(Buffer.from(JSON.stringify({v:5,a:'2',l:'m'})).toString('base64url')),/不完整/);
+assert.throws(()=>engine.decodeShare(Buffer.from(JSON.stringify({v:6,a:'2',l:'m'})).toString('base64url')),/不完整/);
 assert.throws(()=>engine.decodeShare(Buffer.from(JSON.stringify({v:3,a:'2',s:'3'})).toString('base64url')),/舊版本/);
-assert.throws(()=>engine.createSession().load({v:1}),/版本/);
+assert.throws(()=>fixed().load({v:1}),/版本/);
 // 有興趣的學群只橫跨 3 個領域時，即使最想知道的 3 題分屬 3 個領域，也不建議不分系。
 {
  const s=student({likes:{A:2,D:2,L:2},favourite:['A1','D9','L5']});
@@ -189,4 +210,4 @@ assert.throws(()=>engine.createSession().load({v:1}),/版本/);
  const kept=r.groups.filter(g=>g.type!=='other'&&g.type!=='potential');
  assert.equal(r.groups.filter(g=>g.type==='other').length,18-kept.length-r.groups.filter(g=>g.type==='potential').length);
 }
-console.log('Curiosity explorer: 108-question bank, extra rounds, v4 links, fixed 18-question set, max 6 groups per type, option order, level plus 2–3 required subject picks, 不分系 suggestions, answer limits, favourites, relative subject levels, potential cap, deep check coverage, save/restore and 40 result-link round trips passed.');
+console.log('Curiosity explorer: random step-1 draw, 108-question bank, extra rounds, v4 links, fixed 18-question set, max 6 groups per type, option order, level plus 2–3 required subject picks, 不分系 suggestions, answer limits, favourites, relative subject levels, potential cap, deep check coverage, save/restore and 40 result-link round trips passed.');

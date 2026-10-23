@@ -5,8 +5,8 @@
  'use strict';
  const node=typeof module!=='undefined'&&module.exports;
  const data=node?require('./data.js'):root.YuhsinCuriosityData;
- const VERSION=5;
- const LOADABLE=[4,5];       // v4 存檔（加入題庫擴充與再探索之前）仍可讀取
+ const VERSION=6;
+ const LOADABLE=[4,5,6];     // v4、v5 存檔與連結（第 1 步固定題目時）仍可讀取
  // 計分規則（本站編輯設定，未經測量驗證）
  const FAVOURITE=3;          // 最想知道＝3、想知道＝2、還好＝1、沒興趣＝0
  const THRESHOLD=1.5;        // 學群興趣平均達 1.5 視為「有興趣」
@@ -20,18 +20,22 @@
  const clone=x=>JSON.parse(JSON.stringify(x));
  const mean=a=>a.length?a.reduce((s,v)=>s+v,0)/a.length:null;
  const itemById=new Map(data.items.map(q=>[q.id,q]));
- const quick=data.quickSet.map(id=>itemById.get(id));
+ // 第 1 步：每個學群從 6 題隨機抽 1 題；學群出現的順序固定（data.quickSet 的學群順序，相近學群錯開）。
+ const groupSequence=data.quickSet.map(id=>itemById.get(id).group);
+ const groupPool=Object.fromEntries(groupSequence.map(g=>[g,data.items.filter(q=>q.group===g).map(q=>q.id)]));
+ function drawQuick(random){return groupSequence.map(g=>{const pool=groupPool[g];return pool[Math.min(pool.length-1,Math.floor(random()*pool.length))];});}
+ // 存檔或連結裡的題組要剛好每個學群一題、依學群順序；不符合時（舊版）用原本的固定題組。
+ function validQuick(ids){return Array.isArray(ids)&&ids.length===groupSequence.length&&ids.every((id,i)=>groupPool[groupSequence[i]].includes(id))?ids.slice():data.quickSet.slice();}
  const subjectIds=data.subjects.map(s=>s.id);
  const required=data.subjects.filter(s=>s.required).map(s=>s.id);
  const levelBase=Object.fromEntries(data.levelOptions.map(o=>[o.value,o.base]));
  const STRONG_LIMIT=data.strongLimit,WEAK_LIMIT=data.weakLimit,PICK_MIN=data.pickMin;
- const groupOrder=new Map(quick.map((q,i)=>[q.group,i]));
+ const groupOrder=new Map(groupSequence.map((g,i)=>[g,i]));
  const typeOrder=['priority','develop','interest','potential','other'];
 
- function empty(){return {v:VERSION,answers:{},favourites:[],profile:{level:null,strong:[],weak:[]},deep:null,extra:[]};}
- const isQuickId=id=>data.quickSet.includes(id);
- // 深入確認的題目：每個方向依題庫順序取前 3 題，跳過快速題與再探索問過的題。
- function deepQuestionsFor(focus,extraIds=[]){return focus.flatMap(g=>data.items.filter(q=>q.group===g&&!isQuickId(q.id)&&!extraIds.includes(q.id)).slice(0,DEEP_PER_GROUP).map(q=>q.id));}
+ function empty(quickIds){return {v:VERSION,quick:quickIds,answers:{},favourites:[],profile:{level:null,strong:[],weak:[]},deep:null,extra:[]};}
+ // 深入確認的題目：每個方向依題庫順序取前 3 題，跳過第 1 步與再探索問過的題。
+ function deepQuestionsFor(focus,skip=[]){return focus.flatMap(g=>data.items.filter(q=>q.group===g&&!skip.includes(q.id)).slice(0,DEEP_PER_GROUP).map(q=>q.id));}
 
  // 由整體程度與勾選換算每科 0–4：強項高一級、吃力低一級、其餘等於整體程度。
  // 必填十科一定有值；選填五科只有被勾選時才計入（沒勾不算低分，也不放進計算）。
@@ -59,11 +63,14 @@
  }
 
  function createSession(options={}){
-  let state=empty();
+  const random=options.random||Math.random;
+  // options.quick：指定第 1 步題組（測試用）；沒指定就隨機抽。
+  let state=empty(options.quick?validQuick(options.quick):drawQuick(random));
+  let quick=[];const syncQuick=()=>{quick=state.quick.map(id=>itemById.get(id));};syncQuick();
   // 舊版結果連結若勾過已取消的科目（體育），放寬最少勾選數，讓連結仍能顯示。
   const pickMin=options.pickMin??PICK_MIN;
   const deepItems=()=>state.deep?state.deep.questions.map(id=>itemById.get(id)):[];
-  const isQuick=id=>data.quickSet.includes(id);
+  const isQuick=id=>state.quick.includes(id);
   const wanted=()=>quick.filter(q=>state.answers[q.id]===2).map(q=>q.id);
   const favouritesNeeded=()=>wanted().length>FAVOURITES;
   const effectiveFavourites=()=>favouritesNeeded()?state.favourites.filter(id=>wanted().includes(id)):wanted();
@@ -78,7 +85,7 @@
   const extraRoundDone=round=>round.every(id=>[0,1,2].includes(state.answers[id]));
   const extraComplete=()=>!state.extra.length||extraRoundDone(currentExtra());
   // 再探索：每個學群取一題還沒出現過的題目（不含快速題、深入確認與先前的再探索）。
-  function nextExtra(){const used=new Set([...data.quickSet,...(state.deep?state.deep.questions:[]),...extraIds()]);return quick.map(q=>data.items.find(x=>x.group===q.group&&!used.has(x.id))).filter(Boolean).map(q=>q.id);}
+  function nextExtra(){const used=new Set([...state.quick,...(state.deep?state.deep.questions:[]),...extraIds()]);return quick.map(q=>data.items.find(x=>x.group===q.group&&!used.has(x.id))).filter(Boolean).map(q=>q.id);}
   const canExplore=()=>complete()&&extraComplete()&&nextExtra().length>0;
   function startExtra(){
    if(!complete())throw Error('請先完成三個步驟。');
@@ -200,7 +207,7 @@
    if(!complete())throw Error('請先完成三個步驟。');
    if(state.deep)return;
    const focus=focusGroups();
-   state.deep={focus,questions:deepQuestionsFor(focus,extraIds()),plan:planFor(focus),goals:{}};
+   state.deep={focus,questions:deepQuestionsFor(focus,[...state.quick,...extraIds()]),plan:planFor(focus),goals:{}};
   }
   function goal(id,value){
    if(!state.deep||!state.deep.plan.some(row=>row.goals.includes(id)))throw Error('找不到這一項。');
@@ -212,33 +219,33 @@
 
   // 存檔與結果連結共用同一份資料，載入時逐項檢查，不信任外來內容。
   function load(raw){
-   const next=empty();
+   const next=empty(validQuick(raw&&raw.quick));
    if(!raw||!LOADABLE.includes(raw.v))throw Error('這份作答紀錄的版本不同，請重新開始。');
    Object.entries(raw.answers||{}).forEach(([id,v])=>{if(itemById.has(id)&&[0,1,2].includes(v))next.answers[id]=v;});
    const p=raw.profile||{};
    if(levelBase[p.level]!==undefined)next.profile.level=p.level;
    const clean=(list,limit,skip=[])=>(Array.isArray(list)?list:[]).filter((id,i,a)=>subjectIds.includes(id)&&a.indexOf(id)===i&&!skip.includes(id)).slice(0,limit);
    next.profile.strong=clean(p.strong,STRONG_LIMIT);next.profile.weak=clean(p.weak,WEAK_LIMIT,next.profile.strong);
-   const prev=state;state=next;
+   const prev=state;state=next;syncQuick();
    try{
     if(Array.isArray(raw.favourites)){const pool=wanted();state.favourites=raw.favourites.filter((id,i,a)=>pool.includes(id)&&a.indexOf(id)===i).slice(0,FAVOURITES);}
     // 再探索：每輪只留下題庫裡、沒有重複、也不是快速題的題目。
-    const seen=new Set(data.quickSet);
+    const seen=new Set(state.quick);
     state.extra=(Array.isArray(raw.extra)?raw.extra:[]).map(round=>(Array.isArray(round)?round:[]).filter(id=>itemById.has(id)&&!seen.has(id)&&(seen.add(id),true))).filter(r=>r.length);
     if(raw.deep&&complete()){
      const focus=(raw.deep.focus||[]).filter(g=>data.groups.some(x=>x.id===g)).slice(0,FOCUS_LIMIT);
      // 存檔裡的題目清單優先（舊版每個方向 2 題），沒有時依目前規則產生。
      const stored=Array.isArray(raw.deep.questions)?raw.deep.questions.filter((id,i,a)=>itemById.has(id)&&!isQuick(id)&&focus.includes(itemById.get(id).group)&&!seen.has(id)&&a.indexOf(id)===i):null;
-     const questions=stored&&stored.length?stored:deepQuestionsFor(focus,state.extra.flat());
+     const questions=stored&&stored.length?stored:deepQuestionsFor(focus,[...state.quick,...state.extra.flat()]);
      const plan=(raw.deep.plan||[]).filter(r=>subjectIds.includes(r.subject)&&data.groups.some(x=>x.id===r.context)).slice(0,PLAN_LIMIT).map(r=>({subject:r.subject,context:r.context,goals:data.detailGoals(r.subject,r.context).map(g=>g.id)}));
      const goals={};plan.forEach(r=>r.goals.forEach(g=>{const v=raw.deep.goals?.[g];if(Number.isInteger(v)&&v>=0&&v<=4)goals[g]=v;}));
      state.deep={focus,questions,plan,goals};
     }
     Object.keys(state.answers).forEach(id=>{if(!isQuick(id)&&!(state.deep&&state.deep.questions.includes(id))&&!state.extra.flat().includes(id))delete state.answers[id];});
-   }catch(e){state=prev;throw e;}
+   }catch(e){state=prev;syncQuick();throw e;}
   }
   function snapshot(){return clone(state);}
-  function reset(){state=empty();}
+  function reset(){state=empty(drawQuick(random));syncQuick();}
   const progress=()=>({answered:quick.filter(q=>state.answers[q.id]!==undefined).length,total:quick.length,step:!interestComplete()?1:!favouritesComplete()?2:!subjectsComplete()?3:4});
 
   return {answer,setFavourites,setLevel,setPicks,subjectValues:()=>clone(profileSubjects(state.profile)),startDeep,cancelDeep,goal,report,load,snapshot,reset,progress,
@@ -255,8 +262,9 @@
  function fromBase64Url(code){const bin=atob(code.replace(/-/g,'+').replace(/_/g,'/'));return new TextDecoder().decode(Uint8Array.from(bin,c=>c.charCodeAt(0)));}
  const levelCode={high:'h',mid:'m',low:'l'},levelFrom={h:'high',m:'mid',l:'low'};
  function encodeShare(snapshot,name=''){
-  const payload={v:VERSION,a:data.quickSet.map(id=>[0,1,2].includes(snapshot.answers[id])?String(snapshot.answers[id]):'-').join(''),
-   f:snapshot.favourites.map(id=>data.quickSet.indexOf(id)).filter(i=>i>=0),
+  const quickIds=validQuick(snapshot.quick);
+  const payload={v:VERSION,k:quickIds.map((id,i)=>groupPool[groupSequence[i]].indexOf(id)).join(''),a:quickIds.map(id=>[0,1,2].includes(snapshot.answers[id])?String(snapshot.answers[id]):'-').join(''),
+   f:snapshot.favourites.map(id=>quickIds.indexOf(id)).filter(i=>i>=0),
    l:levelCode[snapshot.profile.level]||'',s:snapshot.profile.strong.map(id=>subjectIds.indexOf(id)),w:snapshot.profile.weak.map(id=>subjectIds.indexOf(id))};
   if(snapshot.deep){
    const goalIds=snapshot.deep.plan.flatMap(r=>r.goals);
@@ -273,11 +281,13 @@
   let raw;try{raw=JSON.parse(fromBase64Url(String(code)));}catch{throw Error('這個結果連結無法讀取，可能複製不完整。');}
   if(!raw||!LOADABLE.includes(raw.v)||typeof raw.a!=='string')throw Error('這個結果連結無法讀取，可能來自舊版本。');
   const legacy=raw.v===4;
-  const answers={};data.quickSet.forEach((id,i)=>{const c=raw.a[i];if(/[012]/.test(c||''))answers[id]=Number(c);});
+  // k：第 1 步每個學群抽到的是第幾題（v6 起）；舊連結沒有 k，用原本的固定題組。
+  const quickIds=validQuick(typeof raw.k==='string'&&raw.k.length===groupSequence.length?raw.k.split('').map((c,i)=>groupPool[groupSequence[i]][Number(c)]):null);
+  const answers={};quickIds.forEach((id,i)=>{const c=raw.a[i];if(/[012]/.test(c||''))answers[id]=Number(c);});
   // 科目位置：體育原本排在最後一個（第 15 科），取消後其他科的位置不變，舊連結的體育直接略過。
   const toIds=list=>(Array.isArray(list)?list:[]).map(i=>subjectIds[i]).filter(Boolean);
   const profile={level:levelFrom[raw.l]||null,strong:toIds(raw.s),weak:toIds(raw.w)};
-  const favourites=(Array.isArray(raw.f)?raw.f:[]).map(i=>data.quickSet[i]).filter(Boolean);
+  const favourites=(Array.isArray(raw.f)?raw.f:[]).map(i=>quickIds[i]).filter(Boolean);
   let deep=null;
   if(raw.d&&typeof raw.d==='object'){
    const focus=String(raw.d.f||'').split('').filter(g=>data.groups.some(x=>x.id===g));
@@ -292,9 +302,9 @@
   const extra=[];
   // 每輪每個學群一題、依題庫順序往後取，所以同一學群的第 n 題就是第 n 輪。
   if(!legacy){const o=String(raw.o||''),count={};data.items.forEach((q,i)=>{if(/[345]/.test(o[i]||'')){const n=count[q.group]=(count[q.group]||0)+1;(extra[n-1]=extra[n-1]||[]).push(q.id);answers[q.id]=Number(o[i])-3;}});
-   const order=new Map(data.quickSet.map((id,i)=>[itemById.get(id).group,i]));extra.forEach(r=>r.sort((x,y)=>order.get(itemById.get(x).group)-order.get(itemById.get(y).group)));}
+   extra.forEach(r=>r.sort((x,y)=>groupOrder.get(itemById.get(x).group)-groupOrder.get(itemById.get(y).group)));}
   const dropped=legacy&&[raw.s,raw.w].some(list=>Array.isArray(list)&&list.some(i=>!subjectIds[i]));
-  const session=createSession(dropped?{pickMin:1}:{});session.load({v:VERSION,answers,favourites,profile,deep,extra});
+  const session=createSession(dropped?{pickMin:1}:{});session.load({v:VERSION,quick:quickIds,answers,favourites,profile,deep,extra});
   if(!session.complete())throw Error('這個結果連結的作答不完整。');
   return {session,name:typeof raw.n==='string'?raw.n.slice(0,20):''};
  }
