@@ -157,11 +157,7 @@ h1[tabindex]:focus,h2[tabindex]:focus{outline:none}
 .info-button{position:relative;z-index:1;display:grid;place-items:center;width:32px;height:32px;margin:-4px -10px 0 0;padding:0;border:0;border-radius:50%;background:transparent;color:#8a9b9a;cursor:pointer}
 .info-button:hover{background:var(--sheet);color:var(--type-ink)}
 .card-cats{margin:3px 0 0;font-size:13px;color:var(--muted)}
-.card-question{flex:1;margin:18px 0 20px;padding:0}
-.card-question p{margin:0;padding-left:1em;text-indent:-1em;font-family:"Noto Serif TC","Songti TC","PMingLiU",serif;font-weight:600;font-size:17px;line-height:1.75;color:var(--ink);text-wrap:pretty}
-.card-question p::before{content:'「'}.card-question p::after{content:'」'}
-.card-question cite{display:block;margin-top:6px;padding-left:1em;font-style:normal;font-size:12px;color:var(--type-ink)}
-.card-about{flex:1;margin:18px 0 20px;font-size:14px;line-height:1.8;color:var(--muted)}
+.card-about{flex:1;margin:12px 0 18px;font-size:14px;line-height:1.8;color:var(--muted)}
 .card-foot{display:flex;align-items:baseline;justify-content:space-between;gap:12px;padding-top:12px;border-top:1px solid #17202d12;font-size:13px}
 .card-meta{min-width:0;color:var(--ink)}
 .card-meta b{margin-right:8px;font-size:12px;color:var(--type-ink)}
@@ -176,7 +172,8 @@ h1[tabindex]:focus,h2[tabindex]:focus{outline:none}
 .sheet-foot[hidden]{display:none}
 .sheet-foot-text{flex:1;margin:0;font-size:13px;line-height:1.7;color:var(--muted)}
 .sheet-foot-text b{display:block;font-size:15px;color:var(--ink)}
-.sheet-foot-buttons{display:flex;align-items:center;gap:18px;flex:0 0 auto}
+.sheet-foot-buttons{display:flex;flex-wrap:wrap;align-items:center;gap:12px 18px;flex:0 0 auto}
+.sheet-foot-buttons .secondary{min-height:44px;padding-inline:18px}
 .sheet-foot-buttons .primary{min-height:44px;padding-inline:24px}
 .share-panel{margin:0 -24px;padding:0 24px 20px}
 .share-panel>p{margin:0;font-size:13px;color:var(--muted)}
@@ -204,7 +201,7 @@ h1[tabindex]:focus,h2[tabindex]:focus{outline:none}
  .result-tabs{overflow-x:auto;padding:0 2px;scrollbar-width:none}.result-tabs::-webkit-scrollbar{display:none}
  .result-tab{flex:0 0 auto;padding:10px 13px 11px;font-size:14px}.tab-name::before{margin-right:7px}
  .sheet{padding:18px 14px 0}.sheet-foot{flex-direction:column;align-items:stretch;gap:12px;margin-inline:-14px;padding-inline:14px}
- .sheet-foot-buttons{justify-content:space-between}.sheet-foot-buttons .primary{flex:1}
+ .sheet-foot-buttons{justify-content:space-between}.sheet-foot-buttons .primary,.sheet-foot-buttons .secondary{flex:1 1 40%}
  .share-panel{margin-inline:-14px;padding-inline:14px}
  .q-grid{grid-template-columns:1fr}
 }
@@ -219,7 +216,6 @@ h1[tabindex]:focus,h2[tabindex]:focus{outline:none}
  .scale-options{gap:4px}
  .scale-option span{font-size:12px;padding-inline:1px}
  .result-tab{flex:1 1 0;min-width:0;justify-content:center;gap:0;padding:9px 2px 10px;font-size:14px}.tab-name::before{width:7px;height:7px;margin-right:5px}.tab-count{display:none}
- .card-question p{font-size:16px}
  .view-actions .primary{min-width:0;flex:1}
  .view-actions .count{display:none}
 }

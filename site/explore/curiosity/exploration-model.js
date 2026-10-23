@@ -9,7 +9,7 @@
  G:{earth:3,geography:3,physics:2,math:1},H:{art:3,technology:3,math:2,chinese:1},I:{art:3,music:3,chinese:1},
  J:{civics:3,chinese:2,math:2,biology:1},K:{chinese:3,art:2,computing:2,english:1},L:{english:3,chinese:3,history:1},
  M:{chinese:3,history:3,english:1},N:{chinese:3,civics:3,english:1},O:{civics:3,history:2,chinese:2,english:1},
- P:{math:3,civics:3,computing:2,english:1},Q:{math:3,civics:3,english:2,computing:1},R:{sport:3,biology:2,geography:2,chinese:1}
+ P:{math:3,civics:3,computing:2,english:1},Q:{math:3,civics:3,english:2,computing:1},R:{english:2,chinese:2,biology:2,geography:1}
  };
  const additions={
  chinese:[['比較同一事件的用字，辨認敘事立場','viewpoints'],['依目的安排段落，清楚表達主張','writing'],['以文本線索支持自己的解讀','text']],

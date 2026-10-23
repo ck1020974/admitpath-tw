@@ -69,9 +69,10 @@
   if(!session.favouritesComplete())return renderFavourites();
   // 第 3 步做到一半（已選整體程度、還在勾科目）時，回到同一頁繼續勾。
   if(!session.subjectsComplete()||lastSavedView==='subjects')return renderSubjects();
+  if(!session.extraComplete()){qMode='extra';qPage=firstUnansweredPage();return renderQuestion();}
   if(snap.deep&&!session.deepComplete()){
    const missing=session.deepQuestions().findIndex(q=>snap.answers[q.id]===undefined);
-   if(missing>=0){qMode='deep';qPage=0;return renderQuestion();}
+   if(missing>=0){qMode='deep';qPage=firstUnansweredPage();return renderQuestion();}
    const plan=session.detailPlan();detailPage=Math.max(0,plan.findIndex(row=>row.goals.some(g=>snap.deep.goals[g.id]===undefined)));return renderDeepDetails();
   }
   renderResults();
@@ -97,28 +98,29 @@
   clearSaved();session.reset();qPage=0;detailPage=0;report=null;tab=null;disarmRestart();renderIntro();
  }
 
- // ── 好奇心作答：一頁 6 題（深入確認的補充問題一頁顯示完） ──
+ // ── 作答：一頁 6 題（好奇心、深入確認、換一批題目都一樣） ──
  const PAGE_SIZE=6;
- const questionList=()=>qMode==='quick'?session.questions():session.deepQuestions();
- const pageSize=()=>qMode==='quick'?PAGE_SIZE:Math.max(1,questionList().length);
+ const questionList=()=>qMode==='quick'?session.questions():qMode==='extra'?session.extraQuestions():session.deepQuestions();
+ const pageSize=()=>PAGE_SIZE;
  const pageCount=()=>Math.ceil(questionList().length/pageSize());
  const pageRows=()=>questionList().slice(qPage*pageSize(),(qPage+1)*pageSize());
  function updateQuestionProgress(){
   const list=questionList(),a=session.snapshot().answers,done=list.filter(q=>a[q.id]!==undefined).length;
   const pages=pageCount(),pageText=pages>1?`第 ${qPage+1} / ${pages} 頁　`:'';
   if(qMode==='quick')setBar('第 1 / 3 步・好奇心',`${pageText}已答 ${done} / ${list.length}`,done/list.length*0.6,{on:answeredFlags(),current:list.map((q,i)=>Math.floor(i/PAGE_SIZE)===qPage)});
-  else setBar('深入確認・補充問題',`已答 ${done} / ${list.length}`,done/list.length*0.5);
+  else if(qMode==='extra')setBar('換一批題目',`${pageText}已答 ${done} / ${list.length}`,done/list.length);
+  else setBar('深入確認・補充問題',`${pageText}已答 ${done} / ${list.length}`,done/list.length*0.5);
  }
  function renderQuestion(){
   qPage=Math.min(Math.max(qPage,0),pageCount()-1);
   const a=session.snapshot().answers,offset=qPage*pageSize();
-  el('qTitle').textContent=qMode==='quick'?'你想知道這些問題的答案嗎？':'再看幾題和你的方向有關的問題';
-  el('qHint').textContent=qMode==='quick'?'憑直覺選就好。':`這些題目來自你的前幾個方向：${session.snapshot().deep.focus.map(g=>short(data.groups.find(x=>x.id===g).name)).join('、')}。`;
+  el('qTitle').textContent=qMode==='quick'?'你想知道這些問題的答案嗎？':qMode==='extra'?'再看一批新的問題':'再看幾題和你的方向有關的問題';
+  el('qHint').textContent=qMode==='quick'?'憑直覺選就好。':qMode==='extra'?'每個學群一題，都是還沒看過的。':`這些題目來自你的前幾個方向：${session.snapshot().deep.focus.map(g=>short(data.groups.find(x=>x.id===g).name)).join('、')}。`;
   el('qCards').innerHTML=pageRows().map((q,i)=>{const v=a[q.id];return `<fieldset class="q-card ${v!==undefined?'is-answered':''}" data-card="${q.id}"><legend><span class="q-no" aria-hidden="true">${String(offset+i+1).padStart(2,'0')}</span><span class="q-text">${esc(q.text)}</span></legend><div class="q-options" role="radiogroup" aria-label="${esc(q.text)}">${data.interestOptions.map(o=>`<button type="button" class="q-answer v${o.value}" role="radio" aria-checked="${v===o.value}" data-question="${q.id}" data-value="${o.value}">${esc(o.label)}</button>`).join('')}</div></fieldset>`;}).join('');
   el('qError').textContent='';
   const last=qPage>=pageCount()-1;
   el('qPrevious').textContent=qPage?'上一頁':qMode==='quick'?'回到開始':'回到結果';
-  el('qNext').textContent=!last?'下一頁':qMode==='quick'?'下一步':session.detailPlan().length?'下一步':'看更新後的結果';
+  el('qNext').textContent=!last?'下一頁':qMode==='quick'?'下一步':qMode==='deep'&&session.detailPlan().length?'下一步':'看更新後的結果';
   updateQuestionProgress();
   show('question','qTitle');
  }
@@ -141,7 +143,7 @@
   if(missing.length){el('qError').textContent=`這一頁還有 ${missing.length} 題沒選。`;missing[0].scrollIntoView({block:'center',behavior:reduceMotion?'auto':'smooth'});return;}
   if(qPage<pageCount()-1){qPage++;renderQuestion();return;}
   if(qMode==='quick'){if(session.favouritesNeeded())renderFavourites();else renderSubjects();}
-  else if(session.detailPlan().length){detailPage=0;renderDeepDetails();}
+  else if(qMode==='deep'&&session.detailPlan().length){detailPage=0;renderDeepDetails();}
   else renderResults();
  }
  const pageCountFor=mode=>mode==='quick'?Math.ceil(data.quickSet.length/PAGE_SIZE):1;
@@ -204,11 +206,8 @@
  // ── 結果 ──
  // 分頁下方的白話說明，學生不用先學分類名詞。
  const infoIcon='<svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M12 11v5M12 8h.01" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>';
- // 卡片的主角是學生自己想知道的問題；潛力發掘沒有問題，改放學群簡介。
- function cardWhy(row){
-  if(row.reason&&row.reason.value>=2&&row.type!=='potential')return `<blockquote class="card-question"><p>${esc(row.reason.text)}</p><cite>${row.reason.favourite?'你最想知道':'你想知道'}</cite></blockquote>`;
-  return `<p class="card-about">${esc(data.descriptions[row.id])}</p>`;
- }
+ // 卡片放學群簡介；學生想知道的題目改放在 ⓘ 推薦依據裡。
+ function cardWhy(row){return `<p class="card-about">${esc(data.descriptions[row.id])}</p>`;}
  // 卡片底部：一句話說明基礎。
  function cardMeta(row){
   if(row.type==='develop'){const weak=row.subjects.filter(s=>s.weight===3&&typeof s.value==='number'&&s.value<2.75).map(s=>s.label);if(weak.length)return ['可加強',weak.join('、')];}
@@ -246,7 +245,7 @@
   const types=availableTypes();
   if(!types.includes(tab))tab=types[0]||null;
   el('resultsTitle').textContent=shared?(shared.name?`${shared.name} 的探索方向`:'分享的探索方向'):'你的探索方向';
-  el('resultVersion').textContent=report.deep?'已深入確認':'快速探索';
+  el('resultVersion').textContent=[report.deep?'已深入確認':'快速探索',report.extraRounds?`再探索 ${report.extraRounds} 批`:''].filter(Boolean).join('・');
   // 自己的結果在底紙下緣已說明是快速探索或已深入確認；只有分享的結果才在標題旁標示。
   el('resultVersion').hidden=!shared;
   el('sharedBanner').hidden=!shared;
@@ -259,11 +258,16 @@
   el('otherGroupList').innerHTML=others.map(g=>`<a href="${esc(mainLink(g.name))}">${esc(short(g.name))}</a>`).join('');
   el('resultActions').hidden=Boolean(shared);
   el('startDeep').hidden=report.deep;
-  if(report.deep)el('deepPanelText').innerHTML='<b>已完成深入確認</b>這是補答後更新的結果。';
+  // 換一批題目：每個學群再問 1 題沒看過的題目；上一批沒答完時改成「繼續」。
+  const extraPending=!session.extraComplete();
+  el('startExtra').hidden=Boolean(shared)||!(report.canExplore||extraPending);
+  el('startExtra').textContent=extraPending?'繼續答這批題目':'換一批題目';
+  const extraNote=report.extraRounds?`，也換過 ${report.extraRounds} 批題目`:'';
+  if(report.deep)el('deepPanelText').innerHTML=`<b>已完成深入確認${esc(extraNote)}</b>這是補答後更新的結果。`;
   else if(!shared){
    const preview=engine.createSession();preview.load(session.snapshot());preview.startDeep();
    const q=preview.deepQuestions().length,subjects=preview.detailPlan().length;
-   el('deepPanelText').innerHTML=`<b>這是快速探索的結果</b>再答 ${q} 題${subjects?`、檢查 ${subjects} 科`:''}，大約 3 分鐘，方向會更準。`;
+   el('deepPanelText').innerHTML=`<b>這是快速探索的結果${esc(extraNote)}</b>深入確認再答 ${q} 題${subjects?`、檢查 ${subjects} 科`:''}，方向會更準；也可以換一批新題目。`;
   }
   el('sharePanel').hidden=true;el('toggleShare').setAttribute('aria-expanded','false');el('resultTools').hidden=Boolean(shared);
   el('shareStatus').textContent='';el('shareUrl').hidden=true;
@@ -332,6 +336,7 @@
  });
 
  el('startDeep').addEventListener('click',()=>{session.startDeep();save();detailPage=0;if(session.deepQuestions().length){qMode='deep';qPage=0;renderQuestion();}else renderDeepDetails();});
+ el('startExtra').addEventListener('click',()=>{session.startExtra();save();qMode='extra';qPage=firstUnansweredPage();renderQuestion();});
  el('goalRows').addEventListener('change',e=>{
   const input=e.target.closest('input[data-goal]');if(!input)return;
   session.goal(input.dataset.goal,Number(input.value));
@@ -339,7 +344,7 @@
   el('deepDetailsCount').textContent=`${row.goals.filter(g=>goals[g.id]!==undefined).length} / ${row.goals.length} 項`;
   el('deepDetailsError').textContent='';save();
  });
- el('deepDetailsPrevious').addEventListener('click',()=>{if(detailPage){detailPage--;renderDeepDetails();}else if(session.deepQuestions().length){qMode='deep';qPage=0;renderQuestion();}else renderResults();});
+ el('deepDetailsPrevious').addEventListener('click',()=>{if(detailPage){detailPage--;renderDeepDetails();}else if(session.deepQuestions().length){qMode='deep';qPage=pageCount()-1;renderQuestion();}else renderResults();});
  el('deepDetailsNext').addEventListener('click',()=>{
   const row=session.detailPlan()[detailPage],goals=session.snapshot().deep.goals,missing=row.goals.filter(g=>goals[g.id]===undefined).length;
   if(missing){el('deepDetailsError').textContent=`還有 ${missing} 項沒選。`;return;}
