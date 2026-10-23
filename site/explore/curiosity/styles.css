@@ -1,7 +1,11 @@
 @import url('../styles.css?v=20261016-fit');
 /* 學群探索：測驗式版面。一題一畫面、置中、清楚的進度列；沿用主站的青綠色與字體。 */
 :root{--muted:#536c6b;--want:#137d73;--want-soft:#e3f1ec;--meh:#6d7f80;--meh-soft:#eef2f1;--nope:#9a5a4f;--nope-soft:#f6ebe8;--warm:#f6eee5}
-body{min-width:300px;padding-bottom:0}
+body{min-width:300px;padding-bottom:0;display:flex;flex-direction:column;min-height:100vh;min-height:100dvh}
+html body{padding-bottom:0}
+main{flex:1 0 auto;width:100%}
+/* 開始畫面內容置中，頁尾固定在最下方，避免上方留白、下方空一大片。 */
+body[data-view=intro] main{display:flex;flex-direction:column;justify-content:center;padding-bottom:8vh}
 .site-header{padding-block:12px}.header-label{font-size:11px;color:#c4dad5;letter-spacing:.06em}
 main{max-width:960px;padding:32px 16px 48px}
 button,input{font:inherit}button,summary{touch-action:manipulation}summary{cursor:pointer}
@@ -16,15 +20,30 @@ h1[tabindex]:focus,h2[tabindex]:focus{outline:none}
 .view:not(.results):not(.intro){max-width:760px;margin:0 auto}
 
 /* 入口：只放標題、一句說明、三個數字和開始按鈕 */
-.intro{max-width:600px;margin:6vh auto 0;text-align:center}
+.intro{max-width:600px;margin:0 auto;text-align:center}
 .intro h1{font-size:clamp(28px,4.6vw,40px);line-height:1.35;margin-bottom:14px}
 .intro .lead{max-width:30em;margin:0 auto 22px;color:var(--muted)}
 .intro-meta{display:table;margin:0 auto 28px;padding:6px 16px;border-radius:20px;background:var(--want-soft);color:var(--teal);font-size:14px;font-weight:700;letter-spacing:.04em}
-.start-button{min-width:240px;min-height:54px;font-size:17px;border-radius:12px}
+.start-button{position:relative;min-width:248px;min-height:58px;padding:0 12px 0 34px;gap:18px;justify-content:space-between;border:0;border-radius:999px;font-size:17px;letter-spacing:.12em;background:linear-gradient(135deg,#15897d 0%,#0b5f59 100%);box-shadow:0 14px 28px -14px rgba(11,95,89,.75),inset 0 1px 0 rgba(255,255,255,.18);transition:transform .2s ease,box-shadow .2s ease}
+.start-button::after{content:'';flex:0 0 auto;width:36px;height:36px;border-radius:50%;background:rgba(255,255,255,.16) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none' stroke='%23fff' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3 8h10M9 4l4 4-4 4'/%3E%3C/svg%3E") center/16px no-repeat;transition:transform .2s ease,background-color .2s ease}
+.start-button:hover{background:linear-gradient(135deg,#17958a 0%,#0a5752 100%);transform:translateY(-2px);box-shadow:0 18px 32px -14px rgba(11,95,89,.85),inset 0 1px 0 rgba(255,255,255,.2)}
+.start-button:hover::after{transform:translateX(4px);background-color:rgba(255,255,255,.26)}
+.start-button:active{transform:translateY(0);box-shadow:0 8px 18px -12px rgba(11,95,89,.8)}
+@media (prefers-reduced-motion:reduce){.start-button,.start-button::after{transition:none}.start-button:hover,.start-button:hover::after{transform:none}}
 .restart-link{display:block;margin:12px auto 0}
-.resume-bar{max-width:320px;height:8px;border-radius:4px;background:var(--line);overflow:hidden;margin:0 auto 26px}.resume-bar span{display:block;height:100%;width:0;background:var(--teal)}
+/* 18 個圓點：開始畫面的裝飾，也是第 1 步的進度。 */
+.dot-grid{display:grid;grid-template-columns:repeat(6,12px);gap:10px;justify-content:center;margin:0 auto 28px}
+.dot-grid span{width:12px;height:12px;border-radius:50%;background:#dbe7e2;transition:background .25s,box-shadow .25s}
+.dot-grid span.is-on{background:var(--teal)}
+.dot-grid span.is-current:not(.is-on){box-shadow:inset 0 0 0 2px #8fbfb2;background:#fff}
+.dot-grid.is-intro span{animation:dot-in 2.4s ease-in-out both}
+.dot-grid.is-intro span:nth-child(6n+1){animation-delay:.05s}.dot-grid.is-intro span:nth-child(6n+2){animation-delay:.15s}.dot-grid.is-intro span:nth-child(6n+3){animation-delay:.25s}.dot-grid.is-intro span:nth-child(6n+4){animation-delay:.35s}.dot-grid.is-intro span:nth-child(6n+5){animation-delay:.45s}.dot-grid.is-intro span:nth-child(6n){animation-delay:.55s}
+@keyframes dot-in{0%{background:#dbe7e2}45%{background:var(--teal)}100%{background:#a9cfc4}}
+@media (prefers-reduced-motion:reduce){.dot-grid.is-intro span{animation:none;background:#a9cfc4}}
+.dot-grid.is-strip{grid-template-columns:repeat(18,minmax(0,1fr));gap:6px;margin:0}
+.dot-grid.is-strip span{width:auto;height:8px;border-radius:4px}
 .intro-foot{margin:34px 0 0;font-size:12px;color:var(--muted)}
-.intro-foot .text-button{margin-left:8px;text-decoration:underline;text-decoration-style:dotted;text-underline-offset:4px}
+.intro-foot .text-button{margin-left:2px;text-decoration:underline;text-decoration-style:dotted;text-underline-offset:4px}
 
 /* 進度列 */
 .quiz-bar{max-width:760px;margin:0 auto 34px}
@@ -179,7 +198,7 @@ h1[tabindex]:focus,h2[tabindex]:focus{outline:none}
 .subject-source{margin-bottom:22px}.subject-source h3{font-size:14px}.subject-source ul{font-size:12px}
 .evidence-value{display:block;color:var(--teal);font-size:11px;margin-top:2px}
 .about-dialog-content h3{font-size:14px;color:var(--ink);margin:16px 0 4px}
-.site-footer{max-width:960px;font-size:11px}
+.site-footer{max-width:960px;width:100%;font-size:11px}
 
 @media(max-width:720px){
  .result-tabs{overflow-x:auto;padding:0 2px;scrollbar-width:none}.result-tabs::-webkit-scrollbar{display:none}
@@ -191,7 +210,7 @@ h1[tabindex]:focus,h2[tabindex]:focus{outline:none}
 }
 @media(max-width:480px){
  main{padding-top:22px}
- .intro{margin-top:2vh}
+ .intro{margin-top:0}
  .quiz-bar{margin-bottom:24px}
  .q-card{padding:16px 14px 14px}
  .q-card legend{font-size:16px}

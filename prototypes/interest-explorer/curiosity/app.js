@@ -39,10 +39,20 @@
  document.querySelector('.brand').href=mainBase().href;
 
  // ── 畫面切換與進度列 ──
- function setBar(step,count,progress){
+ function setBar(step,count,progress,dots){
   el('quizStep').textContent=step;el('quizCount').textContent=count;
   el('quizProgress').style.width=`${Math.round(Math.min(1,Math.max(0,progress))*100)}%`;
+  // 第 1 步用 18 個圓點顯示進度，和開始畫面的圓點呼應；其他步驟用進度條。
+  el('quizDots').hidden=!dots;el('quizProgressTrack').hidden=Boolean(dots);
+  if(dots)renderDots('quizDots',dots.on,dots.current);
  }
+ // 18 個圓點，3 列各 6 個：亮起＝已回答，外框＝目前這一頁。
+ function renderDots(id,on=[],current=[]){
+  const box=el(id),n=session.questions().length;
+  if(box.children.length!==n)box.innerHTML='<span></span>'.repeat(n);
+  [...box.children].forEach((dot,i)=>{dot.classList.toggle('is-on',Boolean(on[i]));dot.classList.toggle('is-current',Boolean(current[i]));});
+ }
+ const answeredFlags=()=>{const a=session.snapshot().answers;return session.questions().map(q=>a[q.id]!==undefined);};
  function show(name,focusId){
   view=name;document.body.dataset.view=name;if(name!=='intro')lastSavedView=name;
   document.querySelectorAll('main > .view').forEach(s=>{s.hidden=s.id!==name;});
@@ -70,12 +80,13 @@
  // ── 入口 ──
  function renderIntro(){
   const resume=hasProgress();
+  renderDots('introDots');
   el('introFirst').hidden=resume;el('introResume').hidden=!resume;
   disarmRestart();el('introError').textContent='';
   if(resume){
    const p=session.progress();
    el('resumeText').textContent=session.complete()?'上次已經完成，可以直接看結果。':p.step===1?`上次做到第 1 步，已回答 ${p.answered} / ${p.total} 題。`:`上次做到第 ${p.step} 步。`;
-   el('resumeBar').style.width=`${session.complete()?100:Math.round(p.step===1?p.answered/p.total*60:p.step===2?65:80)}%`;
+   renderDots('resumeDots',answeredFlags());
    el('resume').textContent=session.complete()?'看我的探索結果':'繼續上次的探索';
   }
   show('intro',resume?'resumeTitle':'introTitle');
@@ -95,7 +106,7 @@
  function updateQuestionProgress(){
   const list=questionList(),a=session.snapshot().answers,done=list.filter(q=>a[q.id]!==undefined).length;
   const pages=pageCount(),pageText=pages>1?`第 ${qPage+1} / ${pages} 頁　`:'';
-  if(qMode==='quick')setBar('第 1 / 3 步・好奇心',`${pageText}已答 ${done} / ${list.length}`,done/list.length*0.6);
+  if(qMode==='quick')setBar('第 1 / 3 步・好奇心',`${pageText}已答 ${done} / ${list.length}`,done/list.length*0.6,{on:answeredFlags(),current:list.map((q,i)=>Math.floor(i/PAGE_SIZE)===qPage)});
   else setBar('深入確認・補充問題',`已答 ${done} / ${list.length}`,done/list.length*0.5);
  }
  function renderQuestion(){
