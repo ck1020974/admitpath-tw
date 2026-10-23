@@ -11,6 +11,7 @@
  const PRIMARY_WEIGHT=2;     // 題目所屬學群的權重是跨群連結的 2 倍
  const FAVOURITES=3;         // 想知道超過 3 題時，挑出最想知道的 3 題
  const POTENTIAL_LIMIT=3;    // 「潛力發掘」最多列 3 個，避免全科都強時清單過長
+ const TYPE_LIMIT=6;         // 每一種方向最多列 6 個學群，其餘移到「其他學群」
  const FOCUS_LIMIT=4;        // 深入確認針對前 4 個方向
  const PLAN_LIMIT=4;         // 深入確認最多檢查 4 科
  const clone=x=>JSON.parse(JSON.stringify(x));
@@ -126,7 +127,11 @@
    rows.filter(r=>r.type==='other'&&r.level==='strong'&&r.primaryAnswer!==0)
     .sort((a,b)=>b.score-a.score||(b.interest??0)-(a.interest??0)||groupOrder.get(a.id)-groupOrder.get(b.id))
     .slice(0,POTENTIAL_LIMIT).forEach(r=>{r.type='potential';});
-   return rows.sort((a,b)=>typeOrder.indexOf(a.type)-typeOrder.indexOf(b.type)||(b.interest??-1)-(a.interest??-1)||(b.score??-1)-(a.score??-1)||groupOrder.get(a.id)-groupOrder.get(b.id));
+   const order=(a,b)=>typeOrder.indexOf(a.type)-typeOrder.indexOf(b.type)||(b.interest??-1)-(a.interest??-1)||(b.score??-1)-(a.score??-1)||groupOrder.get(a.id)-groupOrder.get(b.id);
+   rows.sort(order);
+   // 每種方向只留排序最前面的 6 個，避免同一個分頁卡片太多。
+   const seen={};rows.forEach(r=>{if(r.type==='other')return;seen[r.type]=(seen[r.type]||0)+1;if(seen[r.type]>TYPE_LIMIT)r.type='other';});
+   return rows.sort(order);
   }
   function report(){
    if(!complete())throw Error('請先完成三個步驟。');
@@ -137,9 +142,12 @@
     limits:['這是自評探索，不是能力測驗、科系適合率或錄取預測。','學群權重、題目連結與分類門檻為本站編輯規則，未經測量驗證。','沒勾選的延伸科目（資訊、生活科技、美術、音樂、體育）不算低分，也不放進計算。']});
   }
 
-  // 不分系：最想知道的題目分屬不同領域、有興趣的方向也很分散（broad），或完全沒有明確方向（unclear）時提出。
+  // 不分系只在兩種情況出現：
+  // broad：最想知道的 3 題分屬 3 個不同領域，而且有興趣的學群橫跨至少 4 個領域（共 5 個）。
+  // unclear：沒有任何有興趣的學群。
   function undeclaredFor(groups){
-   const rule=data.undeclared,interested=groups.filter(g=>['priority','develop','interest'].includes(g.type));
+   // 用興趣平均判斷「有興趣」，不受每種方向最多 6 個的限制影響。
+   const rule=data.undeclared,interested=groups.filter(g=>g.interest!==null&&g.interest>=THRESHOLD);
    const domains=[...new Set(interested.map(g=>rule.domains[g.id]))];
    const favDomains=[...new Set(effectiveFavourites().map(id=>rule.domains[itemById.get(id).group]))];
    if(effectiveFavourites().length===FAVOURITES&&favDomains.length===FAVOURITES&&domains.length>=rule.minDomains)return {reason:'broad',domains:favDomains,group:rule.group};
