@@ -6,7 +6,7 @@ const {root,destination,sync} = require('./sync_explorer_site');
 sync({check:true});
 const html = fs.readFileSync(path.join(destination,'curiosity/index.html'),'utf8');
 for (const match of html.matchAll(/(?:src|href)="([^"]+)"/g)) {
-  const relative = match[1].split('?')[0];
+  const relative = match[1].split('?')[0].split('#')[0];
   if (!relative.startsWith('.')) continue;
   assert.ok(fs.existsSync(path.resolve(destination,'curiosity',relative)),relative);
 }
@@ -15,8 +15,8 @@ for (const match of css.matchAll(/@import url\('([^']+)'\)/g)) {
   assert.ok(fs.existsSync(path.resolve(destination,'curiosity',match[1].split('?')[0])));
 }
 const main = fs.readFileSync(path.join(root,'site/index.html'),'utf8');
-assert.match(main,/id="navExplorerTools"[^>]+hidden/);
-assert.equal([...main.matchAll(/data-curiosity-entry/g)].length,2);
+assert.match(main,/<nav class="top-nav primary-nav"[\s\S]*?data-curiosity-entry href="\.\/explore\/curiosity\/"[\s\S]*?<\/nav>/,"上方導覽列有學群探索");
+assert.equal([...main.matchAll(/data-curiosity-entry/g)].length,3,'導覽列、首頁主視覺、十八學群頁各一個');
 assert.ok(fs.existsSync(path.join(root,'site/explore/curiosity/index.html')));
 const deployed = require('../site/explore/curiosity/engine');
 const deployedData = require('../site/explore/curiosity/data');

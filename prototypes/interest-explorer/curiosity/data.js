@@ -129,7 +129,8 @@
  const masteryOptions=['非常糟','不好','普通','好','非常強'].map((label,value)=>({label,value}));
  const subjects=subjectModel.subjects.map(s=>({...s,required:!['computing','technology','art','music'].includes(s.id)}));
  const resultTypes={priority:{name:'優先探索',text:'有興趣，也有學習基礎，值得先了解。'},develop:{name:'能力培養',text:'有興趣，可以從相關內容逐步補強。'},potential:{name:'潛力發掘',text:'已有學習優勢，可以試著認識這個方向。'},interest:{name:'興趣延伸',text:'保留喜歡，先從體驗、選修或自主學習接觸。'},other:{name:'其他學群',text:'也可以認識這些方向，保留探索的可能。'}};
- // 快速探索固定 18 題：每個學群 1 題，全班看到同一組、同一順序，方便課堂對照討論。
+ // 學群出現順序（每個學群 1 題）；第 1 步的題目由 engine 從各學群 6 題隨機抽。
+ // 這組題號同時是 v4、v5 舊連結的固定題組，不要隨意更改。
  // 順序刻意把相近學群錯開；要換題時，改這裡的題號即可（須每群一題）。
  const quickSet=['A1','I9','D9','O2','B2','L5','E3','P7','G1','M9','C3','R3','K10','F3','N4','H2','Q5','J5'];
  // 畫面由左到右：沒興趣、還好、想知道。

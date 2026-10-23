@@ -858,6 +858,7 @@ async function init() {
   state.dataStatus = "loading";
   // 從分享連結進來時，先切到該頁面並顯示載入中。
   applyRoute({ ...parseRoute(window.location?.hash), record: "" });
+  trackPage(state.view);
   renderTable();
   try {
     await loadData();
@@ -895,6 +896,7 @@ async function init() {
     state.explorerKeyword = "";
     const backLink = document.getElementById("curiosityBackLink");
     if (backLink && explorerLink.fromCuriosity) backLink.hidden = false;
+    if (explorerLink.fromCuriosity) trackEvent("from-curiosity", "從學群探索結果進入", { once: true });
     state.applyingRoute = true;
     try { setView("explorer"); } finally { state.applyingRoute = false; }
     syncUrl();
@@ -962,19 +964,20 @@ function bindElements() {
 }
 
 function bindEvents() {
-  const navToggle = document.getElementById("navChannelsToggle");
-  const navChannels = document.getElementById("navChannels");
-  navToggle.addEventListener("click", () => {
-    const expanded = navToggle.getAttribute("aria-expanded") !== "true";
-    navToggle.setAttribute("aria-expanded", String(expanded));
-    navToggle.setAttribute("aria-label", expanded ? "收起入學管道" : "展開入學管道");
-    navChannels.hidden = !expanded;
+  // 上方導覽列：手機版用「選單」按鈕展開，點了任何項目就收起。
+  const menuButton = document.getElementById("topbarMenu");
+  const primaryNav = document.getElementById("primaryNav");
+  const setMenu = (open) => {
+    menuButton?.setAttribute("aria-expanded", String(open));
+    document.body.classList.toggle("menu-open", open);
+  };
+  menuButton?.addEventListener("click", () => setMenu(menuButton.getAttribute("aria-expanded") !== "true"));
+  primaryNav?.addEventListener("click", (event) => { if (event.target.closest("a, button")) setMenu(false); });
+  document.addEventListener("keydown", (event) => { if (event.key === "Escape" && document.body.classList.contains("menu-open")) { setMenu(false); menuButton?.focus(); } });
+  document.querySelectorAll("[data-curiosity-entry]").forEach((link) => {
+    link.addEventListener("click", () => trackEvent("home-entry/curiosity", "前往學群探索"));
   });
-  const explorerToggle = document.getElementById("navExplorerToggle");
-  explorerToggle.addEventListener("click", () => {
-    const expanded = explorerToggle.getAttribute("aria-expanded") !== "true";
-    setExplorerToolsExpanded(expanded);
-  });
+  setupContactLinks();
   document.querySelectorAll("[data-view]").forEach((button) => {
     button.addEventListener("click", () => {
       if (button.dataset.view === "explorer") resetExplorerState("overview");
@@ -1052,6 +1055,7 @@ function bindEvents() {
 }
 
 function activateHomeEntry(entry) {
+  trackEvent(`home-entry/${entry}`, "首頁入口");
   if (!entry) return;
   if (dataPending() && entry !== "group-explorer" && entry !== "compare-list") {
     // 資料還沒到，先切到查詢頁顯示載入中，載入完成後再套用這個入口的篩選。
@@ -1113,9 +1117,7 @@ function activateHomeEntry(entry) {
   els.channelFilter.value = channel;
   els.keywordInput.value = "";
   setView("workbench");
-  document.querySelectorAll(".side-nav [data-home-entry]").forEach((button) => {
-    button.classList.toggle("active", button.dataset.homeEntry === entry);
-  });
+
   applyFilters();
 }
 
@@ -1731,11 +1733,42 @@ function hydrateSchoolFilter() {
   AdmissionCatalog.schoolOptions().forEach(school => els.schoolFilter.add(new Option(`${school.code ? school.code + ' ' : ''}${school.name}`, school.name)));
 }
 
-function setExplorerToolsExpanded(expanded) {
-  const toggle = document.getElementById("navExplorerToggle");
-  toggle.setAttribute("aria-expanded", String(expanded));
-  toggle.setAttribute("aria-label", expanded ? "收起學群探索工具" : "展開學群探索工具");
-  document.getElementById("navExplorerTools").hidden = !expanded;
+// 舊側欄的展開按鈕已改成上方導覽列，保留函式讓呼叫端不用改。
+function setExplorerToolsExpanded() {}
+
+// 聯絡方式：contact-config.js 有填才顯示，沒填就整個隱藏。
+function setupContactLinks() {
+  const config = window.YUHSIN_CONTACT_CONFIG || {};
+  const email = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(config.email || "") ? config.email : "";
+  const safeUrl = (value) => { try { const url = new URL(value); return url.protocol === "https:" ? url.href : ""; } catch { return ""; } };
+  const booking = safeUrl(config.bookingUrl) || (email ? `mailto:${email}?subject=${encodeURIComponent("預約諮詢")}` : "") || safeUrl(config.lineUrl);
+  const invite = email ? `mailto:${email}?subject=${encodeURIComponent("合作邀請")}` : safeUrl(config.lineUrl);
+  const actions = document.getElementById("aboutActions");
+  if (actions) actions.hidden = !booking;
+  const bookingLink = document.getElementById("contactBooking");
+  if (bookingLink && booking) { bookingLink.href = booking; if (booking.startsWith("https:")) { bookingLink.target = "_blank"; bookingLink.rel = "noopener noreferrer"; } }
+  const inviteLink = document.getElementById("contactInvite");
+  if (inviteLink) { inviteLink.hidden = !invite; if (invite) inviteLink.href = invite; }
+  const navLink = document.getElementById("navContactLink");
+  if (navLink) navLink.hidden = !booking;
+  navLink?.addEventListener("click", (event) => {
+    if (state.view !== "overview") { event.preventDefault(); setView("overview"); requestAnimationFrame(() => document.getElementById("about")?.scrollIntoView({ behavior: "smooth" })); }
+  });
+  document.querySelectorAll("[data-contact-link]").forEach((link) => link.addEventListener("click", () => trackEvent("contact-click", "預約諮詢")));
+  const footEmail = document.getElementById("footEmail");
+  const footLine = document.getElementById("footLine");
+  if (footEmail && email) { footEmail.hidden = false; footEmail.href = `mailto:${email}`; footEmail.textContent = email; }
+  if (footLine && safeUrl(config.lineUrl)) { footLine.hidden = false; footLine.href = safeUrl(config.lineUrl); }
+  const footContact = document.getElementById("footContact");
+  if (footContact) footContact.hidden = !(email || safeUrl(config.lineUrl));
+}
+
+// 導覽列「比較清單」旁顯示目前比較了幾個校系。
+function updateNavCompareCount() {
+  const badge = typeof document !== "undefined" && typeof document.getElementById === "function" ? document.getElementById("navCompareCount") : null;
+  if (!badge) return;
+  badge.hidden = !state.compare.length;
+  badge.textContent = state.compare.length ? String(state.compare.length) : "";
 }
 
 // ── 網址狀態 ──────────────────────────────────────────
@@ -1812,10 +1845,21 @@ function applyRoute(route) {
   }
 }
 
+// 使用次數統計（usage.js）：只記錄用了哪些功能，不記錄成績、篩選條件或校系以外的個人資料。
+const VIEW_TITLES = { overview: "首頁", workbench: "查詢工作台", placement: "落點分析", explorer: "十八學群", compare: "比較清單", quality: "資料品質" };
+function trackPage(view) { try { window.YuhsinUsage?.page(`view/${view}`, VIEW_TITLES[view] || view); } catch {} }
+function trackEvent(name, title, options) { try { window.YuhsinUsage?.event(name, title, options); } catch {} }
+
 function setView(view) {
   state.view = view;
+  trackPage(view);
   document.body.dataset.activeView = view;
-  document.querySelectorAll(".nav-item").forEach((button) => button.classList.toggle("active", button.dataset.view === view));
+  document.querySelectorAll(".nav-item").forEach((button) => {
+    const active = button.dataset.view === view;
+    button.classList.toggle("active", active);
+    if (button.dataset.view) { if (active) button.setAttribute("aria-current", "page"); else button.removeAttribute("aria-current"); }
+  });
+  window.scrollTo?.({ top: 0 });
   document.querySelectorAll(".view-panel").forEach((panel) => panel.classList.remove("active"));
   document.getElementById(`${view}View`).classList.add("active");
   if (view === "compare") renderCompare();
@@ -1934,6 +1978,7 @@ function showPlacementResults() {
   const profile = placementProfile();
   if (!placementHasAnyInput(profile)) return;
   state.placement.stage = "results";
+  trackEvent("placement-run", "查看落點分析結果");
   state.placement.resultTab = "match";
   renderPlacementStage();
   renderPlacementAnalysis();
@@ -4468,6 +4513,7 @@ function bindExplorerEvents() {
       // 只有一個學類的學群（例如不分系），直接打開那個學類。
       const categories = explorerCategoriesForGroup(button.dataset.openGroup);
       state.selectedGroup = button.dataset.openGroup;
+      trackEvent(`explorer-group/${button.dataset.openGroup}`, "打開學群");
       state.selectedExplorerStage = categories.length === 1 ? "category" : "group";
       state.selectedCategory = categories.length === 1 ? categories[0].name : "";
       state.explorerKeyword = "";
@@ -4498,6 +4544,7 @@ function bindExplorerEvents() {
     button.addEventListener("click", () => {
       state.selectedExplorerStage = "category";
       state.selectedCategory = button.dataset.openCategory || "";
+      trackEvent(`explorer-category/${state.selectedCategory}`, "打開學類");
       state.explorerKeyword = "";
       renderExplorer();
     });
@@ -4535,6 +4582,7 @@ function bindExplorerEvents() {
 }
 
 function openDetail(id) {
+  trackEvent("detail-open", "打開校系詳情");
   const record = state.records.find((item) => item.id === id);
   if (!record) return;
   const result = record.channelKey === "exam_distribution" ? distributionResult(record) : null;
@@ -4940,6 +4988,7 @@ function restoreCompare() {
   const recordsById = new Map(state.records.map(record => [record.id, record]));
   const ids = [...new Set(payload.ids)].slice(0, 100);
   state.compare = ids.map(id => recordsById.get(id)).filter(Boolean);
+  if (typeof updateNavCompareCount === "function") updateNavCompareCount();
   const missingCount = ids.length - state.compare.length;
   if (saveCompare() && missingCount) {
     state.compareStorageStatus = `已恢復 ${state.compare.length} 個校系；${missingCount} 個項目已不在目前資料中，請重新確認。清單已儲存於此瀏覽器。`;
@@ -4960,7 +5009,7 @@ function toggleCompare(id) {
     state.compare = state.compare.filter((item) => item.id !== id);
   } else {
     const record = state.records.find((item) => item.id === id);
-    if (record && state.compare.length < 100) state.compare.push(record);
+    if (record && state.compare.length < 100) { state.compare.push(record); try { window.YuhsinUsage?.event("compare-add", "加入比較清單"); } catch {} }
     else {
       if (record) window.alert("比較清單最多可選取 100 個校系，請先移除部分校系再加入。");
       return;
@@ -4973,6 +5022,7 @@ function toggleCompare(id) {
 }
 
 function renderCompare() {
+  if (typeof updateNavCompareCount === "function") updateNavCompareCount();
   if (dataPending()) {
     if (els.compareGrid) els.compareGrid.innerHTML = loadStatusHtml();
     return;

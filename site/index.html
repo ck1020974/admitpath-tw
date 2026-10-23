@@ -25,56 +25,37 @@
   <link rel="stylesheet" href="./special.css?v=20260918-layout-fix">
   <link rel="stylesheet" href="./support.css?v=20261016-mobile-header">
   <link rel="stylesheet" href="./workbench.css?v=20261023-list">
+  <link rel="stylesheet" href="./layout.css?v=20261023-top">
 </head>
 <body data-active-view="overview">
   <div class="app-shell">
-    <aside class="side">
-      <button class="brand" type="button" data-view="overview" aria-label="回到首頁">
-        <div class="brand-mark">Y</div>
-        <div>
-          <strong>YUHSIN</strong>
-          <span>祐馨升學網</span>
-        </div>
-      </button>
-
-      <nav class="side-nav primary-nav" aria-label="學生探索">
-        <button class="nav-item active" data-view="overview">首頁</button>
-        <div class="nav-workbench-row">
-          <button class="nav-item" data-view="workbench">查詢工作台</button>
-          <button class="nav-channels-toggle" id="navChannelsToggle" type="button" aria-label="展開入學管道" aria-expanded="false" aria-controls="navChannels">
-            <svg viewBox="0 0 20 20" width="16" height="16" aria-hidden="true"><path d="m4 7 6 6 6-6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-          </button>
-        </div>
-        <div class="nav-channels" id="navChannels" role="group" aria-label="入學管道" hidden>
-          <button class="nav-item" data-home-entry="special-entry">特殊選才</button>
-          <button class="nav-item" data-home-entry="star-entry">繁星推薦</button>
-          <button class="nav-item" data-home-entry="personal-apply">個人申請</button>
-          <button class="nav-item" data-home-entry="distribution-entry">分發入學</button>
-        </div>
-        <button class="nav-item" data-view="placement">落點分析</button>
-        <div class="nav-workbench-row nav-explorer-row">
-          <button class="nav-item" data-view="explorer">十八學群</button>
-          <button class="nav-channels-toggle" id="navExplorerToggle" type="button" aria-label="展開學群探索工具" aria-expanded="false" aria-controls="navExplorerTools">
-            <svg viewBox="0 0 20 20" width="16" height="16" aria-hidden="true"><path d="m4 7 6 6 6-6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-          </button>
-        </div>
-        <div class="nav-channels nav-explorer-tools" id="navExplorerTools" role="group" aria-label="學群探索工具" hidden>
-          <button class="nav-item" data-view="explorer">學群介紹</button>
+    <header class="topbar">
+      <div class="topbar-inner">
+        <button class="brand" type="button" data-view="overview" aria-label="回到首頁">
+          <div class="brand-mark">Y</div>
+          <div>
+            <strong>YUHSIN</strong>
+            <span>祐馨升學網</span>
+          </div>
+        </button>
+        <button class="topbar-menu" id="topbarMenu" type="button" aria-expanded="false" aria-controls="primaryNav">
+          <svg viewBox="0 0 20 20" width="20" height="20" aria-hidden="true"><path d="M3 6h14M3 10h14M3 14h14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+          <span>選單</span>
+        </button>
+        <nav class="top-nav primary-nav" id="primaryNav" aria-label="主選單">
           <a class="nav-item" data-curiosity-entry href="./explore/curiosity/">學群探索</a>
-        </div>
-        <button class="nav-item" data-view="compare">比較清單</button>
-      </nav>
-
-      <button class="nav-item support-entry" id="supportAuthorButton" type="button" aria-haspopup="dialog" aria-controls="supportDialog" hidden>
-        <span class="support-entry-heart" aria-hidden="true">♡</span>
-        <span>支持作者</span>
-      </button>
-
-      <div class="side-meta">
-        <span>資料狀態</span>
-        <strong id="sideRecordCount">載入中</strong>
+          <button class="nav-item" type="button" data-view="explorer">十八學群</button>
+          <button class="nav-item" type="button" data-view="workbench">校系查詢</button>
+          <button class="nav-item" type="button" data-view="placement">落點分析</button>
+          <button class="nav-item" type="button" data-view="compare">比較清單<span class="nav-count" id="navCompareCount" hidden></span></button>
+          <a class="nav-cta" href="#about" id="navContactLink" data-contact-link hidden>預約諮詢</a>
+          <button class="nav-support support-entry" id="supportAuthorButton" type="button" aria-haspopup="dialog" aria-controls="supportDialog" aria-label="支持作者" title="支持作者" hidden>
+            <span class="support-entry-heart" aria-hidden="true">♡</span>
+            <span class="nav-support-label">支持作者</span>
+          </button>
+        </nav>
       </div>
-    </aside>
+    </header>
 
     <main class="main">
       <div class="load-banner" id="loadBanner" role="alert" hidden>
@@ -82,63 +63,62 @@
         <button class="solid-button" type="button" data-reload-page>重新載入</button>
       </div>
       <section class="view-panel active" id="overviewView">
-        <div class="overview-grid home-overview">
-          <section class="home-intro" aria-label="升學探索入口">
-            <h2>把下一步，查清楚。</h2>
-            <p>從興趣開始認識學群，或直接依成績與條件找校系。</p>
-          </section>
-
-          <section class="home-entry-grid" aria-label="主要入口">
-            <button class="home-primary-card" data-home-entry="all-query">
-              <img src="./media/home-campus-wide.jpg" alt="">
-              <div class="home-primary-overlay">
-                <span class="section-tag">校系與落點</span>
+        <div class="home-b">
+          <section class="home-top" aria-label="主要入口">
+            <article class="home-spot">
+              <picture>
+                <source type="image/webp" srcset="./media/home-hero-800.webp 800w, ./media/home-hero.webp 1600w" sizes="(max-width: 720px) 100vw, 760px">
+                <img src="./media/home-hero.jpg" srcset="./media/home-hero-800.jpg 800w, ./media/home-hero.jpg 1600w" sizes="(max-width: 720px) 100vw, 760px" alt="李祐馨帶學生進行探索活動" width="1600" height="1069" fetchpriority="high">
+              </picture>
+              <div class="home-spot-shade" aria-hidden="true"></div>
+              <div class="home-spot-copy">
+                <span class="home-label">還不確定方向</span>
+                <h1>從 18 個問題<br>開始探索</h1>
+                <p>回答生活中的問題和各科表現，<br>找出值得先探索的學群。</p>
+                <div class="home-spot-actions">
+                  <a class="home-cta" href="./explore/curiosity/" data-curiosity-entry>開始探索<span class="home-cta-arrow"><svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path d="M3 8h10M9 4l4 4-4 4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span></a>
+                  <span class="home-spot-time">約 5 分鐘</span>
+                </div>
+              </div>
+            </article>
+            <div class="home-side">
+              <button class="home-card is-blue" type="button" data-home-entry="group-explorer">
+                <span class="home-card-head"><span class="home-label">想多認識</span><svg viewBox="0 0 24 24" width="28" height="28" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg></span>
+                <strong>十八學群</strong>
+                <span class="home-card-text">132 個學類的課程和代表校系。</span>
+                <span class="home-card-link">看學群介紹<svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path d="M3 8h10M9 4l4 4-4 4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+              </button>
+              <div class="home-card is-orange">
+                <span class="home-card-head"><span class="home-label">準備選校系</span><svg viewBox="0 0 24 24" width="28" height="28" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="6.5"/><path d="M20 20l-4.2-4.2"/></svg></span>
                 <strong>找適合的校系</strong>
-                <p>依成績、學校或科系條件，縮小你的選擇。</p>
-                <div class="home-primary-tags">
-                  <span>校系查詢</span>
-                  <span>落點分析</span>
+                <span class="home-card-text">依學測成績與條件，查校系和落點。</span>
+                <div class="home-channels" role="group" aria-label="入學管道">
+                  <button type="button" data-home-entry="special-entry">特殊選才</button>
+                  <button type="button" data-home-entry="star-entry">繁星推薦</button>
+                  <button type="button" data-home-entry="personal-apply">個人申請</button>
+                  <button type="button" data-home-entry="distribution-entry">分發入學</button>
                 </div>
               </div>
-            </button>
-            <button class="home-primary-card" data-home-entry="group-explorer">
-              <img src="./media/home-study.jpg" alt="">
-              <div class="home-primary-overlay">
-                <span class="section-tag">從興趣開始</span>
-                <strong>十八學群探索</strong>
-                <p>用學類、課程與代表校系，理解自己可能適合的方向。</p>
-                <div class="home-primary-tags">
-                  <span>學群</span>
-                  <span>學類</span>
-                  <span>課程</span>
-                </div>
-              </div>
-            </button>
+            </div>
           </section>
 
-          <section class="home-utility-grid" aria-label="次要工作入口">
-            <button class="home-utility-card" data-home-entry="special-entry"><div><span class="section-tag">特選</span><strong>特殊選才</strong><p>專長與經歷，探索升學機會</p></div></button>
-            <button class="home-utility-card star-entry" data-home-entry="star-entry">
-              <div>
-                <span class="section-tag">繁星</span>
-                <strong>繁星推薦</strong>
-                <p>校排、學測門檻與比序。</p>
+          <section class="home-about" id="about" aria-labelledby="aboutTitle">
+            <div class="home-about-photo">
+              <picture>
+                <source type="image/webp" srcset="./media/home-about.webp">
+                <img src="./media/home-about.jpg" alt="李祐馨與學生討論" width="1000" height="668" loading="lazy">
+              </picture>
+              <span class="home-about-mark" aria-hidden="true">Y</span>
+            </div>
+            <div class="home-about-copy">
+              <span class="home-label">關於作者・李祐馨</span>
+              <h2 id="aboutTitle">讓學生成為<br>自己未來的主人</h2>
+              <p>身為教育工作者，我希望每位學生都能走出自己的精彩人生，把時間花在自己感興趣、值得努力的事情上。</p>
+              <div class="home-about-actions" id="aboutActions" hidden>
+                <a class="home-about-primary" id="contactBooking" data-contact-link href="#">預約諮詢</a>
+                <a class="home-about-secondary" id="contactInvite" href="#">合作邀請</a>
               </div>
-            </button>
-            <button class="home-utility-card apply-entry" data-home-entry="personal-apply">
-              <div>
-                <span class="section-tag">個申</span>
-                <strong>個人申請</strong>
-                <p>看篩選標準與錄取門檻。</p>
-              </div>
-            </button>
-            <button class="home-utility-card distribution-entry" data-home-entry="distribution-entry">
-              <div>
-                <span class="section-tag">分發</span>
-                <strong>分發入學</strong>
-                <p>採計、加權與最低總分。</p>
-              </div>
-            </button>
+            </div>
           </section>
         </div>
       </section>
@@ -348,6 +328,22 @@
         <div class="source-list" id="sourceList"></div>
       </section>
     </main>
+    <footer class="site-foot">
+      <div class="site-foot-inner">
+        <div>
+          <strong>YUHSIN 祐馨升學網</strong>
+          <span>內容與題庫 © 2026 李祐馨，版權所有</span>
+        </div>
+        <div id="footContact" hidden>
+          <a id="footEmail" hidden></a>
+          <a id="footLine" target="_blank" rel="noopener noreferrer" hidden>LINE 官方帳號</a>
+        </div>
+        <div>
+          <span>資料狀態：<span id="sideRecordCount">載入中</span></span>
+          <span>網站只統計匿名使用次數</span>
+        </div>
+      </div>
+    </footer>
   </div>
 
   <aside class="detail-drawer" id="detailDrawer" aria-hidden="true">
@@ -396,12 +392,15 @@
     </div>
   </dialog>
 
+  <script src="./contact-config.js?v=20261023-top"></script>
+  <script src="./usage-config.js?v=usage-20261023"></script>
+  <script src="./usage.js?v=usage-20261023"></script>
   <script src="./support-config.js?v=20261015"></script>
-  <script src="./support.js?v=20261015-no-status"></script>
+  <script src="./support.js?v=20261023-top"></script>
   <script src="./admission-rules.js?v=20261008-official-audit"></script>
   <script src="./admission-catalog.js?v=20261012-special-116"></script>
   <script src="./explorer-link.js?v=20261023-intros"></script>
   <script src="./group-introductions.js?v=20261023-intros"></script>
-  <script src="./app.js?v=20261023-list"></script>
+  <script src="./app.js?v=20261023-top"></script>
 </body>
 </html>

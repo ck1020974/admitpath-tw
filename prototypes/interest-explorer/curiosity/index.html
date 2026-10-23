@@ -7,11 +7,12 @@
 <meta name="description" content="回答生活裡的好奇問題，再評估各科表現，找到值得先認識的學群與學類。">
 <title>學群探索｜祐馨升學網</title>
 <link rel="icon" href="../../favicon.ico" sizes="any">
-<link rel="stylesheet" href="./styles.css?v=bank-20261023b">
-<link rel="stylesheet" href="../info-dialog.css?v=bank-20261023b">
+<link rel="stylesheet" href="./styles.css?v=top-20261023">
+<link rel="stylesheet" href="../info-dialog.css?v=top-20261023">
 </head>
 <body data-view="intro">
-<header class="site-header"><a class="brand" href="../../"><span class="brand-mark">Y</span><span>YUHSIN<small>祐馨升學網</small></span></a><span class="header-label">學群探索</span></header>
+<header class="site-header"><a class="brand" href="../../"><span class="brand-mark">Y</span><span>YUHSIN<small>祐馨升學網</small></span></a>
+<nav class="site-nav" aria-label="主選單"><a href="./" aria-current="page">學群探索</a><a href="../../#explorer">十八學群</a><a href="../../#workbench">校系查詢</a><a href="../../#placement">落點分析</a><a href="../../#compare">比較清單</a></nav></header>
 <main>
  <section id="intro" class="view intro" aria-labelledby="introTitle">
   <div id="introFirst">
@@ -157,26 +158,28 @@
 <dialog id="evidenceDialog" class="about-dialog" aria-labelledby="evidenceTitle"><div class="about-dialog-head"><h2 id="evidenceTitle">推薦依據</h2><form method="dialog"><button class="about-close" aria-label="關閉推薦依據" autofocus>×</button></form></div><div id="evidenceContent" class="about-dialog-content"></div></dialog>
 <dialog id="subjectInfoDialog" class="about-dialog" aria-labelledby="subjectInfoTitle"><div class="about-dialog-head"><h2 id="subjectInfoTitle">課綱與課程依據</h2><form method="dialog"><button class="about-close" aria-label="關閉課程依據" autofocus>×</button></form></div><div id="subjectInfoContent" class="about-dialog-content"></div></dialog>
 <dialog id="aboutDialog" class="about-dialog" aria-labelledby="aboutTitle"><div class="about-dialog-head"><h2 id="aboutTitle">這份探索怎麼運作</h2><form method="dialog"><button class="about-close" aria-label="關閉說明" autofocus>×</button></form></div><div class="about-dialog-content">
- <p>第 1 步有 18 個生活問題，每個學群 1 題，全班看到的題目和順序都一樣。每題選「沒興趣、還好、想知道」，不限數量。第 2 步只在「想知道」超過 3 題時出現，從中挑出最想知道的 3 題，用來分出先後。</p>
+ <p>第 1 步有 18 個生活問題，每個學群從題庫的 6 題中隨機抽 1 題，所以每個人、每次重新開始看到的題目都不太一樣。每題選「沒興趣、還好、想知道」，不限數量。第 2 步只在「想知道」超過 3 題時出現，從中挑出最想知道的 3 題，用來分出先後。</p>
  <p>每個學群的興趣，是相關題目的加權平均：最想知道 3、想知道 2、還好 1、沒興趣 0；題目所屬的學群算 2 倍，連到其他學群的算 1 倍。平均達 1.5 視為「有興趣」。</p>
  <p>第 3 步先問整體成績（前段、中間、後段），再勾最拿手和比較吃力的科目，各 2–3 科。換算方式：前段＝好、中間＝普通、後段＝不好；勾成強項的科目高一級、吃力的低一級，其餘國英數、社會、自然十科等於整體程度。資訊、生活科技、美術、音樂只有勾選時才計入，沒勾不算低分。每個學群依相關科目的本站權重（核心 3、支持 2、相關 1）取加權平均。平均達 2.75，或高於你自己各科的平均且至少「普通」，視為有基礎；低於 1.5 且低於自己的平均，視為比較吃力。相關科目大多沒有資料時，不判斷基礎。</p>
  <p>有興趣也有基礎是「優先探索」；有興趣、基礎普通是「能力培養」；有興趣但比較吃力或沒填相關科目是「興趣延伸」；興趣不明顯但有基礎是「潛力發掘」，最多列 3 個，你選「沒興趣」的方向不會列入。其他三種方向每種最多列 6 個，排在後面的放進「其他學群」。</p>
  <p>最想知道的 3 題分屬 3 個不同領域、而且有興趣的學群橫跨至少 4 個領域（共 5 個），或這次沒有任何有興趣的方向時，結果頁會建議也可以考慮不分系。</p>
  <p>題庫共 108 題，每個學群 6 題。「深入確認」針對前 4 個方向各補問 3 題，並用課綱內容檢查最相關的幾科，完成後檢查過的科目改用具體內容計算。「換一批題目」每個學群再問 1 題還沒看過的問題，答完後一起計算興趣。</p>
  <p>題目、配對、權重及門檻由本站編輯，尚未經測量驗證，不是考招採計權重、科系適合率或放棄建議。陌生或尚未接觸的內容，不代表沒有學習能力。</p>
- <p>答案只存在這台電腦的瀏覽器裡，不會上傳。只有你按下「複製結果連結」並分享出去，別人才看得到。</p>
+ <p>答案只存在這台電腦的瀏覽器裡，不會上傳。網站只統計匿名的使用次數（例如有幾個人做完探索），不記錄作答內容、科目或名字。只有你按下「複製結果連結」並分享出去，別人才看得到。</p>
  <ul id="sources"></ul>
 </div></dialog>
 <footer class="site-footer"><span>YUHSIN · 學群探索</span><span>自評探索版</span></footer>
-<script src="./group-introductions.js?v=bank-20261023b"></script>
-<script src="./bank.js?v=bank-20261023b"></script>
-<script src="./collego-reference.js?v=bank-20261023b"></script>
-<script src="./curriculum.js?v=bank-20261023b"></script>
-<script src="./units.js?v=bank-20261023b"></script>
-<script src="./subjects.js?v=bank-20261023b"></script>
-<script src="./exploration-model.js?v=bank-20261023b"></script>
-<script src="./data.js?v=bank-20261023b"></script>
-<script src="./engine.js?v=bank-20261023b"></script>
-<script src="./app.js?v=bank-20261023b"></script>
+<script src="../../usage-config.js?v=top-20261023"></script>
+<script src="../../usage.js?v=top-20261023"></script>
+<script src="./group-introductions.js?v=top-20261023"></script>
+<script src="./bank.js?v=top-20261023"></script>
+<script src="./collego-reference.js?v=top-20261023"></script>
+<script src="./curriculum.js?v=top-20261023"></script>
+<script src="./units.js?v=top-20261023"></script>
+<script src="./subjects.js?v=top-20261023"></script>
+<script src="./exploration-model.js?v=top-20261023"></script>
+<script src="./data.js?v=top-20261023"></script>
+<script src="./engine.js?v=top-20261023"></script>
+<script src="./app.js?v=top-20261023"></script>
 </body>
 </html>
