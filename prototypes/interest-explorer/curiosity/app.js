@@ -37,6 +37,9 @@
   return url.href;
  }
  document.querySelector('.brand').href=mainBase().href;
+ // 窄螢幕的「選單」按鈕，和主站頂部列同樣的開合方式。
+ const siteMenu=el('siteMenu');
+ if(siteMenu)siteMenu.addEventListener('click',()=>{const open=!document.body.classList.contains('menu-open');document.body.classList.toggle('menu-open',open);siteMenu.setAttribute('aria-expanded',String(open));});
 
  // ── 畫面切換與進度列 ──
  function setBar(step,count,progress,dots){
