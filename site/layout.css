@@ -111,14 +111,19 @@ button.home-card { cursor: pointer; appearance: none; }
 
 @media (max-width: 1020px) {
   .main { padding: 24px 24px 48px; }
-  .topbar-inner { padding: 10px 24px; flex-wrap: wrap; }
+  /* 手機與平板：上排只留一行（標誌＋選單鈕），選單展開時浮在內容上方，不把頁面往下推。 */
+  .topbar { position: sticky; top: 0; z-index: 9; }
+  .topbar-inner { position: relative; padding: 8px 20px; }
   .topbar-menu { display: inline-flex; }
-  .top-nav { display: none; width: 100%; flex-direction: column; align-items: stretch; gap: 2px; padding: 6px 0 10px; }
-  body.menu-open .top-nav { display: flex; }
-  .nav-group { flex-direction: column; align-items: stretch; padding: 6px; border-radius: 16px; }
-  .top-nav .nav-item { justify-content: flex-start; min-height: 48px; padding: 0 14px; border-radius: 12px; font-size: 16px; }
-  .nav-cta { margin: 6px 0 0; justify-content: center; min-height: 48px; }
-  .nav-support { width: auto; border-radius: 999px; margin: 6px 0 0; min-height: 48px; gap: 8px; }
+  .top-nav { display: none; position: absolute; top: calc(100% + 6px); left: 12px; right: 12px; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; padding: 10px; border: 1px solid var(--page-line); border-radius: 18px; background: #fff; box-shadow: 0 18px 40px -12px #17202d40; }
+  body.menu-open .top-nav { display: grid; }
+  .nav-group { display: contents; }
+  .top-nav .nav-item { justify-content: center; min-height: 48px; padding: 0 10px; border-radius: 12px; background: #f6f5f1; font-size: 15px; }
+  .top-nav .nav-primary { grid-column: 1 / -1; background: #e3f2ee; }
+  .top-nav .nav-item.active { background: var(--night); color: #fff; }
+  .nav-cta { margin: 0; justify-content: center; min-height: 48px; }
+  .nav-support { width: auto; border-radius: 999px; margin: 0; min-height: 48px; gap: 8px; }
+  .nav-cta[hidden] + .nav-support { grid-column: 1 / -1; }
   .nav-support-label { position: static; width: auto; height: auto; overflow: visible; clip-path: none; }
   .home-top { grid-template-columns: 1fr; }
   .home-side { flex-direction: row; flex-wrap: wrap; }
@@ -126,16 +131,27 @@ button.home-card { cursor: pointer; appearance: none; }
 }
 @media (max-width: 720px) {
   .main { padding: 16px 16px 40px; }
-  .topbar-inner { padding: 8px 16px; }
-  .home-b { gap: 40px; padding-top: 4px; }
+  .topbar-inner { padding: 6px 16px; }
+  .topbar .brand { min-height: 44px; }
+  .topbar .brand span { display: none; }
+  .topbar-menu { min-height: 40px; padding: 0 12px; }
+  .home-b { gap: 32px; padding-top: 0; }
+  .home-top { gap: 12px; }
+  .home-side { gap: 12px; }
   .home-spot { aspect-ratio: auto; min-height: 0; flex-direction: column; justify-content: flex-end; border-radius: 20px; }
-  .home-spot picture, .home-spot img { position: static; display: block; height: auto; aspect-ratio: 3 / 2; opacity: 1; }
+  .home-spot picture, .home-spot img { position: static; display: block; height: auto; aspect-ratio: 16 / 9; opacity: 1; }
   .home-spot-shade { display: none; }
-  .home-spot-copy { width: auto; min-width: 0; padding: 22px 22px 26px; gap: 8px; }
-  .home-spot-copy h1 { font-size: 30px; }
-  .home-spot-actions { margin-top: 14px; }
-  .home-card { padding: 24px; border-radius: 20px; }
-  .home-card strong { font-size: 22px; }
+  .home-spot-copy { width: auto; min-width: 0; padding: 18px 20px 20px; gap: 6px; }
+  .home-spot-copy h1 { font-size: 26px; }
+  .home-spot-copy h1 br { display: none; }
+  .home-spot-copy p { font-size: 14px; }
+  .home-spot-actions { margin-top: 12px; }
+  .home-card { padding: 18px 20px; gap: 6px; border-radius: 18px; }
+  .home-card strong { font-size: 20px; }
+  .home-card-text { font-size: 14px; }
+  .home-card-head svg { width: 24px; height: 24px; }
+  .home-card-link { margin-top: 6px; }
+  .home-channels { padding-top: 6px; }
   .home-about { gap: 28px; padding-top: 40px; }
   .home-about-copy h2 { font-size: 28px; }
   .home-about-mark { right: 10px; top: -18px; width: 52px; height: 52px; font-size: 18px; }
