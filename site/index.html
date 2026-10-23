@@ -25,7 +25,7 @@
   <link rel="stylesheet" href="./special.css?v=20260918-layout-fix">
   <link rel="stylesheet" href="./support.css?v=20261016-mobile-header">
   <link rel="stylesheet" href="./workbench.css?v=20261023-list">
-  <link rel="stylesheet" href="./layout.css?v=20261023-top">
+  <link rel="stylesheet" href="./layout.css?v=20261023-tweak">
 </head>
 <body data-active-view="overview">
   <div class="app-shell">
@@ -70,6 +70,7 @@
                 <source type="image/webp" srcset="./media/home-hero-800.webp 800w, ./media/home-hero.webp 1600w" sizes="(max-width: 720px) 100vw, 760px">
                 <img src="./media/home-hero.jpg" srcset="./media/home-hero-800.jpg 800w, ./media/home-hero.jpg 1600w" sizes="(max-width: 720px) 100vw, 760px" alt="李祐馨帶學生進行探索活動" width="1600" height="1069" fetchpriority="high">
               </picture>
+              <div class="home-spot-blur" aria-hidden="true"></div>
               <div class="home-spot-shade" aria-hidden="true"></div>
               <div class="home-spot-copy">
                 <span class="home-label">還不確定方向</span>
@@ -93,10 +94,10 @@
                 <strong>找適合的校系</strong>
                 <span class="home-card-text">依學測成績與條件，查校系和落點。</span>
                 <div class="home-channels" role="group" aria-label="入學管道">
-                  <button type="button" data-home-entry="special-entry">特殊選才</button>
-                  <button type="button" data-home-entry="star-entry">繁星推薦</button>
-                  <button type="button" data-home-entry="personal-apply">個人申請</button>
-                  <button type="button" data-home-entry="distribution-entry">分發入學</button>
+                  <button type="button" data-home-entry="special-entry" aria-label="特殊選才" title="特殊選才">特選</button>
+                  <button type="button" data-home-entry="star-entry" aria-label="繁星推薦" title="繁星推薦">繁星</button>
+                  <button type="button" data-home-entry="personal-apply" aria-label="個人申請" title="個人申請">個申</button>
+                  <button type="button" data-home-entry="distribution-entry" aria-label="分發入學" title="分發入學">分發</button>
                 </div>
               </div>
             </div>
@@ -392,7 +393,7 @@
     </div>
   </dialog>
 
-  <script src="./contact-config.js?v=20261023-top"></script>
+  <script src="./contact-config.js?v=20261023-tweak"></script>
   <script src="./usage-config.js?v=usage-20261023"></script>
   <script src="./usage.js?v=usage-20261023"></script>
   <script src="./support-config.js?v=20261015"></script>
