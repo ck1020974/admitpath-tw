@@ -192,33 +192,42 @@
 
  // ── 結果 ──
  // 分頁下方的白話說明，學生不用先學分類名詞。
- const typeHints={priority:'有興趣，也有基礎',develop:'有興趣，可以慢慢補強',interest:'有興趣，先從體驗開始',potential:'你的強項用得上'};
  const infoIcon='<svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M12 11v5M12 8h.01" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>';
- // 卡片中段：學生自己的好奇問題；沒有（潛力發掘）時改用學群簡介，幫學生認得陌生的學群。
+ // 卡片的主角是學生自己想知道的問題；潛力發掘沒有問題，改放學群簡介。
  function cardWhy(row){
-  if(row.reason&&row.reason.value>=2&&row.type!=='potential')return `<p class="card-why"><span>${row.reason.favourite?'最想知道':'想知道'}</span>${esc(row.reason.text)}</p>`;
-  return `<p class="card-why is-plain">${esc(data.descriptions[row.id])}</p>`;
+  if(row.reason&&row.reason.value>=2&&row.type!=='potential')return `<blockquote class="card-question"><p>${esc(row.reason.text)}</p><cite>${row.reason.favourite?'你最想知道':'你想知道'}</cite></blockquote>`;
+  return `<p class="card-about">${esc(data.descriptions[row.id])}</p>`;
  }
- // 卡片底部左側：一句話說明基礎，右側是「認識 →」。
+ // 卡片底部：一句話說明基礎。
  function cardMeta(row){
-  if(row.type==='develop'){const weak=row.subjects.filter(s=>s.weight===3&&typeof s.value==='number'&&s.value<2.75).map(s=>s.label);if(weak.length)return '可加強：'+weak.join('、');}
-  if(row.type==='interest')return '先從選修、營隊接觸';
-  return row.strengths.length?'強項：'+row.strengths.join('、'):'';
+  if(row.type==='develop'){const weak=row.subjects.filter(s=>s.weight===3&&typeof s.value==='number'&&s.value<2.75).map(s=>s.label);if(weak.length)return ['可加強',weak.join('、')];}
+  if(row.type==='interest')return ['建議','先從選修、營隊接觸'];
+  return row.strengths.length?['強項',row.strengths.join('、')]:null;
+ }
+ function cardFoot(meta,go){
+  return `<div class="card-foot">${meta?`<span class="card-meta"><b>${esc(meta[0])}</b>${esc(meta[1])}</span>`:'<span></span>'}<span class="card-go" aria-hidden="true">${esc(go)}</span></div>`;
  }
  function card(row){
   const cats=((intros[row.name]||{}).topCategories||[]).slice(0,3).map(c=>c.label.replace(/學類$/,''));
   const name=short(row.name);
-  return `<article class="group-card"><div class="card-head"><h3><a class="group-link" href="${esc(mainLink(row.name))}">${esc(name)}</a></h3><button class="info-button" type="button" data-evidence="${row.id}" aria-haspopup="dialog" aria-controls="evidenceDialog" aria-label="${esc(name)}的推薦依據" title="推薦依據">${infoIcon}</button></div>${cats.length?`<p class="card-cats">${cats.map(esc).join('・')}</p>`:''}${cardWhy(row)}<div class="card-foot"><span class="card-meta">${esc(cardMeta(row))}</span><span class="card-go" aria-hidden="true">認識 →</span></div></article>`;
+  return `<article class="group-card"><div class="card-head"><h3><a class="group-link" href="${esc(mainLink(row.name))}">${esc(name)}</a></h3><button class="info-button" type="button" data-evidence="${row.id}" aria-haspopup="dialog" aria-controls="evidenceDialog" aria-label="${esc(name)}的推薦依據" title="推薦依據">${infoIcon}</button></div>${cats.length?`<p class="card-cats">${cats.map(esc).join('、')}</p>`:''}${cardWhy(row)}${cardFoot(cardMeta(row),'看學群介紹')}</article>`;
+ }
+ // 不分系：不屬於任何一種方向，所以每個分頁最後都放一張，用虛線框和其他學群區分。
+ function undeclaredCard(){
+  const und=report&&report.undeclared;if(!und)return '';
+  const text=und.reason==='broad'?`你想知道的問題橫跨${und.domains.join('、')}，可以先入學，大一大二多修課再選主修。`:'還沒有明確的方向也沒關係，可以先入學，大一大二多修課再選主修。';
+  return `<article class="group-card undeclared-card"><div class="card-head"><h3><a class="group-link" href="${esc(mainLink(und.group,'不分系學類'))}">不分系</a></h3></div><p class="card-cats">也可以考慮</p><p class="card-about">${esc(text)}</p>${cardFoot(null,'看不分系校系')}</article>`;
  }
  const availableTypes=()=>sectionTypes.filter(t=>report.groups.some(g=>g.type===t));
  function renderTabs(focus=false){
   const types=availableTypes();
   el('resultTabs').dataset.count=types.length;
-  el('resultTabs').innerHTML=types.map(t=>`<button type="button" role="tab" id="tab-${t}" class="result-tab t-${t}" aria-selected="${t===tab}" aria-controls="resultPanel" tabindex="${t===tab?0:-1}" data-tab="${t}"><span class="tab-top"><span class="tab-name">${esc(data.resultTypes[t].name)}</span><span class="tab-count">${report.groups.filter(g=>g.type===t).length}</span></span><span class="tab-hint">${esc(typeHints[t])}</span></button>`).join('');
- el('resultPanel').setAttribute('aria-labelledby','tab-'+tab);
- // 卡片頂端的顏色跟著目前的分頁（見 styles.css 的 [data-type]）。
- el('resultPanel').dataset.type=tab;
- el('resultCards').innerHTML=report.groups.filter(g=>g.type===tab).map(card).join('');
+  el('resultTabs').innerHTML=types.map(t=>`<button type="button" role="tab" id="tab-${t}" class="result-tab t-${t}" aria-selected="${t===tab}" aria-controls="resultPanel" tabindex="${t===tab?0:-1}" data-tab="${t}"><span class="tab-name">${esc(data.resultTypes[t].name)}</span><span class="tab-count">${report.groups.filter(g=>g.type===t).length}</span></button>`).join('');
+  el('resultPanel').setAttribute('aria-labelledby','tab-'+tab);
+  // 整張底紙的顏色跟著目前的分頁（見 styles.css 的 [data-type]）。
+  el('sheet').dataset.type=tab;
+  el('panelHint').textContent=data.resultTypes[tab].text;
+  el('resultCards').innerHTML=report.groups.filter(g=>g.type===tab).map(card).join('')+undeclaredCard();
   if(focus)el('tab-'+tab).focus();
  }
  function renderResults(){
@@ -227,26 +236,23 @@
   if(!types.includes(tab))tab=types[0]||null;
   el('resultsTitle').textContent=shared?(shared.name?`${shared.name} 的探索方向`:'分享的探索方向'):'你的探索方向';
   el('resultVersion').textContent=report.deep?'已深入確認':'快速探索';
+  // 自己的結果在底紙下緣已說明是快速探索或已深入確認；只有分享的結果才在標題旁標示。
+  el('resultVersion').hidden=!shared;
   el('sharedBanner').hidden=!shared;
   el('resultTabs').hidden=!types.length;el('resultPanel').hidden=!types.length;el('emptyResult').hidden=Boolean(types.length);
   if(types.length)renderTabs();
+  else{el('sheet').dataset.type='none';el('emptyCards').innerHTML=undeclaredCard();}
   const others=report.groups.filter(g=>g.type==='other');
   el('otherGroups').hidden=!others.length;
   el('otherGroupsTitle').textContent=`其他學群（${others.length}）`;
-  el('otherGroupList').innerHTML=others.map(g=>`<li><a href="${esc(mainLink(g.name))}">${esc(short(g.name))}</a></li>`).join('');
+  el('otherGroupList').innerHTML=others.map(g=>`<a href="${esc(mainLink(g.name))}">${esc(short(g.name))}</a>`).join('');
   el('resultActions').hidden=Boolean(shared);
   el('startDeep').hidden=report.deep;
-  if(report.deep)el('deepPanelText').textContent='已完成深入確認，上面是更新後的結果。';
+  if(report.deep)el('deepPanelText').innerHTML='<b>已完成深入確認</b>這是補答後更新的結果。';
   else if(!shared){
    const preview=engine.createSession();preview.load(session.snapshot());preview.startDeep();
    const q=preview.deepQuestions().length,subjects=preview.detailPlan().length;
-   el('deepPanelText').textContent=`想更確定？再答 ${q} 題${subjects?`、檢查 ${subjects} 科`:''}，約 3 分鐘。`;
-  }
-  const und=report.undeclared;
-  el('undeclaredPanel').hidden=!und;
-  if(und){
-   el('undeclaredText').textContent=und.reason==='broad'?`你最想知道的問題分屬${und.domains.join('、')}，可以先讀不分系，大一大二多修課再選主修。`:'這次還沒有明確的方向，可以先讀不分系，大一大二多修課再選主修。';
-   el('undeclaredLink').href=mainLink(und.group,'不分系學類');
+   el('deepPanelText').innerHTML=`<b>這是快速探索的結果</b>再答 ${q} 題${subjects?`、檢查 ${subjects} 科`:''}，大約 3 分鐘，方向會更準。`;
   }
   el('sharePanel').hidden=true;el('toggleShare').setAttribute('aria-expanded','false');el('resultTools').hidden=Boolean(shared);
   el('shareStatus').textContent='';el('shareUrl').hidden=true;
