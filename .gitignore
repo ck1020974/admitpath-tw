@@ -3,6 +3,7 @@
 .codex/
 docs/*
 !docs/author-support-setup.md
+!docs/usage-tracking.md
 
 # Generated OCR assets and scratch work
 outputs/

@@ -53,4 +53,17 @@ context.selectPlacementChannel('exam_distribution');
 assert.equal(context.placementProfile().scores.國文, '60');
 assert.equal(context.state.placement.stage, 'setup');
 assert.equal(controlUpdates, 5);
+// 結果頁改選下拉管道時，使用同一套切換流程回到成績輸入頁。
+let channelChange;
+Object.assign(context, {
+  document: { querySelectorAll: () => [], querySelector: () => null, getElementById: () => null },
+  els: { placementChannelFilter: { value: 'star_recommendation', addEventListener: (event, handler) => { channelChange = handler; } } },
+});
+vm.runInContext(source.match(/function bindPlacementEvents\([\s\S]*?\n\}/)[0], context);
+context.bindPlacementEvents();
+context.state.placement.stage = 'results';
+channelChange();
+assert.equal(context.state.placement.channel, 'star_recommendation');
+assert.equal(context.state.placement.stage, 'setup');
+assert.equal(context.placementProfile().scores.國文, '12');
 console.log('Channel entry: choose first, relevant subjects only, required star rank, retained GSAT scores, separate 15/60 score sets and weighted distribution totals passed.');

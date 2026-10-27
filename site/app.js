@@ -1905,6 +1905,7 @@ function defaultPlacementState() {
     year: "all",
     channel: "",
     schoolScope: "all",
+    quickCategory: "",
     keyword: "",
   };
 }
@@ -1974,7 +1975,6 @@ function bindPlacementEvents() {
   });
   document.getElementById("runPlacementAnalysis")?.addEventListener("click", showPlacementResults);
   document.getElementById("editPlacementCriteria")?.addEventListener("click", showPlacementSetup);
-  document.getElementById("changePlacementChannel")?.addEventListener("click", showPlacementSetup);
   document.getElementById("placementCriteriaSummary")?.addEventListener("click", (event) => {
     const scoreButton = event.target.closest("[data-placement-edit-score]");
     if (!scoreButton) return;
@@ -1985,7 +1985,10 @@ function bindPlacementEvents() {
   });
   document.getElementById("placementOpenAdvancedFiltersButton")?.addEventListener("click", openAdvancedFilters);
   els.placementYearFilter?.addEventListener("change", updatePlacementResultFilters);
-  els.placementChannelFilter?.addEventListener("change", updatePlacementResultFilters);
+  els.placementChannelFilter?.addEventListener("change", () => {
+    const channel = els.placementChannelFilter.value;
+    if (channel !== state.placement.channel) selectPlacementChannel(channel);
+  });
   els.placementKeywordInput?.addEventListener("input", debounce(updatePlacementResultFilters, 120));
   document.querySelectorAll("[data-placement-school-scope]").forEach((button) => {
     button.addEventListener("click", () => {
@@ -1997,6 +2000,16 @@ function bindPlacementEvents() {
   document.querySelectorAll("[data-placement-result-tab]").forEach((button) => {
     button.addEventListener("click", () => {
       state.placement.resultTab = button.dataset.placementResultTab || "all";
+      renderPlacementAnalysis();
+    });
+  });
+  document.querySelectorAll("[data-placement-popular-category]").forEach(button => {
+    button.addEventListener("click", () => {
+      const category = button.dataset.placementPopularCategory || "";
+      state.placement.quickCategory = state.placement.quickCategory === category ? "" : category;
+      if (state.placement.quickCategory && button.dataset.categoryEvent) {
+        trackEvent(`placement-category-${button.dataset.categoryEvent}`, category);
+      }
       renderPlacementAnalysis();
     });
   });
@@ -2064,7 +2077,10 @@ function hydratePlacementResultFilters() {
     star_recommendation: "繁星推薦",
     exam_distribution: "分發入學",
   })[channel]);
-  if (els.placementChannelFilter) els.placementChannelFilter.disabled = true;
+  if (els.placementChannelFilter) {
+    els.placementChannelFilter.querySelector('option[value="all"]')?.remove();
+    els.placementChannelFilter.disabled = false;
+  }
   if (els.placementKeywordInput) els.placementKeywordInput.value = state.placement.keyword;
 }
 
@@ -2115,6 +2131,11 @@ function renderPlacementControls() {
   });
   document.querySelectorAll("[data-placement-school-scope]").forEach((button) => {
     button.classList.toggle("active", state.placement.schoolScope === button.dataset.placementSchoolScope);
+  });
+  document.querySelectorAll("[data-placement-popular-category]").forEach(button => {
+    const selected = (button.dataset.placementPopularCategory || "") === (state.placement.quickCategory || "");
+    button.classList.toggle("active", selected);
+    button.setAttribute("aria-pressed", String(selected));
   });
   const runButton = document.getElementById("runPlacementAnalysis");
   if (runButton) runButton.disabled = !placementHasAnyInput(placementProfile());
@@ -2204,6 +2225,7 @@ function placementProfile() {
     groups: [...state.placement.groups],
     categories: [...state.placement.categories],
     schoolScope: state.placement.schoolScope || "all",
+    quickCategory: state.placement.quickCategory || "",
   };
 }
 
@@ -2354,6 +2376,10 @@ function placementMatchesFilters(record, profile) {
   if (profile.topUniversityOnly && !isTopUniversity(record)) return false;
   const needles = placementSelectedNeedles(profile);
   if (needles.size && !matchesGroup(record, needles)) return false;
+  if (profile.quickCategory) {
+    const categoryNeedles = cachedGroupNeedles([], [profile.quickCategory]);
+    if (!categoryNeedles.size || !matchesGroup(record, categoryNeedles)) return false;
+  }
   return true;
 }
 
@@ -2573,6 +2599,8 @@ function placementResultSummary(evaluation) {
 }
 
 function placementSchoolScopeAllows(record, scope = "all") {
+  const areas = { "area-north": "北", "area-central": "中", "area-south": "南", "area-east": "東" };
+  if (areas[scope]) return AdmissionCatalog.matchesArea(record, areas[scope]);
   if (scope === "public" || scope === "private") return schoolOwnership(record) === scope;
   if (scope === "top") return isTopUniversity(record);
   if (scope === "central") return ["國立中央大學", "國立中興大學", "國立中山大學", "國立中正大學"].includes(record.schoolName);

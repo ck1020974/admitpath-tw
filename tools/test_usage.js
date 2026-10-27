@@ -25,8 +25,8 @@ function load(config,hostname='ck1020974.github.io'){
  assert.equal(api.event('curiosity-top/資訊學群'),true);
  // 不合格的名稱（含空白、電子郵件、長字串、作答內容）一律不送。
  for(const bad of ['15 號 王小明','a@b.com','curiosity-top/'+'很'.repeat(30),'Answer:2','/view','x/y/z'])assert.equal(api.event(bad),false,bad);
- assert.equal(JSON.stringify(api._queue.map(q=>q.path)),JSON.stringify(['/view/workbench','curiosity-share-copy','compare-add','compare-add','curiosity-top/資訊學群']));
- assert.ok(api._queue.slice(1).every(q=>q.event===true));
+ assert.equal(JSON.stringify(api._queue.map(q=>q.path)),JSON.stringify(['/site-visit','/view/workbench','curiosity-share-copy','compare-add','compare-add','curiosity-top/資訊學群']));
+ assert.ok(api._queue.slice(2).every(q=>q.event===true));
 }
 // 學群探索與主站都載入統計程式，而且只送事件名稱。
 const curiosity=fs.readFileSync(path.join(__dirname,'../site/explore/curiosity/index.html'),'utf8');

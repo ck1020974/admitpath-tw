@@ -958,14 +958,31 @@ input:focus {
 
 .placement-edit-button {
   flex-shrink: 0;
-  background: #176b88;
-  border: 1px solid #176b88;
-  color: #fff;
+  min-height: 30px;
+  padding: 3px 10px;
+  border: 1px solid #d6e1ec;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--muted);
+  font: inherit;
+  font-size: 12px;
+  cursor: pointer;
 }
 
 .placement-edit-button:hover {
-  background: #10526a;
+  background: #eef5f8;
+  color: var(--ink);
 }
+
+.placement-popular-categories {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin-top: 14px;
+}
+.placement-popular-label { color: var(--ink); font-size: 13px; font-weight: 700; }
+.placement-popular-label small { margin-left: 4px; color: var(--muted); font-size: 11px; font-weight: 400; }
 
 .placement-score-edit:focus-visible,
 .placement-edit-button:focus-visible {

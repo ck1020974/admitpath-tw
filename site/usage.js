@@ -11,6 +11,26 @@
   const sent = new Set();
   // 事件名稱只能是英文小寫、數字、連字號與斜線後的學群名稱，避免不小心把作答或名字當成事件送出。
   const NAME = /^[a-z0-9-]+(\/[一-鿿A-Za-z0-9-]{1,20})?$/;
+  const VISITOR_PATH = "/site-visit";
+
+  async function refreshVisitorCount() {
+    const element = root.document?.getElementById?.("siteVisitorCount");
+    if (!element) return;
+    if (!code) { element.textContent = "尚未啟用"; return; }
+    if (local) { element.textContent = "本機預覽不計入"; return; }
+    element.textContent = "載入中";
+    try {
+      const response = await root.fetch(`https://${code}.goatcounter.com/counter/${encodeURIComponent(VISITOR_PATH)}.json`, { credentials: "omit" });
+      if (!response.ok) throw new Error("Counter unavailable");
+      const data = await response.json();
+      if (typeof data.count !== "string" && typeof data.count !== "number") throw new Error("Invalid visitor count");
+      const count = Number(String(data.count).replace(/[,\s]/g, ""));
+      if (String(data.count).trim() === "" || !Number.isSafeInteger(count) || count < 0) throw new Error("Invalid visitor count");
+      element.textContent = new Intl.NumberFormat("zh-Hant-TW").format(count) + " 人次";
+    } catch {
+      element.textContent = "統計更新中";
+    }
+  }
 
   function deliver(item) {
     const gc = root.goatcounter;
@@ -28,7 +48,10 @@
     script.async = true;
     script.src = "https://gc.zgo.at/count.js";
     script.dataset.goatcounter = `https://${code}.goatcounter.com/count`;
-    script.addEventListener("load", () => { while (queue.length) deliver(queue.shift()); });
+    script.addEventListener("load", () => {
+      while (queue.length) deliver(queue.shift());
+      root.setTimeout?.(refreshVisitorCount, 2000);
+    });
     root.document.head.appendChild(script);
   }
 
@@ -49,8 +72,15 @@
       return true;
     },
     _queue: queue,
+    refreshVisitorCount,
   };
+  // 以固定路徑計算全站造訪，避免把同一人切換不同功能的次數加總成人數。
+  if (enabled) {
+    sent.add("page:site-visit");
+    record({ path: VISITOR_PATH, title: "網站造訪" });
+  }
   load();
+  refreshVisitorCount();
   root.YuhsinUsage = api;
   if (typeof module !== "undefined" && module.exports) module.exports = api;
 })(typeof window !== "undefined" ? window : globalThis);
