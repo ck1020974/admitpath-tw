@@ -21,7 +21,7 @@
   <meta property="og:image:height" content="630">
   <meta property="og:image:alt" content="YUHSIN 祐馨升學網：校系查詢、落點分析、十八學群、比較清單">
   <meta name="twitter:card" content="summary_large_image">
-  <link rel="stylesheet" href="./styles.css?v=20261027-shared-query">
+  <link rel="stylesheet" href="./styles.css?v=20261027-compact-scores">
   <link rel="stylesheet" href="./special.css?v=20260918-layout-fix">
   <link rel="stylesheet" href="./support.css?v=20261016-mobile-header">
   <link rel="stylesheet" href="./workbench.css?v=20261027-shared-query">
@@ -231,8 +231,8 @@
                   <label><span>社會</span><input data-placement-score="社會" type="number" inputmode="numeric" min="0" max="15" placeholder="級分"></label>
                   <label><span>自然</span><input data-placement-score="自然" type="number" inputmode="numeric" min="0" max="15" placeholder="級分"></label>
                   <label><span>英聽</span><input data-placement-score="英聽" type="text" autocapitalize="characters" autocomplete="off" maxlength="1" pattern="[ABCFabcf]" placeholder="A/B/C/F"></label>
-                  <label><span>在校%</span><input data-placement-score="在校" type="number" inputmode="decimal" min="0" max="100" step="any" placeholder="百分比"></label>
-                  <label><span>數甲</span><input data-placement-score="數甲" type="number" inputmode="numeric" min="0" max="60" placeholder="分科"></label>
+                  <label><span>在校%</span><input data-placement-score="在校" type="number" inputmode="decimal" min="0" max="100" step="any" placeholder="%"></label>
+                  <label class="placement-ast-start"><span>數甲</span><input data-placement-score="數甲" type="number" inputmode="numeric" min="0" max="60" placeholder="分科"></label>
                   <label><span>數乙</span><input data-placement-score="數乙" type="number" inputmode="numeric" min="0" max="60" placeholder="分科"></label>
                   <label><span>歷史</span><input data-placement-score="歷史" type="number" inputmode="numeric" min="0" max="60" placeholder="分科"></label>
                   <label><span>地理</span><input data-placement-score="地理" type="number" inputmode="numeric" min="0" max="60" placeholder="分科"></label>
@@ -353,15 +353,15 @@
     <div class="placement-popular-categories" role="group" aria-label="TOP 10 學類">
       <span class="placement-popular-label">TOP 10</span>
       <button type="button" class="placement-chip active" data-placement-popular-category="" aria-pressed="true">全部學類</button>
-      <button type="button" class="placement-chip" data-placement-popular-category="電機工程學類" data-category-event="electrical" aria-pressed="false">電機工程</button>
-      <button type="button" class="placement-chip" data-placement-popular-category="資訊工程學類" data-category-event="computer-science" aria-pressed="false">資訊工程</button>
-      <button type="button" class="placement-chip" data-placement-popular-category="資訊管理學類" data-category-event="information-management" aria-pressed="false">資訊管理</button>
+      <button type="button" class="placement-chip" data-placement-popular-category="電機工程學類" data-category-event="electrical" aria-pressed="false" title="電機工程學類">電機</button>
+      <button type="button" class="placement-chip" data-placement-popular-category="資訊工程學類" data-category-event="computer-science" aria-pressed="false" title="資訊工程學類">資工</button>
+      <button type="button" class="placement-chip" data-placement-popular-category="資訊管理學類" data-category-event="information-management" aria-pressed="false" title="資訊管理學類">資管</button>
       <button type="button" class="placement-chip" data-placement-popular-category="醫學學類" data-category-event="medicine" aria-pressed="false">醫學</button>
       <button type="button" class="placement-chip" data-placement-popular-category="牙醫學類" data-category-event="dentistry" aria-pressed="false">牙醫</button>
       <button type="button" class="placement-chip" data-placement-popular-category="藥學學類" data-category-event="pharmacy" aria-pressed="false">藥學</button>
       <button type="button" class="placement-chip" data-placement-popular-category="法律學類" data-category-event="law" aria-pressed="false">法律</button>
-      <button type="button" class="placement-chip" data-placement-popular-category="企業管理學類" data-category-event="business" aria-pressed="false">企業管理</button>
-      <button type="button" class="placement-chip" data-placement-popular-category="財務金融學類" data-category-event="finance" aria-pressed="false">財務金融</button>
+      <button type="button" class="placement-chip" data-placement-popular-category="企業管理學類" data-category-event="business" aria-pressed="false" title="企業管理學類">企管</button>
+      <button type="button" class="placement-chip" data-placement-popular-category="財務金融學類" data-category-event="finance" aria-pressed="false" title="財務金融學類">財金</button>
       <button type="button" class="placement-chip" data-placement-popular-category="心理學類" data-category-event="psychology" aria-pressed="false">心理</button>
     </div>
   </template>
@@ -439,6 +439,6 @@
   <script src="./admission-catalog.js?v=20261012-special-116"></script>
   <script src="./explorer-link.js?v=20261023-intros"></script>
   <script src="./group-introductions.js?v=20261023-intros"></script>
-  <script src="./app.js?v=20261027-shared-query"></script>
+  <script src="./app.js?v=20261027-precision-reset"></script>
 </body>
 </html>

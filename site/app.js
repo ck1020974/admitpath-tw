@@ -1293,10 +1293,26 @@ function currentAdvancedFilters() {
 }
 
 function openAdvancedFilters() {
+  clearOuterSchoolFilters();
   advancedFilterDraft = cloneAdvancedFilters(currentAdvancedFilters());
   renderAdvancedFilterDrawer();
   els.advancedFilterDrawer?.classList.add("open");
   els.advancedFilterDrawer?.setAttribute("aria-hidden", "false");
+}
+
+function clearOuterSchoolFilters() {
+  // 精準篩選接手學校與學類，先移除外部相同維度，避免條件交集互相排除。
+  if (state.view === "placement") {
+    Object.assign(state.placement, { school: "all", schoolScope: "all", quickCategory: "",
+      groups: [], categories: [], schoolOwnership: "all", topUniversityOnly: false });
+    hydratePlacementResultFilters();
+  } else {
+    Object.assign(state.filters, { school: "all", schoolScope: "all", quickCategory: "" });
+    state.linkedGroup = "";
+    state.linkedCategory = "";
+    if (els.schoolFilter) els.schoolFilter.value = "all";
+  }
+  applyFilters();
 }
 
 function closeAdvancedFilters() {
@@ -1406,7 +1422,7 @@ function renderAdvancedFilterDrawer() {
 }
 
 function advancedSubjectHint() {
-  const channel = state.filters.channel;
+  const channel = state.view === "placement" ? state.placement.channel : state.filters.channel;
   if (channel === "personal_application") return "個申科目";
   if (channel === "star_recommendation") return "繁星科目含在校";
   if (channel === "exam_distribution") return "分發科目含數甲、數乙";
@@ -2192,7 +2208,7 @@ function renderPlacementControls() {
     if (input.value !== value) input.value = value;
     if (["國文", "英文", "數A", "數B", "社會", "自然"].includes(subject)) {
       input.max = distribution ? "60" : "15";
-      input.placeholder = distribution ? "60級分" : "15級分";
+      input.placeholder = distribution ? "0–60" : "0–15";
     }
     input.required = subject === "在校" && channel === "star_recommendation";
     if (subject === "在校") input.min = "0.01";
