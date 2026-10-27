@@ -21,7 +21,7 @@
   <meta property="og:image:height" content="630">
   <meta property="og:image:alt" content="YUHSIN 祐馨升學網：校系查詢、落點分析、十八學群、比較清單">
   <meta name="twitter:card" content="summary_large_image">
-  <link rel="stylesheet" href="./styles.css?v=20261027-placement">
+  <link rel="stylesheet" href="./styles.css?v=20261027-channel-entry">
   <link rel="stylesheet" href="./special.css?v=20260918-layout-fix">
   <link rel="stylesheet" href="./support.css?v=20261016-mobile-header">
   <link rel="stylesheet" href="./workbench.css?v=20261027-channel-stack">
@@ -215,11 +215,19 @@
 
           <section class="placement-setup-stage" id="placementSetupStage">
             <div class="placement-workbench">
-              <section class="placement-score-band">
+              <section class="placement-channel-picker" aria-labelledby="placementChannelHeading">
+                <h3 id="placementChannelHeading">先選擇入學管道</h3>
+                <div class="placement-channel-options" role="group" aria-label="選擇入學管道">
+                  <button type="button" data-placement-channel="star_recommendation" aria-pressed="false">繁星<span>學測、英聽與校排</span></button>
+                  <button type="button" data-placement-channel="personal_application" aria-pressed="false">個申<span>學測與英聽</span></button>
+                  <button type="button" data-placement-channel="exam_distribution" aria-pressed="false">分科<span>分發採計成績</span></button>
+                </div>
+              </section>
+              <section class="placement-score-band" id="placementScoreFields" hidden>
                 <div class="placement-band-head">
                   <div>
-                    <h3>先輸入成績</h3>
-                    <span>送出後可再依年度、學校、學類與學群縮小結果。</span>
+                    <h3 id="placementScoreHeading">輸入成績</h3>
+                    <span id="placementScoreHint">未填科目以 0 級分計算。</span>
                   </div>
                 </div>
                 <div class="placement-score-grid">
@@ -229,7 +237,7 @@
                   <label><span>數B</span><input data-placement-score="數B" type="number" inputmode="numeric" min="0" max="15" placeholder="級分"></label>
                   <label><span>社會</span><input data-placement-score="社會" type="number" inputmode="numeric" min="0" max="15" placeholder="級分"></label>
                   <label><span>自然</span><input data-placement-score="自然" type="number" inputmode="numeric" min="0" max="15" placeholder="級分"></label>
-                  <label><span>英聽</span><input data-placement-score="英聽" type="text" autocapitalize="characters" autocomplete="off" maxlength="1" placeholder="A/B/C/F"></label>
+                  <label><span>英聽</span><input data-placement-score="英聽" type="text" autocapitalize="characters" autocomplete="off" maxlength="1" pattern="[ABCFabcf]" placeholder="A/B/C/F"></label>
                   <label><span>在校%</span><input data-placement-score="在校" type="number" inputmode="decimal" min="0" max="100" step="any" placeholder="百分比"></label>
                   <label><span>數甲</span><input data-placement-score="數甲" type="number" inputmode="numeric" min="0" max="60" placeholder="分科"></label>
                   <label><span>數乙</span><input data-placement-score="數乙" type="number" inputmode="numeric" min="0" max="60" placeholder="分科"></label>
@@ -253,6 +261,7 @@
               <div class="placement-score-summary-line">
                 <div class="placement-criteria-summary" id="placementCriteriaSummary"></div>
                 <button class="solid-button placement-edit-button" id="editPlacementCriteria">修改成績</button>
+                <button class="ghost-button" id="changePlacementChannel">更換管道</button>
                 <div class="placement-school-scope" aria-label="學校快速篩選">
                   <div class="placement-chip-row">
                     <button type="button" class="placement-chip active" data-placement-school-scope="all">全部</button>
@@ -404,6 +413,6 @@
   <script src="./admission-catalog.js?v=20261012-special-116"></script>
   <script src="./explorer-link.js?v=20261023-intros"></script>
   <script src="./group-introductions.js?v=20261023-intros"></script>
-  <script src="./app.js?v=20261027-application-threshold"></script>
+  <script src="./app.js?v=20261027-channel-entry"></script>
 </body>
 </html>

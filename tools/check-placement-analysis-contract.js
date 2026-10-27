@@ -110,6 +110,7 @@ vm.runInContext([
   applySieveOverrideMatch ? applySieveOverrideMatch[0] : "const APPLY_SIEVE_SCORE_OVERRIDES = {};",
   extractFunction("defaultPlacementState"),
   extractFunction("placementProfile"),
+  extractFunction("placementSubjects"),
   extractFunction("placementAnalysisRows"),
   extractFunction("placementStatusWeight"),
   extractFunction("evaluatePlacementRecord"),

@@ -1895,17 +1895,49 @@ function defaultPlacementState() {
       化學: "",
       生物: "",
     },
-    channels: ["personal_application", "star_recommendation"],
+    channels: [],
+    scoresByMode: {},
     schoolOwnership: "all",
     topUniversityOnly: false,
     specialAdmissionMode: "exclude",
     groups: [],
     categories: [],
     year: "all",
-    channel: "all",
+    channel: "",
     schoolScope: "all",
     keyword: "",
   };
+}
+
+function placementSubjects(channel) {
+  const gsat = ["國文", "英文", "數A", "數B", "社會", "自然"];
+  const distribution = ["數甲", "數乙", "歷史", "地理", "公民", "物理", "化學", "生物"];
+  if (channel === "star_recommendation") return [...gsat, "英聽", "在校"];
+  if (channel === "personal_application") return [...gsat, "英聽"];
+  if (channel === "exam_distribution") return [...gsat, ...distribution];
+  return channel === "all" ? [...gsat, "英聽", "在校", ...distribution] : [];
+}
+
+function selectPlacementChannel(channel) {
+  if (!["star_recommendation", "personal_application", "exam_distribution"].includes(channel)) return;
+  if (state.placement.channel !== channel) {
+    state.placement.year = "all";
+    state.placement.keyword = "";
+    state.placement.schoolScope = "all";
+  }
+  const mode = value => value === "exam_distribution" ? "distribution" : "gsat";
+  const oldMode = mode(state.placement.channel);
+  const newMode = mode(channel);
+  state.placement.scoresByMode ||= {};
+  state.placement.scoresByMode[oldMode] = state.placement.scores;
+  state.placement.scores = state.placement.scoresByMode[newMode] || {};
+  state.placement.channel = channel;
+  state.placement.channels = [channel];
+  state.placement.resultTab = "match";
+  state.placement.stage = "setup";
+  hydratePlacementResultFilters();
+  renderPlacementStage();
+  renderPlacementControls();
 }
 
 function bindPlacementEvents() {
@@ -1918,13 +1950,7 @@ function bindPlacementEvents() {
   });
   document.querySelectorAll("[data-placement-channel]").forEach((button) => {
     button.addEventListener("click", () => {
-      const channel = button.dataset.placementChannel;
-      const channels = new Set(state.placement.channels);
-      if (channels.has(channel)) channels.delete(channel);
-      else channels.add(channel);
-      state.placement.channels = [...channels];
-      renderPlacementControls();
-      renderPlacementAnalysis();
+      selectPlacementChannel(button.dataset.placementChannel);
     });
   });
   document.querySelectorAll("[data-placement-ownership]").forEach((button) => {
@@ -1948,6 +1974,7 @@ function bindPlacementEvents() {
   });
   document.getElementById("runPlacementAnalysis")?.addEventListener("click", showPlacementResults);
   document.getElementById("editPlacementCriteria")?.addEventListener("click", showPlacementSetup);
+  document.getElementById("changePlacementChannel")?.addEventListener("click", showPlacementSetup);
   document.getElementById("placementCriteriaSummary")?.addEventListener("click", (event) => {
     const scoreButton = event.target.closest("[data-placement-edit-score]");
     if (!scoreButton) return;
@@ -1978,6 +2005,9 @@ function bindPlacementEvents() {
 function showPlacementResults() {
   const profile = placementProfile();
   if (!placementHasAnyInput(profile)) return;
+  const invalid = [...document.querySelectorAll("[data-placement-score]")]
+    .find(input => !input.closest("label").hidden && !input.checkValidity());
+  if (invalid) { invalid.reportValidity(); return; }
   state.placement.stage = "results";
   trackEvent("placement-run", "查看落點分析結果");
   state.placement.resultTab = "match";
@@ -2025,7 +2055,8 @@ function placementFilterOptions(select, items, allLabel, value, label = (item) =
 }
 
 function hydratePlacementResultFilters() {
-  const years = [...new Set(state.records.map((record) => String(record.year)).filter(Boolean))]
+  const records = state.records.filter(record => !state.placement.channel || state.placement.channel === "all" || record.channelKey === state.placement.channel);
+  const years = [...new Set(records.map((record) => String(record.year)).filter(Boolean))]
     .sort((a, b) => b.localeCompare(a, "en"));
   placementFilterOptions(els.placementYearFilter, years, "年度", state.placement.year);
   placementFilterOptions(els.placementChannelFilter, ["personal_application", "star_recommendation", "exam_distribution"], "入學管道", state.placement.channel, (channel) => ({
@@ -2033,6 +2064,7 @@ function hydratePlacementResultFilters() {
     star_recommendation: "繁星推薦",
     exam_distribution: "分發入學",
   })[channel]);
+  if (els.placementChannelFilter) els.placementChannelFilter.disabled = true;
   if (els.placementKeywordInput) els.placementKeywordInput.value = state.placement.keyword;
 }
 
@@ -2045,8 +2077,34 @@ function updatePlacementResultFilters() {
 }
 
 function renderPlacementControls() {
+  const channel = state.placement.channel;
+  const subjects = placementSubjects(channel);
+  const distribution = channel === "exam_distribution";
+  const fields = document.getElementById("placementScoreFields");
+  if (fields) fields.hidden = !subjects.length;
+  const heading = document.getElementById("placementScoreHeading");
+  if (heading) heading.textContent = distribution ? "輸入分發採計成績（60級分）" : channel === "star_recommendation" ? "輸入學測成績與校排" : "輸入學測成績（15級分）";
+  const hint = document.getElementById("placementScoreHint");
+  if (hint) hint.textContent = distribution
+    ? "學測與分科科目皆填分發採計的 60 級分成績，未填科目以 0 計算。"
+    : channel === "star_recommendation" ? "請填在校排名百分比；學測各科最高 15 級分，未填科目以 0 計算。"
+    : "學測各科最高 15 級分；英聽填 A、B、C 或 F，未填科目以 0 計算。";
+  document.querySelectorAll("[data-placement-score]").forEach(input => {
+    const subject = input.dataset.placementScore;
+    input.closest("label").hidden = !subjects.includes(subject);
+    const value = state.placement.scores[subject] || "";
+    if (input.value !== value) input.value = value;
+    if (["國文", "英文", "數A", "數B", "社會", "自然"].includes(subject)) {
+      input.max = distribution ? "60" : "15";
+      input.placeholder = distribution ? "60級分" : "15級分";
+    }
+    input.required = subject === "在校" && channel === "star_recommendation";
+    if (subject === "在校") input.min = "0.01";
+  });
   document.querySelectorAll("[data-placement-channel]").forEach((button) => {
-    button.classList.toggle("active", state.placement.channels.includes(button.dataset.placementChannel));
+    const selected = channel === button.dataset.placementChannel;
+    button.classList.toggle("active", selected);
+    button.setAttribute("aria-pressed", String(selected));
   });
   document.querySelectorAll("[data-placement-ownership]").forEach((button) => {
     button.classList.toggle("active", state.placement.schoolOwnership === button.dataset.placementOwnership);
@@ -2136,9 +2194,9 @@ function placementCategoryBelongsToSelection(categoryName) {
 
 function placementProfile() {
   return {
-    scores: { ...state.placement.scores },
+    scores: Object.fromEntries(placementSubjects(state.placement.channel).map(subject => [subject, state.placement.scores[subject] ?? ""])),
     channels: state.placement.channel !== "all"
-      ? [state.placement.channel]
+      ? state.placement.channel ? [state.placement.channel] : []
       : ["personal_application", "star_recommendation", "exam_distribution"],
     schoolOwnership: state.placement.schoolOwnership,
     topUniversityOnly: state.placement.topUniversityOnly,
@@ -2244,12 +2302,10 @@ function placementSummaryCardsHtml(rows) {
 }
 
 function placementHasAnyInput(profile) {
-  return Object.values(profile.scores || {}).some((value) => String(value ?? "").trim() !== "")
-    || profile.groups.length
-    || profile.categories.length
-    || profile.schoolOwnership !== "all"
-    || profile.topUniversityOnly
-    || profile.specialAdmissionMode !== "exclude";
+  if (!profile.channels?.length) return false;
+  if (profile.channels.length === 1 && profile.channels[0] === "star_recommendation"
+    && !(Number(profile.scores.在校) > 0 && Number(profile.scores.在校) <= 100)) return false;
+  return Object.values(profile.scores || {}).some(value => String(value ?? "").trim() !== "");
 }
 
 function placementStatusWeight(status) {
@@ -2459,7 +2515,8 @@ function placementScoreValue(profile, subject) {
   // 科目空白沿用 0 分；校排空白不能當成前 0% 而通過所有繁星條件。
   if (String(raw).trim() === "" || raw == null) return key === "在校" ? null : 0;
   const value = Number(raw);
-  const max = key === "在校" ? 100 : ["國文", "英文", "數A", "數B", "社會", "自然"].includes(key) ? 15 : 60;
+  const distribution = profile.channels?.length === 1 && profile.channels[0] === "exam_distribution";
+  const max = key === "在校" ? 100 : !distribution && ["國文", "英文", "數A", "數B", "社會", "自然"].includes(key) ? 15 : 60;
   return Number.isFinite(value) && value >= 0 && value <= max
     && (key === "在校" ? value > 0 : Number.isInteger(value)) ? value : null;
 }
