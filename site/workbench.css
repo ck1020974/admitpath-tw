@@ -1,6 +1,6 @@
 /* 查詢工作台與比較清單。
    獨立於 styles.css，讓首頁和工作台可以分開修改而不互相衝突。
-   原則：每列只突出一個重點數字，其餘條件是一行灰字；年度、管道在電腦上直接點，手機維持下拉選單。 */
+   原則：每列只突出一個重點數字，其餘條件是一行灰字；年度、管道使用下拉選單。 */
 
 .sr-only {
   position: absolute;
@@ -55,30 +55,28 @@
 
 /* ── 篩選區 ── */
 #workbenchView .workbench-filters {
-  grid-template-columns: minmax(180px, 240px) minmax(0, 1fr) auto;
-  grid-template-areas:
-    "quick quick quick"
-    "school search precision";
+  grid-template-columns: 112px minmax(140px, .8fr) minmax(180px, 1fr) minmax(0, 1.6fr) auto;
+  grid-template-areas: "year channel school search precision";
   align-items: end;
   gap: 14px 12px;
   padding: 16px;
 }
 
-#workbenchView .wb-quick {
-  grid-area: quick;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px 16px;
-}
-
+#workbenchView .wb-year { grid-area: year; }
+#workbenchView .wb-channel { grid-area: channel; }
 #workbenchView .wb-school { grid-area: school; }
 #workbenchView .search-field { grid-area: search; }
 #workbenchView .precision-button { grid-area: precision; min-height: 44px; }
 
-/* 電腦版：年度、管道用下方的快速選項，下拉選單隱藏（仍是同一組設定）。 */
 #workbenchView .wb-year,
 #workbenchView .wb-channel {
-  display: none;
+  display: block;
+}
+
+#workbenchView .workbench-filters select,
+#workbenchView .workbench-filters input {
+  width: 100%;
+  min-height: 44px;
 }
 
 .wb-seg {
@@ -384,6 +382,15 @@
 }
 
 /* ── 手機與窄螢幕 ── */
+@media (min-width: 721px) and (max-width: 900px) {
+  #workbenchView .workbench-filters {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1.4fr);
+    grid-template-areas:
+      "year channel school"
+      "search search precision";
+  }
+}
+
 @media (max-width: 720px) {
   #workbenchView .workbench-filters {
     grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
@@ -394,18 +401,6 @@
     gap: 8px;
     padding: 10px;
   }
-
-  #workbenchView .wb-quick {
-    display: none;
-  }
-
-  #workbenchView .wb-year,
-  #workbenchView .wb-channel {
-    display: block;
-  }
-
-  #workbenchView .wb-year { grid-area: year; }
-  #workbenchView .wb-channel { grid-area: channel; }
 
   /* 選單本身已寫「全部年度」「全部管道」，上方的小標只留給螢幕閱讀器。 */
   #workbenchView .workbench-filters label > span {

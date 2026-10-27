@@ -37,9 +37,10 @@ if (/去年|今年/.test(app.match(/function recordSummary\([\s\S]*?\n\}/)?.[0] 
   fail("Row labels should name the stage (一階篩選、最低錄取…), not 去年／今年, so they never need yearly edits.");
 }
 
-// 電腦版的年度與管道快速選項，必須綁回原本的下拉選單（手機版用）。
+// 年度與管道沿用原本的下拉選單，和學校、關鍵字、精準篩選同列。
 ["yearFilter", "channelFilter"].forEach((id) => {
-  if (!new RegExp(`data-seg-for="${id}"`).test(html)) fail(`Quick options should mirror #${id}.`);
+  if (!new RegExp(`<select id="${id}">`).test(html)) fail(`Query filters should include the #${id} dropdown.`);
 });
+if (html.includes('class="wb-quick"')) fail("Query filters should not include a separate quick-option row.");
 
 console.log("Query layout contract check passed.");
