@@ -2624,8 +2624,8 @@ function workbenchRecordRowHtml(record, comparing = false) {
   return `
       <tr class="rec-row">
         <td class="rec-channel">
+          <span class="year-number">${record.year}年度</span>
           ${channelBadge(record)}
-          <span class="year-number">${record.year}</span>
         </td>
         <td class="rec-main">
           <button class="rec-open" type="button" data-detail="${escapeAttr(record.id)}">
