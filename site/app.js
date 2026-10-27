@@ -2151,7 +2151,6 @@ function placementProfile() {
 
 function renderPlacementAnalysis() {
   if (!els.placementResults) return;
-  if (state.placement.resultTab === "missing") state.placement.resultTab = "match";
   renderPlacementControls();
   // 設定畫面只更新按鈕狀態，按「查看分析結果」才計算全體校系。
   if (state.placement.stage !== "results") return;
@@ -2179,6 +2178,7 @@ function renderPlacementAnalysis() {
     match: "筆符合",
     near: "筆接近",
     miss: "筆未達",
+    missing: "筆資料不足",
   }[state.placement.resultTab] || "筆結果";
   els.placementResultCount.textContent = fmt.format(visibleRows.length);
   if (els.placementResultCountLabel) els.placementResultCountLabel.textContent = countLabel;
@@ -2261,6 +2261,7 @@ function placementResultCardHtml(record, evaluation) {
     match: "符合",
     near: "接近",
     miss: "未達",
+    missing: "資料不足",
   }[evaluation.status] || "未判斷";
   const summary = placementResultSummary(evaluation);
   const specialCondition = evaluation.specialConditions ? `<span class="special-admission-badge">特殊條件</span>` : "";
@@ -2484,7 +2485,6 @@ function placementRequirementChipsHtml(requirements) {
   const isTest = (item) => ["檢定", "數學檢定"].includes(item.source);
   const tests = requirements.filter(isTest);
   const primary = requirements.filter((item) => !isTest(item));
-  const used = new Set();
   const numericLabel = (item) => item.kind === "any"
     ? (item.checkedOptions || item.options).map(numericLabel).join(" 或 ")
     : placementRequirementLabel(item);
@@ -2492,26 +2492,19 @@ function placementRequirementChipsHtml(requirements) {
     ? (item.checkedOptions || item.options).map(testLabel).join(" 或 ")
     : `${placementRequirementLabel(item)} ${item.standard || "檢定"}`;
   const testChip = (item, label) => `<span class="placement-req placement-req-test ${escapeAttr(item.status)}">${escapeHtml(label)}${item.status === "miss" ? " · 未達" : ""}</span>`;
-  const chips = primary.map((item) => {
-    const test = tests.find((candidate) => !used.has(candidate)
-      && candidate.kind === item.kind
-      && candidate.subjects.join("+") === item.subjects.join("+"));
-    const comparison = `<span class="placement-req ${escapeAttr(item.status)}">${escapeHtml(numericLabel(item))}</span>`;
-    if (!test) return comparison;
-    used.add(test);
-    return `<span class="placement-req-pair">${comparison}${testChip(test, testLabel(test))}</span>`;
-  });
-  // 沒有同科篩選結果的檢定放在最後；擇一條件保留「或」與整組判定。
-  tests.filter((item) => !used.has(item)).forEach((item) => {
-    chips.push(testChip(item, testLabel(item)));
-  });
-  return chips.join("");
+  const group = (label, chips) => chips.length ? `<span class="placement-req-group"><span class="placement-req-label">${label}</span>${chips.join("")}</span>` : "";
+  const screening = primary.filter(item => ["倍率篩選", "官方篩選暫估", "篩選資料暫估"].includes(item.source));
+  const other = primary.filter(item => !screening.includes(item));
+  const chip = item => `<span class="placement-req ${escapeAttr(item.status)}">${escapeHtml(numericLabel(item))}</span>`;
+  return group("一階篩選", screening.map(chip))
+    + other.map(chip).join("")
+    + group("申請門檻", tests.map(item => testChip(item, testLabel(item))));
 }
 
 function placementResultSummary(evaluation) {
-  if (evaluation.status === "match") return "";
-  if (evaluation.application && evaluation.pendingData) return "資料待核對，暫不判定";
-  if (evaluation.application && evaluation.importedOfficialData && evaluation.status === "match") return "暫估符合官方已匯入篩選資料";
+  if (evaluation.application && evaluation.pendingData) return "一階篩選資料不足，僅比對已收錄條件";
+  if (evaluation.application && evaluation.estimatedScreeningData) return evaluation.status === "match"
+    ? "依已收錄一階篩選資料暫估" : `篩選資料暫估，約差 ${Number(evaluation.gapTotal.toFixed(1))}`;
   if (evaluation.application && evaluation.status === "match") return "符合已收錄條件";
   if (evaluation.status === "match") return "達標";
   if (evaluation.status === "near") return `約差 ${Number(evaluation.gapTotal.toFixed(1))}`;
@@ -4922,7 +4915,7 @@ function personalApplicationThresholdHtml(record, cac) {
   const valid = value => value && value !== "--";
   return `
     <section class="detail-section">
-      <h3>申請檢定門檻</h3>
+      <h3>申請門檻</h3>
       <div class="detail-list compact-list">
         ${applicationThresholdParts(record).map(p => singleLine(p.text)).join("") || singleLine("未設學測／英聽檢定")}
       </div>

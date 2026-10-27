@@ -1953,6 +1953,20 @@ button:disabled {
   max-width: 100%;
 }
 
+.placement-req-group {
+  display: flex;
+  flex: 1 0 100%;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+}
+
+.placement-req-label {
+  color: var(--muted);
+  font-size: 12px;
+  white-space: nowrap;
+}
+
 .placement-req.placement-req-test {
   background: #edf0f3;
   color: #52606d;

@@ -63,21 +63,25 @@
       || record.examRequired === '是'
       || detail.layout === 'art';
   }
-  function importedOfficialResults(record) {
+  function importedScreeningResults(record) {
     const audit = record.admissionAudit;
-    const sourceImageUrl = String(record.applySieveResult?.sourceImageUrl || '');
     const rows = record.applySieveResult?.rankedItems || [];
-    if (audit?.resultStatus === 'verified' || !hasUsableApplicationDetail(record)
-      || !sourceImageUrl.startsWith('https://www.cac.edu.tw/') || !rows.length) return [];
+    // 原圖連結是來源資訊，缺少連結不能讓已收錄的一階分數從落點分析消失。
+    // 尚未核對的數值仍須檢查合理範圍，並在結果標示為暫估。
+    if (audit?.resultStatus === 'verified' || !rows.length) return [];
     const complete = rows.every((item) => {
       const subjects = (item.subjects || []).map(subject).filter(Boolean);
       const score = Number(item.score);
       const maximum = subjects.reduce((total, name) => total + (artSubjects.has(name) ? 100 : (name.startsWith('APCS') ? 5 : 15)), 0);
-      return subjects.length && Number.isFinite(score) && score >= 0 && score <= maximum;
+      return subjects.length && (!valid(item.score) || (Number.isFinite(score) && score >= 0 && score <= maximum));
     });
     return complete ? rows
       .filter(academicResult)
       .map(i => ({ ...i, subjects: i.subjects.map(subject) })) : [];
+  }
+  function importedOfficialResults(record) {
+    return String(record.applySieveResult?.sourceImageUrl || '').startsWith('https://www.cac.edu.tw/')
+      ? importedScreeningResults(record) : [];
   }
   function requirements(record, standards) {
     const rules = thresholds(record, standards);
@@ -85,11 +89,12 @@
     const audit = record.admissionAudit;
     const specialConditions = hasSpecialConditions(record);
     const verified = verifiedResults(record);
-    const importedResults = importedOfficialResults(record);
+    const importedResults = importedScreeningResults(record);
     // 第一階段落點只需要篩選科目與檢定；第二階段占比或舊版解析狀態
     // 不應讓已具備官方一階結果的校系整筆消失。
     const resultRows = verified.length ? verified : importedResults;
-    const resultSource = importedResults.length ? '官方篩選暫估' : '倍率篩選';
+    const resultSource = importedResults.length
+      ? (importedOfficialResults(record).length ? '官方篩選暫估' : '篩選資料暫估') : '倍率篩選';
     resultRows.forEach(i => {
       if (valid(i.score)) rules.push({ kind: i.subjects.length > 1 ? 'sum' : 'score', subjects: i.subjects, threshold: Number(i.score), rank: i.rank, source: resultSource });
       // 未公布的順位級分不使用推測值，保留其他已公布條件進行判定。
@@ -141,12 +146,15 @@
     const missCount = checked.filter(r => r.status === 'miss').length;
     const gapTotal = checked.reduce((sum, r) => sum + Math.max(0, r.gap), 0);
     const specialConditions = hasSpecialConditions(record);
-    return { status: missCount ? (gapTotal <= 3 ? 'near' : 'miss') : 'match',
+    const pendingData = !record.militaryAdmission && (!checked.some(r => r.rank != null || ['倍率篩選', '官方篩選暫估', '篩選資料暫估'].includes(r.source))
+      || (record.applySieveResult?.rankedItems || []).some(i => academicResult(i) && !valid(i.score)));
+    return { status: missCount ? (gapTotal <= 3 ? 'near' : 'miss') : pendingData ? 'missing' : 'match',
       requirements: checked, missingCount, missCount, gapTotal, application: true,
-      pendingData: false,
+      pendingData,
       importedOfficialData: checked.some(r => r.source === '官方篩選暫估'),
+      estimatedScreeningData: checked.some(r => ['官方篩選暫估', '篩選資料暫估'].includes(r.source)),
       specialConditions,
       caveat: specialConditions ? '僅比對已收錄學測條件；術科、主修及APCS須另核對，不代表通過超額篩選或錄取。' : '僅比對已收錄條件；不代表通過超額篩選或錄取。' };
   }
-  return { subject, thresholds, requirements, verifiedResults, importedOfficialResults, hasUsableApplicationDetail, hasSpecialConditions, check, describe, evaluate };
+  return { subject, thresholds, requirements, verifiedResults, importedOfficialResults, importedScreeningResults, hasUsableApplicationDetail, hasSpecialConditions, check, describe, evaluate };
 });
