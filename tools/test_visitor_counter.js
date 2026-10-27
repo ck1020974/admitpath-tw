@@ -4,13 +4,13 @@ const vm = require('node:vm');
 const source = fs.readFileSync(require.resolve('../site/usage.js'), 'utf8');
 async function test() {
   const element = { textContent: '' }, calls = [];
-  const window = { YUHSIN_USAGE_CONFIG: { goatcounterCode: 'yuhsin' }, location: { hostname: 'ck1020974.github.io' },
+  const window = { YUHSIN_USAGE_CONFIG: { goatcounterCode: 'yuhsin', visitorStartDate: '2026-10-27' }, location: { hostname: 'ck1020974.github.io' },
     document: { getElementById: () => element, createElement: () => ({ dataset: {}, addEventListener() {} }), head: { appendChild() {} } },
     fetch: async (url, options) => { calls.push({ url, options }); return { ok: true, json: async () => ({ count: '1,234' }) }; } };
   vm.runInNewContext(source, { window });
   await window.YuhsinUsage.refreshVisitorCount();
   assert.equal(element.textContent, '1,234 人次');
-  assert.equal(calls[0].url, 'https://yuhsin.goatcounter.com/counter/%2Fsite-visit.json');
+  assert.equal(calls[0].url, 'https://yuhsin.goatcounter.com/counter/%2Fsite-visit.json?start=2026-10-27');
   assert.equal(calls[0].options.credentials, 'omit');
   assert.equal(window.YuhsinUsage.page('site-visit'), false);
   window.fetch = async () => ({ ok: false });

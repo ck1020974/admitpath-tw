@@ -12,6 +12,7 @@
   // 事件名稱只能是英文小寫、數字、連字號與斜線後的學群名稱，避免不小心把作答或名字當成事件送出。
   const NAME = /^[a-z0-9-]+(\/[一-鿿A-Za-z0-9-]{1,20})?$/;
   const VISITOR_PATH = "/site-visit";
+  const counterStart = /^\d{4}-\d{2}-\d{2}$/.test(config.visitorStartDate || "") ? `?start=${config.visitorStartDate}` : "";
 
   async function refreshVisitorCount() {
     const element = root.document?.getElementById?.("siteVisitorCount");
@@ -20,7 +21,7 @@
     if (local) { element.textContent = "本機預覽不計入"; return; }
     element.textContent = "載入中";
     try {
-      const response = await root.fetch(`https://${code}.goatcounter.com/counter/${encodeURIComponent(VISITOR_PATH)}.json`, { credentials: "omit" });
+      const response = await root.fetch(`https://${code}.goatcounter.com/counter/${encodeURIComponent(VISITOR_PATH)}.json${counterStart}`, { credentials: "omit" });
       if (!response.ok) throw new Error("Counter unavailable");
       const data = await response.json();
       if (typeof data.count !== "string" && typeof data.count !== "number") throw new Error("Invalid visitor count");
