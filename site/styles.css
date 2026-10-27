@@ -910,15 +910,6 @@ input:focus {
   gap: 8px;
 }
 
-.placement-result-filters {
-  grid-template-columns: 104px minmax(150px, .9fr) minmax(230px, 1.45fr);
-  margin: 0;
-  padding: 10px;
-  border: 1px solid rgba(209, 220, 232, .92);
-  border-radius: 12px;
-  background: rgba(255, 255, 255, .88);
-  box-shadow: 0 12px 26px rgba(22, 32, 45, .05);
-}
 
 .back-button {
   padding: 0;
@@ -4388,17 +4379,8 @@ tr:hover td {
   }
 }
 
-@media (max-width: 1020px) {
-  .placement-result-filters {
-    grid-template-columns: 104px minmax(150px, .9fr) minmax(230px, 1.45fr);
-  }
-}
 
 @media (max-width: 720px) {
-  .placement-result-filters {
-    grid-template-columns: 104px minmax(0, 1fr);
-  }
-  .placement-result-filters .search-field { grid-column: 1 / -1; }
   .placement-results { grid-template-columns: minmax(0, 1fr); }
   .placement-score-summary-line { flex-wrap: wrap; min-width: 0; }
   .placement-channel-options button { padding: 16px 10px; }

@@ -26,6 +26,8 @@
     year: "all",
     channel: "all",
     school: "all",
+    schoolScope: "all",
+    quickCategory: "",
     keyword: "",
     advanced: {
       excludedSubjects: [],
@@ -854,6 +856,7 @@ document.addEventListener("DOMContentLoaded", init);
 async function init() {
   state.placement = defaultPlacementState();
   bindElements();
+  mountQueryShortcuts();
   bindEvents();
   state.dataStatus = "loading";
   // 從分享連結進來時，先切到該頁面並顯示載入中。
@@ -952,11 +955,13 @@ function bindElements() {
     "advancedFilterDrawer",
     "advancedFilterBody",
     "advancedFilterSummary",
+    "placementAdvancedFilterSummary",
     "placementResultCount",
     "placementResultCountLabel",
     "placementResults",
     "placementYearFilter",
     "placementChannelFilter",
+    "placementSchoolFilter",
     "placementKeywordInput",
   ].forEach((id) => {
     els[id] = document.getElementById(id);
@@ -1229,6 +1234,7 @@ function mergeRecordDetail(record, detail) {
 function updateFilter() {
   state.filters.year = els.yearFilter.value;
   state.filters.channel = els.channelFilter.value;
+  if (state.filters.school !== els.schoolFilter.value) state.filters.schoolScope = "all";
   state.filters.school = els.schoolFilter.value;
   state.filters.keyword = els.keywordInput.value.trim();
   renderAdvancedFilterDrawer();
@@ -1236,7 +1242,7 @@ function updateFilter() {
 }
 
 function resetFilters() {
-  state.filters = { year: "all", channel: "all", school: "all", keyword: "", advanced: defaultAdvancedFilters() };
+  state.filters = { year: "all", channel: "all", school: "all", schoolScope: "all", quickCategory: "", keyword: "", advanced: defaultAdvancedFilters() };
   advancedFilterDraft = null;
   resetExplorerState("overview");
   els.yearFilter.value = "all";
@@ -1300,18 +1306,12 @@ function closeAdvancedFilters() {
 }
 
 function renderAdvancedFilterSummary() {
-  if (!els.advancedFilterSummary) return;
   const text = advancedFilterSummaryText();
-  if (!text) {
-    els.advancedFilterSummary.innerHTML = "";
-    els.advancedFilterSummary.classList.remove("active");
-    return;
+  for (const summary of [els.advancedFilterSummary, els.placementAdvancedFilterSummary]) {
+    if (!summary) continue;
+    summary.classList.toggle("active", Boolean(text));
+    summary.innerHTML = text ? `<span>精準篩選</span><strong>${escapeHtml(text)}</strong>` : "";
   }
-  els.advancedFilterSummary.classList.add("active");
-  els.advancedFilterSummary.innerHTML = `
-    <span>精準篩選</span>
-    <strong>${escapeHtml(text)}</strong>
-  `;
 }
 
 function advancedFilterSummaryText() {
@@ -1710,17 +1710,21 @@ function advancedCategoryNeedles(groupName = "", categoryName = "") {
 }
 
 function applyFilters() {
+  refreshQueryYears(els.yearFilter, state.filters);
+  renderQueryShortcuts("workbenchQuickFilters", state.filters);
   const groupNeedles = getGroupNeedles(state.linkedGroup);
   const categoryNeedles = getCategoryNeedles(state.linkedGroup, state.linkedCategory);
-  const keyword = normalize(state.filters.keyword);
+  const quickNeedles = state.filters.quickCategory ? cachedGroupNeedles([], [state.filters.quickCategory]) : null;
   state.filtered = state.records.filter((record) => {
     if (state.filters.year !== "all" && String(record.year) !== state.filters.year) return false;
     if (state.filters.channel !== "all" && record.channelKey !== state.filters.channel) return false;
     if (state.filters.school !== "all" && record.schoolName !== state.filters.school) return false;
+    if (!placementSchoolScopeAllows(record, state.filters.schoolScope || "all")) return false;
+    if (quickNeedles && (!quickNeedles.size || !matchesGroup(record, quickNeedles))) return false;
     if (groupNeedles.size && !matchesGroup(record, groupNeedles)) return false;
     if (categoryNeedles.size && !matchesGroup(record, categoryNeedles)) return false;
     if (!recordMatchesAdvancedFilters(record)) return false;
-    if (keyword && !recordSearchText(record).includes(keyword)) return false;
+    if (!queryKeywordMatches(record, state.filters.keyword)) return false;
     return true;
   });
   renderAdvancedFilterSummary();
@@ -1730,8 +1734,67 @@ function applyFilters() {
 }
 
 function hydrateSchoolFilter() {
-  els.schoolFilter.replaceChildren(new Option('全部學校', 'all'));
-  AdmissionCatalog.schoolOptions().forEach(school => els.schoolFilter.add(new Option(`${school.code ? school.code + ' ' : ''}${school.name}`, school.name)));
+  for (const select of [els.schoolFilter, els.placementSchoolFilter]) {
+    if (!select) continue;
+    select.replaceChildren(new Option('全部學校', 'all'));
+    AdmissionCatalog.schoolOptions().forEach(school => select.add(new Option(`${school.code ? school.code + ' ' : ''}${school.name}`, school.name)));
+  }
+}
+
+// 同一份捷徑內容與互動，供校系查詢和落點分析使用。
+function mountQueryShortcuts() {
+  const template = document.getElementById("queryShortcutsTemplate");
+  if (!template) return;
+  for (const id of ["workbenchQuickFilters", "placementQuickFilters"]) {
+    const host = document.getElementById(id);
+    if (!host) continue;
+    host.appendChild(template.content.cloneNode(true));
+    if (id === "workbenchQuickFilters") {
+      host.querySelectorAll("[data-placement-school-scope]").forEach(button => {
+        button.dataset.workbenchSchoolScope = button.dataset.placementSchoolScope;
+        button.removeAttribute("data-placement-school-scope");
+        button.addEventListener("click", () => {
+          state.filters.schoolScope = button.dataset.workbenchSchoolScope;
+          state.filters.school = "all";
+          els.schoolFilter.value = "all";
+          applyFilters();
+        });
+      });
+      host.querySelectorAll("[data-placement-popular-category]").forEach(button => {
+        button.dataset.workbenchPopularCategory = button.dataset.placementPopularCategory;
+        button.removeAttribute("data-placement-popular-category");
+        button.addEventListener("click", () => {
+          const category = button.dataset.workbenchPopularCategory;
+          state.filters.quickCategory = state.filters.quickCategory === category ? "" : category;
+          applyFilters();
+        });
+      });
+    }
+  }
+}
+
+function renderQueryShortcuts(id, filters) {
+  const host = document.getElementById(id);
+  if (!host) return;
+  host.querySelectorAll("[data-placement-school-scope], [data-workbench-school-scope]").forEach(button => {
+    const selected = (button.dataset.placementSchoolScope ?? button.dataset.workbenchSchoolScope) === (filters.schoolScope || "all");
+    button.classList.toggle("active", selected);
+    button.setAttribute("aria-pressed", String(selected));
+  });
+  host.querySelectorAll("[data-placement-popular-category], [data-workbench-popular-category]").forEach(button => {
+    const selected = (button.dataset.placementPopularCategory ?? button.dataset.workbenchPopularCategory) === (filters.quickCategory || "");
+    button.classList.toggle("active", selected);
+    button.setAttribute("aria-pressed", String(selected));
+  });
+}
+
+function refreshQueryYears(select, filters) {
+  if (!select || !state.records.length) return;
+  const years = [...new Set(state.records
+    .filter(record => !filters.channel || filters.channel === "all" || record.channelKey === filters.channel)
+    .map(record => String(record.year)).filter(Boolean))].sort((a, b) => b.localeCompare(a, "en"));
+  if (!years.includes(filters.year)) filters.year = "all";
+  placementFilterOptions(select, years, "全部年度", filters.year, year => `${year}年度`);
 }
 
 // 舊側欄的展開按鈕已改成上方導覽列，保留函式讓呼叫端不用改。
@@ -1778,7 +1841,7 @@ function updateNavCompareCount() {
 //   #workbench?channel=star_recommendation&year=115&q=資工
 //   #placement
 //   #workbench?record=115-personal_application-001012-115_apply
-const ROUTE_FILTER_KEYS = { channel: "channel", year: "year", school: "school", q: "keyword" };
+const ROUTE_FILTER_KEYS = { channel: "channel", year: "year", school: "school", q: "keyword", scope: "schoolScope", category: "quickCategory" };
 
 function routeHash() {
   if (state.view === "overview" && !state.openDetailId) return "";
@@ -1822,10 +1885,11 @@ function applyRoute(route) {
   state.applyingRoute = true;
   try {
     if (route.view === "workbench") {
-      const year = ["116", "115", "114"].includes(route.filters.year) ? route.filters.year : "all";
+      const year = /^\d{3}$/.test(route.filters.year) ? route.filters.year : "all";
       const channel = [...els.channelFilter.options].some((option) => option.value === route.filters.channel) ? route.filters.channel : "all";
       const school = [...els.schoolFilter.options].some((option) => option.value === route.filters.school) ? route.filters.school : "all";
-      Object.assign(state.filters, { year, channel, school, keyword: route.filters.keyword });
+      Object.assign(state.filters, { year, channel, school, keyword: route.filters.keyword,
+        schoolScope: route.filters.schoolScope || "all", quickCategory: route.filters.quickCategory || "" });
       els.yearFilter.value = year;
       els.channelFilter.value = channel;
       els.schoolFilter.value = school;
@@ -1904,6 +1968,7 @@ function defaultPlacementState() {
     categories: [],
     year: "all",
     channel: "",
+    school: "all",
     schoolScope: "all",
     quickCategory: "",
     keyword: "",
@@ -1921,11 +1986,6 @@ function placementSubjects(channel) {
 
 function selectPlacementChannel(channel) {
   if (!["star_recommendation", "personal_application", "exam_distribution"].includes(channel)) return;
-  if (state.placement.channel !== channel) {
-    state.placement.year = "all";
-    state.placement.keyword = "";
-    state.placement.schoolScope = "all";
-  }
   const mode = value => value === "exam_distribution" ? "distribution" : "gsat";
   const oldMode = mode(state.placement.channel);
   const newMode = mode(channel);
@@ -1984,7 +2044,9 @@ function bindPlacementEvents() {
     input?.focus();
   });
   document.getElementById("placementOpenAdvancedFiltersButton")?.addEventListener("click", openAdvancedFilters);
+  document.getElementById("placementResetFiltersButton")?.addEventListener("click", resetPlacementFilters);
   els.placementYearFilter?.addEventListener("change", updatePlacementResultFilters);
+  els.placementSchoolFilter?.addEventListener("change", updatePlacementResultFilters);
   els.placementChannelFilter?.addEventListener("change", () => {
     const channel = els.placementChannelFilter.value;
     if (channel !== state.placement.channel) selectPlacementChannel(channel);
@@ -1993,6 +2055,8 @@ function bindPlacementEvents() {
   document.querySelectorAll("[data-placement-school-scope]").forEach((button) => {
     button.addEventListener("click", () => {
       state.placement.schoolScope = button.dataset.placementSchoolScope || "all";
+      state.placement.school = "all";
+      if (els.placementSchoolFilter) els.placementSchoolFilter.value = "all";
       renderPlacementControls();
       renderPlacementAnalysis();
     });
@@ -2068,10 +2132,7 @@ function placementFilterOptions(select, items, allLabel, value, label = (item) =
 }
 
 function hydratePlacementResultFilters() {
-  const records = state.records.filter(record => !state.placement.channel || state.placement.channel === "all" || record.channelKey === state.placement.channel);
-  const years = [...new Set(records.map((record) => String(record.year)).filter(Boolean))]
-    .sort((a, b) => b.localeCompare(a, "en"));
-  placementFilterOptions(els.placementYearFilter, years, "年度", state.placement.year);
+  refreshQueryYears(els.placementYearFilter, state.placement);
   placementFilterOptions(els.placementChannelFilter, ["personal_application", "star_recommendation", "exam_distribution"], "入學管道", state.placement.channel, (channel) => ({
     personal_application: "個人申請",
     star_recommendation: "繁星推薦",
@@ -2082,17 +2143,36 @@ function hydratePlacementResultFilters() {
     els.placementChannelFilter.disabled = false;
   }
   if (els.placementKeywordInput) els.placementKeywordInput.value = state.placement.keyword;
+  if (els.placementSchoolFilter) els.placementSchoolFilter.value = state.placement.school || "all";
 }
 
 function updatePlacementResultFilters() {
   state.placement.year = els.placementYearFilter?.value || "all";
   state.placement.channel = els.placementChannelFilter?.value || "all";
+  const school = els.placementSchoolFilter?.value || "all";
+  if (school !== state.placement.school) state.placement.schoolScope = "all";
+  state.placement.school = school;
   state.placement.keyword = els.placementKeywordInput?.value.trim() || "";
   hydratePlacementResultFilters();
   renderPlacementAnalysis();
 }
 
+function resetPlacementFilters() {
+  Object.assign(state.placement, { year: "all", school: "all", keyword: "", schoolScope: "all", quickCategory: "",
+    groups: [], categories: [], schoolOwnership: "all", topUniversityOnly: false, specialAdmissionMode: "exclude" });
+  state.filters.advanced = defaultAdvancedFilters();
+  advancedFilterDraft = null;
+  hydratePlacementResultFilters();
+  renderAdvancedFilterDrawer();
+  applyFilters();
+}
+
 function renderPlacementControls() {
+  renderQueryShortcuts("placementQuickFilters", state.placement);
+  const reset = document.getElementById("placementResetFiltersButton");
+  if (reset) reset.hidden = !(state.placement.year !== "all" || state.placement.school !== "all" || state.placement.keyword
+    || state.placement.schoolScope !== "all" || state.placement.quickCategory || state.placement.groups.length || state.placement.categories.length
+    || state.placement.schoolOwnership !== "all" || state.placement.topUniversityOnly || advancedFilterSummaryText());
   const channel = state.placement.channel;
   const subjects = placementSubjects(channel);
   const distribution = channel === "exam_distribution";
@@ -2128,14 +2208,6 @@ function renderPlacementControls() {
   document.querySelector("[data-placement-top]")?.classList.toggle("active", state.placement.topUniversityOnly);
   document.querySelectorAll("[data-placement-special]").forEach((button) => {
     button.classList.toggle("active", state.placement.specialAdmissionMode === button.dataset.placementSpecial);
-  });
-  document.querySelectorAll("[data-placement-school-scope]").forEach((button) => {
-    button.classList.toggle("active", state.placement.schoolScope === button.dataset.placementSchoolScope);
-  });
-  document.querySelectorAll("[data-placement-popular-category]").forEach(button => {
-    const selected = (button.dataset.placementPopularCategory || "") === (state.placement.quickCategory || "");
-    button.classList.toggle("active", selected);
-    button.setAttribute("aria-pressed", String(selected));
   });
   const runButton = document.getElementById("runPlacementAnalysis");
   if (runButton) runButton.disabled = !placementHasAnyInput(placementProfile());
@@ -2225,6 +2297,7 @@ function placementProfile() {
     groups: [...state.placement.groups],
     categories: [...state.placement.categories],
     schoolScope: state.placement.schoolScope || "all",
+    school: state.placement.school || "all",
     quickCategory: state.placement.quickCategory || "",
   };
 }
@@ -2263,7 +2336,7 @@ function renderPlacementAnalysis() {
   els.placementResultCount.textContent = fmt.format(visibleRows.length);
   if (els.placementResultCountLabel) els.placementResultCountLabel.textContent = countLabel;
   if (!rows.length) {
-    els.placementResults.innerHTML = `<div class="empty-state">目前沒有符合條件的校系，可放寬學類或補上更多科目成績。</div>`;
+    els.placementResults.innerHTML = `<div class="empty-state">目前沒有此狀態的校系，可切換結果狀態，或放寬年度、學校與關鍵字等篩選。</div>`;
     return;
   }
   els.placementResults.innerHTML = rows.map(({ record, evaluation }) => placementResultCardHtml(record, evaluation)).join("");
@@ -2367,8 +2440,9 @@ function placementResultCardHtml(record, evaluation) {
 
 function placementMatchesFilters(record, profile) {
   if (state.placement.year !== "all" && String(record.year) !== state.placement.year) return false;
+  if (profile.school && profile.school !== "all" && record.schoolName !== profile.school) return false;
   if (!placementSchoolScopeAllows(record, profile.schoolScope)) return false;
-  if (state.placement.keyword && !recordSearchText(record).includes(normalize(state.placement.keyword))) return false;
+  if (!queryKeywordMatches(record, state.placement.keyword)) return false;
   if (typeof recordMatchesAdvancedFilters === "function" && !recordMatchesAdvancedFilters(record)) return false;
   if (!profile.channels.includes(record.channelKey)) return false;
   if (!placementChannelHasRequiredScores(record, profile)) return false;
@@ -2644,7 +2718,7 @@ function renderTable() {
   // Keep the all-channel workbench responsive when it contains tens of thousands of rows.
   const rows = state.filters.channel === "special_selection" ? state.filtered : state.filtered.slice(0, 350);
   if (!rows.length) {
-    els.recordTableBody.innerHTML = `<tr><td colspan="3"><div class="empty-state">目前沒有符合條件的資料</div></td></tr>`;
+    els.recordTableBody.innerHTML = `<tr><td colspan="3"><div class="empty-state">目前沒有符合條件的校系，可清除關鍵字或放寬篩選。</div></td></tr>`;
     return;
   }
   els.recordTableBody.innerHTML = rows.map(record => workbenchRecordRowHtml(record)).join("");
@@ -2661,6 +2735,7 @@ function renderTable() {
 function workbenchFiltersActive() {
   const f = state.filters;
   return f.year !== "all" || f.channel !== "all" || f.school !== "all" || Boolean(f.keyword)
+    || Boolean(f.schoolScope && f.schoolScope !== "all") || Boolean(f.quickCategory)
     || Boolean(state.linkedGroup) || Boolean(advancedFilterSummaryText());
 }
 
@@ -5451,6 +5526,17 @@ function recordSearchText(record) {
     record.selectionNotes,
     record.rawText ?? Object.values(record.rawFields || {}).join(" "),
   ].join(" "));
+}
+
+function queryKeywordMatches(record, keyword) {
+  if (!String(keyword || "").trim()) return true;
+  const aliases = { 台大: "台灣大學", 清大: "清華大學", 交大: "陽明交通大學", 成大: "成功大學",
+    政大: "政治大學", 師大: "師範大學", 資工: "資訊工程", 資管: "資訊管理", 企管: "企業管理", 財金: "財務金融" };
+  const text = recordSearchText(record).replace(/臺/g, "台");
+  return String(keyword).trim().split(/[\s,，、]+/).filter(Boolean).every(term => {
+    const normalized = normalize(term).replace(/臺/g, "台");
+    return text.includes(aliases[normalized] || normalized);
+  });
 }
 
 function normalize(value) {

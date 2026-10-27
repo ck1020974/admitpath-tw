@@ -11,7 +11,7 @@ vm.createContext(context);
 vm.runInContext(fs.readFileSync(require.resolve('../site/admission-catalog.js'), 'utf8'), context);
 context.AdmissionCatalog = context.window.AdmissionCatalog;
 context.AdmissionCatalog.initialize(records, special);
-for (const name of ['normalize', 'placementSchoolScopeAllows', 'placementMatchesFilters', 'cachedGroupNeedles', 'groupRowsToNeedles', 'matchesGroup']) {
+for (const name of ['normalize', 'recordSearchText', 'queryKeywordMatches', 'placementSchoolScopeAllows', 'placementMatchesFilters', 'cachedGroupNeedles', 'groupRowsToNeedles', 'matchesGroup']) {
   vm.runInContext(source.match(new RegExp(`function ${name}\\([\\s\\S]*?\\n\\}`))[0], context);
 }
 for (const [school, region] of [['國立臺灣大學', 'area-north'], ['國立中興大學', 'area-central'], ['國立成功大學', 'area-south'], ['國立東華大學', 'area-east']]) {

@@ -15,12 +15,12 @@
 }
 
 /* ── 標題列：筆數與重設 ── */
-#workbenchView .workbench-actions {
+:is(#workbenchView, #placementView) .workbench-actions {
   align-items: baseline;
   gap: 16px;
 }
 
-#workbenchView .result-meta {
+:is(#workbenchView, #placementView) .result-meta {
   min-width: 0;
   min-height: 0;
   padding: 0;
@@ -31,7 +31,7 @@
   gap: 6px;
 }
 
-#workbenchView .result-meta strong {
+:is(#workbenchView, #placementView) .result-meta strong {
   font-size: 22px;
   font-variant-numeric: tabular-nums;
 }
@@ -54,27 +54,32 @@
 }
 
 /* ── 篩選區 ── */
-#workbenchView .workbench-filters {
+:is(#workbenchView, #placementView) .query-filters {
   grid-template-columns: 112px minmax(140px, .8fr) minmax(180px, 1fr) minmax(0, 1.6fr) auto;
   grid-template-areas: "year channel school search precision";
   align-items: end;
   gap: 14px 12px;
   padding: 16px;
+  margin: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
 }
 
-#workbenchView .wb-year { grid-area: year; }
-#workbenchView .wb-channel { grid-area: channel; }
-#workbenchView .wb-school { grid-area: school; }
-#workbenchView .search-field { grid-area: search; }
-#workbenchView .precision-button { grid-area: precision; min-height: 44px; }
+:is(#workbenchView, #placementView) .query-filters .wb-year { grid-area: year; }
+:is(#workbenchView, #placementView) .query-filters .wb-channel { grid-area: channel; }
+:is(#workbenchView, #placementView) .query-filters .wb-school { grid-area: school; }
+:is(#workbenchView, #placementView) .query-filters .search-field { grid-area: search; }
+:is(#workbenchView, #placementView) .query-filters .precision-button { grid-area: precision; min-height: 44px; }
 
-#workbenchView .wb-year,
-#workbenchView .wb-channel {
+:is(#workbenchView, #placementView) .query-filters .wb-year,
+:is(#workbenchView, #placementView) .query-filters .wb-channel {
   display: block;
 }
 
-#workbenchView .workbench-filters select,
-#workbenchView .workbench-filters input {
+:is(#workbenchView, #placementView) .query-filters select,
+:is(#workbenchView, #placementView) .query-filters input {
   width: 100%;
   min-height: 44px;
 }
@@ -383,7 +388,7 @@
 
 /* ── 手機與窄螢幕 ── */
 @media (min-width: 721px) and (max-width: 900px) {
-  #workbenchView .workbench-filters {
+  :is(#workbenchView, #placementView) .query-filters {
     grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1.4fr);
     grid-template-areas:
       "year channel school"
@@ -392,33 +397,24 @@
 }
 
 @media (max-width: 720px) {
-  #workbenchView .workbench-filters {
+  :is(#workbenchView, #placementView) .query-filters {
     grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
     grid-template-areas:
-      "search search"
       "year channel"
+      "search search"
       "school precision";
     gap: 8px;
     padding: 10px;
   }
 
-  /* 選單本身已寫「全部年度」「全部管道」，上方的小標只留給螢幕閱讀器。 */
-  #workbenchView .workbench-filters label > span {
-    position: absolute;
-    width: 1px;
-    height: 1px;
-    overflow: hidden;
-    clip: rect(0 0 0 0);
-    white-space: nowrap;
-  }
-
-  #workbenchView .workbench-filters label {
+  /* 保留欄位名稱，選定單一年度或學校後仍能辨認用途。 */
+  :is(#workbenchView, #placementView) .query-filters label {
     padding: 0;
   }
 
-  #workbenchView .workbench-filters select,
-  #workbenchView .workbench-filters input,
-  #workbenchView .precision-button {
+  :is(#workbenchView, #placementView) .query-filters select,
+  :is(#workbenchView, #placementView) .query-filters input,
+  :is(#workbenchView, #placementView) .query-filters .precision-button {
     width: 100%;
     min-height: 42px;
   }
@@ -462,4 +458,33 @@
   .wb-seg-option {
     transition: none;
   }
+}
+
+/* 校系查詢與落點分析使用相同的篩選面板。 */
+.query-filter-panel {
+  margin-top: 16px;
+  border: 1px solid rgba(209, 220, 232, .92);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, .95);
+  box-shadow: 0 12px 26px rgba(22, 32, 45, .05);
+  overflow: hidden;
+}
+.placement-result-stage .query-filter-panel { margin-top: 0; }
+.query-shortcuts { padding: 12px 16px 16px; border-top: 1px solid #e7edf3; }
+.query-shortcuts .placement-school-scope { margin: 0; }
+.query-shortcuts .placement-popular-categories { margin-top: 10px; gap: 7px; }
+.query-shortcuts .placement-chip-row { gap: 7px; }
+.query-shortcuts .placement-chip { min-height: 32px; padding: 0 10px; font-weight: 600; }
+.query-shortcuts .placement-chip:focus-visible { outline: 3px solid #176b88; outline-offset: 2px; }
+@media (max-width: 720px) {
+  .query-shortcuts { padding: 10px; }
+  .query-shortcuts .placement-chip-row,
+  .query-shortcuts .placement-popular-categories {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    padding: 2px 2px 8px;
+    scrollbar-width: thin;
+    scrollbar-color: #b6cfca transparent;
+  }
+  .query-shortcuts .placement-chip, .query-shortcuts .placement-popular-label { flex-shrink: 0; white-space: nowrap; }
 }

@@ -32,14 +32,15 @@ if (!/\.placement-head-compact\s*\{[^}]*border:\s*0[^}]*background:\s*transparen
   "placement-result-filters",
   "placementYearFilter",
   "placementChannelFilter",
+  "placementSchoolFilter",
   "placement-school-scope",
   "placementKeywordInput",
 ].forEach((pattern) => {
   if (!html.includes(pattern)) fail(`Missing placement workbench markup: ${pattern}`);
 });
 
-if (/placement-direction-panel|placementGroupChips|placementCategoryChips|data-placement-channel|placementGroupFilter|placementCategoryFilter|placementSchoolFilter/.test(html)) {
-  fail("Placement setup should only ask for scores, not direction or channel selections.");
+if (/placement-direction-panel|placementGroupChips|placementCategoryChips|placementGroupFilter|placementCategoryFilter/.test(html)) {
+  fail("Placement setup should not duplicate the direction selectors in result filters.");
 }
 
 if (!/state\.placement\.keyword/.test(app)) {
@@ -52,8 +53,8 @@ if (!/state\.placement\.keyword/.test(app)) {
   }
 });
 
-if (!/\.placement-result-filters\s*\{[\s\S]*?grid-template-columns:[\s\S]*?overflow-x:\s*auto/s.test(css)) {
-  fail("Placement result filters should stay in one row and scroll horizontally when space is limited.");
+if (!html.includes('id="queryShortcutsTemplate"') || (html.match(/query-filters"/g) || []).length !== 2) {
+  fail("Workbench and placement should use the shared filter layout and shortcut template.");
 }
 
 [

@@ -94,6 +94,7 @@ async function main() {
   s.run(`
     state.records = [];
     bindElements = () => {};
+    mountQueryShortcuts = () => {};
     bindEvents = () => {};
     loadData = async () => { state.records = __records; };
     hydrateSchoolFilter = () => {};

@@ -21,10 +21,10 @@
   <meta property="og:image:height" content="630">
   <meta property="og:image:alt" content="YUHSIN 祐馨升學網：校系查詢、落點分析、十八學群、比較清單">
   <meta name="twitter:card" content="summary_large_image">
-  <link rel="stylesheet" href="./styles.css?v=20261027-quick-filters-v2">
+  <link rel="stylesheet" href="./styles.css?v=20261027-shared-query">
   <link rel="stylesheet" href="./special.css?v=20260918-layout-fix">
   <link rel="stylesheet" href="./support.css?v=20261016-mobile-header">
-  <link rel="stylesheet" href="./workbench.css?v=20261027-dropdown-row">
+  <link rel="stylesheet" href="./workbench.css?v=20261027-shared-query">
   <link rel="stylesheet" href="./layout.css?v=20261023-mobile">
 </head>
 <body data-active-view="overview">
@@ -137,38 +137,41 @@
               <button class="text-link-button" id="resetFiltersButton" type="button" hidden>重設篩選</button>
             </div>
           </div>
-          <section class="filter-band workbench-filters" aria-label="查詢篩選">
-            <label class="wb-select wb-year">
-              <span>年度</span>
-              <select id="yearFilter">
-                <option value="all">全部年度</option>
-                <option value="116">116</option>
-                <option value="115">115</option>
-                <option value="114">114</option>
-              </select>
-            </label>
-            <label class="wb-select wb-channel">
-              <span>入學管道</span>
-              <select id="channelFilter">
-                <option value="all">全部管道</option>
-                <option value="personal_application">個人申請</option>
-                <option value="star_recommendation">繁星推薦</option>
-                <option value="exam_distribution">分發入學</option>
-                <option value="special_selection">特殊選才</option>
-              </select>
-            </label>
-            <label class="wb-select wb-school">
-              <span>學校</span>
-              <select id="schoolFilter">
-                <option value="all">全部學校</option>
-              </select>
-            </label>
-            <label class="search-field">
-              <span>關鍵字</span>
-              <input id="keywordInput" type="search" placeholder="系組代碼、學校、學系、採計科目">
-            </label>
-            <button class="ghost-button precision-button" id="openAdvancedFiltersButton" type="button">精準篩選</button>
-          </section>
+          <div class="query-filter-panel">
+            <section class="filter-band workbench-filters query-filters" aria-label="查詢篩選">
+              <label class="wb-select wb-year">
+                <span>年度</span>
+                <select id="yearFilter">
+                  <option value="all">全部年度</option>
+                  <option value="116">116</option>
+                  <option value="115">115</option>
+                  <option value="114">114</option>
+                </select>
+              </label>
+              <label class="wb-select wb-channel">
+                <span>入學管道</span>
+                <select id="channelFilter">
+                  <option value="all">全部管道</option>
+                  <option value="personal_application">個人申請</option>
+                  <option value="star_recommendation">繁星推薦</option>
+                  <option value="exam_distribution">分發入學</option>
+                  <option value="special_selection">特殊選才</option>
+                </select>
+              </label>
+              <label class="wb-select wb-school">
+                <span>學校</span>
+                <select id="schoolFilter">
+                  <option value="all">全部學校</option>
+                </select>
+              </label>
+              <label class="search-field">
+                <span>關鍵字</span>
+                <input id="keywordInput" type="search" placeholder="學校、學系、科目；空格可組合搜尋">
+              </label>
+              <button class="ghost-button precision-button" id="openAdvancedFiltersButton" type="button">精準篩選</button>
+            </section>
+            <div class="query-shortcuts" id="workbenchQuickFilters"></div>
+          </div>
           <div class="advanced-filter-summary" id="advancedFilterSummary"></div>
         </section>
 
@@ -199,13 +202,7 @@
             </div>
             <div class="workbench-actions placement-result-actions" id="placementResultActions" hidden>
               <div class="result-meta"><strong id="placementResultCount">0</strong><span id="placementResultCountLabel">筆符合</span></div>
-              <button class="ghost-button precision-button" id="placementOpenAdvancedFiltersButton">精準篩選</button>
-              <div class="action-group placement-result-tabs" aria-label="結果狀態">
-                <button class="ghost-button placement-result-tab match" data-placement-result-tab="match">符合</button>
-                <button class="ghost-button placement-result-tab near" data-placement-result-tab="near">接近</button>
-                <button class="ghost-button placement-result-tab miss" data-placement-result-tab="miss">未達</button>
-                <button class="ghost-button placement-result-tab missing" data-placement-result-tab="missing">資料不足</button>
-              </div>
+              <button class="text-link-button" id="placementResetFiltersButton" type="button" hidden>重設篩選</button>
             </div>
           </div>
 
@@ -257,47 +254,26 @@
               <div class="placement-score-summary-line">
                 <div class="placement-criteria-summary" id="placementCriteriaSummary"></div>
                 <button class="placement-edit-button" id="editPlacementCriteria">修改成績</button>
-                <div class="placement-school-scope" aria-label="學校快速篩選">
-                  <div class="placement-chip-row">
-                    <button type="button" class="placement-chip active" data-placement-school-scope="all">全部</button>
-                    <button class="placement-chip" data-placement-school-scope="public">公立</button>
-                    <button class="placement-chip" data-placement-school-scope="private">私立</button>
-                    <button class="placement-chip top-school" data-placement-school-scope="top">頂大</button>
-                    <button class="placement-chip" data-placement-school-scope="central">中字輩</button>
-                    <button type="button" class="placement-chip" data-placement-school-scope="teacher">師範</button>
-                    <button type="button" class="placement-chip" data-placement-school-scope="ntu">台大</button>
-                    <button type="button" class="placement-chip" data-placement-school-scope="nthu">清大</button>
-                    <button type="button" class="placement-chip" data-placement-school-scope="nycu">交大</button>
-                    <button type="button" class="placement-chip" data-placement-school-scope="ncku">成大</button>
-                    <button type="button" class="placement-chip" data-placement-school-scope="nccu">政大</button>
-                    <button type="button" class="placement-chip" data-placement-school-scope="scu">東吳</button>
-                    <button type="button" class="placement-chip" data-placement-school-scope="area-north">北區</button>
-                    <button type="button" class="placement-chip" data-placement-school-scope="area-central">中區</button>
-                    <button type="button" class="placement-chip" data-placement-school-scope="area-south">南區</button>
-                    <button type="button" class="placement-chip" data-placement-school-scope="area-east">東區</button>
-                  </div>
-                </div>
-              </div>
-              <div class="placement-popular-categories" role="group" aria-label="TOP 10 學類">
-                <span class="placement-popular-label">TOP 10</span>
-                <button type="button" class="placement-chip active" data-placement-popular-category="" aria-pressed="true">全部學類</button>
-                <button type="button" class="placement-chip" data-placement-popular-category="電機工程學類" data-category-event="electrical" aria-pressed="false">電機工程</button>
-                <button type="button" class="placement-chip" data-placement-popular-category="資訊工程學類" data-category-event="computer-science" aria-pressed="false">資訊工程</button>
-                <button type="button" class="placement-chip" data-placement-popular-category="資訊管理學類" data-category-event="information-management" aria-pressed="false">資訊管理</button>
-                <button type="button" class="placement-chip" data-placement-popular-category="醫學學類" data-category-event="medicine" aria-pressed="false">醫學</button>
-                <button type="button" class="placement-chip" data-placement-popular-category="牙醫學類" data-category-event="dentistry" aria-pressed="false">牙醫</button>
-                <button type="button" class="placement-chip" data-placement-popular-category="藥學學類" data-category-event="pharmacy" aria-pressed="false">藥學</button>
-                <button type="button" class="placement-chip" data-placement-popular-category="法律學類" data-category-event="law" aria-pressed="false">法律</button>
-                <button type="button" class="placement-chip" data-placement-popular-category="企業管理學類" data-category-event="business" aria-pressed="false">企業管理</button>
-                <button type="button" class="placement-chip" data-placement-popular-category="財務金融學類" data-category-event="finance" aria-pressed="false">財務金融</button>
-                <button type="button" class="placement-chip" data-placement-popular-category="心理學類" data-category-event="psychology" aria-pressed="false">心理</button>
               </div>
             </div>
-            <section class="filter-band placement-result-filters" aria-label="落點結果篩選">
-              <label><span>年度</span><select id="placementYearFilter"></select></label>
-              <label><span>入學管道</span><select id="placementChannelFilter"></select></label>
-              <label class="search-field"><span>關鍵字</span><input id="placementKeywordInput" type="search" placeholder="學校、學系、採計科目"></label>
-            </section>
+            <div class="query-filter-panel">
+              <section class="filter-band placement-result-filters query-filters" aria-label="落點結果篩選">
+                <label class="wb-select wb-year"><span>年度</span><select id="placementYearFilter"></select></label>
+                <label class="wb-select wb-channel"><span>入學管道</span><select id="placementChannelFilter" aria-describedby="placementChannelHint"></select></label>
+                <label class="wb-select wb-school"><span>學校</span><select id="placementSchoolFilter"><option value="all">全部學校</option></select></label>
+                <label class="search-field"><span>關鍵字</span><input id="placementKeywordInput" type="search" placeholder="學校、學系、科目；空格可組合搜尋"></label>
+                <button class="ghost-button precision-button" id="placementOpenAdvancedFiltersButton" type="button">精準篩選</button>
+              </section>
+              <span id="placementChannelHint" class="sr-only">切換入學管道後，將回到成績輸入。</span>
+              <div class="query-shortcuts" id="placementQuickFilters"></div>
+            </div>
+            <div class="advanced-filter-summary" id="placementAdvancedFilterSummary"></div>
+            <div class="action-group placement-result-tabs" aria-label="結果狀態">
+              <button class="ghost-button placement-result-tab match" data-placement-result-tab="match">符合</button>
+              <button class="ghost-button placement-result-tab near" data-placement-result-tab="near">接近</button>
+              <button class="ghost-button placement-result-tab miss" data-placement-result-tab="miss">未達</button>
+              <button class="ghost-button placement-result-tab missing" data-placement-result-tab="missing">資料不足</button>
+            </div>
             <section class="placement-results-panel">
               <div class="placement-results" id="placementResults"></div>
             </section>
@@ -353,6 +329,42 @@
         <div class="source-list" id="sourceList"></div>
       </section>
     </main>
+  <template id="queryShortcutsTemplate">
+    <div class="placement-school-scope" aria-label="學校快速篩選">
+      <div class="placement-chip-row">
+        <button type="button" class="placement-chip active" data-placement-school-scope="all">全部</button>
+        <button class="placement-chip" data-placement-school-scope="public">公立</button>
+        <button class="placement-chip" data-placement-school-scope="private">私立</button>
+        <button class="placement-chip top-school" data-placement-school-scope="top">頂大</button>
+        <button class="placement-chip" data-placement-school-scope="central">中字輩</button>
+        <button type="button" class="placement-chip" data-placement-school-scope="teacher">師範</button>
+        <button type="button" class="placement-chip" data-placement-school-scope="ntu">台大</button>
+        <button type="button" class="placement-chip" data-placement-school-scope="nthu">清大</button>
+        <button type="button" class="placement-chip" data-placement-school-scope="nycu">交大</button>
+        <button type="button" class="placement-chip" data-placement-school-scope="ncku">成大</button>
+        <button type="button" class="placement-chip" data-placement-school-scope="nccu">政大</button>
+        <button type="button" class="placement-chip" data-placement-school-scope="scu">東吳</button>
+        <button type="button" class="placement-chip" data-placement-school-scope="area-north">北區</button>
+        <button type="button" class="placement-chip" data-placement-school-scope="area-central">中區</button>
+        <button type="button" class="placement-chip" data-placement-school-scope="area-south">南區</button>
+        <button type="button" class="placement-chip" data-placement-school-scope="area-east">東區</button>
+      </div>
+    </div>
+    <div class="placement-popular-categories" role="group" aria-label="TOP 10 學類">
+      <span class="placement-popular-label">TOP 10</span>
+      <button type="button" class="placement-chip active" data-placement-popular-category="" aria-pressed="true">全部學類</button>
+      <button type="button" class="placement-chip" data-placement-popular-category="電機工程學類" data-category-event="electrical" aria-pressed="false">電機工程</button>
+      <button type="button" class="placement-chip" data-placement-popular-category="資訊工程學類" data-category-event="computer-science" aria-pressed="false">資訊工程</button>
+      <button type="button" class="placement-chip" data-placement-popular-category="資訊管理學類" data-category-event="information-management" aria-pressed="false">資訊管理</button>
+      <button type="button" class="placement-chip" data-placement-popular-category="醫學學類" data-category-event="medicine" aria-pressed="false">醫學</button>
+      <button type="button" class="placement-chip" data-placement-popular-category="牙醫學類" data-category-event="dentistry" aria-pressed="false">牙醫</button>
+      <button type="button" class="placement-chip" data-placement-popular-category="藥學學類" data-category-event="pharmacy" aria-pressed="false">藥學</button>
+      <button type="button" class="placement-chip" data-placement-popular-category="法律學類" data-category-event="law" aria-pressed="false">法律</button>
+      <button type="button" class="placement-chip" data-placement-popular-category="企業管理學類" data-category-event="business" aria-pressed="false">企業管理</button>
+      <button type="button" class="placement-chip" data-placement-popular-category="財務金融學類" data-category-event="finance" aria-pressed="false">財務金融</button>
+      <button type="button" class="placement-chip" data-placement-popular-category="心理學類" data-category-event="psychology" aria-pressed="false">心理</button>
+    </div>
+  </template>
     <footer class="site-foot">
       <div class="site-foot-inner">
         <div>
@@ -427,6 +439,6 @@
   <script src="./admission-catalog.js?v=20261012-special-116"></script>
   <script src="./explorer-link.js?v=20261023-intros"></script>
   <script src="./group-introductions.js?v=20261023-intros"></script>
-  <script src="./app.js?v=20261027-quick-filters"></script>
+  <script src="./app.js?v=20261027-shared-query"></script>
 </body>
 </html>

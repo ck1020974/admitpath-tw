@@ -146,6 +146,8 @@ vm.runInContext([
   extractFunction("normalizeSubject"),
   extractFunction("subjectKey"),
   extractFunction("normalize"),
+  extractFunction("recordSearchText"),
+  extractFunction("queryKeywordMatches"),
 ].join("\n\n"), sandbox);
 
 const profile = sandbox.placementProfile();
