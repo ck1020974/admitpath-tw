@@ -2308,16 +2308,16 @@ function placementSelectedNeedles(profile) {
 function evaluatePlacementRecord(record, profile) {
   if (record.channelKey === "personal_application") return AdmissionRules.evaluate(record, profile, state.gsatStandards);
   const requirements = placementRecordRequirements(record);
-  if (!requirements.length) return { status: "match", requirements: [], gapTotal: 0, missingCount: 0, missCount: 0 };
+  if (!requirements.length) return { status: "missing", requirements: [], gapTotal: 0, missingCount: 1, missCount: 0 };
   const checked = requirements.map((requirement) => placementRequirementResult(requirement, profile));
   const comparable = checked.filter((item) => item.status !== "missing");
-  const missingCount = 0;
+  const missingCount = checked.length - comparable.length;
   const missCount = comparable.filter((item) => item.status === "miss").length;
   const gapTotal = comparable.reduce((sum, item) => sum + Math.max(0, item.gap || 0), 0);
-  let status = "match";
+  let status = missingCount ? "missing" : "match";
   if (missCount && gapTotal <= 3) status = "near";
   else if (missCount) status = "miss";
-  return { status, requirements: comparable, gapTotal, missingCount, missCount };
+  return { status, requirements: checked, gapTotal, missingCount, missCount };
 }
 
 function placementRecordRequirements(record) {
@@ -2390,7 +2390,8 @@ function placementDistributionRequirements(record) {
     }))
     .filter((item) => item.subject && Number.isFinite(item.weight));
   const result = distributionResult(record);
-  const total = Number(result?.regularTotalScore);
+  const totalScore = result?.regularTotalScore;
+  const total = totalScore == null || String(totalScore).trim() === "" ? NaN : Number(totalScore);
   if (!weighted.length) return [];
   return [{
     kind: "weightedTotal",
@@ -2455,10 +2456,12 @@ function placementRequirementResult(requirement, profile) {
 function placementScoreValue(profile, subject) {
   const key = advancedSubjectKey(subject) || shortSubject(subject);
   const raw = profile.scores?.[key] ?? profile.scores?.[shortSubject(subject)] ?? "";
-  // 使用者未輸入的科目以 0 分計算；是否有輸入任何成績仍由分析開始按鈕控制。
-  if (raw === "" || raw == null) return 0;
-  const value = Number(String(raw).replace(/[^\d.]/g, ""));
-  return Number.isFinite(value) ? value : null;
+  // 科目空白沿用 0 分；校排空白不能當成前 0% 而通過所有繁星條件。
+  if (String(raw).trim() === "" || raw == null) return key === "在校" ? null : 0;
+  const value = Number(raw);
+  const max = key === "在校" ? 100 : ["國文", "英文", "數A", "數B", "社會", "自然"].includes(key) ? 15 : 60;
+  return Number.isFinite(value) && value >= 0 && value <= max
+    && (key === "在校" ? value > 0 : Number.isInteger(value)) ? value : null;
 }
 
 function placementRequirementLabel(item) {
@@ -2502,7 +2505,8 @@ function placementRequirementChipsHtml(requirements) {
 }
 
 function placementResultSummary(evaluation) {
-  if (evaluation.application && evaluation.pendingData) return "一階篩選資料不足，僅比對已收錄條件";
+  if (evaluation.application && evaluation.pendingData) return "申請門檻或一階篩選資料不足，僅比對已收錄條件";
+  if (evaluation.status === "missing") return "錄取標準或必要成績不足，暫不判定符合";
   if (evaluation.application && evaluation.estimatedScreeningData) return evaluation.status === "match"
     ? "依已收錄一階篩選資料暫估" : `篩選資料暫估，約差 ${Number(evaluation.gapTotal.toFixed(1))}`;
   if (evaluation.application && evaluation.status === "match") return "符合已收錄條件";
@@ -2656,7 +2660,7 @@ function recordSummary(record) {
     const key = screening.length
       ? { label: "一階篩選", html: steps(screening) }
       : status.length ? { label: "一階篩選", html: `<span class="rec-muted">${escapeHtml(status.join("、"))}</span>` } : null;
-    return { key, sub: thresholds.length ? { label: "檢定", text: thresholds.join("、") } : null };
+    return { key, sub: thresholds.length ? { label: "申請門檻", text: thresholds.join("、") } : null };
   }
   if (record.channelKey === "star_recommendation") {
     const thresholds = starThresholdParts(record);
@@ -2666,7 +2670,7 @@ function recordSummary(record) {
     const key = firstItems.length
       ? { label: "一階", html: `${steps(firstItems)}${secondItems.length ? `<span class="rec-after">二階 ${escapeHtml(secondItems.join("、"))}</span>` : ""}` }
       : (first ? { label: "一階", html: '<span class="rec-muted">從缺</span>' } : null);
-    return { key, sub: thresholds.length ? { label: "檢定", text: thresholds.join("、") } : null };
+    return { key, sub: thresholds.length ? { label: "申請門檻", text: thresholds.join("、") } : null };
   }
   if (record.channelKey === "exam_distribution") {
     const result = distributionResult(record);

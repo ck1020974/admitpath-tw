@@ -35,6 +35,9 @@ const partial = { ...chemistry, applySieveResult: { rankedItems: [{ subjects: ['
 assert.equal(evaluate(partial, all15).status, 'missing');
 const noRequirements = { channelKey: 'personal_application', year: 115 };
 assert.equal(evaluate(noRequirements, all15).status, 'missing');
+assert.equal(evaluate(chemistry, { ...all15, 英文: 16 }).status, 'missing');
+const unresolved = { ...chemistry, cacDetail: { screeningSubjects: [{ subject: '國文', standard: '未知標準' }] } };
+assert.equal(evaluate(unresolved, all15).status, 'missing');
 
 const app = fs.readFileSync(require.resolve('../site/app.js'), 'utf8');
 const context = { AdmissionRules: rules, escapeHtml: String, escapeAttr: String };
@@ -46,4 +49,26 @@ const chips = context.placementRequirementChipsHtml(evaluate(chemistry, belowScr
 assert(chips.includes('一階篩選') && chips.includes('申請門檻'));
 assert(context.placementResultSummary(evaluate(missing, all15)).includes('一階篩選資料不足'));
 assert(context.placementResultSummary(evaluate(chemistry, all15)).includes('暫估'));
+
+// 空白校排不能當作前 0%；缺少分發錄取分數或無法判斷的成績也不能顯示符合。
+Object.assign(context, { advancedSubjectKey: String, shortSubject: String,
+  state: { gsatStandards: standards }, placementRecordRequirements: () => context.testRequirements });
+for (const name of ['evaluatePlacementRecord', 'placementRequirementResult', 'placementScoreValue']) {
+  vm.runInContext(app.match(new RegExp(`function ${name}\\([\\s\\S]*?\\n\\}`))[0], context);
+}
+context.testRequirements = [{ kind: 'percent', subjects: ['在校'], threshold: 5, source: '校排' }];
+const star = { channelKey: 'star_recommendation' };
+assert.equal(context.evaluatePlacementRecord(star, { scores: {} }).status, 'missing');
+assert.equal(context.evaluatePlacementRecord(star, { scores: { 在校: 3 } }).status, 'match');
+assert.notEqual(context.evaluatePlacementRecord(star, { scores: { 在校: 6 } }).status, 'match');
+context.testRequirements = [];
+assert.equal(context.evaluatePlacementRecord({ channelKey: 'exam_distribution' }, { scores: all15 }).status, 'missing');
+context.testRequirements = [{ kind: 'weightedTotal', subjects: ['數甲'], weighted: [{ subject: '數甲', weight: 1 }], threshold: null }];
+assert.equal(context.evaluatePlacementRecord({ channelKey: 'exam_distribution' }, { scores: { 數甲: 50 } }).status, 'missing');
+assert.equal(context.placementScoreValue({ scores: { 國文: -3 } }, '國文'), null);
+assert.equal(context.placementScoreValue({ scores: { 數甲: 61 } }, '數甲'), null);
+Object.assign(context, { distributionResult: () => ({ regularTotalScore: null }),
+  distributionSubjectLabel: String, distributionWeightLabel: String });
+vm.runInContext(app.match(/function placementDistributionRequirements\([\s\S]*?\n\}/)[0], context);
+assert.equal(context.placementDistributionRequirements({ weightedSubjects: [{ subject: '數甲', weight: 1, raw: '1' }] })[0].threshold, null);
 console.log('Placement screening: missing-image single/sum cutoffs, verified results, math alternatives, incomplete data, invalid cutoffs and UI labels passed.');

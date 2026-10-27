@@ -99,7 +99,7 @@
       if (valid(i.score)) rules.push({ kind: i.subjects.length > 1 ? 'sum' : 'score', subjects: i.subjects, threshold: Number(i.score), rank: i.rank, source: resultSource });
       // 未公布的順位級分不使用推測值，保留其他已公布條件進行判定。
     });
-    return rules.filter(rule => rule.kind !== 'note');
+    return rules;
   }
   function score(profile, s) {
     const raw = profile.scores?.[subject(s)] ?? profile.scores?.[canonical(s)];
@@ -142,12 +142,12 @@
   }
   function evaluate(record, profile, standards) {
     const checked = requirements(record, standards).map(r => check(r, profile));
-    const missingCount = 0;
+    const missingCount = checked.filter(r => r.status === 'missing').length;
     const missCount = checked.filter(r => r.status === 'miss').length;
     const gapTotal = checked.reduce((sum, r) => sum + Math.max(0, r.gap), 0);
     const specialConditions = hasSpecialConditions(record);
-    const pendingData = !record.militaryAdmission && (!checked.some(r => r.rank != null || ['倍率篩選', '官方篩選暫估', '篩選資料暫估'].includes(r.source))
-      || (record.applySieveResult?.rankedItems || []).some(i => academicResult(i) && !valid(i.score)));
+    const pendingData = missingCount > 0 || (!record.militaryAdmission && (!checked.some(r => r.rank != null || ['倍率篩選', '官方篩選暫估', '篩選資料暫估'].includes(r.source))
+      || (record.applySieveResult?.rankedItems || []).some(i => academicResult(i) && !valid(i.score))));
     return { status: missCount ? (gapTotal <= 3 ? 'near' : 'miss') : pendingData ? 'missing' : 'match',
       requirements: checked, missingCount, missCount, gapTotal, application: true,
       pendingData,
