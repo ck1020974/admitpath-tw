@@ -137,7 +137,7 @@ assert.equal(engine.level({score:3,coverage:0.3},2),'unknown');
  assert.ok(s.deepQuestions().every(q=>deep.focus.includes(q.group)&&!data.quickSet.includes(q.id)));
  assert.equal(s.deepQuestions().length,deep.focus.length*3,'每個方向補問 3 題');
  assert.ok(s.detailPlan().length<=4&&s.detailPlan().every(row=>!['computing','technology'].includes(row.subject)));
- s.detailPlan().forEach(row=>assert.equal(row.goals.length,3));
+ s.detailPlan().forEach(row=>assert.equal(row.goals.length,5));
  s.answer('A1',1);assert.equal(s.snapshot().deep,null);
  s.startDeep();s.setPicks('weak',['chinese','earth']);assert.equal(s.snapshot().deep,null);
  assert.equal(s.report().undeclared,null,'興趣集中在理工，不建議不分系');

@@ -259,3 +259,21 @@ h1[tabindex]:focus,h2[tabindex]:focus{outline:none}
 }
 @media(prefers-reduced-motion:reduce){*{transition:none!important}}
 body[data-view=question] .quiz-bar{max-width:880px}
+
+/* Deep subject pages keep full text, progress and navigation in view. */
+body[data-view=deepDetails] main{padding-top:20px;padding-bottom:20px}
+body[data-view=deepDetails] .quiz-bar{margin-bottom:18px}
+#deepDetails .view-head{margin-bottom:14px}
+#deepDetails h1{font-size:clamp(21px,3vw,28px);line-height:1.4;margin-bottom:8px}
+#deepDetails .hint-row{gap:4px 12px}
+#deepDetails .hint{margin:0}
+#deepDetails .goal-rows{gap:10px}
+#deepDetails .goal-row{padding:12px 14px}
+#deepDetails .goal-row legend{margin-bottom:8px}
+#deepDetails .scale-option span{min-height:44px}
+#deepDetails .view-actions{margin-top:12px;gap:10px}
+#deepDetails .count{display:block;white-space:nowrap;font-size:13px}
+#deepDetails .view-actions .primary{flex:0 0 auto;min-width:80px}
+#deepDetails .error{min-height:20px;margin:8px 0 0}
+body[data-view=deepDetails] .site-footer{padding:10px 16px}
+@media(max-width:600px){#deepDetails .goal-row{padding:10px 12px}#deepDetails .hint-row{align-items:flex-start}#deepDetails .hint{font-size:13px}#deepDetails .text-button{font-size:13px}}

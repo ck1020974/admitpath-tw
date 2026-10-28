@@ -5,8 +5,8 @@
  'use strict';
  const node=typeof module!=='undefined'&&module.exports;
  const data=node?require('./data.js'):root.YuhsinCuriosityData;
- const VERSION=6;
- const LOADABLE=[4,5,6];     // v4、v5 存檔與連結（第 1 步固定題目時）仍可讀取
+ const VERSION=7;
+ const LOADABLE=[4,5,6,7];   // 舊版三項科目確認與固定題組仍可讀取
  // 計分規則（本站編輯設定，未經測量驗證）
  const FAVOURITE=3;          // 最想知道＝3、想知道＝2、還好＝1、沒興趣＝0
  const THRESHOLD=1.5;        // 學群興趣平均達 1.5 視為「有興趣」
@@ -200,7 +200,7 @@
    // 沒勾選的延伸科目不檢查；必填十科都會有值。
    return Object.keys(score).sort((a,b)=>score[b]-score[a]||subjectIds.indexOf(a)-subjectIds.indexOf(b)).slice(0,PLAN_LIMIT).map(id=>{
     const context=focus.slice().sort((a,b)=>(data.weights[b][id]||0)-(data.weights[a][id]||0)||focus.indexOf(a)-focus.indexOf(b))[0];
-    return {subject:id,context,goals:data.detailGoals(id,context).map(g=>g.id)};
+    return {subject:id,context,goalVersion:VERSION,goals:data.detailGoals(id,context).map(g=>g.id)};
    });
   }
   function startDeep(){
@@ -215,7 +215,7 @@
    state.deep.goals[id]=value;
   }
   function cancelDeep(){if(state.deep){state.deep.questions.forEach(id=>{delete state.answers[id];});state.deep=null;}}
-  function detailPlan(){return state.deep?state.deep.plan.map(row=>({subject:row.subject,context:row.context,goals:data.detailGoals(row.subject,row.context)})):[];}
+  function detailPlan(){return state.deep?state.deep.plan.map(row=>({subject:row.subject,context:row.context,goals:data.detailGoals(row.subject,row.context,row.goalVersion)})):[];}
 
   // 存檔與結果連結共用同一份資料，載入時逐項檢查，不信任外來內容。
   function load(raw){
@@ -237,7 +237,10 @@
      // 存檔裡的題目清單優先（舊版每個方向 2 題），沒有時依目前規則產生。
      const stored=Array.isArray(raw.deep.questions)?raw.deep.questions.filter((id,i,a)=>itemById.has(id)&&!isQuick(id)&&focus.includes(itemById.get(id).group)&&!seen.has(id)&&a.indexOf(id)===i):null;
      const questions=stored&&stored.length?stored:deepQuestionsFor(focus,[...state.quick,...state.extra.flat()]);
-     const plan=(raw.deep.plan||[]).filter(r=>subjectIds.includes(r.subject)&&data.groups.some(x=>x.id===r.context)).slice(0,PLAN_LIMIT).map(r=>({subject:r.subject,context:r.context,goals:data.detailGoals(r.subject,r.context).map(g=>g.id)}));
+     const plan=(raw.deep.plan||[]).filter(r=>subjectIds.includes(r.subject)&&data.groups.some(x=>x.id===r.context)).slice(0,PLAN_LIMIT).map(r=>{
+      const goalVersion=raw.v<7||r.goalVersion===6?6:VERSION;
+      return {subject:r.subject,context:r.context,goalVersion,goals:data.detailGoals(r.subject,r.context,goalVersion).map(g=>g.id)};
+     });
      const goals={};plan.forEach(r=>r.goals.forEach(g=>{const v=raw.deep.goals?.[g];if(Number.isInteger(v)&&v>=0&&v<=4)goals[g]=v;}));
      state.deep={focus,questions,plan,goals};
     }
@@ -268,7 +271,7 @@
    l:levelCode[snapshot.profile.level]||'',s:snapshot.profile.strong.map(id=>subjectIds.indexOf(id)),w:snapshot.profile.weak.map(id=>subjectIds.indexOf(id))};
   if(snapshot.deep){
    const goalIds=snapshot.deep.plan.flatMap(r=>r.goals);
-   payload.d={f:snapshot.deep.focus.join(''),p:snapshot.deep.plan.map(r=>`${r.subject}.${r.context}`).join(','),
+   payload.d={f:snapshot.deep.focus.join(''),p:snapshot.deep.plan.map(r=>`${r.subject}.${r.context}`).join(','),t:snapshot.deep.plan.map(r=>r.goalVersion||(snapshot.v<7?6:VERSION)),
     g:goalIds.map(id=>Number.isInteger(snapshot.deep.goals[id])?String(snapshot.deep.goals[id]):'-').join('')};
   }
   const deepIds=snapshot.deep?snapshot.deep.questions:[],extra=(snapshot.extra||[]).flat();
@@ -291,11 +294,11 @@
   let deep=null;
   if(raw.d&&typeof raw.d==='object'){
    const focus=String(raw.d.f||'').split('').filter(g=>data.groups.some(x=>x.id===g));
-   const plan=String(raw.d.p||'').split(',').filter(Boolean).map(pair=>{const [subject,context]=pair.split('.');return {subject,context};});
+   const plan=String(raw.d.p||'').split(',').filter(Boolean).map((pair,i)=>{const [subject,context]=pair.split('.');return {subject,context,goalVersion:raw.v<7||raw.d.t?.[i]===6?6:VERSION};});
    let questions=[];
    if(legacy){questions=focus.flatMap(g=>LEGACY_DEEP[g]||[]);questions.forEach((id,i)=>{const c=String(raw.d.q||'')[i];if(/[012]/.test(c||''))answers[id]=Number(c);});}
    else{const o=String(raw.o||'');data.items.forEach((q,i)=>{if(/[012]/.test(o[i]||'')){questions.push(q.id);answers[q.id]=Number(o[i]);}});}
-   const goalIds=plan.flatMap(r=>subjectIds.includes(r.subject)&&data.groups.some(x=>x.id===r.context)?data.detailGoals(r.subject,r.context).map(g=>g.id):[]);
+   const goalIds=plan.flatMap(r=>subjectIds.includes(r.subject)&&data.groups.some(x=>x.id===r.context)?data.detailGoals(r.subject,r.context,r.goalVersion).map(g=>g.id):[]);
    const goals={};goalIds.forEach((id,i)=>{const c=String(raw.d.g||'')[i];if(/[0-4]/.test(c||''))goals[id]=Number(c);});
    deep={focus,plan,goals,questions};
   }

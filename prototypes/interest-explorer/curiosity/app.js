@@ -16,7 +16,7 @@
  const track=(name,title,options)=>{try{return window.YuhsinUsage?.event(name,title,options)||false;}catch{return false;}};
  const measurement=window.YuhsinCuriosityMeasurement.create(track);
  let session=engine.createSession();
- let lastSavedView=null,view='intro',qMode='quick',qPage=0,detailPage=0,report=null,restartArmed=null,tab=null;
+ let lastSavedView=null,view='intro',qMode='quick',qPage=0,detailPage=0,detailOffset=0,report=null,restartArmed=null,tab=null;
 
  // ── 存檔 ──
  function save(){
@@ -79,7 +79,9 @@
   if(snap.deep&&!session.deepComplete()){
    const missing=session.deepQuestions().findIndex(q=>snap.answers[q.id]===undefined);
    if(missing>=0){qMode='deep';qPage=firstUnansweredPage();return renderQuestion();}
-   const plan=session.detailPlan();detailPage=Math.max(0,plan.findIndex(row=>row.goals.some(g=>snap.deep.goals[g.id]===undefined)));return renderDeepDetails();
+   const plan=session.detailPlan();detailPage=Math.max(0,plan.findIndex(row=>row.goals.some(g=>snap.deep.goals[g.id]===undefined)));
+   const missingGoal=Math.max(0,plan[detailPage].goals.findIndex(g=>snap.deep.goals[g.id]===undefined));
+   detailOffset=missingGoal;return renderDeepDetails();
   }
   renderResults();
  }
@@ -92,9 +94,10 @@
   disarmRestart();el('introError').textContent='';
   if(resume){
    const p=session.progress();
-   el('resumeText').textContent=session.complete()?'上次已經完成，可以直接看結果。':p.step===1?`上次做到第 1 步，已回答 ${p.answered} / ${p.total} 題。`:`上次做到第 ${p.step} 步。`;
+   const unfinishedDeep=Boolean(session.snapshot().deep)&&!session.deepComplete(),unfinishedExtra=!session.extraComplete();
+   el('resumeText').textContent=unfinishedDeep?'上次的深入探索還沒完成，可以接著作答。':unfinishedExtra?'上次的測驗還沒完成，可以接著作答。':session.complete()?'上次已經完成，可以直接看結果。':p.step===1?`上次做到第 1 步，已回答 ${p.answered} / ${p.total} 題。`:`上次做到第 ${p.step} 步。`;
    renderDots('resumeDots',answeredFlags());
-   el('resume').textContent=session.complete()?'看我的探索結果':'繼續上次的探索';
+   el('resume').textContent=unfinishedDeep||unfinishedExtra?'繼續測驗':session.complete()?'看我的探索結果':'繼續上次的探索';
   }
   show('intro',resume?'resumeTitle':'introTitle');
  }
@@ -103,7 +106,7 @@
  function restart(button){
   if(restartArmed!==button){disarmRestart();restartArmed=button;button.textContent='確定清除作答？再按一次';return;}
   track('curiosity-restart','重新開始');
-  clearSaved();session.reset();measurement.reset();qPage=0;detailPage=0;report=null;tab=null;disarmRestart();renderIntro();
+  clearSaved();session.reset();measurement.reset();qPage=0;detailPage=0;detailOffset=0;report=null;tab=null;disarmRestart();renderIntro();
  }
 
  // ── 作答：一頁 6 題（好奇心、深入探索、重新測驗都一樣） ──
@@ -151,7 +154,7 @@
   if(missing.length){el('qError').textContent=`這一頁還有 ${missing.length} 題沒選。`;missing[0].scrollIntoView({block:'center',behavior:reduceMotion?'auto':'smooth'});return;}
   if(qPage<pageCount()-1){qPage++;renderQuestion();return;}
   if(qMode==='quick'){track('curiosity-step1-done','完成第 1 步',{once:true});if(session.favouritesNeeded())renderFavourites();else renderSubjects();}
-  else if(qMode==='deep'&&session.detailPlan().length){detailPage=0;renderDeepDetails();}
+  else if(qMode==='deep'&&session.detailPlan().length){detailPage=0;detailOffset=0;renderDeepDetails();}
   else{if(qMode==='extra')track('curiosity-extra-done','答完一批新題目');else track('curiosity-deep-done','完成深入探索');renderResults();}
  }
  const pageCountFor=mode=>mode==='quick'?Math.ceil(data.quickSet.length/PAGE_SIZE):1;
@@ -191,19 +194,39 @@
  }
 
  // ── 深入探索：具體內容 ──
+ let detailBatch=5,detailLayoutKey='',detailPendingOffset=null;
+ const detailPageSize=()=>detailBatch;
+ const detailPageGoals=()=>session.detailPlan()[detailPage].goals.slice(detailOffset,detailOffset+detailPageSize());
  function renderDeepDetails(){
   const plan=session.detailPlan();
   if(!plan.length)return renderResults();
   detailPage=Math.min(Math.max(detailPage,0),plan.length-1);
   const row=plan[detailPage],goals=session.snapshot().deep.goals;
-  setBar('深入探索・具體內容',`第 ${detailPage+1} / ${plan.length} 科`,0.5+detailPage/plan.length*0.5);
+  const layoutKey=`${innerWidth}:${innerHeight}:${row.subject}:${row.context}:${row.goals.map(g=>g.id).join(",")}`;
+  if(layoutKey!==detailLayoutKey){detailLayoutKey=layoutKey;detailBatch=5;detailPendingOffset=detailOffset;detailOffset=0;}
+  detailOffset=Math.min(Math.max(0,detailOffset),Math.max(0,row.goals.length-1));
+  const pageGoals=detailPageGoals(),pageNumber=Math.floor(detailOffset/detailPageSize())+1,pages=Math.ceil(row.goals.length/detailPageSize());
+  setBar('深入探索・具體內容',`第 ${detailPage+1} / ${plan.length} 科 · 第 ${pageNumber} / ${pages} 頁`,0.5+(detailPage+detailOffset/row.goals.length)/plan.length*0.5);
   el('deepDetailsTitle').textContent=`這些和「${subject(row.subject).label}」有關的事，你做得如何？`;
-  el('goalRows').innerHTML=row.goals.map((g,i)=>`<fieldset class="goal-row"><legend><span class="goal-no" aria-hidden="true">${i+1}</span>${esc(g.text)}</legend><div class="scale-options">${data.masteryOptions.map(o=>`<label class="scale-option"><input type="radio" name="g-${g.id}" value="${o.value}" data-goal="${g.id}" ${goals[g.id]===o.value?'checked':''}><span>${esc(o.label)}</span></label>`).join('')}</div></fieldset>`).join('');
+  el('goalRows').innerHTML=pageGoals.map((g,i)=>`<fieldset class="goal-row"><legend><span class="goal-no" aria-hidden="true">${detailOffset+i+1}</span>${esc(g.text)}</legend><div class="scale-options">${data.masteryOptions.map(o=>`<label class="scale-option"><input type="radio" name="g-${g.id}" value="${o.value}" data-goal="${g.id}" ${goals[g.id]===o.value?'checked':''}><span>${esc(o.label)}</span></label>`).join('')}</div></fieldset>`).join('');
   el('deepDetailsError').textContent='';
-  el('deepDetailsCount').textContent=`${row.goals.filter(g=>goals[g.id]!==undefined).length} / ${row.goals.length} 項`;
-  el('deepDetailsNext').textContent=detailPage<plan.length-1?'下一科':'看更新後的結果';
+  el('deepDetailsCount').textContent=`本科 ${row.goals.filter(g=>goals[g.id]!==undefined).length} / ${row.goals.length}`;
+  el('deepDetailsNext').textContent=detailOffset+pageGoals.length<row.goals.length||detailPage<plan.length-1?'繼續':'看結果';
   show('deepDetails','deepDetailsTitle');
+  // Try the complete five-item subject first; paginate only when the actual
+  // text, controls, reserved error line and footer do not fit the viewport.
+  if(document.documentElement.scrollHeight>innerHeight+1&&detailBatch>1){
+   detailBatch--;detailOffset=Math.floor(detailOffset/detailBatch)*detailBatch;
+   return renderDeepDetails();
+  }
+  if(detailPendingOffset!==null){
+   const target=Math.floor(detailPendingOffset/detailBatch)*detailBatch;detailPendingOffset=null;
+   if(target!==detailOffset){detailOffset=target;return renderDeepDetails();}
+  }
  }
+ window.addEventListener('resize',()=>{if(view==='deepDetails'){
+  renderDeepDetails();
+ }});
  function openSubjectInfo(){
   const row=session.detailPlan()[detailPage];
   el('subjectInfoTitle').textContent=subject(row.subject).label+'｜課綱與課程';
@@ -267,7 +290,7 @@
   // 重新測驗：每個學群再問 1 題沒看過的題目；上一批沒答完時改成「繼續」。
   const extraPending=!session.extraComplete();
   el('startExtra').hidden=!(report.canExplore||extraPending);
-  el('startExtra').textContent=extraPending?'繼續答這批題目':'重新測驗';
+  el('startExtra').textContent=extraPending?'繼續測驗':'重新測驗';
   show('results','resultsTitle');
  }
  function evidence(id){
@@ -327,20 +350,27 @@
   renderResults();
  });
 
- el('startDeep').addEventListener('click',()=>{track('curiosity-deep-start','開始深入探索');session.startDeep();save();detailPage=0;if(session.deepQuestions().length){qMode='deep';qPage=0;renderQuestion();}else renderDeepDetails();});
+ el('startDeep').addEventListener('click',()=>{track('curiosity-deep-start','開始深入探索');session.startDeep();save();detailPage=0;detailOffset=0;if(session.deepQuestions().length){qMode='deep';qPage=0;renderQuestion();}else renderDeepDetails();});
  el('startExtra').addEventListener('click',()=>{if(session.extraComplete())track('curiosity-extra-start','重新測驗');session.startExtra();save();qMode='extra';qPage=firstUnansweredPage();renderQuestion();});
  el('goalRows').addEventListener('change',e=>{
   const input=e.target.closest('input[data-goal]');if(!input)return;
   session.goal(input.dataset.goal,Number(input.value));
   const row=session.detailPlan()[detailPage],goals=session.snapshot().deep.goals;
-  el('deepDetailsCount').textContent=`${row.goals.filter(g=>goals[g.id]!==undefined).length} / ${row.goals.length} 項`;
+  el('deepDetailsCount').textContent=`本科 ${row.goals.filter(g=>goals[g.id]!==undefined).length} / ${row.goals.length}`;
   el('deepDetailsError').textContent='';save();
  });
- el('deepDetailsPrevious').addEventListener('click',()=>{if(detailPage){detailPage--;renderDeepDetails();}else if(session.deepQuestions().length){qMode='deep';qPage=pageCount()-1;renderQuestion();}else renderResults();});
+ el('deepDetailsPrevious').addEventListener('click',()=>{
+  if(detailOffset){detailOffset=Math.max(0,detailOffset-detailPageSize());renderDeepDetails();}
+  else if(detailPage){detailPage--;const count=session.detailPlan()[detailPage].goals.length;detailOffset=Math.floor((count-1)/detailPageSize())*detailPageSize();renderDeepDetails();}
+  else if(session.deepQuestions().length){qMode='deep';qPage=pageCount()-1;renderQuestion();}else renderResults();
+ });
  el('deepDetailsNext').addEventListener('click',()=>{
-  const row=session.detailPlan()[detailPage],goals=session.snapshot().deep.goals,missing=row.goals.filter(g=>goals[g.id]===undefined).length;
+  const row=session.detailPlan()[detailPage],goals=session.snapshot().deep.goals,missing=detailPageGoals().filter(g=>goals[g.id]===undefined).length;
   if(missing){el('deepDetailsError').textContent=`還有 ${missing} 項沒選。`;return;}
-  if(detailPage<session.detailPlan().length-1){detailPage++;renderDeepDetails();}else{track('curiosity-deep-done','完成深入探索');renderResults();}
+  if(detailOffset+detailPageGoals().length<row.goals.length){detailOffset+=detailPageSize();return renderDeepDetails();}
+  const earlier=row.goals.findIndex(g=>goals[g.id]===undefined);
+  if(earlier>=0){detailOffset=Math.floor(earlier/detailPageSize())*detailPageSize();return renderDeepDetails();}
+  if(detailPage<session.detailPlan().length-1){detailPage++;detailOffset=0;renderDeepDetails();}else{track('curiosity-deep-done','完成深入探索');renderResults();}
  });
  el('openSubjectInfo').addEventListener('click',openSubjectInfo);
 
