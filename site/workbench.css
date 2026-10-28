@@ -175,8 +175,8 @@
   display: flex !important;
   flex-direction: column;
   align-items: center;
-  gap: 5px;
-  padding-top: 2px !important;
+  gap: 12px;
+  padding-top: 0 !important;
   text-align: center;
 }
 
@@ -185,7 +185,10 @@
   font-size: 12px;
   font-weight: 700;
   font-variant-numeric: tabular-nums;
+  line-height: 20px;
 }
+
+.rec-channel .channel-mini { flex-shrink: 0; }
 
 /* 校系名稱是整列的開啟按鈕：點列上任何地方都會開詳情。 */
 .rec-open {
@@ -244,6 +247,9 @@
   font-size: 13px;
   line-height: 1.6;
 }
+
+.rec-open + .rec-sub { margin-top: 9px; }
+.rec-sub + .rec-key { margin-top: 4px; }
 
 .rec-label {
   flex: 0 0 auto;

@@ -47,6 +47,7 @@ for (const name of ['placementResultSummary', 'placementRequirementChipsHtml', '
 }
 const chips = context.placementRequirementChipsHtml(evaluate(chemistry, belowScreening).requirements);
 assert(chips.includes('一階篩選') && chips.includes('申請門檻'));
+assert(chips.indexOf('申請門檻') < chips.indexOf('一階篩選'));
 assert(context.placementResultSummary(evaluate(missing, all15)).includes('一階篩選資料不足'));
 assert(context.placementResultSummary(evaluate(chemistry, all15)).includes('暫估'));
 

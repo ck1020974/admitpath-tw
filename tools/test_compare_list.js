@@ -48,6 +48,11 @@ assert.equal(context.filteredCompareRecords().length, 100);
 const row = context.workbenchRecordRowHtml(records[0], true);
 assert.ok(row.includes('標準0') && row.includes('（軍校）') && row.includes('data-detail="0"') && row.includes('data-remove-compare="0"'));
 assert.ok(context.workbenchRecordRowHtml(records[0]).includes('data-compare="0"'));
+context.recordSummary = () => ({ key: { label: '一階篩選', html: '英文 12' }, sub: { label: '申請門檻', text: '英文 均標' } });
+for (const comparing of [false, true]) {
+  const ordered = context.workbenchRecordRowHtml(records[0], comparing);
+  assert(ordered.indexOf('申請門檻') < ordered.indexOf('一階篩選'));
+}
 assert.equal((html.match(/data-compare-channel-toggle=/g) || []).length, 4);
 assert.ok(html.includes('id="compareYearFilter"'));
 console.log('Compare list: 100-limit, 101st rejection, remove/re-add, year and all four channel filters, retained selections, shared workbench rows passed.');

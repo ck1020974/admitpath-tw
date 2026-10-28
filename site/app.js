@@ -2672,9 +2672,9 @@ function placementRequirementChipsHtml(requirements) {
   const screening = primary.filter(item => ["倍率篩選", "官方篩選暫估", "篩選資料暫估"].includes(item.source));
   const other = primary.filter(item => !screening.includes(item));
   const chip = item => `<span class="placement-req ${escapeAttr(item.status)}">${escapeHtml(numericLabel(item))}</span>`;
-  return group("一階篩選", screening.map(chip))
-    + other.map(chip).join("")
-    + group("申請門檻", tests.map(item => testChip(item, testLabel(item))));
+  return group("申請門檻", tests.map(item => testChip(item, testLabel(item))))
+    + group("一階篩選", screening.map(chip))
+    + other.map(chip).join("");
 }
 
 function placementResultSummary(evaluation) {
@@ -2792,6 +2792,8 @@ function syncWorkbenchControls() {
 // 每列只突出一個重點（個申一階篩選、繁星一階、分發最低錄取、特選名額），其餘條件用一行灰字。
 function workbenchRecordRowHtml(record, comparing = false) {
   const summary = recordSummary(record);
+  const keyHtml = summary.key ? `<p class="rec-key"><span class="rec-label">${escapeHtml(summary.key.label)}</span><span class="rec-key-value">${summary.key.html}</span></p>` : "";
+  const subHtml = summary.sub ? `<p class="rec-sub"><span class="rec-label">${escapeHtml(summary.sub.label)}</span><span>${String(summary.sub.text).split("、").map((item) => `<span class="rec-item">${escapeHtml(item)}</span>`).join("、")}</span></p>` : "";
   const inCompare = state.compare.some((item) => item.id === record.id);
   const name = `${record.schoolName}${record.departmentName}`;
   return `
@@ -2805,8 +2807,7 @@ function workbenchRecordRowHtml(record, comparing = false) {
             <span class="rec-school">${escapeHtml(record.schoolName)}</span>
             <span class="rec-dept program-name">${escapeHtml(record.departmentName)}${specialAdmissionBadgeHtml(record)}</span>
           </button>
-          ${summary.key ? `<p class="rec-key"><span class="rec-label">${escapeHtml(summary.key.label)}</span><span class="rec-key-value">${summary.key.html}</span></p>` : ""}
-          ${summary.sub ? `<p class="rec-sub"><span class="rec-label">${escapeHtml(summary.sub.label)}</span><span>${String(summary.sub.text).split("、").map((item) => `<span class="rec-item">${escapeHtml(item)}</span>`).join("、")}</span></p>` : ""}
+          ${summary.sub?.label === "申請門檻" ? subHtml + keyHtml : keyHtml + subHtml}
         </td>
         <td class="rec-action">
           ${comparing
