@@ -26,6 +26,7 @@
   <link rel="stylesheet" href="./support.css?v=20261016-mobile-header">
   <link rel="stylesheet" href="./workbench.css?v=20261028-dual-degree">
   <link rel="stylesheet" href="./layout.css?v=20261023-mobile">
+  <link rel="stylesheet" href="./student-account.css?v=20261028-login1">
 </head>
 <body data-active-view="overview">
   <div class="app-shell">
@@ -50,6 +51,7 @@
           <button class="nav-item" type="button" data-view="placement">落點分析</button>
           <button class="nav-item" type="button" data-view="compare">追蹤清單<span class="nav-count" id="navCompareCount" hidden></span></button>
           </div>
+          <a class="student-account-entry" data-student-account href="./login/"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><circle cx="10" cy="6" r="3"/><path d="M4 17v-2a6 6 0 0 1 12 0v2"/></svg><span data-student-account-label>學生登入</span></a>
           <a class="nav-cta" href="#about" id="navContactLink" data-contact-link hidden>預約諮詢</a>
           <button class="nav-support support-entry" id="supportAuthorButton" type="button" aria-haspopup="dialog" aria-controls="supportDialog" aria-label="支持作者" title="支持作者" hidden>
             <span class="support-entry-heart" aria-hidden="true">♡</span>
@@ -433,6 +435,8 @@
     </div>
   </dialog>
 
+  <script src="./student-auth-config.js?v=20261028-login1"></script>
+  <script src="./student-auth.js?v=20261028-login1"></script>
   <script src="./contact-config.js?v=20261023-tweak"></script>
   <script src="./usage-config.js?v=usage-20261027-counter-v2"></script>
   <script src="./usage.js?v=usage-20261027-counter-v2"></script>

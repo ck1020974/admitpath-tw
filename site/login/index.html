@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="robots" content="noindex">
+  <meta name="color-scheme" content="light">
+  <title>學生登入｜YUHSIN 祐馨升學網</title>
+  <link rel="icon" href="../favicon.ico" sizes="any">
+  <link rel="stylesheet" href="./login.css?v=20261028-login1">
+</head>
+<body class="student-login-page">
+  <header class="login-header">
+    <a class="login-brand" href="../" aria-label="YUHSIN 祐馨升學網首頁"><span class="login-mark" aria-hidden="true">Y</span><span><strong>YUHSIN</strong><small>祐馨升學網</small></span></a>
+    <a class="header-back" href="../">回到網站 <svg viewBox="0 0 20 20" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M4 10h12M11 5l5 5-5 5"/></svg></a>
+  </header>
+  <main class="login-layout">
+    <aside class="login-story" aria-labelledby="storyTitle">
+      <div class="story-copy"><p class="story-label">你的升學探索</p><h2 id="storyTitle">從認識自己，<br>到找到想走的路。</h2><p>每一個想了解的方向，<br>都可以成為下一次與老師討論的起點。</p></div>
+      <div class="story-map" aria-hidden="true"><span class="map-route"></span><div class="map-stop stop-one"><i></i><span>認識興趣</span></div><div class="map-stop stop-two"><i></i><span>探索學群</span></div><div class="map-stop stop-three"><i></i><span>追蹤校系</span></div></div>
+      <p class="story-foot">依自己的步調，慢慢把方向看清楚。</p>
+    </aside>
+    <section class="login-panel" aria-labelledby="loginTitle">
+      <div id="loginContent">
+        <h1 id="loginTitle">學生登入</h1>
+        <p class="login-intro">使用老師提供的學生帳號登入。</p>
+        <p id="loginAvailability" class="availability" role="status">正在確認登入服務…</p>
+        <form id="studentLoginForm" method="post">
+          <div class="field"><label for="studentId">學號</label><input id="studentId" name="username" type="text" pattern="[A-Za-z]{2}[0-9]{5}" maxlength="7" autocomplete="username" spellcheck="false" autocapitalize="off" placeholder="請輸入 7 碼學號" aria-describedby="studentIdHint" required><small id="studentIdHint">學號包含英文與數字，請依名單完整輸入。</small></div>
+          <div class="field"><label for="studentPassword">密碼</label><div class="password-wrap"><input id="studentPassword" name="password" type="password" maxlength="128" autocomplete="current-password" placeholder="請輸入密碼" aria-describedby="passwordHint" required><button id="togglePassword" class="password-toggle" type="button" aria-controls="studentPassword" aria-pressed="false" aria-label="顯示密碼"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6-10-6-10-6Z"/><circle cx="12" cy="12" r="3"/><path id="passwordSlash" d="m4 4 16 16" hidden/></svg></button></div><small id="passwordHint">預設密碼與學號相同。</small></div>
+          <p id="loginError" class="form-error" role="alert" hidden></p>
+          <button id="loginSubmit" class="login-primary" type="submit" disabled>登入</button>
+        </form>
+        <details class="login-help"><summary>忘記密碼或無法登入？</summary><p>請先確認學號是否輸入完整。如果仍無法登入，請聯絡授課老師確認帳號。</p></details>
+        <div class="guest-option"><span>想先看看網站？</span><a href="../" id="continueGuest">不登入，直接使用</a></div>
+      </div>
+      <section id="studentAccount" aria-labelledby="accountTitle" hidden>
+        <p class="account-status"><span aria-hidden="true">✓</span> 已登入</p><h1 id="accountTitle" tabindex="-1">我的帳號</h1><p class="account-name" id="accountName"></p>
+        <dl class="account-details"><div><dt>學號</dt><dd id="accountStudentId"></dd></div><div><dt>上課班級</dt><dd id="accountTeachingGroup"></dd></div><div><dt>原班級</dt><dd id="accountOriginalClass"></dd></div><div><dt>原班座號</dt><dd id="accountOriginalSeat"></dd></div></dl>
+        <p class="account-notice">追蹤清單與測驗紀錄的帳號同步尚未開放，目前仍保留在使用的瀏覽器。</p>
+        <a id="continueWebsite" class="login-primary" href="../">繼續使用網站</a><button id="logoutStudent" class="logout-button" type="button">登出帳號</button><p id="accountError" class="form-error" role="alert" hidden></p>
+      </section>
+      <noscript><p class="form-error">請啟用 JavaScript 才能登入；你仍可返回網站。</p></noscript>
+    </section>
+  </main>
+  <footer class="login-footer"><span>YUHSIN 祐馨升學網</span><span>學生帳號由授課老師建立</span></footer>
+  <script src="../student-auth-config.js?v=20261028-login1"></script>
+  <script src="../student-auth.js?v=20261028-login1"></script>
+  <script src="./login.js?v=20261028-login1"></script>
+</body>
+</html>
