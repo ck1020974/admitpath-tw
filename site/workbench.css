@@ -1,4 +1,4 @@
-/* 查詢工作台與比較清單。
+/* 查詢工作台與追蹤清單。
    獨立於 styles.css，讓首頁和工作台可以分開修改而不互相衝突。
    原則：每列只突出一個重點數字，其餘條件是一行灰字；年度、管道使用下拉選單。 */
 
@@ -122,7 +122,7 @@
   outline-offset: 1px;
 }
 
-/* ── 結果清單（工作台與比較清單共用） ── */
+/* ── 結果清單（工作台與追蹤清單共用） ── */
 .table-shell.rec-list {
   margin-bottom: 72px;
   max-width: none;
@@ -325,7 +325,7 @@
   color: #0f6e70;
 }
 
-/* ── 比較清單浮動列 ── */
+/* ── 追蹤清單浮動列 ── */
 .compare-tray {
   /* 主內容區設了 overflow，sticky 不會生效，所以固定在視窗右下角。 */
   position: fixed;
@@ -364,7 +364,7 @@
   background: #e8f6f4;
 }
 
-/* ── 比較清單頁：管道切換和工作台的快速選項同一種樣式（可複選） ── */
+/* ── 追蹤清單頁：管道切換和工作台的快速選項同一種樣式（可複選） ── */
 #compareView .compare-channel-buttons {
   display: inline-flex;
   flex-wrap: wrap;

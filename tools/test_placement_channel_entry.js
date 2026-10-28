@@ -10,7 +10,7 @@ for (const name of ['defaultPlacementState', 'placementSubjects', 'selectPlaceme
   vm.runInContext(source.match(new RegExp(`function ${name}\\([\\s\\S]*?\\n\\}`))[0], context);
 }
 context.state.placement = context.defaultPlacementState();
-assert.equal(context.placementProfile().channels.length, 0);
+assert.equal(context.placementProfile().channels.join(), 'personal_application');
 assert.equal(context.placementHasAnyInput(context.placementProfile()), false);
 context.selectPlacementChannel('personal_application');
 context.state.placement.scores.國文 = '12';
@@ -66,4 +66,4 @@ channelChange();
 assert.equal(context.state.placement.channel, 'star_recommendation');
 assert.equal(context.state.placement.stage, 'setup');
 assert.equal(context.placementProfile().scores.國文, '12');
-console.log('Channel entry: choose first, relevant subjects only, required star rank, retained GSAT scores, separate 15/60 score sets and weighted distribution totals passed.');
+console.log('Channel entry: personal application default, relevant subjects only, required star rank, retained GSAT scores, separate 15/60 score sets and weighted distribution totals passed.');

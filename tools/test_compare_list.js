@@ -8,16 +8,24 @@ const records = Array.from({ length: 101 }, (_, i) => ({ id: String(i), year: i 
 const buttons = channels.map(channel => ({ dataset: { compareChannelToggle: channel }, classList: { toggle() {} }, setAttribute(name, value) { this[name] = value; } }));
 const grid = { innerHTML: '', querySelectorAll: () => [] };
 const clear = {};
+const tools = {};
 const state = { records, compare: [], compareFilters: { year: 'all', channels: [...channels] } };
 let alerts = 0;
 const context = { state, els: { compareGrid: grid, compareYearFilter: {}, compareResultCount: {} }, fmt: new Intl.NumberFormat('zh-Hant-TW'),
   COMPARE_STORAGE_KEY: 'admitpath-tw:compare:v1',
-  document: { getElementById: () => clear, querySelectorAll: () => buttons }, window: { alert: () => alerts++, localStorage: { setItem() {} } },
+  document: { getElementById: id => id === 'compareTools' ? tools : id === 'clearCompareButton' ? clear : null, querySelectorAll: () => buttons }, window: { alert: () => alerts++, localStorage: { setItem() {} } },
   renderTable() {}, updateDetailCompareButton() {}, recordSummary: r => ({ key: { label: '條件', html: `標準${r.id}` }, sub: null }), channelBadge: r => r.channelKey, specialAdmissionBadgeHtml: () => '（軍校）', escapeHtml: String, escapeAttr: String };
 vm.createContext(context);
 const names = ['dataPending', 'saveCompare', 'toggleCompare', 'renderCompare', 'filteredCompareRecords', 'workbenchRecordRowHtml'];
 vm.runInContext(names.map(name => source.match(new RegExp(`function ${name}\\([\\s\\S]*?\\n\\}`))[0]).join('\n'), context);
+context.renderCompare();
+assert.equal(tools.hidden, true);
+assert.equal(clear.hidden, true);
+assert.ok(grid.innerHTML.includes('href="#workbench"') && grid.innerHTML.includes('href="#placement"'));
+assert.ok(grid.innerHTML.includes('＋ 追蹤'));
 for (let i = 0; i < 100; i++) context.toggleCompare(String(i));
+assert.equal(tools.hidden, false);
+assert.equal(clear.hidden, false);
 assert.equal(state.compare.length, 100);
 assert.equal(context.filteredCompareRecords().length, 100);
 assert.equal((grid.innerHTML.match(/<tr[ >]/g) || []).length, 101); // Header + all 100 rows, no hidden cap.
@@ -55,4 +63,9 @@ for (const comparing of [false, true]) {
 }
 assert.equal((html.match(/data-compare-channel-toggle=/g) || []).length, 4);
 assert.ok(html.includes('id="compareYearFilter"'));
+state.compare = [];
+context.renderCompare();
+assert.equal(tools.hidden, true);
+assert.equal(clear.hidden, true);
+assert.ok(grid.innerHTML.includes('trackingEmptyTitle'));
 console.log('Compare list: 100-limit, 101st rejection, remove/re-add, year and all four channel filters, retained selections, shared workbench rows passed.');

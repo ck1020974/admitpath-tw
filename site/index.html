@@ -14,14 +14,14 @@
   <meta property="og:locale" content="zh_TW">
   <meta property="og:site_name" content="YUHSIN 祐馨升學網">
   <meta property="og:title" content="YUHSIN 祐馨升學網｜把下一步，查清楚。">
-  <meta property="og:description" content="大學校系查詢、落點分析、十八學群探索與比較清單，一次整理四種入學管道。">
+  <meta property="og:description" content="大學校系查詢、落點分析、十八學群探索與追蹤清單，一次整理四種入學管道。">
   <meta property="og:url" content="https://ck1020974.github.io/admitpath-tw/">
   <meta property="og:image" content="https://ck1020974.github.io/admitpath-tw/media/og-image.jpg">
   <meta property="og:image:width" content="1200">
   <meta property="og:image:height" content="630">
-  <meta property="og:image:alt" content="YUHSIN 祐馨升學網：校系查詢、落點分析、十八學群、比較清單">
+  <meta property="og:image:alt" content="YUHSIN 祐馨升學網：校系查詢、落點分析、十八學群、追蹤清單">
   <meta name="twitter:card" content="summary_large_image">
-  <link rel="stylesheet" href="./styles.css?v=20261027-compact-scores">
+  <link rel="stylesheet" href="./styles.css?v=20261028-tracking">
   <link rel="stylesheet" href="./special.css?v=20260918-layout-fix">
   <link rel="stylesheet" href="./support.css?v=20261016-mobile-header">
   <link rel="stylesheet" href="./workbench.css?v=20261028-dual-degree">
@@ -48,7 +48,7 @@
           <button class="nav-item" type="button" data-view="explorer">十八學群</button>
           <button class="nav-item" type="button" data-view="workbench">校系查詢</button>
           <button class="nav-item" type="button" data-view="placement">落點分析</button>
-          <button class="nav-item" type="button" data-view="compare">比較清單<span class="nav-count" id="navCompareCount" hidden></span></button>
+          <button class="nav-item" type="button" data-view="compare">追蹤清單<span class="nav-count" id="navCompareCount" hidden></span></button>
           </div>
           <a class="nav-cta" href="#about" id="navContactLink" data-contact-link hidden>預約諮詢</a>
           <button class="nav-support support-entry" id="supportAuthorButton" type="button" aria-haspopup="dialog" aria-controls="supportDialog" aria-label="支持作者" title="支持作者" hidden>
@@ -125,7 +125,7 @@
         </div>
       </section>
 
-      <section class="view-panel" id="workbenchView">
+      <section class="view-panel workspace-view" id="workbenchView">
         <section class="workbench-panel">
           <div class="workbench-head workspace-page-head">
             <div class="workbench-copy workspace-page-copy">
@@ -188,12 +188,12 @@
           </table>
         </div>
         <button class="compare-tray" id="compareTray" type="button" data-view-jump="compare" hidden>
-          <span>比較清單 <strong id="compareTrayCount">0</strong> 個校系</span>
-          <span class="compare-tray-go">開始比較</span>
+          <span>追蹤清單 <strong id="compareTrayCount">0</strong> 個校系</span>
+          <span class="compare-tray-go">查看清單</span>
         </button>
       </section>
 
-      <section class="view-panel" id="placementView">
+      <section class="view-panel workspace-view" id="placementView">
         <section class="placement-shell">
           <div class="placement-head placement-head-compact workspace-page-head">
             <div class="workspace-page-copy">
@@ -209,10 +209,10 @@
           <section class="placement-setup-stage" id="placementSetupStage">
             <div class="placement-workbench">
               <section class="placement-channel-picker" aria-labelledby="placementChannelHeading">
-                <h3 id="placementChannelHeading">先選擇入學管道</h3>
+                <h3 id="placementChannelHeading">入學管道</h3>
                 <div class="placement-channel-options" role="group" aria-label="選擇入學管道">
                   <button type="button" data-placement-channel="star_recommendation" aria-pressed="false">繁星<span>學測、英聽與校排</span></button>
-                  <button type="button" data-placement-channel="personal_application" aria-pressed="false">個申<span>學測與英聽</span></button>
+                  <button type="button" class="active" data-placement-channel="personal_application" aria-pressed="true">個申<span>學測與英聽</span></button>
                   <button type="button" data-placement-channel="exam_distribution" aria-pressed="false">分科<span>分發採計成績</span></button>
                 </div>
               </section>
@@ -295,29 +295,31 @@
         <div class="explorer-root" id="explorerRoot"></div>
       </section>
 
-      <section class="view-panel" id="compareView">
+      <section class="view-panel workspace-view" id="compareView">
         <div class="section-head workspace-page-head">
           <div class="workspace-page-copy">
-            <h2>比較清單</h2>
-            <p>最多選取 100 個校系，依學年度與入學管道檢視招生條件。</p>
+            <h2>追蹤清單</h2>
+            <p>把感興趣的校系留下來，隨時查看招生條件。</p>
           </div>
-          <button class="ghost-button" id="clearCompareButton" hidden>清空比較</button>
+          <button class="ghost-button" id="clearCompareButton" hidden>清空清單</button>
         </div>
-        <section class="compare-filters filter-band" aria-label="比較清單篩選">
-          <label><span>學年度</span><select id="compareYearFilter"><option value="all">全部學年度</option></select></label>
-          <div class="compare-channel-field">
-            <span>入學管道</span>
-            <div class="compare-channel-buttons" role="group" aria-label="比較入學管道">
-              <button class="ghost-button active" data-compare-channel-toggle="personal_application" aria-pressed="true">個人申請</button>
-              <button class="ghost-button active" data-compare-channel-toggle="star_recommendation" aria-pressed="true">繁星推薦</button>
-              <button class="ghost-button active" data-compare-channel-toggle="exam_distribution" aria-pressed="true">分發入學</button>
-              <button class="ghost-button active" data-compare-channel-toggle="special_selection" aria-pressed="true">特殊選才</button>
+        <div id="compareTools" hidden>
+          <section class="compare-filters filter-band" aria-label="追蹤清單篩選">
+            <label><span>學年度</span><select id="compareYearFilter"><option value="all">全部學年度</option></select></label>
+            <div class="compare-channel-field">
+              <span>入學管道</span>
+              <div class="compare-channel-buttons" role="group" aria-label="追蹤入學管道">
+                <button class="ghost-button active" data-compare-channel-toggle="personal_application" aria-pressed="true">個人申請</button>
+                <button class="ghost-button active" data-compare-channel-toggle="star_recommendation" aria-pressed="true">繁星推薦</button>
+                <button class="ghost-button active" data-compare-channel-toggle="exam_distribution" aria-pressed="true">分發入學</button>
+                <button class="ghost-button active" data-compare-channel-toggle="special_selection" aria-pressed="true">特殊選才</button>
+              </div>
             </div>
-          </div>
-        </section>
-        <div class="compare-result-summary"><span id="compareResultCount" aria-live="polite"></span><button class="ghost-button" data-view-jump="workbench">繼續找校系</button></div>
-        <p id="compareStorageStatus" class="compare-storage-status" role="status"></p>
+          </section>
+          <div class="compare-result-summary"><span id="compareResultCount" aria-live="polite"></span><button class="ghost-button" data-view-jump="workbench">繼續找校系</button></div>
+        </div>
         <div class="compare-grid" id="compareGrid"></div>
+        <p id="compareStorageStatus" class="compare-storage-status" role="status"></p>
       </section>
 
       <section class="view-panel" id="sourcesView">
@@ -390,7 +392,7 @@
         <p class="eyebrow" id="detailMeta">校系詳情</p>
         <h2 id="detailTitle">--</h2>
       </div>
-      <button class="solid-button detail-compare-button" id="detailCompareButton" data-drawer-compare>加入比較</button>
+      <button class="solid-button detail-compare-button" id="detailCompareButton" data-drawer-compare>加入追蹤</button>
       <button class="icon-button" id="closeDrawerButton" aria-label="關閉">×</button>
     </div>
     <div class="drawer-body" id="detailBody"></div>
@@ -439,6 +441,6 @@
   <script src="./admission-catalog.js?v=20261012-special-116"></script>
   <script src="./explorer-link.js?v=20261023-intros"></script>
   <script src="./group-introductions.js?v=20261023-intros"></script>
-  <script src="./app.js?v=20261028-exclusive-shortcuts"></script>
+  <script src="./app.js?v=20261028-tracking"></script>
 </body>
 </html>

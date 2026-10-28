@@ -1884,7 +1884,7 @@ function setupContactLinks() {
   if (footContact) footContact.hidden = !(email || safeUrl(config.lineUrl));
 }
 
-// 導覽列「比較清單」旁顯示目前比較了幾個校系。
+// 導覽列「追蹤清單」旁顯示目前追蹤了幾個校系。
 function updateNavCompareCount() {
   const badge = typeof document !== "undefined" && typeof document.getElementById === "function" ? document.getElementById("navCompareCount") : null;
   if (!badge) return;
@@ -1970,7 +1970,7 @@ function applyRoute(route) {
 }
 
 // 使用次數統計（usage.js）：只記錄用了哪些功能，不記錄成績、篩選條件或校系以外的個人資料。
-const VIEW_TITLES = { overview: "首頁", workbench: "查詢工作台", placement: "落點分析", explorer: "十八學群", compare: "比較清單", quality: "資料品質" };
+const VIEW_TITLES = { overview: "首頁", workbench: "查詢工作台", placement: "落點分析", explorer: "十八學群", compare: "追蹤清單", quality: "資料品質" };
 function trackPage(view) { try { window.YuhsinUsage?.page(`view/${view}`, VIEW_TITLES[view] || view); } catch {} }
 function trackEvent(name, title, options) { try { window.YuhsinUsage?.event(name, title, options); } catch {} }
 
@@ -2018,7 +2018,7 @@ function defaultPlacementState() {
       化學: "",
       生物: "",
     },
-    channels: [],
+    channels: ["personal_application"],
     scoresByMode: {},
     schoolOwnership: "all",
     topUniversityOnly: false,
@@ -2026,7 +2026,7 @@ function defaultPlacementState() {
     groups: [],
     categories: [],
     year: "all",
-    channel: "",
+    channel: "personal_application",
     school: "all",
     schoolScope: "all",
     quickCategory: "",
@@ -2793,7 +2793,7 @@ function renderTable() {
   });
 }
 
-// 工作臺上方：年度與管道的快速選項、「重設」只在有篩選時出現、比較清單浮動列。
+// 工作臺上方：年度與管道的快速選項、「重設」只在有篩選時出現、追蹤清單浮動列。
 function workbenchFiltersActive() {
   const f = state.filters;
   return f.year !== "all" || f.channel !== "all" || f.school !== "all" || Boolean(f.keyword)
@@ -2834,7 +2834,7 @@ function syncWorkbenchControls() {
   }
 }
 
-// 工作臺與比較清單共用同一列，確保管道、標準與軍校等備註一致。
+// 工作臺與追蹤清單共用同一列，確保管道、標準與軍校等備註一致。
 // 每列只突出一個重點（個申一階篩選、繁星一階、分發最低錄取、特選名額），其餘條件用一行灰字。
 function workbenchRecordRowHtml(record, comparing = false) {
   const summary = recordSummary(record);
@@ -2858,7 +2858,7 @@ function workbenchRecordRowHtml(record, comparing = false) {
         <td class="rec-action">
           ${comparing
             ? `<button class="small-button rec-compare" type="button" data-remove-compare="${escapeAttr(record.id)}" aria-label="移除 ${escapeAttr(name)}">移除</button>`
-            : `<button class="small-button rec-compare${inCompare ? " is-on" : ""}" type="button" data-compare="${escapeAttr(record.id)}" aria-pressed="${inCompare}" aria-label="${inCompare ? "從比較清單移除" : "加入比較清單"}：${escapeAttr(name)}">${inCompare ? "已比較" : "＋ 比較"}</button>`}
+            : `<button class="small-button rec-compare${inCompare ? " is-on" : ""}" type="button" data-compare="${escapeAttr(record.id)}" aria-pressed="${inCompare}" aria-label="${inCompare ? "從追蹤清單移除" : "加入追蹤清單"}：${escapeAttr(name)}">${inCompare ? "已追蹤" : "＋ 追蹤"}</button>`}
         </td>
       </tr>
     `;
@@ -4844,7 +4844,7 @@ function openDetail(id) {
 function updateDetailCompareButton(id) {
   if (!els.detailCompareButton) return;
   const included = state.compare.some((item) => item.id === id);
-  els.detailCompareButton.textContent = included ? "已加入比較" : "加入比較";
+  els.detailCompareButton.textContent = included ? "已加入追蹤" : "加入追蹤";
   els.detailCompareButton.classList.toggle("is-added", included);
 }
 
@@ -5177,7 +5177,7 @@ function saveCompare() {
     }));
     state.compareStorageStatus = state.compare.length
       ? "清單已自動儲存於此瀏覽器，下次回來會自動恢復。"
-      : "此瀏覽器會自動儲存比較清單，下次回來可繼續使用。";
+      : "此瀏覽器會自動儲存追蹤清單，下次回來可繼續使用。";
     return true;
   } catch (error) {
     state.compareStorageStatus = "此瀏覽器目前無法儲存清單，關閉或重新整理網頁後可能遺失選項。";
@@ -5231,9 +5231,9 @@ function toggleCompare(id) {
     state.compare = state.compare.filter((item) => item.id !== id);
   } else {
     const record = state.records.find((item) => item.id === id);
-    if (record && state.compare.length < 100) { state.compare.push(record); try { window.YuhsinUsage?.event("compare-add", "加入比較清單"); } catch {} }
+    if (record && state.compare.length < 100) { state.compare.push(record); try { window.YuhsinUsage?.event("compare-add", "加入追蹤清單"); } catch {} }
     else {
-      if (record) window.alert("比較清單最多可選取 100 個校系，請先移除部分校系再加入。");
+      if (record) window.alert("追蹤清單最多可選取 100 個校系，請先移除部分校系再加入。");
       return;
     }
   }
@@ -5245,14 +5245,17 @@ function toggleCompare(id) {
 
 function renderCompare() {
   if (typeof updateNavCompareCount === "function") updateNavCompareCount();
+  const hasRecords = state.compare.length > 0;
+  const tools = document.getElementById("compareTools");
+  if (tools) tools.hidden = !hasRecords || dataPending();
+  const clearButton = document.getElementById("clearCompareButton");
+  if (clearButton) clearButton.hidden = !hasRecords || dataPending();
   if (dataPending()) {
     if (els.compareGrid) els.compareGrid.innerHTML = loadStatusHtml();
     return;
   }
   const storageStatus = document.getElementById("compareStorageStatus");
   if (storageStatus) storageStatus.textContent = state.compareStorageStatus;
-  const clearButton = document.getElementById("clearCompareButton");
-  if (clearButton) clearButton.hidden = !state.compare.length;
   const years = [...new Set(state.records.map(record => String(record.year)))].sort((a, b) => Number(b) - Number(a));
   els.compareYearFilter.innerHTML = `<option value="all">全部學年度</option>${years.map(year => `<option value="${escapeAttr(year)}">${escapeHtml(year)} 學年度</option>`).join('')}`;
   els.compareYearFilter.value = state.compareFilters.year;
@@ -5262,52 +5265,26 @@ function renderCompare() {
     button.setAttribute("aria-pressed", String(selected));
   });
   const visible = filteredCompareRecords();
-  els.compareResultCount.textContent = `顯示 ${fmt.format(visible.length)} 筆 · 已選 ${fmt.format(state.compare.length)} / 100 個校系`;
+  els.compareResultCount.textContent = `顯示 ${fmt.format(visible.length)} 筆 · 已追蹤 ${fmt.format(state.compare.length)} / 100 個校系`;
   if (!state.compare.length) {
     els.compareGrid.innerHTML = `
-      <div class="empty-state compare-empty-state">
-        <h3>尚未加入校系</h3>
-        <p>先選一種入學管道開始查詢，將想比較的校系加入清單。</p>
-        <div class="compare-empty-actions">
-          <button class="ghost-button" data-compare-channel="personal_application">個人申請</button>
-          <button class="ghost-button" data-compare-channel="star_recommendation">繁星推薦</button>
-          <button class="ghost-button" data-compare-channel="exam_distribution">分發入學</button>
-          <button class="ghost-button" data-compare-channel="special_selection">特殊選才</button>
+      <section class="compare-empty-state" aria-labelledby="trackingEmptyTitle">
+        <div class="compare-empty-content">
+          <svg class="compare-empty-icon" viewBox="0 0 32 32" width="40" height="40" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5h14a2 2 0 0 1 2 2v21l-9-6-9 6V7a2 2 0 0 1 2-2Z"/><path d="M12 12h8M12 16h5"/></svg>
+          <h3 id="trackingEmptyTitle">從第一個感興趣的校系開始</h3>
+          <p>查詢校系，按下「＋ 追蹤」，就能在這裡集中查看招生條件。</p>
+          <div class="compare-empty-actions">
+            <a class="solid-button" href="#workbench">查詢校系</a>
+            <a class="ghost-button" href="#placement">用成績找落點</a>
+          </div>
         </div>
-        <div class="compare-empty-actions">
-          <button class="solid-button" data-compare-empty-action="placement">進行落點分析</button>
-          <button class="ghost-button" data-compare-empty-action="explorer">探索十八學群</button>
-        </div>
-      </div>`;
-    els.compareGrid.querySelectorAll("[data-compare-channel]").forEach((button) => {
-      button.addEventListener("click", () => {
-        state.filters.channel = button.dataset.compareChannel;
-        state.filters.keyword = "";
-        state.linkedGroup = "";
-        state.linkedCategory = "";
-        els.channelFilter.value = state.filters.channel;
-        els.keywordInput.value = "";
-        setView("workbench");
-        applyFilters();
-      });
-    });
-    els.compareGrid.querySelectorAll("[data-compare-empty-action]").forEach((button) => {
-      button.addEventListener("click", () => {
-        if (button.dataset.compareEmptyAction === "explorer") {
-          resetExplorerState("overview");
-          setView("explorer");
-          renderExplorer();
-          return;
-        }
-        setView("placement");
-        renderPlacementAnalysis();
-      });
-    });
+        <p class="compare-empty-tip">個人申請、繁星推薦、分發入學、特殊選才，都能加入同一份追蹤清單。</p>
+      </section>`;
     return;
   }
-  els.compareGrid.innerHTML = `<div class="table-shell rec-list"><table aria-label="已選校系比較表"><thead class="sr-only"><tr><th scope="col">管道</th><th scope="col">學校 / 校系與條件</th><th scope="col">操作</th></tr></thead><tbody>${visible.length
+  els.compareGrid.innerHTML = `<div class="table-shell rec-list"><table aria-label="已追蹤校系清單"><thead class="sr-only"><tr><th scope="col">管道</th><th scope="col">學校 / 校系與條件</th><th scope="col">操作</th></tr></thead><tbody>${visible.length
     ? visible.map(record => workbenchRecordRowHtml(record, true)).join('')
-    : `<tr><td colspan="3"><div class="empty-state">${state.compareFilters.channels.length ? '目前篩選條件沒有符合的已選校系' : '尚未選取入學管道，請點選上方按鈕'}<br>篩選只影響顯示，不會移除已選校系。</div></td></tr>`}</tbody></table></div>`;
+    : `<tr><td colspan="3"><div class="empty-state">${state.compareFilters.channels.length ? '目前篩選條件沒有符合的追蹤校系' : '尚未選取入學管道，請點選上方按鈕'}<br>篩選只影響顯示，不會移除追蹤校系。</div></td></tr>`}</tbody></table></div>`;
   els.compareGrid.querySelectorAll("[data-remove-compare]").forEach((button) => {
     button.addEventListener("click", () => toggleCompare(button.dataset.removeCompare));
   });

@@ -15,7 +15,7 @@ function fail(message) {
   "explorerView",
   "compareView",
 ].forEach((viewId) => {
-  const section = html.match(new RegExp(`<section class="view-panel" id="${viewId}"[\\s\\S]*?<\\/section>\\s*(?=<section class="view-panel"|<\\/main>)`));
+  const section = html.match(new RegExp(`<section class="view-panel[^\"]*" id="${viewId}"[\\s\\S]*?<\\/section>\\s*(?=<section class="view-panel|<\\/main>)`));
   if (!section?.[0].includes("workspace-page-head")) {
     fail(`${viewId} should use the shared workspace heading.`);
   }
@@ -28,7 +28,7 @@ function fail(message) {
   "校系資料查詢",
   "落點分析",
   "十八學群探索",
-  "比較清單",
+  "追蹤清單",
 ].forEach((title) => {
   if (!new RegExp(`<h2>${title}<\\/h2>`).test(html)) {
     fail(`Missing consistent workspace title: ${title}.`);
