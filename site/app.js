@@ -3023,14 +3023,14 @@ function starThresholdParts(record) {
 
 function formatStarRequirement(year, item) {
   const subject = shortSubject(item.subject);
-  const score = String(item.score || "").trim();
-  if (score) return formatSubjectScore(subject, score);
   const standard = String(item.standard || "").trim();
-  if (!standard || standard === "--") return "";
-  if (subject === "英聽") return `${subject}${standard.replace(/級$/, "")}`;
-  const converted = state.gsatStandards?.[String(year)]?.[normalizeSubject(item.subject)]?.[standard];
-  if (converted != null) return formatSubjectScore(subject, converted);
-  return `${subject} ${standard}`;
+  // 申請門檻呈現官方五標名稱；數值仍由落點分析另外比對。
+  if (standard && standard !== "--") {
+    if (subject === "英聽") return `${subject}${standard.replace(/級$/, "")}`;
+    return `${subject} ${standard}`;
+  }
+  const score = String(item.score || "").trim();
+  return score ? formatSubjectScore(subject, score) : "";
 }
 
 function starRoundRows(record) {
@@ -4924,6 +4924,7 @@ function formatStarPdfRequirements(year, items) {
     .map((item) => {
       return formatStarRequirement(year, item);
     })
+    .filter(Boolean)
     .join("、");
 }
 
@@ -5044,7 +5045,7 @@ function cacDetailHtml(record, cac) {
         <h3>繁星檢定與比序</h3>
         <div class="detail-list">
           ${rank ? kv("在校學業成績全校排名百分比標準", rank) : kv("在校排名百分比標準", "目前未取得此年度附件資料")}
-          ${cac.testRequirements?.length ? kv("學測/英聽檢定", cac.testRequirements.map((item) => formatRequirementWithStandard(record.year, item.subject, item.standard)).filter(Boolean).join("、")) : ""}
+          ${cac.testRequirements?.length ? kv("學測/英聽檢定", formatStarPdfRequirements(record.year, cac.testRequirements)) : ""}
           ${cac.distributionOrder?.length ? kv("分發比序項目", cac.distributionOrder.join("\n")) : ""}
         </div>
       </section>
