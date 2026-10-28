@@ -945,7 +945,6 @@ function bindElements() {
     "explorerRoot",
     "compareGrid",
     "compareYearFilter",
-    "compareResultCount",
     "sourceList",
     "qualityReportRoot",
     "detailDrawer",
@@ -1884,13 +1883,6 @@ function setupContactLinks() {
   if (footContact) footContact.hidden = !(email || safeUrl(config.lineUrl));
 }
 
-// 導覽列「追蹤清單」旁顯示目前追蹤了幾個校系。
-function updateNavCompareCount() {
-  const badge = typeof document !== "undefined" && typeof document.getElementById === "function" ? document.getElementById("navCompareCount") : null;
-  if (!badge) return;
-  badge.hidden = !state.compare.length;
-  badge.textContent = state.compare.length ? String(state.compare.length) : "";
-}
 
 // ── 網址狀態 ──────────────────────────────────────────
 // 目前頁面、查詢條件與開啟中的校系會寫進網址 #，
@@ -2829,16 +2821,14 @@ function syncWorkbenchControls() {
   const tray = document.getElementById("compareTray");
   if (tray) {
     tray.hidden = !state.compare.length;
-    const count = document.getElementById("compareTrayCount");
-    if (count) count.textContent = fmt.format(state.compare.length);
   }
 }
 
 // 工作臺與追蹤清單共用同一列，確保管道、標準與軍校等備註一致。
-// 每列只突出一個重點（個申一階篩選、繁星一階、分發最低錄取、特選名額），其餘條件用一行灰字。
+// 繁星一階、二階使用同樣的條件列；其他管道依主要條件呈現。
 function workbenchRecordRowHtml(record, comparing = false) {
   const summary = recordSummary(record);
-  const keyHtml = summary.key ? `<p class="rec-key"><span class="rec-label">${escapeHtml(summary.key.label)}</span><span class="rec-key-value">${summary.key.html}</span></p>` : "";
+  const keyHtml = [summary.key, summary.secondKey].filter(Boolean).map((key) => `<p class="rec-key"><span class="rec-label">${escapeHtml(key.label)}</span><span class="rec-key-value">${key.html}</span></p>`).join("");
   const subHtml = summary.sub ? `<p class="rec-sub"><span class="rec-label">${escapeHtml(summary.sub.label)}</span><span>${String(summary.sub.text).split("、").map((item) => `<span class="rec-item">${escapeHtml(item)}</span>`).join("、")}</span></p>` : "";
   const inCompare = state.compare.some((item) => item.id === record.id);
   const name = `${record.schoolName}${record.departmentName}`;
@@ -2864,7 +2854,7 @@ function workbenchRecordRowHtml(record, comparing = false) {
     `;
 }
 
-// 依管道挑出列上最重要的一項（key）與一行補充（sub）；文字固定，不依年份改寫。
+// 依管道整理主要條件與補充門檻；繁星兩階段維持同等格式。
 function recordSummary(record) {
   const steps = (items) => items.map((text) => `<b>${escapeHtml(text)}</b>`).join('<i class="rec-step" aria-hidden="true">›</i><span class="sr-only">，</span>');
   if (record.specialSelection) {
@@ -2891,9 +2881,12 @@ function recordSummary(record) {
     const firstItems = first?.items || [];
     const secondItems = second?.items || [];
     const key = firstItems.length
-      ? { label: "一階", html: `${steps(firstItems)}${secondItems.length ? `<span class="rec-after">二階 ${escapeHtml(secondItems.join("、"))}</span>` : ""}` }
+      ? { label: "一階", html: steps(firstItems) }
       : (first ? { label: "一階", html: '<span class="rec-muted">從缺</span>' } : null);
-    return { key, sub: thresholds.length ? { label: "申請門檻", text: thresholds.join("、") } : null };
+    const secondKey = secondItems.length
+      ? { label: "二階", html: steps(secondItems) }
+      : (second ? { label: "二階", html: '<span class="rec-muted">從缺</span>' } : null);
+    return { key, secondKey, sub: thresholds.length ? { label: "申請門檻", text: thresholds.join("、") } : null };
   }
   if (record.channelKey === "exam_distribution") {
     const result = distributionResult(record);
@@ -5210,7 +5203,6 @@ function restoreCompare() {
   const recordsById = new Map(state.records.map(record => [record.id, record]));
   const ids = [...new Set(payload.ids)].slice(0, 100);
   state.compare = ids.map(id => recordsById.get(id)).filter(Boolean);
-  if (typeof updateNavCompareCount === "function") updateNavCompareCount();
   const missingCount = ids.length - state.compare.length;
   if (saveCompare() && missingCount) {
     state.compareStorageStatus = `已恢復 ${state.compare.length} 個校系；${missingCount} 個項目已不在目前資料中，請重新確認。清單已儲存於此瀏覽器。`;
@@ -5244,7 +5236,6 @@ function toggleCompare(id) {
 }
 
 function renderCompare() {
-  if (typeof updateNavCompareCount === "function") updateNavCompareCount();
   const hasRecords = state.compare.length > 0;
   const tools = document.getElementById("compareTools");
   if (tools) tools.hidden = !hasRecords || dataPending();
@@ -5265,7 +5256,6 @@ function renderCompare() {
     button.setAttribute("aria-pressed", String(selected));
   });
   const visible = filteredCompareRecords();
-  els.compareResultCount.textContent = `顯示 ${fmt.format(visible.length)} 筆 · 已追蹤 ${fmt.format(state.compare.length)} / 100 個校系`;
   if (!state.compare.length) {
     els.compareGrid.innerHTML = `
       <section class="compare-empty-state" aria-labelledby="trackingEmptyTitle">

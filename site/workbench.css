@@ -364,23 +364,19 @@
   background: #e8f6f4;
 }
 
-/* ── 追蹤清單頁：管道切換和工作台的快速選項同一種樣式（可複選） ── */
+/* 追蹤管道可複選；獨立邊框與 12px 間距讓每個操作清楚分開。 */
 #compareView .compare-channel-buttons {
-  display: inline-flex;
+  display: flex;
   flex-wrap: wrap;
-  gap: 0;
-  padding: 3px;
-  border: 1px solid var(--line);
-  border-radius: 12px;
-  background: var(--soft);
+  gap: 12px;
 }
 
 #compareView .compare-channel-buttons .ghost-button {
-  min-height: 36px;
-  padding: 0 14px;
-  border: 0;
+  min-height: 44px;
+  padding: 0 18px;
+  border: 1px solid var(--line);
   border-radius: 9px;
-  background: transparent;
+  background: var(--paper);
   color: var(--muted);
   font-size: 14px;
   font-weight: 700;
@@ -388,8 +384,20 @@
 }
 
 #compareView .compare-channel-buttons .ghost-button.active {
+  border-color: var(--side);
   background: var(--side);
   color: #fff;
+}
+
+#compareView .compare-result-summary {
+  justify-content: flex-end;
+}
+
+@media (max-width: 600px) {
+  #compareView .compare-channel-buttons {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
 }
 
 /* ── 手機與窄螢幕 ── */

@@ -59,10 +59,35 @@
       if (!current.pathname.startsWith(target.pathname)) target.searchParams.set("return", current.pathname + current.search + current.hash);
       link.href = target.href;
       const label = link.querySelector("[data-student-account-label]");
-      if (label) label.textContent = client.current ? "我的帳號" : "學生登入";
+      if (label) label.textContent = client.current ? "我的帳號" : "登入";
     });
   }
   root.YuhsinStudentAuth = { client, ready, baseUrl: base.href, safeReturnUrl, renderLinks };
-  const boot = () => { renderLinks(); ready.then(renderLinks).catch(() => {}); };
+  let dialogLoading;
+  function openDialog() {
+    if (!dialogLoading) dialogLoading = new Promise((resolve, reject) => {
+      const entry = root.document.createElement("script");
+      entry.src = new URL("student-login-dialog.js?v=20261028-modal1", base).href;
+      entry.onload = resolve;
+      entry.onerror = () => { entry.remove(); dialogLoading = null; reject(new Error("無法載入登入視窗，請稍後再試。")); };
+      root.document.body.append(entry);
+    });
+    return dialogLoading.then(() => root.YuhsinStudentAuth.openDialog());
+  }
+  const boot = () => {
+    renderLinks(); ready.then(renderLinks).catch(() => {});
+    root.document.addEventListener("click", event => {
+      const link = event.target.closest("[data-student-account]");
+      if (!link || event.ctrlKey || event.metaKey || event.shiftKey || event.altKey) return;
+      event.preventDefault();
+      openDialog().catch(error => root.alert(error.message));
+    });
+    const url = new URL(root.location.href);
+    if (url.searchParams.get("login") === "1") {
+      url.searchParams.delete("login");
+      root.history.replaceState(root.history.state, "", url);
+      openDialog().catch(error => root.alert(error.message));
+    }
+  };
   if (root.document.readyState === "loading") root.document.addEventListener("DOMContentLoaded", boot); else boot();
 })(typeof window !== "undefined" ? window : globalThis);

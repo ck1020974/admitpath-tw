@@ -3,3 +3,34 @@
 .student-account-entry:focus-visible{outline:3px solid #c28a28;outline-offset:3px}
 .student-account-entry svg{width:17px;height:17px;flex:none}
 @media(max-width:1020px){.top-nav .student-account-entry,.site-nav .student-account-entry{grid-column:1/-1;min-height:44px;border-radius:12px;margin:0}}
+
+/* Login stays over the current page; all styles are scoped to the dialog. */
+html.student-dialog-open { overflow: hidden; scrollbar-gutter: stable; }
+.student-login-dialog { box-sizing:border-box; width:min(400px,calc(100% - 32px)); max-height:calc(100dvh - 32px); margin:auto; padding:28px; overflow:auto; border:1px solid rgba(255,255,255,.8); border-radius:20px; background:rgba(255,255,255,.94); color:#172f32; box-shadow:0 24px 80px rgba(18,40,39,.2); backdrop-filter:blur(18px); font:14px/1.5 "Microsoft JhengHei","Noto Sans TC",sans-serif; }
+.student-login-dialog::backdrop { background:rgba(20,38,37,.36); backdrop-filter:blur(5px); }
+.student-login-dialog *, .student-login-dialog *::before, .student-login-dialog *::after { box-sizing:border-box; }
+.student-login-dialog [hidden] { display:none!important; }
+.student-login-dialog h2 { margin:0 48px 20px 0; font-size:24px; line-height:1.4; }
+.student-login-dialog h2:focus { outline:none; }
+.student-login-dialog button { font:inherit; cursor:pointer; }
+.student-dialog-close { position:absolute; top:12px; right:12px; display:grid; place-items:center; width:44px; height:44px; padding:0; border:0; border-radius:50%; background:transparent; color:#536762; font-size:28px!important; }
+.student-dialog-close:hover { background:#e6efeb; }
+.student-dialog-form { display:grid; gap:16px; }
+.student-dialog-form label { display:grid; gap:6px; font-weight:700; }
+.student-dialog-form input { display:block; width:100%; min-width:0; height:46px; padding:10px 12px; border:1px solid #bfcec7; border-radius:9px; background:rgba(255,255,255,.8); color:#172f32; font-family:inherit; font-size:16px; font-weight:400; line-height:1.4; }
+.student-password-wrap { position:relative; display:block; }
+.student-password-wrap input { padding-right:48px; }
+.student-password-toggle { position:absolute; right:1px; top:1px; display:grid; place-items:center; width:44px; height:44px; border:0; border-radius:8px; background:transparent; color:#567369; }
+.student-password-toggle svg { width:20px; height:20px; }
+.student-dialog-status { margin:0 0 16px; color:#80642d; font-size:13px; }
+.student-dialog-hint { margin:0; color:#687c75; font-size:12px; line-height:1.6; }
+.student-dialog-error { margin:0; color:#ae3030; font-size:13px; overflow-wrap:anywhere; }
+.student-dialog-submit, .student-dialog-logout { width:100%; min-height:46px; padding:10px 16px; border:0; border-radius:9px; background:#137d73; color:#fff; font-weight:700!important; }
+.student-dialog-submit:disabled { cursor:default; background:#dce7e1; color:#536b62; }
+.student-login-dialog :is(button,input):focus-visible { outline:3px solid #b68b40; outline-offset:2px; }
+.student-dialog-name { font-size:18px; margin:0 0 12px; }
+.student-dialog-account dl { margin:0 0 16px; }
+.student-dialog-account dl div { display:flex; justify-content:space-between; gap:12px; padding:8px 0; border-bottom:1px solid #dce5e0; }
+.student-dialog-account dt { color:#687c75; }
+.student-dialog-account dd { margin:0; font-weight:700; }
+@media(max-height:560px) { .student-login-dialog { padding:20px 24px; } .student-login-dialog h2 { margin-bottom:12px; } .student-dialog-form { gap:10px; } .student-dialog-status { margin-bottom:10px; } }

@@ -11,7 +11,7 @@ const clear = {};
 const tools = {};
 const state = { records, compare: [], compareFilters: { year: 'all', channels: [...channels] } };
 let alerts = 0;
-const context = { state, els: { compareGrid: grid, compareYearFilter: {}, compareResultCount: {} }, fmt: new Intl.NumberFormat('zh-Hant-TW'),
+const context = { state, els: { compareGrid: grid, compareYearFilter: {} }, fmt: new Intl.NumberFormat('zh-Hant-TW'),
   COMPARE_STORAGE_KEY: 'admitpath-tw:compare:v1',
   document: { getElementById: id => id === 'compareTools' ? tools : id === 'clearCompareButton' ? clear : null, querySelectorAll: () => buttons }, window: { alert: () => alerts++, localStorage: { setItem() {} } },
   renderTable() {}, updateDetailCompareButton() {}, recordSummary: r => ({ key: { label: '條件', html: `標準${r.id}` }, sub: null }), channelBadge: r => r.channelKey, specialAdmissionBadgeHtml: () => '（軍校）', escapeHtml: String, escapeAttr: String };
@@ -29,7 +29,9 @@ assert.equal(clear.hidden, false);
 assert.equal(state.compare.length, 100);
 assert.equal(context.filteredCompareRecords().length, 100);
 assert.equal((grid.innerHTML.match(/<tr[ >]/g) || []).length, 101); // Header + all 100 rows, no hidden cap.
-assert.ok(context.els.compareResultCount.textContent.includes('100 / 100'));
+assert.ok(!html.includes('id="compareResultCount"'));
+assert.ok(!html.includes('id="navCompareCount"'));
+assert.ok(!html.includes('id="compareTrayCount"'));
 context.toggleCompare('100');
 assert.equal(state.compare.length, 100);
 assert.equal(alerts, 1);
@@ -63,6 +65,25 @@ for (const comparing of [false, true]) {
 }
 assert.equal((html.match(/data-compare-channel-toggle=/g) || []).length, 4);
 assert.ok(html.includes('id="compareYearFilter"'));
+// Star admission rounds share the same row markup, bold values and separators.
+context.starThresholdParts = () => ['英文 均標'];
+context.starRoundRows = () => [{ items: ['在校 5%', '英文 13'] }, { items: ['在校 8%', '英文 12'] }];
+vm.runInContext(source.match(/function recordSummary\([\s\S]*?\n\}/)[0], context);
+const starRecord = { ...records[0], channelKey: 'star_recommendation' };
+for (const comparing of [false, true]) {
+  const starRow = context.workbenchRecordRowHtml(starRecord, comparing);
+  assert.equal((starRow.match(/class="rec-key"/g) || []).length, 2);
+  assert.equal((starRow.match(/class="rec-key-value"/g) || []).length, 2);
+  assert.ok(starRow.includes('<b>在校 5%</b>') && starRow.includes('<b>在校 8%</b>'));
+  assert.equal((starRow.match(/class="rec-step"/g) || []).length, 2);
+  assert.ok(!starRow.includes('rec-after'));
+  assert.ok(starRow.indexOf('申請門檻') < starRow.indexOf('>一階<'));
+  assert.ok(starRow.indexOf('>一階<') < starRow.indexOf('>二階<'));
+}
+context.starRoundRows = () => [{ items: [] }, { items: ['在校 8%'] }];
+assert.ok(context.workbenchRecordRowHtml(starRecord).includes('<b>在校 8%</b>'));
+context.starRoundRows = () => [];
+assert.equal(context.recordSummary(starRecord).secondKey, null);
 state.compare = [];
 context.renderCompare();
 assert.equal(tools.hidden, true);
