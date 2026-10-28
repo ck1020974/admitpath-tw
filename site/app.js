@@ -1779,6 +1779,16 @@ function hydrateSchoolFilter() {
 }
 
 // 同一份捷徑內容與互動，供校系查詢和落點分析使用。
+function toggleQueryShortcut(filters, category = "") {
+  if (category) {
+    filters.quickCategory = filters.quickCategory === category ? "" : category;
+    filters.dualDegreeOnly = false;
+  } else {
+    filters.dualDegreeOnly = !filters.dualDegreeOnly;
+    filters.quickCategory = "";
+  }
+}
+
 function mountQueryShortcuts() {
   const template = document.getElementById("queryShortcutsTemplate");
   if (!template) return;
@@ -1788,7 +1798,7 @@ function mountQueryShortcuts() {
     host.appendChild(template.content.cloneNode(true));
     host.querySelector("[data-query-dual-degree]")?.addEventListener("click", () => {
       const filters = id === "workbenchQuickFilters" ? state.filters : state.placement;
-      filters.dualDegreeOnly = !filters.dualDegreeOnly;
+      toggleQueryShortcut(filters);
       if (id === "workbenchQuickFilters") applyFilters();
       else renderPlacementAnalysis();
     });
@@ -1808,7 +1818,7 @@ function mountQueryShortcuts() {
         button.removeAttribute("data-placement-popular-category");
         button.addEventListener("click", () => {
           const category = button.dataset.workbenchPopularCategory;
-          state.filters.quickCategory = state.filters.quickCategory === category ? "" : category;
+          toggleQueryShortcut(state.filters, category);
           applyFilters();
         });
       });
@@ -1895,6 +1905,7 @@ function routeHash() {
   const params = new URLSearchParams();
   if (state.view === "workbench") {
     Object.entries(ROUTE_FILTER_KEYS).forEach(([param, key]) => {
+      if (key === "quickCategory" && state.filters.dualDegreeOnly) return;
       const value = state.filters[key];
       if (value && value !== "all") params.set(param, value === true ? "1" : value);
     });
@@ -1936,7 +1947,7 @@ function applyRoute(route) {
       const channel = [...els.channelFilter.options].some((option) => option.value === route.filters.channel) ? route.filters.channel : "all";
       const school = [...els.schoolFilter.options].some((option) => option.value === route.filters.school) ? route.filters.school : "all";
       Object.assign(state.filters, { year, channel, school, keyword: route.filters.keyword,
-        schoolScope: route.filters.schoolScope || "all", quickCategory: route.filters.quickCategory || "",
+        schoolScope: route.filters.schoolScope || "all", quickCategory: route.filters.dualDegreeOnly === "1" ? "" : route.filters.quickCategory || "",
         dualDegreeOnly: route.filters.dualDegreeOnly === "1" });
       els.yearFilter.value = year;
       els.channelFilter.value = channel;
@@ -2119,7 +2130,7 @@ function bindPlacementEvents() {
   document.querySelectorAll("[data-placement-popular-category]").forEach(button => {
     button.addEventListener("click", () => {
       const category = button.dataset.placementPopularCategory || "";
-      state.placement.quickCategory = state.placement.quickCategory === category ? "" : category;
+      toggleQueryShortcut(state.placement, category);
       if (state.placement.quickCategory && button.dataset.categoryEvent) {
         trackEvent(`placement-category-${button.dataset.categoryEvent}`, category);
       }

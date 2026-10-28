@@ -6,7 +6,7 @@ const records = require('../site/data/admissions_records.json');
 const ctx = { URLSearchParams, state: { view: 'workbench', filters: { channel: 'all', year: 'all', school: 'all', keyword: '', schoolScope: 'all', quickCategory: '', dualDegreeOnly: false } }, document: { getElementById: id => id.endsWith('View') ? {} : null } };
 vm.createContext(ctx);
 vm.runInContext(source.match(/const ROUTE_FILTER_KEYS = .*;/)[0], ctx);
-for (const name of ['isInternationalDualDegree', 'specialAdmissionInfo', 'specialAdmissionModeAllows', 'routeHash', 'parseRoute']) {
+for (const name of ['isInternationalDualDegree', 'specialAdmissionInfo', 'specialAdmissionModeAllows', 'routeHash', 'parseRoute', 'toggleQueryShortcut']) {
   vm.runInContext(source.match(new RegExp('function ' + name + '\\([\\s\\S]*?\\n\\}'))[0], ctx);
 }
 const flying = records.filter(r => /翔飛/.test(r.departmentName));
@@ -46,7 +46,20 @@ const hash = ctx.routeHash();
 assert(hash.includes('dual=1'));
 const route = ctx.parseRoute(hash);
 assert.equal(route.filters.dualDegreeOnly, '1');
-assert.equal(route.filters.quickCategory, '電機工程學類');
+assert.equal(route.filters.quickCategory, '');
 ctx.state.filters.dualDegreeOnly = false;
 assert(!ctx.routeHash().includes('dual='));
+for (const filters of [{ quickCategory: '', dualDegreeOnly: false }, { quickCategory: '法律學類', dualDegreeOnly: false }]) {
+  ctx.toggleQueryShortcut(filters);
+  assert.equal(filters.quickCategory, '');
+  assert.equal(filters.dualDegreeOnly, true);
+  ctx.toggleQueryShortcut(filters, '心理學類');
+  assert.equal(filters.quickCategory, '心理學類');
+  assert.equal(filters.dualDegreeOnly, false);
+  ctx.toggleQueryShortcut(filters, '心理學類');
+  assert.equal(filters.quickCategory, '');
+  ctx.toggleQueryShortcut(filters);
+  ctx.toggleQueryShortcut(filters);
+  assert.equal(filters.dualDegreeOnly, false);
+}
 console.log('Dual-degree/special groups: ' + matches.length + ' explicit overseas program records, ordinary/prose/domestic exclusions, 4 翔飛 groups and share-link state passed.');

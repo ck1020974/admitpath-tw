@@ -38,7 +38,7 @@ for (const filters of [
   { keyword: '台大 電機' }, { keyword: '清大 資工' },
   { school: '國立臺灣大學' }, { schoolScope: 'ntu', quickCategory: '電機工程學類' },
   { year: '114', keyword: '英文', schoolScope: 'nthu' },
-  { dualDegreeOnly: true }, { dualDegreeOnly: true, quickCategory: '電機工程學類' },
+  { dualDegreeOnly: true },
   { quickCategory: '心理學類' }, { quickCategory: '法律學類' },
 ]) {
   const shared = { year: 'all', channel: 'personal_application', school: 'all', schoolScope: 'all', quickCategory: '', keyword: '', ...filters };
