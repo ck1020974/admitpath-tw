@@ -27,11 +27,15 @@ function load(config,hostname='ck1020974.github.io'){
  for(const bad of ['15 號 王小明','a@b.com','curiosity-top/'+'很'.repeat(30),'Answer:2','/view','x/y/z'])assert.equal(api.event(bad),false,bad);
  assert.equal(JSON.stringify(api._queue.map(q=>q.path)),JSON.stringify(['/site-visit','/view/workbench','curiosity-share-copy','compare-add','compare-add','curiosity-top/資訊學群']));
  assert.ok(api._queue.slice(2).every(q=>q.event===true));
+ assert.equal(api.event('curiosity-assessment-complete','完成初次施測',{total:true}),true);
+ assert.equal(api.event('curiosity-assessment-complete','完成初次施測',{total:true}),true);
+ assert.ok(api._queue.slice(-2).every(q=>q.no_session===true),'每次完成都計入，不被統計服務的同一訪客去重');
+ assert.equal(api._queue.find(q=>q.path==='compare-add').no_session,undefined,'其他統計維持原本去重方式');
 }
 // 學群探索與主站都載入統計程式，而且只送事件名稱。
 const curiosity=fs.readFileSync(path.join(__dirname,'../site/explore/curiosity/index.html'),'utf8');
 assert.match(curiosity,/\.\.\/\.\.\/usage\.js/);
 const app=fs.readFileSync(path.join(__dirname,'../site/explore/curiosity/app.js'),'utf8');
-for(const name of ['curiosity-start','curiosity-step1-done','curiosity-result','curiosity-deep-done','curiosity-extra-done','curiosity-share-copy'])assert.ok(app.includes(`'${name}'`),name);
+for(const name of ['curiosity-start','curiosity-step1-done','curiosity-result','curiosity-deep-done','curiosity-extra-done'])assert.ok(app.includes(`'${name}'`),name);
 assert.doesNotMatch(app,/track\([^)]*shareName/,'名字不會送出');
 console.log('Usage tracking: disabled without code or on localhost, GoatCounter loading, once-per-visit counting, event-name whitelist and hooks passed.');

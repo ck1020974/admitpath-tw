@@ -13,16 +13,17 @@
  const sectionTypes=['priority','develop','interest','potential'];
  const reduceMotion=matchMedia('(prefers-reduced-motion: reduce)').matches;
 
+ const track=(name,title,options)=>{try{return window.YuhsinUsage?.event(name,title,options)||false;}catch{return false;}};
+ const measurement=window.YuhsinCuriosityMeasurement.create(track);
  let session=engine.createSession();
- let lastSavedView=null,view='intro',qMode='quick',qPage=0,detailPage=0,report=null,shared=null,restartArmed=null,tab=null;
+ let lastSavedView=null,view='intro',qMode='quick',qPage=0,detailPage=0,report=null,restartArmed=null,tab=null;
 
  // ── 存檔 ──
  function save(){
-  if(shared)return;
-  try{localStorage.setItem(STORAGE_KEY,JSON.stringify({snapshot:session.snapshot(),view:view==='intro'?lastSavedView:view,savedAt:Date.now()}));}catch{}
+  try{localStorage.setItem(STORAGE_KEY,JSON.stringify({snapshot:session.snapshot(),measurement:measurement.snapshot(),view:view==='intro'?lastSavedView:view,savedAt:Date.now()}));}catch{}
  }
  function restore(){
-  try{const raw=JSON.parse(localStorage.getItem(STORAGE_KEY)||'null');if(!raw)return null;session.load(raw.snapshot);lastSavedView=raw.view||null;return raw;}
+  try{const raw=JSON.parse(localStorage.getItem(STORAGE_KEY)||'null');if(!raw)return null;session.load(raw.snapshot);lastSavedView=raw.view||null;measurement.restore(raw.measurement,session.complete()?session.report():null);return raw;}
   catch{session.reset();return null;}
  }
  function clearSaved(){try{localStorage.removeItem(STORAGE_KEY);}catch{}}
@@ -61,9 +62,9 @@
  function show(name,focusId){
   view=name;document.body.dataset.view=name;if(name!=='intro')lastSavedView=name;
   document.querySelectorAll('main > .view').forEach(s=>{s.hidden=s.id!==name;});
-  el('quizBar').hidden=['intro','results'].includes(name)||Boolean(shared);
-  if(name!=='results'&&!shared&&location.hash)history.replaceState(null,'',location.pathname+location.search);
-  if(name==='results'&&!shared&&location.hash!=='#results')history.replaceState(null,'',location.pathname+location.search+'#results');
+  el('quizBar').hidden=['intro','results'].includes(name);
+  if(name!=='results'&&location.hash)history.replaceState(null,'',location.pathname+location.search);
+  if(name==='results'&&location.hash!=='#results')history.replaceState(null,'',location.pathname+location.search+'#results');
   window.scrollTo({top:0,behavior:'instant'});
   if(focusId)el(focusId).focus({preventScroll:true});
   save();
@@ -99,14 +100,13 @@
  }
  function disarmRestart(){restartArmed=null;document.querySelectorAll('[data-restart]').forEach(b=>{b.textContent='重新開始';});}
  // 使用次數統計：只記錄做到哪一步、用了哪些功能，不記錄作答、科目或名字（主站 usage.js；沒有載入時略過）。
- const track=(name,title,options)=>{try{window.YuhsinUsage&&window.YuhsinUsage.event(name,title,options);}catch{}};
  function restart(button){
   if(restartArmed!==button){disarmRestart();restartArmed=button;button.textContent='確定清除作答？再按一次';return;}
   track('curiosity-restart','重新開始');
-  clearSaved();session.reset();qPage=0;detailPage=0;report=null;tab=null;disarmRestart();renderIntro();
+  clearSaved();session.reset();measurement.reset();qPage=0;detailPage=0;report=null;tab=null;disarmRestart();renderIntro();
  }
 
- // ── 作答：一頁 6 題（好奇心、深入確認、換一批題目都一樣） ──
+ // ── 作答：一頁 6 題（好奇心、深入探索、重新測驗都一樣） ──
  const PAGE_SIZE=6;
  const questionList=()=>qMode==='quick'?session.questions():qMode==='extra'?session.extraQuestions():session.deepQuestions();
  const pageSize=()=>PAGE_SIZE;
@@ -116,8 +116,8 @@
   const list=questionList(),a=session.snapshot().answers,done=list.filter(q=>a[q.id]!==undefined).length;
   const pages=pageCount(),pageText=pages>1?`第 ${qPage+1} / ${pages} 頁　`:'';
   if(qMode==='quick')setBar('第 1 / 3 步・好奇心',`${pageText}已答 ${done} / ${list.length}`,done/list.length*0.6,{on:answeredFlags(),current:list.map((q,i)=>Math.floor(i/PAGE_SIZE)===qPage)});
-  else if(qMode==='extra')setBar('換一批題目',`${pageText}已答 ${done} / ${list.length}`,done/list.length);
-  else setBar('深入確認・補充問題',`${pageText}已答 ${done} / ${list.length}`,done/list.length*0.5);
+  else if(qMode==='extra')setBar('重新測驗',`${pageText}已答 ${done} / ${list.length}`,done/list.length);
+  else setBar('深入探索・補充問題',`${pageText}已答 ${done} / ${list.length}`,done/list.length*0.5);
  }
  function renderQuestion(){
   qPage=Math.min(Math.max(qPage,0),pageCount()-1);
@@ -152,7 +152,7 @@
   if(qPage<pageCount()-1){qPage++;renderQuestion();return;}
   if(qMode==='quick'){track('curiosity-step1-done','完成第 1 步',{once:true});if(session.favouritesNeeded())renderFavourites();else renderSubjects();}
   else if(qMode==='deep'&&session.detailPlan().length){detailPage=0;renderDeepDetails();}
-  else{if(qMode==='extra')track('curiosity-extra-done','答完一批新題目');else track('curiosity-deep-done','完成深入確認');renderResults();}
+  else{if(qMode==='extra')track('curiosity-extra-done','答完一批新題目');else track('curiosity-deep-done','完成深入探索');renderResults();}
  }
  const pageCountFor=mode=>mode==='quick'?Math.ceil(data.quickSet.length/PAGE_SIZE):1;
  const firstUnansweredPage=()=>{const a=session.snapshot().answers,i=questionList().findIndex(q=>a[q.id]===undefined);return Math.floor(Math.max(0,i)/pageSize());};
@@ -190,13 +190,13 @@
   el('subjectsCount').textContent=`強項 ${p.strong.length} / ${data.strongLimit}・吃力 ${p.weak.length} / ${data.weakLimit}`;
  }
 
- // ── 深入確認：具體內容 ──
+ // ── 深入探索：具體內容 ──
  function renderDeepDetails(){
   const plan=session.detailPlan();
   if(!plan.length)return renderResults();
   detailPage=Math.min(Math.max(detailPage,0),plan.length-1);
   const row=plan[detailPage],goals=session.snapshot().deep.goals;
-  setBar('深入確認・具體內容',`第 ${detailPage+1} / ${plan.length} 科`,0.5+detailPage/plan.length*0.5);
+  setBar('深入探索・具體內容',`第 ${detailPage+1} / ${plan.length} 科`,0.5+detailPage/plan.length*0.5);
   el('deepDetailsTitle').textContent=`這些和「${subject(row.subject).label}」有關的事，你做得如何？`;
   el('goalRows').innerHTML=row.goals.map((g,i)=>`<fieldset class="goal-row"><legend><span class="goal-no" aria-hidden="true">${i+1}</span>${esc(g.text)}</legend><div class="scale-options">${data.masteryOptions.map(o=>`<label class="scale-option"><input type="radio" name="g-${g.id}" value="${o.value}" data-goal="${g.id}" ${goals[g.id]===o.value?'checked':''}><span>${esc(o.label)}</span></label>`).join('')}</div></fieldset>`).join('');
   el('deepDetailsError').textContent='';
@@ -250,19 +250,11 @@
  }
  function renderResults(){
   report=session.report();
-  // 只統計「看到結果」與最前面的方向（學群名稱），作為整體趨勢；分享的結果不算。
-  if(!shared){
-   track('curiosity-result','看到探索結果',{once:true});
-   const top=report.groups.find(g=>g.type!=='other');if(top)track('curiosity-top/'+top.name,'最前面的方向',{once:true});
-   if(report.undeclared)track('curiosity-undeclared','建議不分系',{once:true});
-  }
+  measurement.completed(report);
+  track('curiosity-result','看到探索結果',{once:true});
   const types=availableTypes();
   if(!types.includes(tab))tab=types[0]||null;
-  el('resultsTitle').textContent=shared?(shared.name?`${shared.name} 的探索方向`:'分享的探索方向'):'你的探索方向';
-  el('resultVersion').textContent=[report.deep?'已深入確認':'快速探索',report.extraRounds?`再探索 ${report.extraRounds} 批`:''].filter(Boolean).join('・');
-  // 自己的結果在底紙下緣已說明是快速探索或已深入確認；只有分享的結果才在標題旁標示。
-  el('resultVersion').hidden=!shared;
-  el('sharedBanner').hidden=!shared;
+  el('resultsTitle').textContent='你的探索方向';
   el('resultTabs').hidden=!types.length;el('resultPanel').hidden=!types.length;el('emptyResult').hidden=Boolean(types.length);
   if(types.length)renderTabs();
   else{el('sheet').dataset.type='none';el('emptyCards').innerHTML=undeclaredCard();}
@@ -270,21 +262,12 @@
   el('otherGroups').hidden=!others.length;
   el('otherGroupsTitle').textContent=`其他學群（${others.length}）`;
   el('otherGroupList').innerHTML=others.map(g=>`<a href="${esc(mainLink(g.name))}">${esc(short(g.name))}</a>`).join('');
-  el('resultActions').hidden=Boolean(shared);
+  el('resultActions').hidden=report.deep&&!report.canExplore&&session.extraComplete();
   el('startDeep').hidden=report.deep;
-  // 換一批題目：每個學群再問 1 題沒看過的題目；上一批沒答完時改成「繼續」。
+  // 重新測驗：每個學群再問 1 題沒看過的題目；上一批沒答完時改成「繼續」。
   const extraPending=!session.extraComplete();
-  el('startExtra').hidden=Boolean(shared)||!(report.canExplore||extraPending);
-  el('startExtra').textContent=extraPending?'繼續答這批題目':'換一批題目';
-  const extraNote=report.extraRounds?`，也換過 ${report.extraRounds} 批題目`:'';
-  if(report.deep)el('deepPanelText').innerHTML=`<b>已完成深入確認${esc(extraNote)}</b>這是補答後更新的結果。`;
-  else if(!shared){
-   const preview=engine.createSession();preview.load(session.snapshot());preview.startDeep();
-   const q=preview.deepQuestions().length,subjects=preview.detailPlan().length;
-   el('deepPanelText').innerHTML=`<b>這是快速探索的結果${esc(extraNote)}</b>深入確認再答 ${q} 題${subjects?`、檢查 ${subjects} 科`:''}，方向會更準；也可以換一批新題目。`;
-  }
-  el('sharePanel').hidden=true;el('toggleShare').setAttribute('aria-expanded','false');el('resultTools').hidden=Boolean(shared);
-  el('shareStatus').textContent='';el('shareUrl').hidden=true;
+  el('startExtra').hidden=!(report.canExplore||extraPending);
+  el('startExtra').textContent=extraPending?'繼續答這批題目':'重新測驗';
   show('results','resultsTitle');
  }
  function evidence(id){
@@ -297,16 +280,9 @@
    <p>權重、門檻與題目連結是本站編輯規則，不是錄取條件或適合率。</p><a href="${row.source}" target="_blank" rel="noopener noreferrer">ColleGo! 學群參考 ↗</a>`;
   el('evidenceDialog').showModal();
  }
- async function copyLink(){
-  const url=new URL(location.href);url.search='';url.hash='r='+engine.encodeShare(session.snapshot(),el('shareName').value);
-  el('shareUrl').value=url.href;
-  try{await navigator.clipboard.writeText(url.href);el('shareStatus').textContent='已複製結果連結，可以貼到 LINE 或作業繳交區。';track('curiosity-share-copy','複製結果連結',{once:true});el('shareUrl').hidden=true;}
-  catch{el('shareUrl').hidden=false;el('shareUrl').select();el('shareStatus').textContent='瀏覽器不允許自動複製，請直接複製上面的連結。';}
- }
-
  // ── 事件 ──
- el('start').addEventListener('click',()=>{track('curiosity-start','開始學群探索');qMode='quick';qPage=0;renderQuestion();});
- el('resume').addEventListener('click',()=>{track('curiosity-resume','繼續上次的探索');resumeView();});
+ el('start').addEventListener('click',()=>{measurement.start();track('curiosity-start','開始學群探索');qMode='quick';qPage=0;renderQuestion();});
+ el('resume').addEventListener('click',()=>{measurement.start();track('curiosity-resume','繼續上次的探索');resumeView();});
  document.querySelectorAll('[data-restart]').forEach(b=>b.addEventListener('click',()=>restart(b)));
  document.querySelectorAll('[data-about]').forEach(b=>b.addEventListener('click',()=>el('aboutDialog').showModal()));
  el('toIntro').addEventListener('click',renderIntro);
@@ -351,8 +327,8 @@
   renderResults();
  });
 
- el('startDeep').addEventListener('click',()=>{track('curiosity-deep-start','開始深入確認');session.startDeep();save();detailPage=0;if(session.deepQuestions().length){qMode='deep';qPage=0;renderQuestion();}else renderDeepDetails();});
- el('startExtra').addEventListener('click',()=>{if(session.extraComplete())track('curiosity-extra-start','換一批題目');session.startExtra();save();qMode='extra';qPage=firstUnansweredPage();renderQuestion();});
+ el('startDeep').addEventListener('click',()=>{track('curiosity-deep-start','開始深入探索');session.startDeep();save();detailPage=0;if(session.deepQuestions().length){qMode='deep';qPage=0;renderQuestion();}else renderDeepDetails();});
+ el('startExtra').addEventListener('click',()=>{if(session.extraComplete())track('curiosity-extra-start','重新測驗');session.startExtra();save();qMode='extra';qPage=firstUnansweredPage();renderQuestion();});
  el('goalRows').addEventListener('change',e=>{
   const input=e.target.closest('input[data-goal]');if(!input)return;
   session.goal(input.dataset.goal,Number(input.value));
@@ -364,7 +340,7 @@
  el('deepDetailsNext').addEventListener('click',()=>{
   const row=session.detailPlan()[detailPage],goals=session.snapshot().deep.goals,missing=row.goals.filter(g=>goals[g.id]===undefined).length;
   if(missing){el('deepDetailsError').textContent=`還有 ${missing} 項沒選。`;return;}
-  if(detailPage<session.detailPlan().length-1){detailPage++;renderDeepDetails();}else{track('curiosity-deep-done','完成深入確認');renderResults();}
+  if(detailPage<session.detailPlan().length-1){detailPage++;renderDeepDetails();}else{track('curiosity-deep-done','完成深入探索');renderResults();}
  });
  el('openSubjectInfo').addEventListener('click',openSubjectInfo);
 
@@ -375,11 +351,8 @@
   if(next===undefined)return;e.preventDefault();tab=types[(next+types.length)%types.length];renderTabs(true);
  });
  el('resultCards').addEventListener('click',e=>{const b=e.target.closest('[data-evidence]');if(b)evidence(b.dataset.evidence);else if(e.target.closest('a[href]'))track('curiosity-to-main','從結果連到主站');});
- el('copyLink').addEventListener('click',copyLink);
- el('toggleShare').addEventListener('click',()=>{const open=el('sharePanel').hidden;el('sharePanel').hidden=!open;el('toggleShare').setAttribute('aria-expanded',String(open));if(open)el('shareName').focus();});
  el('editCuriosity').addEventListener('click',()=>{qMode='quick';qPage=0;renderQuestion();});
  el('editSubjects').addEventListener('click',renderSubjects);
- el('startOwn').addEventListener('click',()=>{shared=null;session=engine.createSession();restore();tab=null;history.replaceState(null,'',location.pathname);renderIntro();});
  document.querySelectorAll('dialog').forEach(d=>d.addEventListener('click',e=>{if(e.target!==d)return;const r=d.getBoundingClientRect();if(e.clientX<r.left||e.clientX>r.right||e.clientY<r.top||e.clientY>r.bottom)d.close();}));
  el('sources').innerHTML='<li><a href="https://collego.edu.tw/Highschool/CollegeList" target="_blank" rel="noopener noreferrer">ColleGo! 十八學群 ↗</a></li>'+Object.values(data.sources).map(s=>`<li><a href="${s.url}" target="_blank" rel="noopener noreferrer">${esc(s.name)} ↗</a></li>`).join('');
 
@@ -387,15 +360,10 @@
  function boot(){
   try{window.YuhsinUsage&&window.YuhsinUsage.page('curiosity','學群探索');}catch{}
   const hash=location.hash.slice(1);
-  if(hash.startsWith('r=')){
-   try{const result=engine.decodeShare(hash.slice(2));session=result.session;shared={name:result.name};tab=null;track('curiosity-share-open','打開分享的結果');renderResults();return;}
-   catch(err){shared=null;session=engine.createSession();restore();history.replaceState(null,'',location.pathname);renderIntro();el('introError').textContent=err.message;return;}
-  }
+  if(hash.startsWith('r='))history.replaceState(null,'',location.pathname+location.search);
   restore();
   if(hash==='results'&&session.complete())return renderResults();
   renderIntro();
  }
- // 在同一個分頁貼上另一個結果連結時，網址只換 # 後面，也要重新讀取。
- window.addEventListener('hashchange',()=>{if(location.hash.startsWith('#r='))boot();});
  boot();
 })();

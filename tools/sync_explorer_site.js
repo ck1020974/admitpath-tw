@@ -10,7 +10,7 @@ const generatedName = 'curiosity/group-introductions.js';
 const generated = Buffer.from(`/* Generated from the main site's shared group descriptions. */\n(function(root){const rows=${JSON.stringify(introductions)};if(typeof module!=='undefined'&&module.exports)module.exports=rows;else root.YuhsinGroupIntroductions=rows;})(typeof window!=='undefined'?window:globalThis);\n`);
 const files = ['styles.css', 'info-dialog.css', 'info-dialog.js',
   generatedName,
-  ...['index.html', 'styles.css', 'app.js', 'engine.js', 'data.js', 'subjects.js',
+  ...['index.html', 'styles.css', 'app.js', 'measurement.js', 'engine.js', 'data.js', 'subjects.js',
     'bank.js', 'units.js', 'curriculum.js', 'collego-reference.js', 'exploration-model.js'].map(name => `curiosity/${name}`)];
 function sync({ check = false } = {}) {
   for (const name of files) {

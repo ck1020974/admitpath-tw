@@ -69,7 +69,7 @@
     event(name, title = "", options = {}) {
       if (!NAME.test(name)) return false;
       if (options.once) { if (sent.has(name)) return false; sent.add(name); }
-      record({ path: name, title, event: true });
+      record({ path: name, title, event: true, ...(options.total ? { no_session: true } : {}) });
       return true;
     },
     _queue: queue,
