@@ -20,7 +20,7 @@ const ctx = { state: { records, groups, results: {}, view: 'workbench', linkedGr
 vm.createContext(ctx);
 vm.runInContext('let advancedFilterDraft = null;', ctx);
 for (const name of ['normalize', 'recordSearchText', 'queryKeywordMatches', 'refreshQueryYears', 'renderQueryShortcuts',
-  'placementSchoolScopeAllows', 'cachedGroupNeedles', 'groupRowsToNeedles', 'matchesGroup', 'applyFilters',
+  'placementSchoolScopeAllows', 'isInternationalDualDegree', 'quickCategoryNeedles', 'cachedGroupNeedles', 'groupRowsToNeedles', 'matchesGroup', 'applyFilters',
   'placementMatchesFilters', 'defaultPlacementState', 'placementProfile', 'placementSubjects', 'defaultAdvancedFilters',
   'cloneAdvancedFilters', 'currentAdvancedFilters', 'clearOuterSchoolFilters', 'openAdvancedFilters', 'closeAdvancedFilters',
   'recordMatchesAdvancedFilters', 'specialAdmissionModeAllows', 'advancedSubjectKey', 'recordSubjectKeys',
@@ -30,7 +30,7 @@ for (const name of ['normalize', 'recordSearchText', 'queryKeywordMatches', 'ref
 for (const view of ['workbench', 'placement']) {
   ctx.state.view = view;
   const outer = { year: '115', channel: 'personal_application', school: '國立臺灣大學', schoolScope: 'ntu',
-    quickCategory: '電機工程學類', keyword: '', advanced: ctx.defaultAdvancedFilters() };
+    quickCategory: '電機工程學類', dualDegreeOnly: true, keyword: '', advanced: ctx.defaultAdvancedFilters() };
   ctx.state.filters = { ...outer };
   ctx.state.placement = { ...ctx.defaultPlacementState(), ...outer, stage: 'results', scores: { 國文: '13', 英文: '12' } };
   const scores = ctx.state.placement.scores;
@@ -41,6 +41,7 @@ for (const view of ['workbench', 'placement']) {
   assert.equal(filters.school, 'all');
   assert.equal(filters.schoolScope, 'all');
   assert.equal(filters.quickCategory, '');
+  assert.equal(filters.dualDegreeOnly, false);
   assert.equal(filters.year, '115');
   assert.equal(filters.channel, 'personal_application');
   assert.strictEqual(ctx.state.placement.scores, scores);

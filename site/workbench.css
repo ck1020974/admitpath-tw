@@ -481,6 +481,7 @@
 .query-shortcuts .placement-popular-categories { margin-top: 10px; gap: 7px; }
 .query-shortcuts .placement-chip-row { gap: 7px; }
 .query-shortcuts .placement-chip { min-height: 32px; padding: 0 10px; font-weight: 600; }
+.query-shortcuts .query-dual-degree { margin-left: 8px; border-style: dashed; }
 .query-shortcuts .placement-chip:focus-visible { outline: 3px solid #176b88; outline-offset: 2px; }
 @media (max-width: 720px) {
   .query-shortcuts { padding: 10px; }

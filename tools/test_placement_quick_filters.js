@@ -11,7 +11,7 @@ vm.createContext(context);
 vm.runInContext(fs.readFileSync(require.resolve('../site/admission-catalog.js'), 'utf8'), context);
 context.AdmissionCatalog = context.window.AdmissionCatalog;
 context.AdmissionCatalog.initialize(records, special);
-for (const name of ['normalize', 'recordSearchText', 'queryKeywordMatches', 'placementSchoolScopeAllows', 'placementMatchesFilters', 'cachedGroupNeedles', 'groupRowsToNeedles', 'matchesGroup']) {
+for (const name of ['normalize', 'recordSearchText', 'queryKeywordMatches', 'placementSchoolScopeAllows', 'placementMatchesFilters', 'isInternationalDualDegree', 'quickCategoryNeedles', 'cachedGroupNeedles', 'groupRowsToNeedles', 'matchesGroup']) {
   vm.runInContext(source.match(new RegExp(`function ${name}\\([\\s\\S]*?\\n\\}`))[0], context);
 }
 for (const [school, region] of [['國立臺灣大學', 'area-north'], ['國立中興大學', 'area-central'], ['國立成功大學', 'area-south'], ['國立東華大學', 'area-east']]) {
@@ -30,6 +30,13 @@ const architecture = records.find(r => r.year === 115 && r.channelKey === 'perso
 assert(architecture);
 assert(context.placementMatchesFilters(architecture, { ...profile, quickCategory: '建築學類' }));
 assert.equal(context.placementMatchesFilters(literature, { ...profile, quickCategory: '建築學類' }), false);
+const crimeRecords = records.filter(r => r.channelKey === 'personal_application' && /犯罪防治/.test(r.departmentName));
+assert(crimeRecords.length > 0);
+for (const record of crimeRecords) {
+  for (const category of ['心理學類', '法律學類']) {
+    assert(context.placementMatchesFilters(record, { ...profile, quickCategory: category }), record.id + category);
+  }
+}
 const html = fs.readFileSync(require.resolve('../site/index.html'), 'utf8');
 const categories = [...html.matchAll(/data-placement-popular-category="([^"]+)"/g)].map(match => match[1]);
 assert.equal(new Set(categories).size, 10);

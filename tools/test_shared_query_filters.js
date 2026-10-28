@@ -15,7 +15,7 @@ const ctx = { state: { records, groups, filters: { advanced: {} }, placement: {}
 };
 vm.createContext(ctx);
 for (const name of ['normalize', 'recordSearchText', 'queryKeywordMatches', 'refreshQueryYears', 'renderQueryShortcuts',
-  'placementSchoolScopeAllows', 'cachedGroupNeedles', 'groupRowsToNeedles', 'matchesGroup', 'applyFilters',
+  'placementSchoolScopeAllows', 'isInternationalDualDegree', 'quickCategoryNeedles', 'cachedGroupNeedles', 'groupRowsToNeedles', 'matchesGroup', 'applyFilters',
   'placementMatchesFilters', 'defaultPlacementState', 'placementProfile', 'placementSubjects', 'resetPlacementFilters', 'defaultAdvancedFilters']) {
   vm.runInContext(source.match(new RegExp('function ' + name + '\\([\\s\\S]*?\\n\\}'))[0], ctx);
 }
@@ -38,6 +38,8 @@ for (const filters of [
   { keyword: '台大 電機' }, { keyword: '清大 資工' },
   { school: '國立臺灣大學' }, { schoolScope: 'ntu', quickCategory: '電機工程學類' },
   { year: '114', keyword: '英文', schoolScope: 'nthu' },
+  { dualDegreeOnly: true }, { dualDegreeOnly: true, quickCategory: '電機工程學類' },
+  { quickCategory: '心理學類' }, { quickCategory: '法律學類' },
 ]) {
   const shared = { year: 'all', channel: 'personal_application', school: 'all', schoolScope: 'all', quickCategory: '', keyword: '', ...filters };
   ctx.state.filters = { ...shared, advanced: {} };
@@ -52,11 +54,13 @@ const scores = ctx.state.placement.scores;
 const channel = ctx.state.placement.channel;
 ctx.state.placement.quickCategory = '電機工程學類';
 ctx.state.placement.keyword = '台大';
+ctx.state.placement.dualDegreeOnly = true;
 ctx.state.filters.advanced.groups = ['工程學群'];
 ctx.resetPlacementFilters();
 assert.strictEqual(ctx.state.placement.scores, scores);
 assert.equal(ctx.state.placement.channel, channel);
 assert.equal(ctx.state.placement.keyword, '');
 assert.equal(ctx.state.placement.quickCategory, '');
+assert.equal(ctx.state.placement.dualDegreeOnly, false);
 assert.equal(ctx.state.filters.advanced.groups.length, 0);
 console.log('Shared queries: multi-keyword aliases, channel years, matching result sets, school/category filters and score-preserving reset passed.');
