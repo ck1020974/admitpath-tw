@@ -1091,22 +1091,26 @@ input:focus {
 }
 
 .placement-score-grid {
-  display: grid;
-  grid-template-columns: repeat(8, minmax(0, 1fr));
+  --score-columns: 8;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
   gap: 10px 8px;
   margin-top: 12px;
 }
 
-.placement-score-grid .placement-ast-start { grid-column: 1; }
-
 .placement-score-grid label {
+  /* Leave room for the arrow on the last row, including the eight-field star form. */
+  flex: 1 1 calc((100% - 44px) / var(--score-columns) - 8px);
+  min-width: 0;
   padding: 0;
   border: 0;
   background: transparent;
 }
 
 .placement-score-grid input {
-  height: 38px;
+  min-width: 0;
+  height: 44px;
   padding: 0 8px;
   font-size: 16px;
   font-variant-numeric: tabular-nums;
@@ -1127,14 +1131,28 @@ input:focus {
 }
 
 .placement-run-slot {
-  grid-column: 1 / -1;
-  display: flex;
-  justify-content: flex-end;
-  padding-top: 4px;
+  flex: 0 0 44px;
+}
+
+.placement-run-slot > span {
+  display: block;
+  margin-bottom: 6px;
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 700;
+  text-align: center;
 }
 
 .placement-run-slot .solid-button {
-  min-height: 40px;
+  width: 44px;
+  min-height: 44px;
+  padding: 0;
+  box-shadow: none;
+}
+
+.placement-run-slot .solid-button:focus-visible {
+  outline: 3px solid #c28a28;
+  outline-offset: 3px;
 }
 
 .placement-filter-group {
@@ -4104,7 +4122,7 @@ tr:hover td {
   }
 
   .placement-score-grid {
-    grid-template-columns: repeat(8, minmax(0, 1fr));
+    --score-columns: 8;
   }
 
   .placement-direction-columns,
@@ -4205,7 +4223,7 @@ tr:hover td {
   }
 
   .placement-score-grid {
-    grid-template-columns: repeat(4, minmax(0, 1fr));
+    --score-columns: 4;
   }
 
   .placement-score-grid input { height: 44px; }
@@ -4417,7 +4435,7 @@ tr:hover td {
 
 @media (min-width: 560px) and (max-width: 720px) {
   .placement-score-grid {
-    grid-template-columns: repeat(6, minmax(0, 1fr));
+    --score-columns: 6;
   }
 }
 

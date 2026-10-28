@@ -5275,7 +5275,7 @@ function renderCompare() {
           <p>查詢校系，按下「＋ 追蹤」，就能在這裡集中查看招生條件。</p>
           <div class="compare-empty-actions">
             <a class="solid-button" href="#workbench">查詢校系</a>
-            <a class="ghost-button" href="#placement">用成績找落點</a>
+            <a class="ghost-button" href="#placement">落點分析</a>
           </div>
         </div>
         <p class="compare-empty-tip">個人申請、繁星推薦、分發入學、特殊選才，都能加入同一份追蹤清單。</p>

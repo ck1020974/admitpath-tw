@@ -21,7 +21,7 @@
   <meta property="og:image:height" content="630">
   <meta property="og:image:alt" content="YUHSIN 祐馨升學網：校系查詢、落點分析、十八學群、追蹤清單">
   <meta name="twitter:card" content="summary_large_image">
-  <link rel="stylesheet" href="./styles.css?v=20261028-tracking">
+  <link rel="stylesheet" href="./styles.css?v=20261028-inline-analysis">
   <link rel="stylesheet" href="./special.css?v=20260918-layout-fix">
   <link rel="stylesheet" href="./support.css?v=20261016-mobile-header">
   <link rel="stylesheet" href="./workbench.css?v=20261028-dual-degree">
@@ -230,9 +230,9 @@
                   <label><span>數B</span><input data-placement-score="數B" type="number" inputmode="numeric" min="0" max="15" placeholder="級分"></label>
                   <label><span>社會</span><input data-placement-score="社會" type="number" inputmode="numeric" min="0" max="15" placeholder="級分"></label>
                   <label><span>自然</span><input data-placement-score="自然" type="number" inputmode="numeric" min="0" max="15" placeholder="級分"></label>
-                  <label><span>英聽</span><input data-placement-score="英聽" type="text" autocapitalize="characters" autocomplete="off" maxlength="1" pattern="[ABCFabcf]" placeholder="A/B/C/F"></label>
+                  <label><span>英聽</span><input data-placement-score="英聽" type="text" autocapitalize="characters" autocomplete="off" maxlength="1" pattern="[ABCFabcf]" placeholder="等級"></label>
                   <label><span>在校%</span><input data-placement-score="在校" type="number" inputmode="decimal" min="0" max="100" step="any" placeholder="%"></label>
-                  <label class="placement-ast-start"><span>數甲</span><input data-placement-score="數甲" type="number" inputmode="numeric" min="0" max="60" placeholder="分科"></label>
+                  <label><span>數甲</span><input data-placement-score="數甲" type="number" inputmode="numeric" min="0" max="60" placeholder="分科"></label>
                   <label><span>數乙</span><input data-placement-score="數乙" type="number" inputmode="numeric" min="0" max="60" placeholder="分科"></label>
                   <label><span>歷史</span><input data-placement-score="歷史" type="number" inputmode="numeric" min="0" max="60" placeholder="分科"></label>
                   <label><span>地理</span><input data-placement-score="地理" type="number" inputmode="numeric" min="0" max="60" placeholder="分科"></label>
@@ -241,7 +241,8 @@
                   <label><span>化學</span><input data-placement-score="化學" type="number" inputmode="numeric" min="0" max="60" placeholder="分科"></label>
                   <label><span>生物</span><input data-placement-score="生物" type="number" inputmode="numeric" min="0" max="60" placeholder="分科"></label>
                   <div class="placement-run-slot">
-                    <button class="solid-button" id="runPlacementAnalysis" disabled>查看分析結果</button>
+                    <span aria-hidden="true">分析</span>
+                    <button class="solid-button" id="runPlacementAnalysis" type="button" aria-label="查看分析結果" title="查看分析結果" disabled><svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12h16M14 6l6 6-6 6"/></svg></button>
                   </div>
                 </div>
               </section>
@@ -441,6 +442,6 @@
   <script src="./admission-catalog.js?v=20261012-special-116"></script>
   <script src="./explorer-link.js?v=20261023-intros"></script>
   <script src="./group-introductions.js?v=20261023-intros"></script>
-  <script src="./app.js?v=20261028-tracking"></script>
+  <script src="./app.js?v=20261028-inline-analysis"></script>
 </body>
 </html>
