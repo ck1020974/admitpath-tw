@@ -8,6 +8,7 @@
   const form = $('login').querySelector('form'), submit = form.querySelector('button');
   const dialog=$('studentDialog');
   let students = [], filtered = [], summaries = new Map(), summaryReady = false, epoch = 0;
+  let picks={login:'',exam:'',tag:''},sort={key:'',direction:'asc'};
   let detailEpoch=0,selectedStudent=null,resultOffset=0,loadedResults=0;
   const date=value=>new Intl.DateTimeFormat('zh-TW',{dateStyle:'medium',timeStyle:'short',timeZone:'Asia/Taipei'}).format(new Date(value));
   function text(tag,value,className){const node=document.createElement(tag);node.textContent=value;if(className)node.className=className;return node;}
@@ -105,39 +106,76 @@
   function message(id, text) { $(id).textContent = text; $(id).hidden = !text; }
   function clearWorkspace(reset=true) {
     closeDialog();clearDetail();epoch++;students=[];filtered=[];summaries=new Map();summaryReady=false;$('students').replaceChildren();
-    if(reset){for(const id of ['search','grade','group','loginFilter','examFilter'])$(id).value='';}
+    if(reset){for(const id of ['search','grade','group'])$(id).value='';picks={login:'',exam:'',tag:''};sort={key:'',direction:'asc'};}
     $('workspace').hidden=true;$('logout').hidden=true;$('count').textContent='';$('empty').hidden=true;message('summaryStatus','');
   }
   function showLogin() { clearWorkspace(); $('login').hidden = false; }
-  function cellButton(label,student,tab,title){const button=text('button',label,'cell-link');button.type='button';button.dataset.studentId=student.id;if(title)button.title=title;button.setAttribute('aria-label',student.name+'：'+(title||label));button.addEventListener('click',()=>openStudent(student,tab));return button;}
+  function renderPills(base,now){
+    const make=(kind,options,valueOf)=>{
+      const box=$(kind+'Pills'),fragment=document.createDocumentFragment();
+      for(const option of options){
+        const count=base.filter(s=>valueOf(s)===option.value).length;
+        const button=document.createElement('button');button.type='button';button.className='pill'+((option.value==='off'||option.value==='none')&&count?' alert':'');
+        button.setAttribute('aria-pressed',String(picks[kind]===option.value));
+        if(kind==='login'){const dot=text('span','','light light-'+option.value);dot.setAttribute('aria-hidden','true');button.append(dot);}
+        button.append(text('span',option.label),text('b',String(count)));
+        button.addEventListener('click',()=>{picks[kind]=picks[kind]===option.value?'':option.value;render();});
+        fragment.append(button);
+      }
+      box.replaceChildren(fragment);
+    };
+    make('login',model.loginOptions,s=>model.login(summaries.get(s.id)?.last_sign_in_at,now));
+    make('exam',model.examOptions,s=>summaries.get(s.id)?.exam_status||'none');
+  }
+  function renderTagFilter(){
+    const box=$('tagFilter');box.replaceChildren();box.hidden=!picks.tag;if(!picks.tag)return;
+    box.append(text('span','優先探索：'));
+    const clear=text('button',picks.tag+' ×','chip chip-active');clear.type='button';clear.setAttribute('aria-label','取消篩選 '+picks.tag);
+    clear.addEventListener('click',()=>{picks.tag='';render();});box.append(clear);
+  }
   function render() {
-    const now=Date.now(),filters={search:$('search').value,grade:$('grade').value,group:$('group').value,login:summaryReady?$('loginFilter').value:'',exam:summaryReady?$('examFilter').value:''};
-    filtered=students.filter(student=>model.matches(student,filters,summaries.get(student.id),now));
+    const now=Date.now(),base={search:$('search').value,grade:$('grade').value,group:$('group').value};
+    const baseList=students.filter(student=>model.matches(student,base,summaries.get(student.id),now));
+    filtered=summaryReady?baseList.filter(student=>model.matches(student,{login:picks.login,exam:picks.exam,tag:picks.tag},summaries.get(student.id),now)):baseList;
+    if(sort.key)filtered=filtered.map((s,i)=>[s,i]).sort((x,y)=>model.compare(sort.key,sort.direction,summaries.get(x[0].id),summaries.get(y[0].id))||x[1]-y[1]).map(x=>x[0]);
+    $('rosterTitle').textContent=$('group').value||'全部班群';
+    $('overviewRows').hidden=!summaryReady;
+    if(summaryReady)renderPills(baseList,now);
+    renderTagFilter();
+    const showGroup=!$('group').value;$('groupHead').hidden=!showGroup;
+    for(const th of document.querySelectorAll('th[data-sort]'))th.setAttribute('aria-sort',sort.key===th.dataset.sort?(sort.direction==='asc'?'ascending':'descending'):'none');
     const fragment = document.createDocumentFragment();
     for (const s of filtered) {
-      const summary=summaries.get(s.id),row = document.createElement('tr');
-      const name=document.createElement('td'),button=text('button',s.name,'student-select');button.type='button';button.dataset.studentId=s.id;button.setAttribute('aria-label','查看學生 '+s.name);button.addEventListener('click',()=>openStudent(s,'tracking'));name.append(button);if(!s.active)name.append(text('span','停用','inactive'));row.append(name);
-      for(const value of [s.student_id,s.original_class,model.group(s)])row.append(text('td',value));
+      const summary=summaries.get(s.id),row = document.createElement('tr');row.addEventListener('click',()=>openStudent(s,'tracking'));
+      const name=document.createElement('td'),button=text('button',s.name,'student-select');button.type='button';button.dataset.studentId=s.id;button.setAttribute('aria-label','查看 '+s.name+' 的詳細資料');button.addEventListener('click',event=>{event.stopPropagation();openStudent(s,'tracking');});
+      name.append(button);if(!s.active)name.append(text('span','停用','inactive'));name.append(text('span',s.original_class+'・'+s.original_seat_number+' 號','sub'));row.append(name);
+      if(showGroup)row.append(text('td',model.group(s)));
       const loginCell=document.createElement('td'),trackCell=document.createElement('td'),examCell=document.createElement('td');trackCell.className='num';
       if(!summaryReady){for(const cell of [loginCell,trackCell,examCell])cell.append(text('span','—','muted'));}
       else{
         const light=model.login(summary?.last_sign_in_at,now),label=model.loginOptions.find(o=>o.value===light).label;
-        const wrap=text('span','','login-state');wrap.title=summary?.last_sign_in_at?'最後登入：'+date(summary.last_sign_in_at)+'（'+label+'）':label;
+        const wrap=text('span','','login-state');wrap.title=summary?.last_sign_in_at?'最後登入：'+date(summary.last_sign_in_at):label;
         const dot=text('span','','light light-'+light);dot.setAttribute('aria-hidden','true');
-        wrap.append(dot,text('span',model.loginDate(summary?.last_sign_in_at,now)),text('span','（'+label+'）','visually-hidden'));loginCell.append(wrap);
-        const count=summary?.tracking_count||0;
-        if(count)trackCell.append(cellButton(String(count),s,'tracking','追蹤 '+count+' 個校系'));else trackCell.append(text('span','—','muted'));
-        const result=model.exam(summary);examCell.className='exam exam-'+result.status;
-        if(result.status==='deep'&&result.groups.length>2){const shown='已作答：'+result.groups.slice(0,2).join('、')+' +'+(result.groups.length-2);examCell.append(cellButton(shown,s,'results',result.label));}
-        else if(result.status==='deep'||result.status==='quick')examCell.append(cellButton(result.label,s,'results'));
-        else examCell.append(text('span',result.label));
+        wrap.append(dot,text('span',model.loginDate(summary?.last_sign_in_at)));if(summary?.last_sign_in_at)wrap.append(text('span','（'+label+'）','visually-hidden'));loginCell.append(wrap);
+        const count=summary?.tracking_count||0;trackCell.append(count?text('span',String(count)):text('span','—','muted'));
+        const result=model.exam(summary);
+        if(result.groups.length){
+          const chips=text('span','','chips');
+          for(const g of result.groups){const chip=text('button',g,'chip'+(picks.tag===g?' chip-active':''));chip.type='button';chip.title='只看優先探索「'+g+'」的學生';chip.addEventListener('click',event=>{event.stopPropagation();picks.tag=picks.tag===g?'':g;render();});chips.append(chip);}
+          examCell.append(chips);
+        } else examCell.append(text('span',result.label,'state'));
       }
-      row.append(loginCell,trackCell,examCell);
+      row.append(loginCell,trackCell,examCell,text('td','›','chev'));
       fragment.append(row);
     }
-    $('students').replaceChildren(fragment);$('count').textContent=filtered.length+' / '+students.length+' 位';$('empty').hidden=filtered.length!==0;
+    $('students').replaceChildren(fragment);$('count').textContent=(filtered.length===baseList.length?'':filtered.length+' / ')+baseList.length+' 位學生';$('empty').hidden=filtered.length!==0;
     if(dialog.open)updateNav();
   }
+  for(const th of document.querySelectorAll('th[data-sort]'))th.querySelector('button').addEventListener('click',()=>{
+    const key=th.dataset.sort;
+    if(sort.key!==key)sort={key,direction:'asc'};else if(sort.direction==='asc')sort.direction='desc';else sort={key:'',direction:'asc'};
+    render();
+  });
   async function workspace() {
     const version = ++epoch;
     $('login').hidden = true; $('workspace').hidden = true; message('status', '正在載入學生名單…');
@@ -145,7 +183,6 @@
     if (version !== epoch) return;
     students = rows;
     summaryReady=!summary.error;summaries=new Map(summaryReady?summary.value.map(r=>[r.student,r]):[]);
-    for(const id of ['loginFilter','examFilter'])$(id).disabled=!summaryReady;
     message('summaryStatus',summaryReady?'':'登入與作答狀況暫時無法載入，請稍後重新整理。');
     render();message('status','');$('workspace').hidden=false;$('logout').hidden=false;
   }
@@ -170,8 +207,7 @@
     const option=document.createElement('option');option.value=option.textContent=value;gradeGroup.append(option);
   }
   for(const value of model.groupOptions){const option=document.createElement('option');option.value=option.textContent=value;$('group').append(option);}
-  for(const [id,options] of [['loginFilter',model.loginOptions],['examFilter',model.examOptions]])for(const item of options){const option=document.createElement('option');option.value=item.value;option.textContent=item.label;$(id).append(option);}
-  for (const id of ['search','group','grade','loginFilter','examFilter']) $(id).addEventListener(id === 'search' ? 'input' : 'change',render);
+  for (const id of ['search','group','grade']) $(id).addEventListener(id === 'search' ? 'input' : 'change',render);
   // Returning to a backgrounded teacher page revalidates authorization before displaying records.
   document.addEventListener('visibilitychange', async () => {
     if (document.hidden) { clearWorkspace(false); return; }
