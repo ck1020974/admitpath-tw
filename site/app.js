@@ -5177,8 +5177,8 @@ async function changeCloudCompare(changes){
     await accountRecords.client.syncRecords({action:'tracking',operationId:crypto.randomUUID(),changes:changes.map(c=>({...c,revision:revisions.get(c.recordId)||0}))},owner);
   }catch(error){failure=error.message;}
   finally{
-    if(accountRecords.student?.id===owner){await restoreCompare();if(failure)state.compareStorageStatus=failure;renderCompare();renderTable();}
-    compareCloudBusy=false;
+    if(accountRecords.student?.id===owner){await restoreCompare();if(failure)state.compareStorageStatus=failure;compareCloudBusy=false;renderCompare();renderTable();}
+    else compareCloudBusy=false;
   }
 }
 function renderCompareImport(){
@@ -5261,7 +5261,7 @@ async function restoreCompare() {
 }
 
 function clearCompare() {
-  if(accountRecords?.student)return changeCloudCompare(state.compare.map(r=>({recordId:r.id,removed:true})));
+  if(accountRecords?.student)return changeCloudCompare(compareCloudRows.filter(r=>!r.removed_at).map(r=>({recordId:r.record_id,removed:true})));
   state.compare = [];
   saveCompare();
   renderCompare();
