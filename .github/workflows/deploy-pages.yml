@@ -26,6 +26,8 @@ jobs:
         run: node tools/sync_explorer_site.js
       - name: Split admissions data for faster loading
         run: node tools/build_site_data.js
+      - name: Prepare validated tracking catalog
+        run: node tools/build_student_sync_catalog.js
       - name: Upload website
         uses: actions/upload-pages-artifact@v5
         with:
