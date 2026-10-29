@@ -12,6 +12,15 @@ function resolveSupportPaymentUrl(config) {
   }
 }
 
+function resolveSupportBookingUrl(config) {
+  const safeUrl = value => {
+    try { const url = new URL(value); return url.protocol === "https:" && !url.username && !url.password ? url.href : ""; }
+    catch { return ""; }
+  };
+  const email = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(config?.email || "") ? config.email : "";
+  return safeUrl(config?.bookingUrl) || (email ? `mailto:${email}?subject=${encodeURIComponent("預約諮詢")}` : "") || safeUrl(config?.lineUrl);
+}
+
 document.addEventListener("DOMContentLoaded", () => {
   const opener = document.getElementById("supportAuthorButton");
   const dialog = document.getElementById("supportDialog");
@@ -21,11 +30,23 @@ document.addEventListener("DOMContentLoaded", () => {
   if (!opener || !dialog || !paymentLink || !pending || !note || typeof dialog.showModal !== "function") return;
 
   const paymentUrl = resolveSupportPaymentUrl(window.YUHSIN_SUPPORT_CONFIG);
+  const bookingLink = document.getElementById("supportBookingLink");
+  const bookingPending = document.getElementById("supportBookingPending");
+  const bookingUrl = resolveSupportBookingUrl(window.YUHSIN_CONTACT_CONFIG);
+  if (bookingLink && bookingUrl) {
+    bookingLink.href = bookingUrl;
+    bookingLink.hidden = false;
+    if (bookingPending) bookingPending.hidden = true;
+    if (bookingUrl.startsWith("https:")) { bookingLink.target = "_blank"; bookingLink.rel = "noopener noreferrer"; }
+    bookingLink.addEventListener("click", () => window.YuhsinUsage?.event("contact-click", "預約諮詢"));
+  }
   if (paymentUrl) {
     paymentLink.href = paymentUrl;
     paymentLink.hidden = false;
     pending.hidden = true;
     note.hidden = false;
+    const pendingNote = document.getElementById("supportPendingNote");
+    if (pendingNote) pendingNote.hidden = true;
   }
   opener.hidden = false;
   opener.addEventListener("click", () => dialog.showModal());

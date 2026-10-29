@@ -23,7 +23,7 @@
   <meta name="twitter:card" content="summary_large_image">
   <link rel="stylesheet" href="./styles.css?v=20261028-inline-analysis">
   <link rel="stylesheet" href="./special.css?v=20260918-layout-fix">
-  <link rel="stylesheet" href="./support.css?v=20261016-mobile-header">
+  <link rel="stylesheet" href="./support.css?v=20261029-contact">
   <link rel="stylesheet" href="./workbench.css?v=20261028-tracking-spacing">
   <link rel="stylesheet" href="./layout.css?v=20261023-mobile">
   <link rel="stylesheet" href="./student-account.css?v=20261028-modal1">
@@ -52,8 +52,7 @@
           <button class="nav-item" type="button" data-view="compare">追蹤清單</button>
           </div>
           <a class="student-account-entry" data-student-account href="./login/"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><circle cx="10" cy="6" r="3"/><path d="M4 17v-2a6 6 0 0 1 12 0v2"/></svg><span data-student-account-label>登入</span></a>
-          <a class="nav-cta" href="#about" id="navContactLink" data-contact-link hidden>預約諮詢</a>
-          <button class="nav-support support-entry" id="supportAuthorButton" type="button" aria-haspopup="dialog" aria-controls="supportDialog" aria-label="支持作者" title="支持作者" hidden>
+          <button class="nav-support support-entry" id="supportAuthorButton" type="button" aria-haspopup="dialog" aria-controls="supportDialog" aria-label="預約諮詢與贊助" title="預約諮詢與贊助" hidden>
             <span class="support-entry-heart" aria-hidden="true">♡</span>
             <span class="nav-support-label">支持作者</span>
           </button>
@@ -428,8 +427,13 @@
         <ul><li>招生資料整理與更新</li><li>查詢工具改善與網站維護</li></ul>
       </div>
       <div class="support-payment">
-        <button class="support-pay-button" id="supportPaymentPending" type="button" disabled>尚未開放贊助</button>
-        <a class="support-pay-button" id="supportPaymentLink" target="_blank" rel="noopener noreferrer" hidden>前往贊助 <span aria-hidden="true">↗</span><span class="support-sr-only">（在新分頁開啟付款平台）</span></a>
+        <div class="support-actions">
+          <a class="support-pay-button support-booking-button" id="supportBookingLink" hidden>預約諮詢</a>
+          <button class="support-pay-button support-booking-button" id="supportBookingPending" type="button" disabled>預約諮詢</button>
+        <button class="support-pay-button" id="supportPaymentPending" type="button" disabled title="尚未開放贊助">贊助</button>
+        <a class="support-pay-button" id="supportPaymentLink" target="_blank" rel="noopener noreferrer" hidden>贊助 <span aria-hidden="true">↗</span><span class="support-sr-only">（在新分頁開啟付款平台）</span></a>
+        </div>
+        <p class="support-payment-note" id="supportPendingNote">贊助功能尚未開放。</p>
         <p class="support-payment-note" id="supportPaymentNote" hidden>單次自由贊助，金額於付款平台填寫。付款、交易紀錄及相關聯絡方式請於平台確認。</p>
       </div>
     </div>
@@ -442,7 +446,7 @@
   <script src="./usage-config.js?v=usage-20261027-counter-v2"></script>
   <script src="./usage.js?v=usage-20261027-counter-v2"></script>
   <script src="./support-config.js?v=20261015"></script>
-  <script src="./support.js?v=20261023-top"></script>
+  <script src="./support.js?v=20261029-contact"></script>
   <script src="./admission-rules.js?v=20261027-placement-guards"></script>
   <script src="./admission-catalog.js?v=20261012-special-116"></script>
   <script src="./explorer-link.js?v=20261023-intros"></script>

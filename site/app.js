@@ -1869,11 +1869,6 @@ function setupContactLinks() {
   if (bookingLink && booking) { bookingLink.href = booking; if (booking.startsWith("https:")) { bookingLink.target = "_blank"; bookingLink.rel = "noopener noreferrer"; } }
   const inviteLink = document.getElementById("contactInvite");
   if (inviteLink) { inviteLink.hidden = !invite; if (invite) inviteLink.href = invite; }
-  const navLink = document.getElementById("navContactLink");
-  if (navLink) navLink.hidden = !booking;
-  navLink?.addEventListener("click", (event) => {
-    if (state.view !== "overview") { event.preventDefault(); setView("overview"); requestAnimationFrame(() => document.getElementById("about")?.scrollIntoView({ behavior: "smooth" })); }
-  });
   document.querySelectorAll("[data-contact-link]").forEach((link) => link.addEventListener("click", () => trackEvent("contact-click", "預約諮詢")));
   const footEmail = document.getElementById("footEmail");
   const footLine = document.getElementById("footLine");

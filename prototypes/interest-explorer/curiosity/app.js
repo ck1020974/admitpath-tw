@@ -39,7 +39,6 @@
  }
  document.querySelector('.brand').href=mainBase().href;
  // 「預約諮詢」：和主站同一份 contact-config.js，有填聯絡方式才顯示，點了回主站的「關於作者」。
- {const c=window.YUHSIN_CONTACT_CONFIG||{},link=el('navContactLink');if(link)link.hidden=!(c.email||c.bookingUrl||c.lineUrl);}
  // 窄螢幕的「選單」按鈕，和主站頂部列同樣的開合方式。
  const siteMenu=el('siteMenu');
  if(siteMenu)siteMenu.addEventListener('click',()=>{const open=!document.body.classList.contains('menu-open');document.body.classList.toggle('menu-open',open);siteMenu.setAttribute('aria-expanded',String(open));});
