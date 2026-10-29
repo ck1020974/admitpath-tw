@@ -38,6 +38,15 @@ for (const record of crimeRecords) {
   }
 }
 const html = fs.readFileSync(require.resolve('../site/index.html'), 'utf8');
+const finance = { ...profile, quickCategory: '財務金融學類' };
+const mathematics = records.filter(r => r.channelKey === 'personal_application' && r.departmentName === '數學系');
+assert(mathematics.length > 0);
+for (const record of mathematics) assert.equal(context.placementMatchesFilters(record, finance), false, record.id);
+for (const departmentName of ['財務金融學系', '財務工程與精算數學系']) {
+  const record = records.find(r => r.channelKey === 'personal_application' && r.departmentName === departmentName);
+  assert(record);
+  assert(context.placementMatchesFilters(record, finance), record.id);
+}
 const categories = [...html.matchAll(/data-placement-popular-category="([^"]+)"/g)].map(match => match[1]);
 assert.equal(new Set(categories).size, 10);
 for (const category of categories) assert(groups.some(g => g.categoryName === category), category);

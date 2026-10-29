@@ -3666,9 +3666,10 @@ function matchesGroup(record, needles) {
   const full = normalize(`${record.schoolName}${record.departmentName}`);
   const dept = normalize(record.departmentName);
   let matched = false;
+  // 招生系名可包含完整的學類系名，但不能因學類長系名含有「數學系」等短字串而反向誤收。
   for (const needle of needles) {
     if (!needle) continue;
-    if (full.includes(needle) || needle.includes(full) || dept.includes(needle) || needle.includes(dept)) {
+    if (full.includes(needle) || needle.includes(full) || dept.includes(needle)) {
       matched = true;
       break;
     }

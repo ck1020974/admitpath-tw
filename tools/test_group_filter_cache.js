@@ -14,7 +14,7 @@ const build = ctx.groupRowsToNeedles;
 ctx.groupRowsToNeedles = rows => { builds++; return build(rows); };
 function originalMatch(record, needles) {
   const full = ctx.normalize(record.schoolName + record.departmentName), dept = ctx.normalize(record.departmentName);
-  return [...needles].some(n => n && (full.includes(n) || n.includes(full) || dept.includes(n) || n.includes(dept)));
+  return [...needles].some(n => n && (full.includes(n) || n.includes(full) || dept.includes(n)));
 }
 // Exact result equivalence across every record, including OR and within-group categories.
 for (const [selected, categories, within] of [
