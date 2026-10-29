@@ -45,6 +45,14 @@ let advancedFilterDraft = null;
 const fmt = new Intl.NumberFormat("zh-Hant-TW");
 const DATA_VERSION = "20261023-category-intros";
 const COMPARE_STORAGE_KEY = "admitpath-tw:compare:v1";
+const accountRecords=window.YuhsinStudentRecords;
+let compareCloudRows=[],compareCloudBusy=false,compareGeneration=0;
+accountRecords?.onChange(async()=>{
+  compareGeneration++;state.compare=[];compareCloudRows=[];
+  if(state.dataStatus!=='ready')return;
+  renderCompare();renderTable();
+  await restoreCompare();renderCompare();renderTable();
+});
 
 const APPLY_SIEVE_SCORE_OVERRIDES = {
   "115-personal_application-008342-115_apply": {
@@ -872,7 +880,8 @@ async function init() {
     return;
   }
   state.dataStatus = "ready";
-  restoreCompare();
+  await accountRecords?.ready;
+  await restoreCompare();
   renderCompare();
   hydrateSchoolFilter();
   hydratePlacementFilters();
@@ -5157,7 +5166,39 @@ function singleLine(value) {
   return `<div class="kv single"><span>${escapeHtml(value ?? "")}</span></div>`;
 }
 
+async function changeCloudCompare(changes){
+  if(compareCloudBusy||!changes.length)return;
+  const owner=accountRecords.student?.id;if(!owner)return;
+  compareCloudBusy=true;state.compareStorageStatus='正在儲存到你的帳號…';renderCompare();
+  let failure='';
+  try{
+    const revisions=new Map(compareCloudRows.map(r=>[r.record_id,r.revision]));
+    await accountRecords.client.syncRecords({action:'tracking',operationId:crypto.randomUUID(),changes:changes.map(c=>({...c,revision:revisions.get(c.recordId)||0}))},owner);
+  }catch(error){failure=error.message;}
+  finally{
+    if(accountRecords.student?.id===owner){await restoreCompare();if(failure)state.compareStorageStatus=failure;renderCompare();renderTable();}
+    compareCloudBusy=false;
+  }
+}
+function renderCompareImport(){
+  const status=document.getElementById('compareStorageStatus');if(!status)return;
+  let box=document.getElementById('compareAccountImport');
+  if(!box){box=document.createElement('div');box.id='compareAccountImport';status.after(box);}
+  box.replaceChildren();if(!accountRecords?.student)return;
+  let ids=[];try{ids=JSON.parse(accountRecords.guest(COMPARE_STORAGE_KEY)||'null')?.ids||[];}catch{}
+  if(!ids.length||accountRecords.read('tracking-imported')==='1')return;
+  const p=document.createElement('p');p.textContent='這台瀏覽器另有訪客追蹤清單，請只匯入你自己的校系。';
+  const button=document.createElement('button');button.type='button';button.className='small-button';button.textContent='匯入訪客追蹤清單';button.disabled=compareCloudBusy;
+  button.addEventListener('click',async()=>{
+    const known=new Set(state.records.map(r=>r.id)),active=new Set(compareCloudRows.filter(r=>!r.removed_at).map(r=>r.record_id));
+    const selected=[...new Set(ids)].filter(id=>known.has(id)&&!active.has(id)).slice(0,100);
+    if(selected.length)await changeCloudCompare(selected.map(recordId=>({recordId,removed:false})));
+    if(!selected.length||selected.every(id=>compareCloudRows.some(r=>r.record_id===id&&!r.removed_at)))accountRecords.write('tracking-imported','1');
+    renderCompareImport();
+  });box.append(p,button);
+}
 function saveCompare() {
+  if(accountRecords?.student)return true; // Cloud writes are explicit operations, never a bulk browser overwrite.
   try {
     window.localStorage.setItem(COMPARE_STORAGE_KEY, JSON.stringify({
       version: 1,
@@ -5173,7 +5214,21 @@ function saveCompare() {
   }
 }
 
-function restoreCompare() {
+async function restoreCompare() {
+  if(accountRecords?.student){
+    const owner=accountRecords.student.id,version=++compareGeneration;
+    state.compareStorageStatus='正在載入帳號追蹤清單…';
+    try{
+      const rows=await accountRecords.client.readTracking(owner);
+      if(version!==compareGeneration||accountRecords.student?.id!==owner)return;
+      compareCloudRows=rows;
+      const byId=new Map(state.records.map(r=>[r.id,r]));
+      state.compare=rows.filter(r=>!r.removed_at).map(r=>byId.get(r.record_id)).filter(Boolean);
+      const missing=rows.filter(r=>!r.removed_at&&!byId.has(r.record_id)).length;
+      state.compareStorageStatus='已同步到你的帳號，授權教師可查看。'+(missing?'另有 '+missing+' 個舊校系仍保留於帳號，目前招生資料已不提供。':'');
+    }catch(error){if(version===compareGeneration)state.compareStorageStatus=error.message+' 尚未完成同步。';}
+    return;
+  }
   let saved;
   try {
     saved = window.localStorage.getItem(COMPARE_STORAGE_KEY);
@@ -5205,6 +5260,7 @@ function restoreCompare() {
 }
 
 function clearCompare() {
+  if(accountRecords?.student)return changeCloudCompare(state.compare.map(r=>({recordId:r.id,removed:true})));
   state.compare = [];
   saveCompare();
   renderCompare();
@@ -5213,6 +5269,7 @@ function clearCompare() {
 }
 
 function toggleCompare(id) {
+  if(accountRecords?.student)return changeCloudCompare([{recordId:id,removed:state.compare.some(r=>r.id===id)}]);
   const exists = state.compare.some((item) => item.id === id);
   if (exists) {
     state.compare = state.compare.filter((item) => item.id !== id);
@@ -5231,6 +5288,7 @@ function toggleCompare(id) {
 }
 
 function renderCompare() {
+  renderCompareImport();
   const hasRecords = state.compare.length > 0;
   const tools = document.getElementById("compareTools");
   if (tools) tools.hidden = !hasRecords || dataPending();

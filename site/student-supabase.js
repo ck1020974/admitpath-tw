@@ -34,7 +34,7 @@
       const data = response.status === 204 ? null : await response.json().catch(() => null);
       if (!response.ok) {
         const invalid = teacher ? '帳號或密碼不正確，請重新輸入。' : '學號或密碼不正確，請重新輸入。';
-        const message = { 400: invalid, 401: invalid, 403: '帳號暫時無法使用，請聯絡管理者。', 429: '登入嘗試較頻繁，請稍後再試。' }[response.status];
+        const message = { 400: invalid, 401: invalid, 403: '帳號暫時無法使用，請聯絡管理者。', 409: '清單已在其他分頁更新，已重新載入，請再試一次。', 422: '資料尚未完整或版本不同，請確認後再儲存。', 429: '操作較頻繁，請稍後再試。' }[response.status];
         throw Object.assign(new Error(message || '登入服務暫時無法使用，請稍後再試。'), { status: response.status });
       }
       return data;
@@ -66,6 +66,13 @@
       if (!student?.active || student.id !== user.id) throw Object.assign(new Error('帳號暫時無法使用，請聯絡老師。'), { status: 403 });
       current = { id: student.id, studentId: student.student_id, name: student.name, teachingGroup: student.teaching_group, originalClass: student.original_class, originalSeatNumber: student.original_seat_number, role: 'student' };
       return current;
+    }
+    async function authorized(path,options={},expectedOwner){
+      if(!tokens)throw new Error('請先登入帳號。');
+      if(tokens.expires_at*1000<now()+30000)await refresh();
+      await profile();
+      if(expectedOwner&&current.id!==expectedOwner)throw new Error('帳號已切換，請重新操作。');
+      return request(path,{...options,token:tokens.access_token});
     }
     return {
       enabled,
@@ -103,6 +110,32 @@
           if (rows.length < 200) break;
         }
         return students;
+      },
+      async syncRecords(body,expectedOwner){
+        if(teacher)throw new Error('教師帳號不能代替學生儲存探索資料。');
+        return authorized('/functions/v1/student-records',{body},expectedOwner);
+      },
+      async readTracking(studentId=current?.id){
+        if(!studentId)throw new Error('請先登入帳號。');
+        const all=[];
+        for(let offset=0;;offset+=200){
+          const query=new URLSearchParams({select:'record_id,school_name,department_name,admission_year,admission_channel,added_at,removed_at,revision',user_id:'eq.'+studentId,order:'added_at.asc,record_id.asc',limit:'200',offset:String(offset)});
+          const rows=await authorized('/rest/v1/tracking_items?'+query);if(!Array.isArray(rows))throw new Error('無法讀取追蹤清單。');all.push(...rows);if(rows.length<200)break;
+        }
+        return all;
+      },
+      async readResults(studentId=current?.id,limit=100,offset=0){
+        if(!studentId)throw new Error('請先登入帳號。');
+        const query=new URLSearchParams({select:'id,attempt_id,stage,round_number,answers,report,completed_at,attempt:assessment_attempts(source,started_at,bank_version,scoring_version)',user_id:'eq.'+studentId,order:'completed_at.desc,id.desc',limit:String(Math.max(1,Math.min(100,limit))),offset:String(Math.max(0,offset))});
+        return authorized('/rest/v1/assessment_results?'+query);
+      },
+      async readAttempts(studentId=current?.id){
+        const all=[];
+        for(let offset=0;;offset+=200){
+          const query=new URLSearchParams({select:'id,status,started_at,completed_at,source',user_id:'eq.'+studentId,order:'started_at.desc,id.desc',limit:'200',offset:String(offset)});
+          const rows=await authorized('/rest/v1/assessment_attempts?'+query);if(!Array.isArray(rows))throw new Error('無法讀取施測次數。');all.push(...rows);if(rows.length<200)break;
+        }
+        return all;
       },
     };
   }

@@ -1,0 +1,25 @@
+import assert from 'node:assert/strict';
+import {createRequire} from 'node:module';
+import {webcrypto} from 'node:crypto';
+import {createRecordsHandler,validatedAssessment} from '../supabase/functions/student-records/handler.mjs';
+const require=createRequire(import.meta.url),engine=require('../prototypes/interest-explorer/curiosity/engine');
+const session=engine.createSession();session.questions().forEach(q=>session.answer(q.id,2));session.setFavourites(session.wanted().slice(0,3));session.setLevel('mid');session.setPicks('strong',['math','english']);session.setPicks('weak',['history','earth']);
+const snapshot=session.snapshot();assert.deepEqual(validatedAssessment(snapshot,engine).report,session.report());
+const broken=structuredClone(snapshot);broken.answers[broken.quick[0]]=3;assert.throws(()=>validatedAssessment(broken,engine));
+const empty=engine.createSession().snapshot();assert.throws(()=>validatedAssessment(empty,engine));
+session.startDeep();assert.throws(()=>validatedAssessment(session.snapshot(),engine));session.deepQuestions().forEach(q=>session.answer(q.id,1));session.detailPlan().forEach(row=>row.goals.forEach(goal=>session.goal(goal.id,3)));assert(validatedAssessment(session.snapshot(),engine).report.deep);
+const id='11111111-1111-4111-8111-111111111111',attempt='22222222-2222-4222-8222-222222222222';let profileAllowed=true,rpcArgs;
+const response=data=>new Response(JSON.stringify(data),{status:200});
+const handler=createRecordsHandler({projectUrl:'https://fixture.supabase.co',publicKey:'public',serviceKey:'server-only',engine,bankVersion:'fixture',catalog:async()=>new Map([['record-fixture',['record-fixture','學校','科系',115,'個人申請']]]),cryptoApi:webcrypto,fetcher:async(url,options)=>{
+  if(url.endsWith('/auth/v1/user'))return response({id});
+  if(url.includes('/students?'))return response(profileAllowed?[{id,active:true}]:[]);
+  assert.equal(options.headers.Authorization,'Bearer server-only');rpcArgs=JSON.parse(options.body);return response({saved:true});
+}});
+const request=body=>handler(new Request('https://fixture.invalid',{method:'POST',headers:{Origin:'https://ck1020974.github.io',Authorization:'Bearer verified-student'},body:JSON.stringify(body)}));
+assert.equal((await request({action:'assessment-result',attemptId:attempt,source:'live',snapshot,owner_id:attempt,report:{forged:true}})).status,200);assert.equal(rpcArgs.owner_id,id);assert.equal(rpcArgs.report_value.forged,undefined);assert.equal(rpcArgs.report_value.groups.length,18);
+assert.equal((await request({action:'assessment-result',attemptId:attempt,source:'live',snapshot:broken})).status,422);
+assert.equal((await request({action:'tracking',operationId:attempt,changes:[{recordId:'unknown',removed:false,revision:0}]})).status,422);
+assert.equal((await request({action:'tracking',operationId:attempt,changes:[{recordId:'record-fixture',removed:false,revision:0,school:'forged'}]})).status,200);assert.equal(rpcArgs.changes_value[0].school,'學校');
+profileAllowed=false;assert.equal((await request({action:'assessment-start',attemptId:attempt,source:'live'})).status,403);
+assert.equal((await handler(new Request('https://fixture.invalid',{method:'OPTIONS',headers:{Origin:'https://example.org'}}))).status,403);
+console.log('Student records: server scoring, invalid/incomplete rejection, verified owner, canonical tracking labels, teacher write denial and origin restrictions passed.');

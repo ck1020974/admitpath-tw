@@ -8,7 +8,7 @@
 <title>學群探索｜祐馨升學網</title>
 <link rel="icon" href="../../favicon.ico" sizes="any">
 <link rel="stylesheet" href="../../support.css?v=20261029-contact">
-<link rel="stylesheet" href="./styles.css?v=20261028-deep-five">
+<link rel="stylesheet" href="./styles.css?v=20261029-records1">
 <link rel="stylesheet" href="../info-dialog.css?v=header-20261023b">
 <link rel="stylesheet" href="../../student-account.css?v=20261028-modal1">
 </head>
@@ -20,6 +20,7 @@
   <nav class="site-nav" id="siteNav" aria-label="主選單"><div class="nav-group"><a class="nav-primary" href="./" aria-current="page">學群探索</a><a href="../../#explorer">十八學群</a><a href="../../#workbench">校系查詢</a><a href="../../#placement">落點分析</a><a href="../../#compare">追蹤清單</a></div><a class="student-account-entry" data-student-account href="../../login/"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><circle cx="10" cy="6" r="3"/><path d="M4 17v-2a6 6 0 0 1 12 0v2"/></svg><span data-student-account-label>登入</span></a><button class="nav-support support-entry" id="supportAuthorButton" type="button" aria-haspopup="dialog" aria-controls="supportDialog" aria-label="預約諮詢與贊助" title="預約諮詢與贊助" hidden><span class="support-entry-heart" aria-hidden="true">♡</span><span class="nav-support-label">支持作者</span></button></nav>
  </div>
 </header>
+<aside class="account-sync-notice" aria-label="帳號儲存狀態"><p id="accountSyncStatus" role="status">訪客成果保存在此瀏覽器；登入後可選擇匯入自己的紀錄。</p><button id="retryAccountSync" type="button" hidden>重試儲存成果</button><button id="importAccountExploration" type="button" hidden>匯入這台瀏覽器的探索紀錄（請確認是自己的作答）</button></aside>
 <main>
  <section id="intro" class="view intro" aria-labelledby="introTitle">
   <div id="introFirst">
@@ -191,8 +192,9 @@
 <script src="../../usage-config.js?v=usage-20261027-counter-v2"></script>
 <script src="../../usage.js?v=20261028-measurement"></script>
 <script src="../../student-auth-config.js?v=20261029-auth1"></script>
-<script src="../../student-supabase.js?v=20261029-auth2"></script>
-<script src="../../student-auth.js?v=20261029-auth2"></script>
+<script src="../../student-supabase.js?v=20261029-records1"></script>
+<script src="../../student-auth.js?v=20261029-records1"></script>
+<script src="../../student-records.js?v=20261029-records1"></script>
 <script src="../../contact-config.js?v=20261023-tweak"></script>
 <script src="../../support-config.js?v=20261015"></script>
 <script src="../../support.js?v=20261029-contact"></script>
@@ -206,6 +208,6 @@
 <script src="./data.js?v=header-20261023b"></script>
 <script src="./engine.js?v=20261028-deep-five"></script>
 <script src="./measurement.js?v=20261028-exploration"></script>
-<script src="./app.js?v=20261028-deep-five-fit"></script>
+<script src="./app.js?v=20261029-records1"></script>
 </body>
 </html>

@@ -1,0 +1,10 @@
+'use strict';
+const fs=require('node:fs'),path=require('node:path');
+const root=path.resolve(__dirname,'..'),base=path.join(root,'prototypes/interest-explorer/curiosity');
+const modules=['bank','collego-reference','curriculum','units','subjects','exploration-model','data','engine'];
+const bundle=modules.map(file=>fs.readFileSync(path.join(base,file+'.js'),'utf8')).join('\n');
+const handler=fs.readFileSync(path.join(root,'supabase/functions/student-records/handler.mjs'),'utf8').replace(/^export /gm,'');
+const entry=fs.readFileSync(path.join(root,'supabase/functions/student-records/index.ts'),'utf8');
+fs.mkdirSync(path.join(root,'work/supabase-deploy'),{recursive:true});
+fs.writeFileSync(path.join(root,'work/supabase-deploy/student-records.ts'),bundle+'\n'+handler+'\n'+entry);
+console.log('Prepared server-side assessment validation and tracking function.');

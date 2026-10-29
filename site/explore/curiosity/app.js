@@ -1,6 +1,8 @@
 /* 學群探索：一個入口、一題一題作答、一頁結果，進度存在這台電腦的瀏覽器。 */
-(() => {
+(async () => {
  'use strict';
+ const accountRecords=window.YuhsinStudentRecords;
+ await accountRecords?.ready;
  const data=window.YuhsinCuriosityData,engine=window.YuhsinCuriosityEngine,intros=window.YuhsinGroupIntroductions||{};
  if(!data||!engine)return;
  const STORAGE_KEY='yuhsin-curiosity:v4';
@@ -17,16 +19,32 @@
  const measurement=window.YuhsinCuriosityMeasurement.create(track);
  let session=engine.createSession();
  let lastSavedView=null,view='intro',qMode='quick',qPage=0,detailPage=0,detailOffset=0,report=null,restartArmed=null,tab=null;
+ let cloudContext=null,syncEpoch=0,syncChain=Promise.resolve();
+ function syncMessage(text,retry=false){if(!el('accountSyncStatus'))return;el('accountSyncStatus').textContent=text;el('retryAccountSync').hidden=!retry;}
+ function syncResult(){
+  if(!accountRecords?.student){syncMessage('訪客成果保存在此瀏覽器；登入後可選擇匯入自己的紀錄。');return;}
+  if(!session.extraComplete()||(session.snapshot().deep&&!session.deepComplete())){syncMessage('補充作答尚未完成，完成後會儲存新的成果。');return;}
+  if(cloudContext?.ownerId!==accountRecords.student.id)return;
+  const owner=accountRecords.student.id,epoch=syncEpoch,snapshot=session.snapshot(),context={...cloudContext};
+  syncMessage('正在儲存探索成果到你的帳號…');
+  syncChain=syncChain.catch(()=>{}).then(async()=>{
+   if(epoch!==syncEpoch||accountRecords.student?.id!==owner)return;
+   try{await accountRecords.saveResult(snapshot,context);if(epoch===syncEpoch)syncMessage('探索成果已儲存到你的帳號，授權教師可查看。');}
+   catch(error){if(epoch===syncEpoch)syncMessage('尚未同步：'+error.message,true);}
+  });
+ }
 
  // ── 存檔 ──
  function save(){
-  try{localStorage.setItem(STORAGE_KEY,JSON.stringify({snapshot:session.snapshot(),measurement:measurement.snapshot(),view:view==='intro'?lastSavedView:view,savedAt:Date.now()}));}catch{}
+  const value=JSON.stringify({snapshot:session.snapshot(),cloudContext,measurement:measurement.snapshot(),view:view==='intro'?lastSavedView:view,savedAt:Date.now()});
+  try{if(accountRecords)accountRecords.write(STORAGE_KEY,value);else localStorage.setItem(STORAGE_KEY,value);}catch{}
+  if(accountRecords?.student&&view!=='results')syncMessage('作答暫存於這個分頁，完成後會儲存成果到你的帳號。');
  }
  function restore(){
-  try{const raw=JSON.parse(localStorage.getItem(STORAGE_KEY)||'null');if(!raw)return null;session.load(raw.snapshot);lastSavedView=raw.view||null;measurement.restore(raw.measurement,session.complete()?session.report():null);return raw;}
+  try{const raw=JSON.parse((accountRecords?accountRecords.read(STORAGE_KEY):localStorage.getItem(STORAGE_KEY))||'null');if(!raw)return null;session.load(raw.snapshot);cloudContext=raw.cloudContext||null;lastSavedView=raw.view||null;measurement.restore(raw.measurement,session.complete()?session.report():null);return raw;}
   catch{session.reset();return null;}
  }
- function clearSaved(){try{localStorage.removeItem(STORAGE_KEY);}catch{}}
+ function clearSaved(){try{if(accountRecords)accountRecords.remove(STORAGE_KEY);else localStorage.removeItem(STORAGE_KEY);}catch{}}
  const hasProgress=()=>Object.keys(session.snapshot().answers).length>0;
 
  // ── 主站連結 ──
@@ -105,7 +123,7 @@
  function restart(button){
   if(restartArmed!==button){disarmRestart();restartArmed=button;button.textContent='確定清除作答？再按一次';return;}
   track('curiosity-restart','重新開始');
-  clearSaved();session.reset();measurement.reset();qPage=0;detailPage=0;detailOffset=0;report=null;tab=null;disarmRestart();renderIntro();
+  clearSaved();cloudContext=null;syncEpoch++;session.reset();measurement.reset();qPage=0;detailPage=0;detailOffset=0;report=null;tab=null;disarmRestart();renderIntro();
  }
 
  // ── 作答：一頁 6 題（好奇心、深入探索、重新測驗都一樣） ──
@@ -291,6 +309,7 @@
   el('startExtra').hidden=!(report.canExplore||extraPending);
   el('startExtra').textContent=extraPending?'繼續測驗':'重新測驗';
   show('results','resultsTitle');
+  syncResult();
  }
  function evidence(id){
   const row=report.groups.find(g=>g.id===id);
@@ -303,7 +322,7 @@
   el('evidenceDialog').showModal();
  }
  // ── 事件 ──
- el('start').addEventListener('click',()=>{measurement.start();track('curiosity-start','開始學群探索');qMode='quick';qPage=0;renderQuestion();});
+ el('start').addEventListener('click',()=>{cloudContext=accountRecords?.begin()||null;measurement.start();track('curiosity-start','開始學群探索');qMode='quick';qPage=0;renderQuestion();});
  el('resume').addEventListener('click',()=>{measurement.start();track('curiosity-resume','繼續上次的探索');resumeView();});
  document.querySelectorAll('[data-restart]').forEach(b=>b.addEventListener('click',()=>restart(b)));
  document.querySelectorAll('[data-about]').forEach(b=>b.addEventListener('click',()=>el('aboutDialog').showModal()));
@@ -386,13 +405,40 @@
  el('sources').innerHTML='<li><a href="https://collego.edu.tw/Highschool/CollegeList" target="_blank" rel="noopener noreferrer">ColleGo! 十八學群 ↗</a></li>'+Object.values(data.sources).map(s=>`<li><a href="${s.url}" target="_blank" rel="noopener noreferrer">${esc(s.name)} ↗</a></li>`).join('');
 
  // ── 開啟頁面 ──
- function boot(){
+ async function boot(){
   try{window.YuhsinUsage&&window.YuhsinUsage.page('curiosity','學群探索');}catch{}
   const hash=location.hash.slice(1);
   if(hash.startsWith('r='))history.replaceState(null,'',location.pathname+location.search);
-  restore();
+  await restoreAccountExploration();
   if(hash==='results'&&session.complete())return renderResults();
   renderIntro();
  }
- boot();
+ async function restoreAccountExploration(){
+  const owner=accountRecords?.student?.id,epoch=++syncEpoch;
+  if(!restore()&&owner){
+   syncMessage('正在載入你的探索成果…');
+   try{
+    const rows=await accountRecords.client.readResults(owner,1);
+    if(epoch!==syncEpoch)return;
+    if(rows.length){session.load(rows[0].answers);cloudContext={attemptId:rows[0].attempt_id,source:rows[0].attempt?.source||'live',ownerId:owner};measurement.restore(null,session.report());lastSavedView='results';}
+   }catch(error){syncMessage('暫時無法載入帳號成果：'+error.message);}
+  }
+  if(el('importAccountExploration')){
+   let guest=null;try{guest=JSON.parse(accountRecords?.guest(STORAGE_KEY)||'null');}catch{}
+   el('importAccountExploration').hidden=!(owner&&guest?.snapshot);
+  }
+ }
+ el('retryAccountSync')?.addEventListener('click',syncResult);
+ el('importAccountExploration')?.addEventListener('click',()=>{
+  if(!accountRecords?.student)return;
+  let raw;try{raw=JSON.parse(accountRecords.guest(STORAGE_KEY)||'null');}catch{}
+  if(!raw?.snapshot)return;
+  try{session.load(raw.snapshot);measurement.restore(raw.measurement,session.complete()?session.report():null);cloudContext=accountRecords.begin('browser_import');el('importAccountExploration').hidden=true;if(session.complete())renderResults();else resumeView();}
+  catch{syncMessage('這份訪客紀錄無法讀取，請重新開始探索。');}
+ });
+ accountRecords?.onChange(async()=>{
+  syncEpoch++;session.reset();cloudContext=null;measurement.reset();report=null;lastSavedView=null;view='intro';tab=null;qPage=0;detailPage=0;detailOffset=0;
+  await restoreAccountExploration();renderIntro();
+ });
+ await boot();
 })();

@@ -12,6 +12,7 @@ const tools = {};
 const state = { records, compare: [], compareFilters: { year: 'all', channels: [...channels] } };
 let alerts = 0;
 const context = { state, els: { compareGrid: grid, compareYearFilter: {} }, fmt: new Intl.NumberFormat('zh-Hant-TW'),
+  accountRecords:null,renderCompareImport(){},
   COMPARE_STORAGE_KEY: 'admitpath-tw:compare:v1',
   document: { getElementById: id => id === 'compareTools' ? tools : id === 'clearCompareButton' ? clear : null, querySelectorAll: () => buttons }, window: { alert: () => alerts++, localStorage: { setItem() {} } },
   renderTable() {}, updateDetailCompareButton() {}, recordSummary: r => ({ key: { label: '條件', html: `標準${r.id}` }, sub: null }), channelBadge: r => r.channelKey, specialAdmissionBadgeHtml: () => '（軍校）', escapeHtml: String, escapeAttr: String };

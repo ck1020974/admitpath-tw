@@ -58,6 +58,7 @@
   let sessionStorage; try { sessionStorage = root.sessionStorage; } catch {}
   const client = createClient({ config: root.YUHSIN_STUDENT_AUTH_CONFIG, fetcher: root.fetch.bind(root), origin: root.location.origin, storage: sessionStorage });
   const ready = client.session();
+  let previousStudentId;
   function renderLinks() {
     root.document.querySelectorAll("[data-student-account]").forEach(link => {
       const target = new URL("login/", base);
@@ -67,13 +68,15 @@
       const label = link.querySelector("[data-student-account-label]");
       if (label) label.textContent = client.current ? "我的帳號" : "登入";
     });
+    const id=client.current?.id||null;
+    if(id!==previousStudentId){previousStudentId=id;root.dispatchEvent(new CustomEvent('yuhsin-auth-change',{detail:{id}}));}
   }
   root.YuhsinStudentAuth = { client, ready, baseUrl: base.href, safeReturnUrl, renderLinks };
   let dialogLoading;
   function openDialog() {
     if (!dialogLoading) dialogLoading = new Promise((resolve, reject) => {
       const entry = root.document.createElement("script");
-      entry.src = new URL("student-login-dialog.js?v=20261029-auth2", base).href;
+      entry.src = new URL("student-login-dialog.js?v=20261029-records1", base).href;
       entry.onload = resolve;
       entry.onerror = () => { entry.remove(); dialogLoading = null; reject(new Error("無法載入登入視窗，請稍後再試。")); };
       root.document.body.append(entry);

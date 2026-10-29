@@ -277,3 +277,5 @@ body[data-view=deepDetails] .quiz-bar{margin-bottom:18px}
 #deepDetails .error{min-height:20px;margin:8px 0 0}
 body[data-view=deepDetails] .site-footer{padding:10px 16px}
 @media(max-width:600px){#deepDetails .goal-row{padding:10px 12px}#deepDetails .hint-row{align-items:flex-start}#deepDetails .hint{font-size:13px}#deepDetails .text-button{font-size:13px}}
+
+.account-sync-notice{max-width:960px;margin:14px auto;padding:0 20px;color:#536663;font-size:13px}.account-sync-notice p{margin:6px 0}.account-sync-notice button{font:inherit;color:#137d73;background:#fff;border:1px solid #b8cec5;border-radius:8px;padding:8px 12px;margin:4px 8px 4px 0;min-height:44px}.account-sync-notice button:focus-visible{outline:3px solid #b07327;outline-offset:2px}

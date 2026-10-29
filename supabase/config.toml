@@ -10,3 +10,6 @@ verify_jwt = true
 
 [functions.teacher-provision]
 verify_jwt = true
+
+[functions.student-records]
+verify_jwt = true

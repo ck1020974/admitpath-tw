@@ -23,7 +23,7 @@
       <h2 tabindex="-1">我的帳號</h2>
       <p class="student-dialog-name"></p>
       <dl></dl>
-      <p class="student-dialog-hint">追蹤清單與測驗紀錄的帳號同步尚未開放，目前保留在使用的瀏覽器。</p>
+      <p class="student-dialog-hint">登入後完成的探索成果與追蹤清單會儲存到你的帳號，供授權教師輔導使用。訪客紀錄需由你選擇匯入。</p>
       <p class="student-dialog-error" role="alert" hidden></p>
       <button class="student-dialog-logout" type="button">登出</button>
     </section>`;
@@ -125,7 +125,7 @@
     message(accountError, "");
     try { await client.logout(); form.reset(); hidePassword(); render(); query("#studentDialogTitle").focus(); }
     catch (failure) { message(accountError, failure.message); }
-    finally { event.target.disabled = false; }
+    finally { render(); event.target.disabled = false; }
   });
   message(status, client.enabled ? "" : "登入尚未開放");
   setBusy(false);
