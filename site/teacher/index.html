@@ -4,7 +4,7 @@
   <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
   <meta name="robots" content="noindex,nofollow"><meta name="referrer" content="no-referrer">
   <title>教師後台｜YUHSIN 祐馨升學網</title>
-  <link rel="stylesheet" href="./teacher.css?v=20261029-records1">
+  <link rel="stylesheet" href="./teacher.css?v=20261029-grades1">
   <script defer src="../student-auth-config.js?v=20261029-auth1"></script>
   <script defer src="../student-supabase.js?v=20261029-records1"></script>
   <script defer src="../explore/curiosity/bank.js?v=20261029-records1"></script>
@@ -14,10 +14,11 @@
   <script defer src="../explore/curiosity/subjects.js?v=20261029-records1"></script>
   <script defer src="../explore/curiosity/exploration-model.js?v=20261029-records1"></script>
   <script defer src="../explore/curiosity/data.js?v=20261029-records1"></script>
-  <script defer src="./teacher.js?v=20261029-records1"></script>
+  <script defer src="./teacher-model.js?v=20261029-grades1"></script>
+  <script defer src="./teacher.js?v=20261029-grades1"></script>
 </head>
 <body>
-  <header><a class="brand" href="../">YUHSIN <span>祐馨升學網</span></a><a href="../">返回網站</a></header>
+  <header><a class="brand" href="../">YUHSIN <span>祐馨升學網</span></a><div class="header-actions"><a href="../">返回網站</a><button id="logout" type="button" class="icon-button" aria-label="結束教師登入" title="結束登入" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="M10 4H5v16h5M14 8l4 4-4 4M9 12h10"/></svg></button></div></header>
   <main>
     <h1>教師後台</h1>
     <p id="status" role="status">正在確認登入狀態…</p>
@@ -33,26 +34,29 @@
       </form>
     </section>
     <section id="workspace" aria-labelledby="rosterTitle" hidden>
-      <div class="workspace-heading"><div><h2 id="rosterTitle">學生名單</h2><p id="scope"></p></div><button id="logout" class="secondary" type="button">登出</button></div>
-      <p class="notice">點選學生的「查看成果」，可查看已同步的學群探索成果與追蹤清單。</p>
       <div class="filters">
         <label>搜尋<input id="search" type="search" autocomplete="off" placeholder="姓名或學號"></label>
-        <label>上課班級<select id="group" aria-label="上課班級"><option value="">全部上課班級</option></select></label>
-        <label>原班級<select id="original" aria-label="原班級"><option value="">全部原班級</option></select></label>
+        <label>年級<select id="grade" aria-label="年級"><option value="">全部年級</option></select></label>
+        <label>班別<select id="group" aria-label="班別"><option value="">全部班別</option></select></label>
       </div>
-      <p id="count" role="status"></p>
-      <div class="table-wrap" role="region" aria-label="學生名單，可橫向捲動" tabindex="0"><table>
-        <thead><tr><th scope="col">學號</th><th scope="col">姓名</th><th scope="col">上課班級</th><th scope="col">原班級</th><th scope="col">原班座號</th><th scope="col">狀態</th><th scope="col">學生資料</th></tr></thead>
+      <div class="roster-workspace">
+      <section class="roster-panel" aria-labelledby="rosterTitle"><div class="list-heading"><h2 id="rosterTitle">學生名單</h2><p id="count" role="status"></p></div>
+      <div class="table-wrap" role="region" aria-label="學生名單" tabindex="0"><table>
+        <thead><tr><th scope="col">姓名</th><th scope="col">學號</th><th scope="col">原班級</th><th scope="col">班別</th></tr></thead>
         <tbody id="students"></tbody>
       </table></div>
-      <p id="empty" hidden>沒有符合條件的學生，請調整搜尋或班級。</p>
+      <p id="empty" hidden>沒有符合條件的學生。</p>
+      </section>
+      <section id="studentDetail" class="student-detail" aria-labelledby="detailTitle" tabindex="0">
+        <div id="detailPlaceholder" class="detail-placeholder">選擇學生</div>
+        <div id="detailContent" hidden>
+          <div class="student-heading"><h2 id="detailTitle" tabindex="-1"></h2><p id="detailIdentity"></p></div><p id="detailStatus" role="status"></p>
+          <section aria-labelledby="trackingTitle"><h3 id="trackingTitle">追蹤清單</h3><div id="detailTracking" class="tracking-scroll"></div></section>
+          <section aria-labelledby="resultsTitle"><h3 id="resultsTitle">學群探索成果</h3><p id="detailCount"></p><div id="detailResults"></div><button id="moreResults" type="button" class="secondary" hidden>較早的成果</button></section>
+        </div>
+      </section>
+      </div>
     </section>
   </main>
-  <dialog id="studentDetail" aria-labelledby="detailTitle">
-    <button id="closeDetail" type="button" class="secondary detail-close" aria-label="關閉學生資料">關閉</button>
-    <h2 id="detailTitle" tabindex="-1"></h2><p id="detailIdentity"></p><p id="detailStatus" role="status"></p>
-    <section aria-labelledby="trackingTitle"><h3 id="trackingTitle">追蹤清單</h3><div id="detailTracking"></div></section>
-    <section aria-labelledby="resultsTitle"><h3 id="resultsTitle">學群探索成果</h3><p id="detailCount"></p><div id="detailResults"></div><button id="moreResults" type="button" class="secondary" hidden>載入更多成果</button></section>
-  </dialog>
   <noscript>請開啟 JavaScript 以使用教師登入。</noscript>
 </body></html>

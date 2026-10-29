@@ -2,16 +2,16 @@
 (function () {
   'use strict';
   const $ = id => document.getElementById(id);
+  const model=window.YuhsinTeacherModel;
   let storage; try { storage = window.sessionStorage; } catch {}
   const client = window.YuhsinSupabaseAuth.createClient({ config: { ...window.YUHSIN_STUDENT_AUTH_CONFIG, accountType: 'teacher' }, fetcher: window.fetch.bind(window), storage });
   const form = $('login').querySelector('form'), submit = form.querySelector('button');
   let students = [], epoch = 0;
   let detailEpoch=0,selectedStudent=null,resultOffset=0,loadedResults=0;
+  let preferredStudentId=null;
   const date=value=>new Intl.DateTimeFormat('zh-TW',{dateStyle:'medium',timeStyle:'short',timeZone:'Asia/Taipei'}).format(new Date(value));
   function text(tag,value,className){const node=document.createElement(tag);node.textContent=value;if(className)node.className=className;return node;}
-  function clearDetail(){detailEpoch++;selectedStudent=null;$('detailTracking').replaceChildren();$('detailResults').replaceChildren();$('detailIdentity').textContent='';$('detailTitle').textContent='';$('detailCount').textContent='';message('detailStatus','');$('moreResults').hidden=true;}
-  $('closeDetail').addEventListener('click',()=>$('studentDetail').close());
-  $('studentDetail').addEventListener('close',clearDetail);
+  function clearDetail(){detailEpoch++;selectedStudent=null;$('detailTracking').replaceChildren();$('detailResults').replaceChildren();$('detailIdentity').textContent='';$('detailTitle').textContent='';$('detailCount').textContent='';message('detailStatus','');$('moreResults').hidden=true;$('detailContent').hidden=true;$('detailPlaceholder').hidden=false;}
   function renderResult(row){
     const data=window.YuhsinCuriosityData,report=row.report,snapshot=row.answers;
     const stage={quick:'初次探索',extra:'重新測驗補充',deep:'深入探索',revision:'修改後的成果'}[row.stage]||row.stage;
@@ -42,7 +42,7 @@
     }
     answers.append(list);item.append(answers);
     item.append(text('p',report.limits?.[0]||'自評探索結果供輔導討論使用。','muted'));
-    if(row.attempt)item.append(text('p','題庫：'+row.attempt.bank_version+'；計分版本：'+row.attempt.scoring_version,'version-info'));
+    if(row.attempt)answers.append(text('p','題庫：'+row.attempt.bank_version+'；計分版本：'+row.attempt.scoring_version,'version-info'));
     return item;
   }
   async function moreResults(){
@@ -50,46 +50,52 @@
     const version=detailEpoch,id=selectedStudent.id;$('moreResults').disabled=true;
     try{
       const rows=await client.readResults(id,100,resultOffset);if(version!==detailEpoch)return;
-      for(const row of rows)$('detailResults').append(renderResult(row));
-      resultOffset+=rows.length;loadedResults+=rows.length;$('moreResults').hidden=rows.length<100;
-      if(!loadedResults)$('detailResults').append(text('p','尚無已同步的探索成果。學生登入後完成探索，或自行匯入自己的舊紀錄，成果才會顯示在這裡。'));
+      appendResultRows(rows);
       message('detailStatus','');
     }catch(error){if(version===detailEpoch)message('detailStatus',error.message);}
     finally{$('moreResults').disabled=false;}
   }
   $('moreResults').addEventListener('click',moreResults);
-  async function openStudent(student){
+  function appendResultRows(rows){
+    for(const row of rows){const item=renderResult(row);item.open=loadedResults===0;$('detailResults').append(item);loadedResults++;}
+    resultOffset+=rows.length;$('moreResults').hidden=rows.length<100;
+    if(!loadedResults)$('detailResults').append(text('p','尚無探索成果。','muted'));
+  }
+  async function openStudent(student,focus=false){
     clearDetail();selectedStudent=student;resultOffset=0;loadedResults=0;const version=detailEpoch;
-    $('detailTitle').textContent=student.name+'的學習探索';$('detailIdentity').textContent='學號 '+student.student_id+'｜上課班級 '+student.teaching_group+'｜原班級 '+student.original_class+'｜座號 '+student.original_seat_number;
-    message('detailStatus','正在載入學生資料…');$('studentDetail').showModal();$('detailTitle').focus();
+    preferredStudentId=student.id;
+    $('students').querySelectorAll('button[data-student-id]').forEach(button=>button.setAttribute('aria-pressed',String(button.dataset.studentId===student.id)));
+    $('detailTitle').textContent=student.name;$('detailIdentity').textContent=student.student_id+' · '+model.grade(student)+' · '+student.original_class+' 班 '+student.original_seat_number+' 號 · '+model.group(student);
+    $('detailContent').hidden=false;$('detailPlaceholder').hidden=true;
+    message('detailStatus','載入中…');if(focus)$('detailTitle').focus({preventScroll:innerWidth>1050});
     try{
-      const [tracking,attempts]=await Promise.all([client.readTracking(student.id),client.readAttempts(student.id)]);if(version!==detailEpoch)return;
+      const [tracking,attempts,results]=await Promise.all([client.readTracking(student.id),client.readAttempts(student.id),client.readResults(student.id,100,0)]);if(version!==detailEpoch)return;
       const active=tracking.filter(r=>!r.removed_at);
-      if(!active.length)$('detailTracking').append(text('p','尚無已同步的追蹤校系。'));
+      if(!active.length)$('detailTracking').append(text('p','尚無追蹤校系。','muted'));
       else {const list=document.createElement('ul');list.className='tracking-list';for(const row of active)list.append(text('li',row.school_name+'｜'+row.department_name+'（'+row.admission_year+' 學年度・'+row.admission_channel+'）'));$('detailTracking').append(list);}
-      $('detailCount').textContent='已完成 '+attempts.filter(a=>a.status==='complete').length+' 次探索；進行中 '+attempts.filter(a=>a.status==='in_progress').length+' 次。深入探索與補充題計在同一次探索內。';
-      await moreResults();
+      $('detailCount').textContent='完成 '+attempts.filter(a=>a.status==='complete').length+' 次探索'+(attempts.some(a=>a.status==='in_progress')?' · 進行中 '+attempts.filter(a=>a.status==='in_progress').length+' 次':'');
+      appendResultRows(results);message('detailStatus','');
     }catch(error){if(version===detailEpoch)message('detailStatus',error.message);}
   }
   function message(id, text) { $(id).textContent = text; $(id).hidden = !text; }
-  function clearWorkspace() {
-    if($('studentDetail').open)$('studentDetail').close();clearDetail();
-    epoch++; students = []; $('students').replaceChildren(); $('search').value = '';
-    for (const id of ['group','original']) while ($(id).options.length > 1) $(id).remove(1);
-    $('workspace').hidden = true; $('scope').textContent = ''; $('count').textContent = ''; $('empty').hidden = true;
+  function clearWorkspace(reset=true) {
+    clearDetail();epoch++;students=[];$('students').replaceChildren();
+    if(reset){$('search').value='';$('grade').value='';$('group').value='';preferredStudentId=null;}
+    $('workspace').hidden=true;$('logout').hidden=true;$('count').textContent='';$('empty').hidden=true;
   }
   function showLogin() { clearWorkspace(); $('login').hidden = false; }
   function render() {
-    const search = $('search').value.trim().toLocaleLowerCase();
-    const filtered = students.filter(s => (!search || s.name.toLocaleLowerCase().includes(search) || s.student_id.toLowerCase().includes(search)) && (!$('group').value || s.teaching_group === $('group').value) && (!$('original').value || s.original_class === $('original').value));
+    const filtered=students.filter(student=>model.matches(student,{search:$('search').value,grade:$('grade').value,group:$('group').value}));
     const fragment = document.createDocumentFragment();
     for (const s of filtered) {
       const row = document.createElement('tr');
-      for (const value of [s.student_id,s.name,s.teaching_group,s.original_class,s.original_seat_number || '—',s.active ? '啟用' : '停用']) { const cell = document.createElement('td'); cell.textContent = value; row.append(cell); }
-      const actions=document.createElement('td'),button=text('button','查看成果','secondary');button.type='button';button.setAttribute('aria-label','查看 '+s.name+' 的成果');button.addEventListener('click',()=>openStudent(s));actions.append(button);row.append(actions);
+      const name=document.createElement('td'),button=text('button',s.name,'student-select');button.type='button';button.dataset.studentId=s.id;button.setAttribute('aria-label','選擇學生 '+s.name);button.setAttribute('aria-pressed',String(s.id===selectedStudent?.id));button.addEventListener('click',()=>openStudent(s,true));name.append(button);if(!s.active)name.append(text('span','停用','inactive'));row.append(name);
+      for(const value of [s.student_id,s.original_class,model.group(s)])row.append(text('td',value));
       fragment.append(row);
     }
-    $('students').replaceChildren(fragment); $('count').textContent = '顯示 ' + filtered.length + ' 位／共 ' + students.length + ' 位學生'; $('empty').hidden = filtered.length !== 0;
+    $('students').replaceChildren(fragment);$('count').textContent=filtered.length+' / '+students.length+' 位';$('empty').hidden=filtered.length!==0;
+    const target=filtered.find(s=>s.id===(selectedStudent?.id||preferredStudentId))||filtered[0];
+    if(!target)clearDetail();else if(selectedStudent?.id!==target.id)openStudent(target);
   }
   async function workspace() {
     const version = ++epoch;
@@ -97,12 +103,7 @@
     const rows = await client.listStudents();
     if (version !== epoch) return;
     students = rows;
-    for (const [id,field] of [['group','teaching_group'],['original','original_class']]) {
-      while ($(id).options.length > 1) $(id).remove(1);
-      for (const value of [...new Set(students.map(s=>s[field]))].sort()) { const option = document.createElement('option'); option.value = option.textContent = value; $(id).append(option); }
-    }
-    $('scope').textContent = client.current.allGroups ? '查看範圍：本校所有上課班級' : '查看範圍：已授權的上課班級';
-    render(); message('status',''); $('workspace').hidden = false;
+    render();message('status','');$('workspace').hidden=false;$('logout').hidden=false;
   }
   $('showPassword').addEventListener('change', event => { form.elements.password.type = event.target.checked ? 'text' : 'password'; });
   function resetPassword() { form.elements.password.value = ''; form.elements.password.type = 'password'; $('showPassword').checked = false; }
@@ -114,15 +115,21 @@
     finally { submit.disabled = false; submit.textContent = '登入教師後台'; }
   });
   $('logout').addEventListener('click', async () => {
-    clearWorkspace(); $('login').hidden = true; message('status','正在登出…');
-    try { await client.logout(); message('status','已登出。'); }
+    clearWorkspace(); $('login').hidden = true; message('status','正在結束登入…');
+    try { await client.logout(); message('status',''); }
     catch { message('status','本機登入已清除；網路連線中斷，請稍後再試。'); }
     finally { showLogin(); resetPassword(); form.elements.username.value = ''; form.elements.username.focus(); }
   });
-  for (const id of ['search','group','original']) $(id).addEventListener(id === 'search' ? 'input' : 'change',render);
+  let gradeGroup;
+  for(const value of model.gradeOptions){
+    if(value.startsWith('G')){gradeGroup=document.createElement('optgroup');gradeGroup.label=value;$('grade').append(gradeGroup);}
+    const option=document.createElement('option');option.value=option.textContent=value;gradeGroup.append(option);
+  }
+  for(const value of model.groupOptions){const option=document.createElement('option');option.value=option.textContent=value;$('group').append(option);}
+  for (const id of ['search','group','grade']) $(id).addEventListener(id === 'search' ? 'input' : 'change',render);
   // Returning to a backgrounded teacher page revalidates authorization before displaying records.
   document.addEventListener('visibilitychange', async () => {
-    if (document.hidden) { clearWorkspace(); return; }
+    if (document.hidden) { clearWorkspace(false); return; }
     try { if (await client.session()) await workspace(); else { showLogin(); message('status','請登入教師帳號。'); } }
     catch (error) { showLogin(); message('status',error.message); }
   });
