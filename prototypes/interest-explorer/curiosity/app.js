@@ -18,7 +18,7 @@
  const track=(name,title,options)=>{try{return window.YuhsinUsage?.event(name,title,options)||false;}catch{return false;}};
  const measurement=window.YuhsinCuriosityMeasurement.create(track);
  let session=engine.createSession();
- let lastSavedView=null,view='intro',qMode='quick',qPage=0,detailPage=0,detailOffset=0,report=null,restartArmed=null,tab=null;
+ let lastSavedView=null,view='intro',qMode='quick',qPage=0,detailPage=0,report=null,restartArmed=null,tab=null;
  let cloudContext=null,syncEpoch=0,syncChain=Promise.resolve();
  function syncMessage(text,retry=false){if(!el('accountSyncStatus'))return;el('accountSyncStatus').textContent=text;el('retryAccountSync').hidden=!retry;}
  function syncResult(){
@@ -97,8 +97,7 @@
    const missing=session.deepQuestions().findIndex(q=>snap.answers[q.id]===undefined);
    if(missing>=0){qMode='deep';qPage=firstUnansweredPage();return renderQuestion();}
    const plan=session.detailPlan();detailPage=Math.max(0,plan.findIndex(row=>row.goals.some(g=>snap.deep.goals[g.id]===undefined)));
-   const missingGoal=Math.max(0,plan[detailPage].goals.findIndex(g=>snap.deep.goals[g.id]===undefined));
-   detailOffset=missingGoal;return renderDeepDetails();
+   return renderDeepDetails();
   }
   renderResults();
  }
@@ -123,7 +122,7 @@
  function restart(button){
   if(restartArmed!==button){disarmRestart();restartArmed=button;button.textContent='確定清除作答？再按一次';return;}
   track('curiosity-restart','重新開始');
-  clearSaved();cloudContext=null;syncEpoch++;session.reset();measurement.reset();qPage=0;detailPage=0;detailOffset=0;report=null;tab=null;disarmRestart();renderIntro();
+  clearSaved();cloudContext=null;syncEpoch++;session.reset();measurement.reset();qPage=0;detailPage=0;report=null;tab=null;disarmRestart();renderIntro();
  }
 
  // ── 作答：一頁 6 題（好奇心、深入探索、重新測驗都一樣） ──
@@ -171,7 +170,7 @@
   if(missing.length){el('qError').textContent=`這一頁還有 ${missing.length} 題沒選。`;missing[0].scrollIntoView({block:'center',behavior:reduceMotion?'auto':'smooth'});return;}
   if(qPage<pageCount()-1){qPage++;renderQuestion();return;}
   if(qMode==='quick'){track('curiosity-step1-done','完成第 1 步',{once:true});if(session.favouritesNeeded())renderFavourites();else renderSubjects();}
-  else if(qMode==='deep'&&session.detailPlan().length){detailPage=0;detailOffset=0;renderDeepDetails();}
+  else if(qMode==='deep'&&session.detailPlan().length){detailPage=0;renderDeepDetails();}
   else{if(qMode==='extra')track('curiosity-extra-done','答完一批新題目');else track('curiosity-deep-done','完成深入探索');renderResults();}
  }
  const pageCountFor=mode=>mode==='quick'?Math.ceil(data.quickSet.length/PAGE_SIZE):1;
@@ -211,39 +210,21 @@
  }
 
  // ── 深入探索：具體內容 ──
- let detailBatch=5,detailLayoutKey='',detailPendingOffset=null;
- const detailPageSize=()=>detailBatch;
- const detailPageGoals=()=>session.detailPlan()[detailPage].goals.slice(detailOffset,detailOffset+detailPageSize());
+ const detailPageGoals=()=>session.detailPlan()[detailPage].goals;
  function renderDeepDetails(){
   const plan=session.detailPlan();
   if(!plan.length)return renderResults();
   detailPage=Math.min(Math.max(detailPage,0),plan.length-1);
   const row=plan[detailPage],goals=session.snapshot().deep.goals;
-  const layoutKey=`${innerWidth}:${innerHeight}:${row.subject}:${row.context}:${row.goals.map(g=>g.id).join(",")}`;
-  if(layoutKey!==detailLayoutKey){detailLayoutKey=layoutKey;detailBatch=5;detailPendingOffset=detailOffset;detailOffset=0;}
-  detailOffset=Math.min(Math.max(0,detailOffset),Math.max(0,row.goals.length-1));
-  const pageGoals=detailPageGoals(),pageNumber=Math.floor(detailOffset/detailPageSize())+1,pages=Math.ceil(row.goals.length/detailPageSize());
-  setBar('深入探索・具體內容',`第 ${detailPage+1} / ${plan.length} 科 · 第 ${pageNumber} / ${pages} 頁`,0.5+(detailPage+detailOffset/row.goals.length)/plan.length*0.5);
-  el('deepDetailsTitle').textContent=`這些和「${subject(row.subject).label}」有關的事，你做得如何？`;
-  el('goalRows').innerHTML=pageGoals.map((g,i)=>`<fieldset class="goal-row"><legend><span class="goal-no" aria-hidden="true">${detailOffset+i+1}</span>${esc(g.text)}</legend><div class="scale-options">${data.masteryOptions.map(o=>`<label class="scale-option"><input type="radio" name="g-${g.id}" value="${o.value}" data-goal="${g.id}" ${goals[g.id]===o.value?'checked':''}><span>${esc(o.label)}</span></label>`).join('')}</div></fieldset>`).join('');
+  setBar('深入探索・具體內容',`第 ${detailPage+1} / ${plan.length} 科`,0.5+detailPage/plan.length*0.5);
+  el('deepDetailsTitle').textContent=`你的${subject(row.subject).label}表現如何？`;
+  el('goalRows').innerHTML=detailPageGoals().map((g,i)=>`<fieldset class="goal-row"><legend><span class="goal-no" aria-hidden="true">${i+1}</span>${esc(g.text)}</legend><div class="scale-options">${data.masteryOptions.map(o=>`<label class="scale-option"><input type="radio" name="g-${g.id}" value="${o.value}" data-goal="${g.id}" ${goals[g.id]===o.value?'checked':''}><span>${esc(o.label)}</span></label>`).join('')}</div></fieldset>`).join('');
   el('deepDetailsError').textContent='';
-  el('deepDetailsCount').textContent=`本科 ${row.goals.filter(g=>goals[g.id]!==undefined).length} / ${row.goals.length}`;
-  el('deepDetailsNext').textContent=detailOffset+pageGoals.length<row.goals.length||detailPage<plan.length-1?'繼續':'看結果';
+  el('deepDetailsCount').textContent=`已答 ${row.goals.filter(g=>goals[g.id]!==undefined).length} / ${row.goals.length} 題`;
+  el('deepDetailsPrevious').textContent=detailPage?'上一科':session.deepQuestions().length?'回到題目':'回到結果';
+  el('deepDetailsNext').textContent=detailPage<plan.length-1?'下一科':'看結果';
   show('deepDetails','deepDetailsTitle');
-  // Try the complete five-item subject first; paginate only when the actual
-  // text, controls, reserved error line and footer do not fit the viewport.
-  if(document.documentElement.scrollHeight>innerHeight+1&&detailBatch>1){
-   detailBatch--;detailOffset=Math.floor(detailOffset/detailBatch)*detailBatch;
-   return renderDeepDetails();
-  }
-  if(detailPendingOffset!==null){
-   const target=Math.floor(detailPendingOffset/detailBatch)*detailBatch;detailPendingOffset=null;
-   if(target!==detailOffset){detailOffset=target;return renderDeepDetails();}
-  }
  }
- window.addEventListener('resize',()=>{if(view==='deepDetails'){
-  renderDeepDetails();
- }});
  function openSubjectInfo(){
   const row=session.detailPlan()[detailPage];
   el('subjectInfoTitle').textContent=subject(row.subject).label+'｜課綱與課程';
@@ -368,27 +349,23 @@
   renderResults();
  });
 
- el('startDeep').addEventListener('click',()=>{track('curiosity-deep-start','開始深入探索');session.startDeep();save();detailPage=0;detailOffset=0;if(session.deepQuestions().length){qMode='deep';qPage=0;renderQuestion();}else renderDeepDetails();});
+ el('startDeep').addEventListener('click',()=>{track('curiosity-deep-start','開始深入探索');session.startDeep();save();detailPage=0;if(session.deepQuestions().length){qMode='deep';qPage=0;renderQuestion();}else renderDeepDetails();});
  el('startExtra').addEventListener('click',()=>{if(session.extraComplete())track('curiosity-extra-start','重新測驗');session.startExtra();save();qMode='extra';qPage=firstUnansweredPage();renderQuestion();});
  el('goalRows').addEventListener('change',e=>{
   const input=e.target.closest('input[data-goal]');if(!input)return;
   session.goal(input.dataset.goal,Number(input.value));
   const row=session.detailPlan()[detailPage],goals=session.snapshot().deep.goals;
-  el('deepDetailsCount').textContent=`本科 ${row.goals.filter(g=>goals[g.id]!==undefined).length} / ${row.goals.length}`;
+  el('deepDetailsCount').textContent=`已答 ${row.goals.filter(g=>goals[g.id]!==undefined).length} / ${row.goals.length} 題`;
   el('deepDetailsError').textContent='';save();
  });
  el('deepDetailsPrevious').addEventListener('click',()=>{
-  if(detailOffset){detailOffset=Math.max(0,detailOffset-detailPageSize());renderDeepDetails();}
-  else if(detailPage){detailPage--;const count=session.detailPlan()[detailPage].goals.length;detailOffset=Math.floor((count-1)/detailPageSize())*detailPageSize();renderDeepDetails();}
+  if(detailPage){detailPage--;renderDeepDetails();}
   else if(session.deepQuestions().length){qMode='deep';qPage=pageCount()-1;renderQuestion();}else renderResults();
  });
  el('deepDetailsNext').addEventListener('click',()=>{
-  const row=session.detailPlan()[detailPage],goals=session.snapshot().deep.goals,missing=detailPageGoals().filter(g=>goals[g.id]===undefined).length;
-  if(missing){el('deepDetailsError').textContent=`還有 ${missing} 項沒選。`;return;}
-  if(detailOffset+detailPageGoals().length<row.goals.length){detailOffset+=detailPageSize();return renderDeepDetails();}
-  const earlier=row.goals.findIndex(g=>goals[g.id]===undefined);
-  if(earlier>=0){detailOffset=Math.floor(earlier/detailPageSize())*detailPageSize();return renderDeepDetails();}
-  if(detailPage<session.detailPlan().length-1){detailPage++;detailOffset=0;renderDeepDetails();}else{track('curiosity-deep-done','完成深入探索');renderResults();}
+  const goals=session.snapshot().deep.goals,missing=detailPageGoals().filter(g=>goals[g.id]===undefined).length;
+  if(missing){el('deepDetailsError').textContent=`還有 ${missing} 題沒選。`;return;}
+  if(detailPage<session.detailPlan().length-1){detailPage++;renderDeepDetails();}else{track('curiosity-deep-done','完成深入探索');renderResults();}
  });
  el('openSubjectInfo').addEventListener('click',openSubjectInfo);
 
@@ -439,7 +416,7 @@
   catch{syncMessage('這份訪客紀錄無法讀取，請重新開始探索。');}
  });
  accountRecords?.onChange(async()=>{
-  syncEpoch++;session.reset();cloudContext=null;measurement.reset();report=null;lastSavedView=null;view='intro';tab=null;qPage=0;detailPage=0;detailOffset=0;
+  syncEpoch++;session.reset();cloudContext=null;measurement.reset();report=null;lastSavedView=null;view='intro';tab=null;qPage=0;detailPage=0;
   await restoreAccountExploration();renderIntro();
  });
  await boot();

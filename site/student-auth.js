@@ -76,7 +76,7 @@
   function openDialog() {
     if (!dialogLoading) dialogLoading = new Promise((resolve, reject) => {
       const entry = root.document.createElement("script");
-      entry.src = new URL("student-login-dialog.js?v=20261029-records1", base).href;
+      entry.src = new URL("student-login-dialog.js?v=20261029-ui3", base).href;
       entry.onload = resolve;
       entry.onerror = () => { entry.remove(); dialogLoading = null; reject(new Error("無法載入登入視窗，請稍後再試。")); };
       root.document.body.append(entry);
