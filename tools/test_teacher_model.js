@@ -11,4 +11,14 @@ assert(model.matches(a,{grade:'G10',group:'10理A'}));assert(model.matches(a,{gr
 assert(model.matches(b,{grade:'G11',group:'11文H'}));assert(model.matches(b,{grade:'1101',group:'11文H'}));assert(!model.matches(b,{grade:'1102'}));
 assert(model.matches(c,{grade:'G12',group:'12理A',search:'zz00003'}));assert(!model.matches(c,{grade:'G11'}));assert(!model.matches(c,{group:'12文H'}));
 for(const raw of ['1001','1002'])assert.equal(model.group({...a,teaching_group:raw}),raw+'主');
+const now=Date.parse('2026-10-29T12:00:00Z'),day=86400000,iso=ms=>new Date(ms).toISOString();
+assert.equal(model.login(null,now),'off');assert.equal(model.login(iso(now-2*day),now),'green');assert.equal(model.login(iso(now-7*day),now),'green');
+assert.equal(model.login(iso(now-8*day),now),'yellow');assert.equal(model.login(iso(now-90*day),now),'yellow');assert.equal(model.login(iso(now-91*day),now),'red');
+assert.equal(model.loginDate(null,now),'從未登入');assert.equal(model.loginDate('2026-10-27T17:00:00Z',now),'10/28');assert.equal(model.loginDate('2026-03-05T01:00:00Z',now),'3/5');assert.equal(model.loginDate('2025-12-03T02:00:00Z',now),'2025/12/03');
+assert.equal(model.abbreviate('大眾傳播學群'),'大傳');assert.equal(model.abbreviate('財經學群'),'財經');assert.equal(model.abbreviate('數理化學群'),'數理');assert.equal(model.abbreviate('不分系學群'),'不分系');
+assert.equal(model.exam(undefined).label,'未作答');assert.equal(model.exam({exam_status:'in_progress'}).label,'作答中');assert.equal(model.exam({exam_status:'quick'}).label,'已作答：未深入');
+assert.equal(model.exam({exam_status:'deep',priority_groups:['大眾傳播學群','財經學群']}).label,'已作答：大傳、財經');assert.equal(model.exam({exam_status:'deep',priority_groups:[]}).label,'已作答：無');
+const s1={last_sign_in_at:iso(now-day),exam_status:'deep',priority_groups:['資訊學群']};
+assert(model.matches(a,{login:'green',exam:'deep'},s1,now));assert(!model.matches(a,{login:'off'},s1,now));assert(model.matches(a,{login:'off',exam:'none'},undefined,now));
+console.log('Teacher overview: login lights at 7/90-day boundaries, Taipei dates, abbreviations, exam labels and login/exam filters passed.');
 console.log('Teacher filters: all requested options, G10 aliases, grade/original-class intersections and account search passed.');
