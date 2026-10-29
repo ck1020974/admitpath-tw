@@ -43,10 +43,20 @@ for (const filters of [
 ]) {
   const shared = { year: 'all', channel: 'personal_application', school: 'all', schoolScope: 'all', quickCategory: '', keyword: '', ...filters };
   ctx.state.filters = { ...shared, advanced: {} };
-  ctx.state.placement = { ...ctx.defaultPlacementState(), ...shared, stage: 'results' };
+  // 落點分析的「申請」預設含四技；和工作台的「個人申請」比對時只看一般大學。
+  ctx.state.placement = { ...ctx.defaultPlacementState(), ...shared, applyScope: 'university', stage: 'results' };
   ctx.applyFilters();
   const expected = records.filter(r => ctx.placementMatchesFilters(r, ctx.placementProfile())).map(r => r.id);
   assert(expected.length > 0, JSON.stringify(filters));
+  assert.deepEqual(Array.from(ctx.state.filtered, r => r.id), expected);
+}
+// 四技申請：工作台選「四技申請」與落點分析只看科大，同樣條件得到同一批校系。
+for (const filters of [{ school: '國立臺灣科技大學' }, { quickCategory: '電機工程學類' }, { year: '115', keyword: '餐飲' }]) {
+  ctx.state.filters = { year: 'all', channel: 'tech_application', school: 'all', schoolScope: 'all', quickCategory: '', keyword: '', ...filters, advanced: {} };
+  ctx.state.placement = { ...ctx.defaultPlacementState(), year: 'all', school: 'all', keyword: '', ...filters, applyScope: 'tech', stage: 'results' };
+  ctx.applyFilters();
+  const expected = records.filter(r => ctx.placementMatchesFilters(r, ctx.placementProfile())).map(r => r.id);
+  assert(expected.length > 0 && expected.every(id => id.includes('tech_application')), JSON.stringify(filters));
   assert.deepEqual(Array.from(ctx.state.filtered, r => r.id), expected);
 }
 ctx.state.placement.scores.國文 = '13';

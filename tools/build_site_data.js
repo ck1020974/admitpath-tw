@@ -28,6 +28,7 @@ const DETAIL_FIELDS = {
   starRankStandard: ['sourceUrl', 'pdfPage'],
   applySieveResult: ['verification'],
   admissionAudit: ['detailSourceUrl', 'resultScope'],
+  techApplication: ['portfolio', 'interviewNotes', 'notes', 'dates', 'standardUrl', 'minuteUrl', 'secondStageItems'],
 };
 
 function bucketOf(id) {

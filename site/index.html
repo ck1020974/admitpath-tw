@@ -24,7 +24,7 @@
   <link rel="stylesheet" href="./styles.css?v=20261028-inline-analysis">
   <link rel="stylesheet" href="./special.css?v=20260918-layout-fix">
   <link rel="stylesheet" href="./support.css?v=20261029-contact">
-  <link rel="stylesheet" href="./workbench.css?v=20261028-tracking-spacing">
+  <link rel="stylesheet" href="./workbench.css?v=20261029-tech-application">
   <link rel="stylesheet" href="./layout.css?v=20261023-mobile">
   <link rel="stylesheet" href="./student-account.css?v=20261028-modal1">
 </head>
@@ -154,6 +154,7 @@
                 <select id="channelFilter">
                   <option value="all">全部管道</option>
                   <option value="personal_application">個人申請</option>
+                  <option value="tech_application">四技申請（科大）</option>
                   <option value="star_recommendation">繁星推薦</option>
                   <option value="exam_distribution">分發入學</option>
                   <option value="special_selection">特殊選才</option>
@@ -213,7 +214,7 @@
                 <h3 id="placementChannelHeading">入學管道</h3>
                 <div class="placement-channel-options" role="group" aria-label="選擇入學管道">
                   <button type="button" data-placement-channel="star_recommendation" aria-pressed="false">繁星<span>學測、英聽與校排</span></button>
-                  <button type="button" class="active" data-placement-channel="personal_application" aria-pressed="true">個申<span>學測與英聽</span></button>
+                  <button type="button" class="active" data-placement-channel="personal_application" aria-pressed="true">申請<span>個申＋四技，學測與英聽</span></button>
                   <button type="button" data-placement-channel="exam_distribution" aria-pressed="false">分科<span>分發採計成績</span></button>
                 </div>
               </section>
@@ -312,6 +313,7 @@
               <span>入學管道</span>
               <div class="compare-channel-buttons" role="group" aria-label="追蹤入學管道">
                 <button class="ghost-button active" data-compare-channel-toggle="personal_application" aria-pressed="true">個人申請</button>
+                <button class="ghost-button active" data-compare-channel-toggle="tech_application" aria-pressed="true">四技申請</button>
                 <button class="ghost-button active" data-compare-channel-toggle="star_recommendation" aria-pressed="true">繁星推薦</button>
                 <button class="ghost-button active" data-compare-channel-toggle="exam_distribution" aria-pressed="true">分發入學</button>
                 <button class="ghost-button active" data-compare-channel-toggle="special_selection" aria-pressed="true">特殊選才</button>
@@ -450,9 +452,9 @@
   <script src="./support-config.js?v=20261015"></script>
   <script src="./support.js?v=20261029-contact"></script>
   <script src="./admission-rules.js?v=20261027-placement-guards"></script>
-  <script src="./admission-catalog.js?v=20261012-special-116"></script>
+  <script src="./admission-catalog.js?v=20261029-tech-application"></script>
   <script src="./explorer-link.js?v=20261023-intros"></script>
   <script src="./group-introductions.js?v=20261023-intros"></script>
-  <script src="./app.js?v=20261029-psychology-counseling"></script>
+  <script src="./app.js?v=20261029-tech-application-b"></script>
 </body>
 </html>

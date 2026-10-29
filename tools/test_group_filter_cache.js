@@ -34,7 +34,7 @@ for (const [selected, categories, within] of [
 assert.equal(ctx.getGroupNeedles('工程學群'), ctx.placementSelectedNeedles({ groups: ['工程學群'], categories: [] }));
 assert.equal(ctx.getCategoryNeedles('工程學群', '資訊工程學類'), ctx.cachedGroupNeedles(['工程學群'], ['資訊工程學類'], true));
 const psychologyRows = ctx.selectedCategoryRows('社會心理學群', '心理學類');
-assert.equal(psychologyRows.length, 55, 'Psychology includes counseling, with three cross-listed programs deduplicated');
+assert.equal(psychologyRows.length, 56, 'Psychology includes counseling (incl. 北護生死與健康心理諮商系 from 四技申請), with three cross-listed programs deduplicated');
 assert.equal(new Set(psychologyRows.map(r => ctx.normalize(r.schoolDepartmentName))).size, psychologyRows.length);
 const psychology = ctx.getCategoryNeedles('社會心理學群', '心理學類');
 const expectedPsychology = build(groups.filter(r => ['心理學類', '輔導諮商學類'].includes(r.categoryName)));
@@ -46,7 +46,7 @@ for (const [school, department] of [['國立臺灣師範大學', '教育心理�
   assert.ok(psychologyRows.some(r => r.schoolDepartmentName === school + department));
 }
 assert.equal(ctx.matchesGroup({ schoolName: '國立臺灣大學', departmentName: '中國文學系' }, psychology), false);
-assert.equal(ctx.selectedCategoryRows('社會心理學群', '輔導諮商學類').length, 25, 'Counseling remains a separate official category');
+assert.equal(ctx.selectedCategoryRows('社會心理學群', '輔導諮商學類').length, 26, 'Counseling remains a separate official category (incl. 北護生死與健康心理諮商系 from 四技申請)');
 const mutable = { schoolName: '測試大學', departmentName: '資訊工程學系' }, it = ctx.getGroupNeedles('資訊學群');
 assert.equal(ctx.matchesGroup(mutable, it), true);
 mutable.departmentName = '中國文學系';

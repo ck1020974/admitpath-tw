@@ -503,3 +503,31 @@
   }
   .query-shortcuts .placement-chip, .query-shortcuts .placement-popular-label { flex-shrink: 0; white-space: nowrap; }
 }
+
+/* ── 四技申請（科大）：磚紅色，和個申的青綠、繁星的橘黃、分發的藍、特選的紫區分 ── */
+.channel-mini.tech,
+.channel-pill.tech {
+  background: #fbece6;
+  color: #9a3f1c;
+}
+
+.channel-switch.active.tech {
+  background: #fbece6;
+  border-color: #efc7b6;
+  color: #9a3f1c;
+}
+
+.explorer-dept-card.accent-tech {
+  border-top-color: #c0582f;
+}
+
+.explorer-dept-card.accent-special {
+  border-top-color: #8a4fc0;
+}
+
+.detail-note {
+  margin: 10px 0 0;
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.7;
+}

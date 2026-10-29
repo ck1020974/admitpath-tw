@@ -10,14 +10,20 @@ for (const name of ['defaultPlacementState', 'placementSubjects', 'selectPlaceme
   vm.runInContext(source.match(new RegExp(`function ${name}\\([\\s\\S]*?\\n\\}`))[0], context);
 }
 context.state.placement = context.defaultPlacementState();
+// 申請預設同時看個人申請與四技申請；結果篩選可只看一般大學或科大。
+assert.equal(context.placementProfile().channels.join(), 'personal_application,tech_application');
+context.state.placement.applyScope = 'tech';
+assert.equal(context.placementProfile().channels.join(), 'tech_application');
+context.state.placement.applyScope = 'university';
 assert.equal(context.placementProfile().channels.join(), 'personal_application');
+context.state.placement.applyScope = 'all';
 assert.equal(context.placementHasAnyInput(context.placementProfile()), false);
 context.selectPlacementChannel('personal_application');
 context.state.placement.scores.國文 = '12';
 context.state.placement.scores.英聽 = 'B';
 context.state.placement.scores.在校 = '8';
 let profile = context.placementProfile();
-assert.equal(profile.channels.join(), 'personal_application');
+assert.equal(profile.channels.join(), 'personal_application,tech_application');
 assert.equal(Object.keys(profile.scores).length, 7);
 assert(!('在校' in profile.scores));
 assert(!('數甲' in profile.scores));
@@ -59,6 +65,7 @@ Object.assign(context, {
   document: { querySelectorAll: () => [], querySelector: () => null, getElementById: () => null },
   els: { placementChannelFilter: { value: 'star_recommendation', addEventListener: (event, handler) => { channelChange = handler; } } },
 });
+vm.runInContext(source.match(/const PLACEMENT_APPLY_OPTIONS = [^;]+;/)[0], context);
 vm.runInContext(source.match(/function bindPlacementEvents\([\s\S]*?\n\}/)[0], context);
 context.bindPlacementEvents();
 context.state.placement.stage = 'results';
@@ -66,4 +73,14 @@ channelChange();
 assert.equal(context.state.placement.channel, 'star_recommendation');
 assert.equal(context.state.placement.stage, 'setup');
 assert.equal(context.placementProfile().scores.國文, '12');
+// 在申請的結果頁改看「四技申請（科大）」只換範圍，留在結果頁，不必重新輸入成績。
+Object.assign(context, { renderPlacementAnalysis() {} });
+context.selectPlacementChannel('personal_application');
+context.state.placement.stage = 'results';
+context.els.placementChannelFilter.value = 'apply_tech';
+channelChange();
+assert.equal(context.state.placement.channel, 'personal_application');
+assert.equal(context.state.placement.applyScope, 'tech');
+assert.equal(context.state.placement.stage, 'results');
+assert.equal(context.placementProfile().channels.join(), 'tech_application');
 console.log('Channel entry: personal application default, relevant subjects only, required star rank, retained GSAT scores, separate 15/60 score sets and weighted distribution totals passed.');

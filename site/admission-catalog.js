@@ -24,6 +24,8 @@ window.AdmissionCatalog = (() => {
       const current = map.get(key(name));
       if (!current) map.set(key(name), { name, code, areas: new Set() });
       else if (code && (!current.code || code < current.code)) current.code = code;
+      // 四技申請的校系資料附有依校址判斷的地區。
+      if (record.techApplication?.area) map.get(key(name)).areas.add(record.techApplication.area);
     });
     special.forEach(record => {
       if (!map.has(key(record.school))) map.set(key(record.school), { name: record.school, code: '', areas: new Set() });

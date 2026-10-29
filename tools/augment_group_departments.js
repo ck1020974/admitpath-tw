@@ -27,7 +27,7 @@ function splitSchoolDepartmentName(value) {
 
 function meaningfulDepartment(value) {
   const text = String(value || "").trim();
-  return text.length <= 80 && /(?:系|所|學程|學士班|學院|組)$|(?:系|所|學程|學士班|學院|組)[(（]/.test(text);
+  return text.length <= 80 && /(?:系|所|學程|學士班|學院|組)$|(?:系|所|學程|學士班|學院|組)\s*[(（]/.test(text);
 }
 
 const categoryDefinitions = [
@@ -120,6 +120,55 @@ const categoryDefinitions = [
   ["遊憩運動學群", "體育學類", /運動/],
 ];
 
+// 四技申請（科大）常見、但一般大學少見的系名。只用在四技申請的校系，避免改動一般大學既有的對應。
+// 每一條都對到官方十八學群已有的學類；對不上的系名會留在 skipped，供人工確認。
+const techCategoryDefinitions = [
+  ["不分系學群", "不分系學類", /不分系/],
+  ["工程學群", "工業管理學類", /工業工程|工業管理/],
+  ["教育學群", "幼兒教育學類", /幼兒保育|嬰幼兒保育/],
+  ["社會心理學群", "兒童家庭學類", /兒童與家庭|家庭社工/],
+  ["建築設計學群", "商業設計學類", /視覺傳達/],
+  ["建築設計學群", "媒體設計學類", /漫畫|影視設計|數位內容/],
+  ["建築設計學群", "服裝設計學類", /服飾|服裝|織品|時尚(?:經營|展演)?/],
+  ["建築設計學群", "藝術設計學類", /創意生活設計|創新設計/],
+  ["管理學群", "餐旅管理學類", /餐飲|廚藝|旅館/],
+  ["醫藥衛生學群", "化妝品學類", /化妝品|化粧品|美容|美髮|彩妝/],
+  ["醫藥衛生學群", "食品營養學類", /營養/],
+  ["醫藥衛生學群", "健康照護學類", /高齡|銀髮|福祉|養生|生活保健|健康美容/],
+  ["醫藥衛生學群", "呼吸治療學類", /呼吸照護/],
+  ["管理學群", "醫務管理學類", /醫務管理|健康事業管理|醫療產業管理/],
+  ["生物資源學群", "動物科學學類", /寵物/],
+  ["生物資源學群", "農藝學類", /農園|農業/],
+  ["生物資源學群", "森林學類", /木材/],
+  ["生物資源學群", "食品生技學類", /食藥產業|檢測科技/],
+  ["工程學群", "航空工程學類", /航空機械|航空光機電|飛行/],
+  ["管理學群", "運輸物流學類", /航運|航海|供應鏈|運籌|流通|航空運務|航空服務/],
+  ["工程學群", "機械工程學類", /冷凍空調|機電學士班|智慧車輛|智慧製造/],
+  ["工程學群", "水利工程學類", /水土保持/],
+  ["工程學群", "土木工程學類", /營建工程/],
+  ["工程學群", "材料工程學類", /材料科學與工程/],
+  ["工程學群", "航空工程學類", /飛機工程|航空電子/],
+  ["工程學群", "機械工程學類", /模具工程/],
+  ["工程學群", "土木工程學類", /土木與空間資訊/],
+  ["工程學群", "生醫工程學類", /醫療器材/],
+  ["工程學群", "工程科學學類", /工程科技|工程學院學士班|智慧科技應用|智慧機器人|物聯網|工程與電資學院/],
+  ["資訊學群", "電機資訊學類", /電資學士班|資通科技/],
+  ["資訊學群", "資訊工程學類", /資訊科技|資訊與通訊|電腦與通訊|電腦與遊戲|電競|電子競技|海事資訊/],
+  ["管理學群", "企業管理學類", /人力資源|商務科技/],
+  ["管理學群", "資訊管理學類", /企業資訊/],
+  ["財經學群", "國際企業學類", /國際企業|國際貿易|國際管理/],
+  ["財經學群", "財務金融學類", /財務管理|金融系|金融資訊|財富規劃|資訊與財金/],
+  ["法政學群", "政治學類", /國際事務/],
+  ["管理學群", "土地資產學類", /房地產/],
+  ["文史哲學群", "文化產業學類", /文化資產|藝術管理/],
+  ["文史哲學群", "華語文教育學類", /應用華語/],
+  ["外語學群", "英語文學類", /英國語文|翻譯|外語教學/],
+  ["外語學群", "歐語文學類", /德國語文|法國語文/],
+  ["外語學群", "東方語文學類", /東南亞/],
+  ["藝術學群", "表演藝術學類", /演藝|展演/],
+  ["管理學群", "觀光事業學類", /觀餐休閒/],
+];
+
 const categoryIndex = new Map();
 for (const row of groups) {
   const key = `${row.groupName}|${row.categoryName}`;
@@ -152,9 +201,11 @@ function inheritedMappings(school, department) {
   return choices.filter(({ length }) => length === bestLength).map(({ row }) => row);
 }
 
-function keywordMappings(department) {
-  return categoryDefinitions
-    .filter(([, , pattern]) => pattern.test(department))
+function keywordMappings(department, tech = false) {
+  const general = categoryDefinitions.filter(([, , pattern]) => pattern.test(department));
+  // 四技申請先用科大專用規則；沒有命中時才退回一般規則。
+  const specific = tech ? techCategoryDefinitions.filter(([, , pattern]) => pattern.test(department)) : [];
+  return (specific.length ? specific : general)
     .map(([groupName, categoryName]) => categoryIndex.get(`${groupName}|${categoryName}`))
     .filter(Boolean);
 }
@@ -167,20 +218,23 @@ const recordDepartments = new Map();
 for (const record of records) {
   if (!meaningfulDepartment(record.departmentName)) continue;
   const key = `${normalize(record.schoolName)}|${normalize(record.departmentName)}`;
-  if (!recordDepartments.has(key)) recordDepartments.set(key, { schoolName: record.schoolName, departmentName: record.departmentName });
+  if (!recordDepartments.has(key)) recordDepartments.set(key, { schoolName: record.schoolName, departmentName: record.departmentName, tech: false });
+  if (record.channelKey === "tech_application") recordDepartments.get(key).tech = true;
 }
 
 let inherited = 0;
 let keyword = 0;
 let skipped = 0;
 const additions = [];
-for (const { schoolName, departmentName } of recordDepartments.values()) {
+const skippedNames = [];
+for (const { schoolName, departmentName, tech } of recordDepartments.values()) {
   const mappings = inheritedMappings(schoolName, departmentName);
-  const chosenMappings = mappings.length ? mappings : keywordMappings(departmentName);
+  const chosenMappings = mappings.length ? mappings : keywordMappings(departmentName, tech);
   if (mappings.length) inherited += 1;
   else if (chosenMappings.length) keyword += 1;
   else {
     skipped += 1;
+    if (tech) skippedNames.push(`${schoolName}${departmentName}`);
     continue;
   }
   for (const mapping of chosenMappings) {
@@ -203,3 +257,4 @@ groups.push(...additions);
 groups.sort((a, b) => `${a.groupId}|${a.categoryId}|${a.schoolDepartmentName}`.localeCompare(`${b.groupId}|${b.categoryId}|${b.schoolDepartmentName}`, "zh-Hant"));
 fs.writeFileSync(groupsPath, JSON.stringify(groups), "utf8");
 console.log(JSON.stringify({ additions: additions.length, inherited, keyword, skipped, total: groups.length }, null, 2));
+if (skippedNames.length) console.log(`四技申請尚未對應學群（${skippedNames.length}）：${skippedNames.join("、")}`);

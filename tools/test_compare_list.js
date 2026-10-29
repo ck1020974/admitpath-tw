@@ -64,7 +64,7 @@ for (const comparing of [false, true]) {
   const ordered = context.workbenchRecordRowHtml(records[0], comparing);
   assert(ordered.indexOf('申請門檻') < ordered.indexOf('一階篩選'));
 }
-assert.equal((html.match(/data-compare-channel-toggle=/g) || []).length, 4);
+assert.equal((html.match(/data-compare-channel-toggle=/g) || []).length, 5); // 個申、四技、繁星、分發、特選
 assert.ok(html.includes('id="compareYearFilter"'));
 // Star admission rounds share the same row markup, bold values and separators.
 context.starThresholdParts = () => ['英文 均標'];

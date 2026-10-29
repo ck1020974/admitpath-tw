@@ -20,7 +20,7 @@
   qualityReport: null,
   compare: [],
   compareStorageStatus: "",
-  compareFilters: { year: "all", channels: ["personal_application", "star_recommendation", "exam_distribution", "special_selection"] },
+  compareFilters: { year: "all", channels: ["personal_application", "tech_application", "star_recommendation", "exam_distribution", "special_selection"] },
   placement: null,
   filters: {
     year: "all",
@@ -43,7 +43,7 @@ const els = {};
 let advancedFilterDraft = null;
 
 const fmt = new Intl.NumberFormat("zh-Hant-TW");
-const DATA_VERSION = "20261029-psychology-counseling";
+const DATA_VERSION = "20261029-tech-application";
 const COMPARE_STORAGE_KEY = "admitpath-tw:compare:v1";
 const accountRecords=window.YuhsinStudentRecords;
 let compareCloudRows=[],compareCloudBusy=false,compareGeneration=0;
@@ -1432,7 +1432,8 @@ function renderAdvancedFilterDrawer() {
 
 function advancedSubjectHint() {
   const channel = state.view === "placement" ? state.placement.channel : state.filters.channel;
-  if (channel === "personal_application") return "個申科目";
+  if (channel === "personal_application") return "個申、四技科目";
+  if (channel === "tech_application") return "四技科目";
   if (channel === "star_recommendation") return "繁星科目含在校";
   if (channel === "exam_distribution") return "分發科目含數甲、數乙";
   return "依三種管道分組";
@@ -2015,6 +2016,8 @@ function defaultPlacementState() {
       生物: "",
     },
     channels: ["personal_application"],
+    // 「申請」同時看個人申請（一般大學）與四技申請（科大）；結果篩選可只看其中一種。
+    applyScope: "all",
     scoresByMode: {},
     schoolOwnership: "all",
     topUniversityOnly: false,
@@ -2104,8 +2107,23 @@ function bindPlacementEvents() {
   els.placementYearFilter?.addEventListener("change", updatePlacementResultFilters);
   els.placementSchoolFilter?.addEventListener("change", updatePlacementResultFilters);
   els.placementChannelFilter?.addEventListener("change", () => {
-    const channel = els.placementChannelFilter.value;
-    if (channel !== state.placement.channel) selectPlacementChannel(channel);
+    const value = els.placementChannelFilter.value;
+    if (PLACEMENT_APPLY_OPTIONS[value]) {
+      // 個申與四技都用學測成績：已在申請時只換範圍、留在結果頁；從繁星或分發切過來才回到輸入。
+      const scope = PLACEMENT_APPLY_OPTIONS[value];
+      if (state.placement.channel === "personal_application") {
+        state.placement.applyScope = scope;
+        state.placement.resultTab = "match";
+        hydratePlacementResultFilters();
+        renderPlacementAnalysis();
+      } else {
+        selectPlacementChannel("personal_application");
+        state.placement.applyScope = scope;
+        hydratePlacementResultFilters();
+      }
+      return;
+    }
+    if (value !== state.placement.channel) selectPlacementChannel(value);
   });
   els.placementKeywordInput?.addEventListener("input", debounce(updatePlacementResultFilters, 120));
   document.querySelectorAll("[data-placement-school-scope]").forEach((button) => {
@@ -2187,10 +2205,20 @@ function placementFilterOptions(select, items, allLabel, value, label = (item) =
   select.value = value;
 }
 
+// 落點結果的「入學管道」選單：申請拆成三個選項，切換時不必重新輸入學測成績。
+const PLACEMENT_APPLY_OPTIONS = { personal_application: "all", apply_university: "university", apply_tech: "tech" };
+
+function placementChannelSelectValue() {
+  if (state.placement.channel !== "personal_application") return state.placement.channel;
+  return { university: "apply_university", tech: "apply_tech" }[state.placement.applyScope] || "personal_application";
+}
+
 function hydratePlacementResultFilters() {
   refreshQueryYears(els.placementYearFilter, state.placement);
-  placementFilterOptions(els.placementChannelFilter, ["personal_application", "star_recommendation", "exam_distribution"], "入學管道", state.placement.channel, (channel) => ({
-    personal_application: "個人申請",
+  placementFilterOptions(els.placementChannelFilter, ["personal_application", "apply_university", "apply_tech", "star_recommendation", "exam_distribution"], "入學管道", placementChannelSelectValue(), (channel) => ({
+    personal_application: "申請：個申＋四技",
+    apply_university: "個人申請（一般大學）",
+    apply_tech: "四技申請（科大）",
     star_recommendation: "繁星推薦",
     exam_distribution: "分發入學",
   })[channel]);
@@ -2204,7 +2232,11 @@ function hydratePlacementResultFilters() {
 
 function updatePlacementResultFilters() {
   state.placement.year = els.placementYearFilter?.value || "all";
-  state.placement.channel = els.placementChannelFilter?.value || "all";
+  const channelValue = els.placementChannelFilter?.value || "personal_application";
+  if (PLACEMENT_APPLY_OPTIONS[channelValue]) {
+    state.placement.channel = "personal_application";
+    state.placement.applyScope = PLACEMENT_APPLY_OPTIONS[channelValue];
+  } else state.placement.channel = channelValue;
   const school = els.placementSchoolFilter?.value || "all";
   if (school !== state.placement.school) state.placement.schoolScope = "all";
   state.placement.school = school;
@@ -2344,9 +2376,12 @@ function placementCategoryBelongsToSelection(categoryName) {
 function placementProfile() {
   return {
     scores: Object.fromEntries(placementSubjects(state.placement.channel).map(subject => [subject, state.placement.scores[subject] ?? ""])),
-    channels: state.placement.channel !== "all"
-      ? state.placement.channel ? [state.placement.channel] : []
-      : ["personal_application", "star_recommendation", "exam_distribution"],
+    // 申請：預設同時看個人申請與四技申請，可在結果篩選只看其中一種。
+    channels: state.placement.channel === "personal_application"
+      ? ({ university: ["personal_application"], tech: ["tech_application"] }[state.placement.applyScope] || ["personal_application", "tech_application"])
+      : state.placement.channel !== "all"
+        ? state.placement.channel ? [state.placement.channel] : []
+        : ["personal_application", "tech_application", "star_recommendation", "exam_distribution"],
     schoolOwnership: state.placement.schoolOwnership,
     topUniversityOnly: state.placement.topUniversityOnly,
     specialAdmissionMode: state.placement.specialAdmissionMode || "exclude",
@@ -2519,7 +2554,30 @@ function placementSelectedNeedles(profile) {
   return cachedGroupNeedles(profile.groups || [], profile.categories || []);
 }
 
+// 四技申請一階：學測加權平均（百分制）和官方最低篩選標準比較，差距換算成級分顯示。
+function evaluateTechPlacement(record, profile) {
+  const nearLevel = 1; // 加權平均差 1 級分以內列為「接近」
+  const tech = record.techApplication || {};
+  const weights = (record.weightedSubjects || []).map((item) => ({ subject: shortSubject(item.subject), weight: Number(item.weight) }))
+    .filter((item) => item.weight > 0);
+  const scores = weights.map((item) => placementScoreValue(profile, item.subject));
+  if (!weights.length || !Number.isFinite(Number(tech.screeningStandard)) || scores.some((score) => score == null)) {
+    return { status: "missing", requirements: [], gapTotal: 0, missingCount: 1, missCount: 0, tech: true };
+  }
+  const total = weights.reduce((sum, item) => sum + item.weight, 0);
+  const average = weights.reduce((sum, item, index) => sum + scores[index] * item.weight, 0) / total;
+  const threshold = Number(tech.screeningStandard) * 15 / 100;
+  // 官方標準精確到百分制小數兩位，比較時用百分制避免換算捨入誤差。
+  const passed = Number((average / 15 * 100).toFixed(2)) >= Number(tech.screeningStandard);
+  const gap = passed ? 0 : threshold - average;
+  const requirement = { kind: "techAverage", subjects: weights.map((item) => item.subject), weights, actual: average, threshold,
+    zero: Number(tech.screeningStandard) === 0, source: "加權平均篩選", status: passed ? "match" : "miss", gap };
+  return { status: passed ? "match" : gap <= nearLevel ? "near" : "miss", requirements: [requirement], gapTotal: gap,
+    missingCount: 0, missCount: passed ? 0 : 1, tech: true };
+}
+
 function evaluatePlacementRecord(record, profile) {
+  if (record.channelKey === "tech_application") return evaluateTechPlacement(record, profile);
   if (record.channelKey === "personal_application") return AdmissionRules.evaluate(record, profile, state.gsatStandards);
   const requirements = placementRecordRequirements(record);
   if (!requirements.length) return { status: "missing", requirements: [], gapTotal: 0, missingCount: 1, missCount: 0 };
@@ -2680,6 +2738,10 @@ function placementScoreValue(profile, subject) {
 }
 
 function placementRequirementLabel(item) {
+  if (item.kind === "techAverage") {
+    if (item.zero) return `加權平均 ${formatTechLevel(item.actual, 2)}／未篩除申請者`;
+    return `加權平均 ${formatTechLevel(item.actual, 2)}／${formatTechLevel(item.threshold, 2)} 級分`;
+  }
   if (["any", "listening"].includes(item.kind)) return AdmissionRules.describe(item);
   const subject = item.subjects.join("+");
   if (item.kind === "weightedTotal") {
@@ -2711,7 +2773,7 @@ function placementRequirementChipsHtml(requirements) {
     : `${placementRequirementLabel(item)} ${item.standard || "檢定"}`;
   const testChip = (item, label) => `<span class="placement-req placement-req-test ${escapeAttr(item.status)}">${escapeHtml(label)}${item.status === "miss" ? " · 未達" : ""}</span>`;
   const group = (label, chips) => chips.length ? `<span class="placement-req-group"><span class="placement-req-label">${label}</span>${chips.join("")}</span>` : "";
-  const screening = primary.filter(item => ["倍率篩選", "官方篩選暫估", "篩選資料暫估"].includes(item.source));
+  const screening = primary.filter(item => ["倍率篩選", "官方篩選暫估", "篩選資料暫估", "加權平均篩選"].includes(item.source));
   const other = primary.filter(item => !screening.includes(item));
   const chip = item => `<span class="placement-req ${escapeAttr(item.status)}">${escapeHtml(numericLabel(item))}</span>`;
   return group("申請門檻", tests.map(item => testChip(item, testLabel(item))))
@@ -2720,6 +2782,11 @@ function placementRequirementChipsHtml(requirements) {
 }
 
 function placementResultSummary(evaluation) {
+  if (evaluation.tech) {
+    if (evaluation.status === "missing") return "採計科目或一階標準資料不足";
+    if (evaluation.status === "match") return "達一階最低篩選標準";
+    return `加權平均約差 ${formatTechGap(evaluation.gapTotal)} 級分`;
+  }
   if (evaluation.application && evaluation.pendingData) return "申請門檻或一階篩選資料不足，僅比對已收錄條件";
   if (evaluation.status === "missing") return "錄取標準或必要成績不足，暫不判定符合";
   if (evaluation.application && evaluation.estimatedScreeningData) return evaluation.status === "match"
@@ -2755,7 +2822,7 @@ function placementSchoolScopeAllows(record, scope = "all") {
 }
 
 function placementChannelHasRequiredScores(record, profile) {
-  if (record.channelKey === "personal_application") return true;
+  if (record.channelKey === "personal_application" || record.channelKey === "tech_application") return true;
   if (record.channelKey === "star_recommendation") return placementScoreValue(profile, "在校") != null;
   if (record.channelKey === "exam_distribution") {
     return ["數甲", "數乙", "歷史", "地理", "公民", "物理", "化學", "生物"]
@@ -2892,6 +2959,12 @@ function recordSummary(record) {
       : (second ? { label: "二階", html: '<span class="rec-muted">從缺</span>' } : null);
     return { key, secondKey, sub: thresholds.length ? { label: "申請門檻", text: thresholds.join("、") } : null };
   }
+  if (record.channelKey === "tech_application") {
+    return {
+      key: { label: "一階最低", html: techScreeningHtml(record) },
+      sub: record.weightedSubjectsText ? { label: "採計", text: record.weightedSubjectsText } : null,
+    };
+  }
   if (record.channelKey === "exam_distribution") {
     const result = distributionResult(record);
     const tie = result?.regularTieBreak && result.regularTieBreak !== "-----" ? result.regularTieBreak : "";
@@ -2914,7 +2987,32 @@ function recordSummary(record) {
   return { key: text ? { label: "條件", html: escapeHtml(text) } : null, sub: null };
 }
 
+// 四技申請一階：官方公布百分制最低篩選標準，換算成學測加權平均級分（百分制 ÷ 100 × 15）比較好懂。
+function formatTechLevel(level, digits = 1) {
+  return Number(level).toFixed(digits);
+}
+
+// 落點分析的差距：兩位小數、無條件進位，避免沒達標卻顯示「差 0.00」。
+function formatTechGap(gap) {
+  return (Math.ceil(Number(gap) * 100 - 1e-9) / 100).toFixed(2);
+}
+
+function techScreeningText(record) {
+  const tech = record.techApplication || {};
+  if (tech.screeningStandard === 0) return "未篩除申請者";
+  return Number.isFinite(Number(tech.screeningLevel)) ? `加權平均 ${formatTechLevel(tech.screeningLevel)} 級分` : "";
+}
+
+function techScreeningHtml(record) {
+  const text = techScreeningText(record);
+  if (!text) return '<span class="rec-muted">尚未公布</span>';
+  return record.techApplication?.screeningStandard === 0 ? `<span class="rec-muted">${escapeHtml(text)}</span>` : `<b>${escapeHtml(text)}</b>`;
+}
+
 function getHighlight(record) {
+  if (record.channelKey === "tech_application") {
+    return [techScreeningText(record) ? `一階最低 ${techScreeningText(record)}` : "", record.weightedSubjectsText ? `採計 ${record.weightedSubjectsText}` : ""].filter(Boolean).join("｜");
+  }
   if (record.specialSelection) return `${AdmissionCatalog.examTags(record.specialSelection).tags.join('、')}｜名額 ${record.quota} 名`;
   if (record.channelKey === "exam_distribution") {
     const result = distributionResult(record);
@@ -2946,6 +3044,10 @@ function highlightHtml(record) {
   if (record.specialSelection) {
     const summary = AdmissionCatalog.examTags(record.specialSelection);
     return `<div class="sp-exam-summary">${record.specialSelection.plan === '資安外加' ? '<span class="sp-exam-tag">資安外加</span>' : ''}${summary.tags.map(tag => `<span class="sp-exam-tag">${escapeHtml(tag)}</span>`).join('')}<span class="sp-exam-tag">名額 ${record.quota} 名</span>${summary.conditional ? '<span class="sp-exam-context">分階段／附條件 · 詳見詳情</span>' : ''}</div>`;
+  }
+  if (record.channelKey === "tech_application") {
+    const screening = techScreeningText(record);
+    return `<div class="standard-list">${screening ? `<span class="standard-chip screening">一階最低 ${escapeHtml(screening)}</span>` : ""}${(record.weightedSubjects || []).map((item) => `<span class="standard-chip threshold">${escapeHtml(`${shortSubject(item.subject)}×${item.weight}`)}</span>`).join("")}</div>`;
   }
   if (record.channelKey === "personal_application") {
     const parts = personalApplicationStandardParts(record);
@@ -3501,13 +3603,22 @@ function shortSubject(subject) {
   }[cleanSubject] || cleanSubject;
 }
 
+function channelClass(channelKey) {
+  return {
+    special_selection: "special",
+    star_recommendation: "star",
+    exam_distribution: "distribution",
+    tech_application: "tech",
+  }[channelKey] || "apply";
+}
+
 function channelPill(record) {
-  const className = record.channelKey === "special_selection" ? "special" : record.channelKey === "star_recommendation" ? "star" : record.channelKey === "exam_distribution" ? "distribution" : "";
+  const className = channelClass(record.channelKey) === "apply" ? "" : channelClass(record.channelKey);
   return `<span class="channel-pill ${className}">${record.year} ${escapeHtml(record.channel)}</span>`;
 }
 
 function channelBadge(record) {
-  const className = record.channelKey === "special_selection" ? "special" : record.channelKey === "star_recommendation" ? "star" : record.channelKey === "exam_distribution" ? "distribution" : "apply";
+  const className = channelClass(record.channelKey);
   return `<span class="channel-mini ${className}">${escapeHtml(channelShort(record.channelKey))}</span>`;
 }
 
@@ -3515,6 +3626,7 @@ function channelShort(channelKey) {
   return {
     special_selection: "特選",
     personal_application: "個申",
+    tech_application: "四技",
     star_recommendation: "繁星",
     exam_distribution: "分科",
   }[channelKey] || "";
@@ -3765,9 +3877,11 @@ function chooseExplorerRepresentative(records, preferredRecordKey = "") {
     "115-personal_application": 1,
     "115-star_recommendation": 2,
     "115-exam_distribution": 3,
+    "115-tech_application": 3.5,
     "114-personal_application": 4,
     "114-star_recommendation": 5,
     "114-exam_distribution": 6,
+    "114-tech_application": 6.5,
   };
   const pool = preferredRecordKey
     ? records.filter((item) => explorerRecordKey(item) === preferredRecordKey)
@@ -3791,9 +3905,11 @@ function explorerChannelRecords(records) {
         "115-personal_application": 1,
         "115-star_recommendation": 2,
         "115-exam_distribution": 3,
+        "115-tech_application": 3.5,
         "114-personal_application": 4,
         "114-star_recommendation": 5,
         "114-exam_distribution": 6,
+        "114-tech_application": 6.5,
       };
       return (order[explorerRecordKey(a)] || 99) - (order[explorerRecordKey(b)] || 99);
     })
@@ -3814,14 +3930,10 @@ function explorerDepartmentCard(row) {
   const channelRecords = explorerChannelRecords(row.records);
   const activeRecordKey = record ? explorerRecordKey(record) : channelRecords[0]?.key || "";
   const activeChannelKey = record?.channelKey || channelRecords[0]?.channelKey || "";
-  const accentClass = activeChannelKey === "star_recommendation"
-    ? "accent-star"
-    : activeChannelKey === "exam_distribution"
-      ? "accent-distribution"
-      : "accent-apply";
+  const accentClass = `accent-${channelClass(activeChannelKey)}`;
   const channels = channelRecords.map(({ channelKey, record: channelRecord, key }) => `
     <button
-      class="channel-switch ${key === activeRecordKey ? "active" : ""} ${channelKey === "star_recommendation" ? "star" : channelKey === "exam_distribution" ? "distribution" : "apply"}"
+      class="channel-switch ${key === activeRecordKey ? "active" : ""} ${channelClass(channelKey)}"
       data-explorer-channel="${escapeAttr(row.key)}"
       data-channel-key="${escapeAttr(key)}"
     >${escapeHtml(channelRecord.year)} ${escapeHtml(channelShort(channelKey))}</button>
@@ -4875,12 +4987,66 @@ function closeDrawer() {
   }
 }
 
+function techApplicationDetailHtml(record) {
+  const tech = record.techApplication || {};
+  const dates = tech.dates || {};
+  const items = tech.secondStageItems || [];
+  const weighted = items.filter((item) => item.percentage != null);
+  const portfolio = (tech.portfolio || []).filter((item) => item.requirement === "有採計").map((item) => item.item.replace(/^[A-D]-?\d?\./, "").replace(/（.*$/, ""));
+  const screening = tech.screeningStandard === 0
+    ? "未篩除申請者（官方標準 0）"
+    : `加權平均 ${formatTechLevel(tech.screeningLevel)} 級分（百分制 ${Number(tech.screeningStandard).toFixed(2)}）`;
+  const section = (title, body) => body ? `<section class="detail-section"><h3>${title}</h3>${body}</section>` : "";
+  const list = (rows) => `<div class="detail-list">${rows.filter(Boolean).join("")}</div>`;
+  const text = (value) => value ? `<p style="white-space:pre-line;line-height:1.75">${escapeHtml(value)}</p>` : "";
+  return `
+    ${section("基本資料", list([
+      kv("年度", record.year),
+      kv("入學管道", "四技申請（科技校院日間部四年制申請入學）"),
+      kv("學校", record.schoolName),
+      kv("系組、學程", record.departmentName),
+      kv("志願代碼", record.programCode),
+      kv("招生名額", record.quota || "--"),
+      kv("預計複試人數", record.expectedSecondStageCount || "--"),
+    ]))}
+    ${section("第一階段：學測加權平均篩選", list([
+      kv("採計科目與加權", record.weightedSubjectsText || "--"),
+      kv("最低篩選標準", screening),
+      tech.apcsLevel != null ? kv("APCS 超額篩選", `APCS ${tech.apcsLevel} 級以上，加權成績 ${tech.apcsWeighted ?? "--"}`) : "",
+    ]) + `<p class="detail-note">加權平均＝各科級分×加權的總和 ÷（15×加權總和）。最低篩選標準是這一年通過一階的最低分，不同年度會變動。</p>`)}
+    ${section("第二階段：複試", list([
+      kv("方式", tech.reviewOnly ? "書面審查，不必到校" : `須到校：${tech.onsiteItems}`),
+      ...weighted.map((item) => kv(item.item.replace("學科能力測驗", "學測"), `${item.percentage}%`)),
+      kv("同分參酌順序", items.map((item) => item.item.replace("學科能力測驗", "學測")).join(" → ")),
+      kv("複試費", record.screeningFee ? `${record.screeningFee} 元` : "--"),
+      kv("備取", tech.waitlist || "--"),
+    ]))}
+    ${portfolio.length ? section("備審資料採計項目", `<p>${escapeHtml(portfolio.join("、"))}</p>`) : ""}
+    ${section("重要日期", list([
+      dates.uploadDeadline ? kv("上傳備審資料截止", dates.uploadDeadline) : "",
+      dates.interview ? kv("複試日期", dates.interview) : "",
+      dates.scoreAnnounce ? kv("公告總成績", dates.scoreAnnounce) : "",
+      dates.admissionAnnounce ? kv("公告錄取名單", dates.admissionAnnounce) : "",
+    ]))}
+    ${section("和個人申請不同的地方", `<p>四技申請和大學個人申請可以同時報名，志願分開計算，各自最多 6 個（部分學校限選更少）。錄取後要直接向各科大報到，時間比大學分發早；若最後選擇一般大學，記得在期限內向科大聲明放棄。</p>`)}
+    ${section("複試說明", text(tech.interviewNotes))}
+    ${section("備註", text(tech.notes))}
+    <section class="detail-section">
+      <h3>來源</h3>
+      <p><a href="${escapeAttr(tech.standardUrl || record.sourceUrl)}" target="_blank" rel="noreferrer noopener">${escapeHtml(record.year)} 學年度各校系第一階段最低篩選標準</a></p>
+      <p><a href="${escapeAttr(tech.minuteUrl || record.sourceUrl)}" target="_blank" rel="noreferrer noopener">${escapeHtml(record.year)} 學年度招生學校系組、學程資料</a></p>
+      <p><a href="${escapeAttr(record.detailUrl || record.sourceUrl)}" target="_blank" rel="noreferrer noopener">${escapeHtml(record.sourceOrganization)}簡章分則</a></p>
+    </section>
+  `;
+}
+
 function detailHtml(record, result) {
   if (record.specialSelection) {
     const source = record.specialSelection;
     const sections = [['招生概覽', `${source.plan}｜招生 ${source.quota} 名`], ['招生對象', source.target], ['考試項目與成績採計', source.exam], ['日程公告', source.schedule], ['聯絡資訊', source.contact], ['備註', source.note]];
     return sections.filter(([,text]) => text).map(([title,text]) => `<section class="detail-section"><h3>${title}</h3><p style="white-space:pre-line;line-height:1.75">${escapeHtml(text)}</p></section>`).join('') + (source.url ? `<section class="detail-section"><a href="${escapeAttr(source.url)}" target="_blank" rel="noreferrer">官方招生簡章</a></section>` : '') + (source.sourceUrl ? `<section class="detail-section"><h3>資料來源</h3><p>教育部 116 學年度${escapeHtml(source.plan)}招生資訊，第 ${source.sourcePage} 頁，序號 ${source.sourceSerial}。各校考試及招生日期以各校公告簡章為準。</p><a href="${escapeAttr(source.sourceUrl)}#page=${source.sourcePage}" target="_blank" rel="noreferrer">查看來源 PDF</a></section>` : '');
   }
+  if (record.channelKey === "tech_application") return techApplicationDetailHtml(record);
   const weighted = record.weightedSubjects?.filter((item) => item.raw && item.raw !== "--" && item.raw !== "---") || [];
   const cac = record.cacDetail;
   return `
