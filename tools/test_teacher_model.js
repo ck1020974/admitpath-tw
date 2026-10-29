@@ -1,0 +1,14 @@
+'use strict';
+const assert=require('node:assert/strict');
+const model=require('../site/teacher/teacher-model');
+assert.deepEqual(model.gradeOptions,['G10','1001','1002','G11','1101','1102','G12','1201','1202']);
+assert.deepEqual(model.groupOptions,['1001主','1002主','10理A','11理主','11文主','11理A','11文H','12理主','12文主','12理A','12文H']);
+const a={id:'fake-a',name:'測試學生甲',student_id:'ZZ00001',teaching_group:'10A',original_class:'1002'};
+const b={id:'fake-b',name:'測試學生乙',student_id:'ZZ00002',teaching_group:'11文H',original_class:'1101'};
+const c={id:'fake-c',name:'測試學生丙',student_id:'ZZ00003',teaching_group:'12理A',original_class:'1202'};
+assert.equal(model.group(a),'10理A');assert.equal(model.grade(a),'G10');
+assert(model.matches(a,{grade:'G10',group:'10理A'}));assert(model.matches(a,{grade:'1002',group:'10理A'}));assert(!model.matches(a,{grade:'1001'}));
+assert(model.matches(b,{grade:'G11',group:'11文H'}));assert(model.matches(b,{grade:'1101',group:'11文H'}));assert(!model.matches(b,{grade:'1102'}));
+assert(model.matches(c,{grade:'G12',group:'12理A',search:'zz00003'}));assert(!model.matches(c,{grade:'G11'}));assert(!model.matches(c,{group:'12文H'}));
+for(const raw of ['1001','1002'])assert.equal(model.group({...a,teaching_group:raw}),raw+'主');
+console.log('Teacher filters: all requested options, G10 aliases, grade/original-class intersections and account search passed.');

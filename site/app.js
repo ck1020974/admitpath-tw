@@ -20,7 +20,7 @@
   qualityReport: null,
   compare: [],
   compareStorageStatus: "",
-  compareFilters: { year: "all", channels: ["personal_application", "tech_application", "star_recommendation", "exam_distribution", "special_selection"] },
+  compareFilters: { year: "all", channel: "all" },
   placement: null,
   filters: {
     year: "all",
@@ -954,6 +954,7 @@ function bindElements() {
     "explorerRoot",
     "compareGrid",
     "compareYearFilter",
+    "compareChannelFilter",
     "sourceList",
     "qualityReportRoot",
     "detailDrawer",
@@ -1027,13 +1028,9 @@ function bindEvents() {
     state.compareFilters.year = els.compareYearFilter.value;
     renderCompare();
   });
-  document.querySelectorAll("[data-compare-channel-toggle]").forEach(button => {
-    button.addEventListener("click", () => {
-      const channel = button.dataset.compareChannelToggle;
-      const selected = state.compareFilters.channels;
-      state.compareFilters.channels = selected.includes(channel) ? selected.filter(key => key !== channel) : [...selected, channel];
-      renderCompare();
-    });
+  els.compareChannelFilter.addEventListener("change", () => {
+    state.compareFilters.channel = els.compareChannelFilter.value;
+    renderCompare();
   });
   document.getElementById("closeDrawerButton").addEventListener("click", closeDrawer);
   document.addEventListener("click", (event) => {
@@ -5485,11 +5482,7 @@ function renderCompare() {
   const years = [...new Set(state.records.map(record => String(record.year)))].sort((a, b) => Number(b) - Number(a));
   els.compareYearFilter.innerHTML = `<option value="all">全部學年度</option>${years.map(year => `<option value="${escapeAttr(year)}">${escapeHtml(year)} 學年度</option>`).join('')}`;
   els.compareYearFilter.value = state.compareFilters.year;
-  document.querySelectorAll("[data-compare-channel-toggle]").forEach(button => {
-    const selected = state.compareFilters.channels.includes(button.dataset.compareChannelToggle);
-    button.classList.toggle("active", selected);
-    button.setAttribute("aria-pressed", String(selected));
-  });
+  els.compareChannelFilter.value = state.compareFilters.channel;
   const visible = filteredCompareRecords();
   if (!state.compare.length) {
     els.compareGrid.innerHTML = `
@@ -5509,7 +5502,7 @@ function renderCompare() {
   }
   els.compareGrid.innerHTML = `<div class="table-shell rec-list"><table aria-label="已追蹤校系清單"><thead class="sr-only"><tr><th scope="col">管道</th><th scope="col">學校 / 校系與條件</th><th scope="col">操作</th></tr></thead><tbody>${visible.length
     ? visible.map(record => workbenchRecordRowHtml(record, true)).join('')
-    : `<tr><td colspan="3"><div class="empty-state">${state.compareFilters.channels.length ? '目前篩選條件沒有符合的追蹤校系' : '尚未選取入學管道，請點選上方按鈕'}<br>篩選只影響顯示，不會移除追蹤校系。</div></td></tr>`}</tbody></table></div>`;
+    : `<tr><td colspan="3"><div class="empty-state">目前篩選條件沒有符合的追蹤校系<br>篩選只影響顯示，不會移除追蹤校系。</div></td></tr>`}</tbody></table></div>`;
   els.compareGrid.querySelectorAll("[data-remove-compare]").forEach((button) => {
     button.addEventListener("click", () => toggleCompare(button.dataset.removeCompare));
   });
@@ -5520,7 +5513,7 @@ function renderCompare() {
 
 function filteredCompareRecords() {
   return state.compare.filter(record => (state.compareFilters.year === "all" || String(record.year) === state.compareFilters.year)
-    && state.compareFilters.channels.includes(record.channelKey));
+    && (state.compareFilters.channel === "all" || state.compareFilters.channel === record.channelKey));
 }
 
 function renderQualityReport() {

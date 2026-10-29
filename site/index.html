@@ -21,7 +21,7 @@
   <meta property="og:image:height" content="630">
   <meta property="og:image:alt" content="YUHSIN 祐馨升學網：校系查詢、落點分析、十八學群、追蹤清單">
   <meta name="twitter:card" content="summary_large_image">
-  <link rel="stylesheet" href="./styles.css?v=20261028-inline-analysis">
+  <link rel="stylesheet" href="./styles.css?v=20261029-ui3">
   <link rel="stylesheet" href="./special.css?v=20260918-layout-fix">
   <link rel="stylesheet" href="./support.css?v=20261029-contact">
   <link rel="stylesheet" href="./workbench.css?v=20261029-tech-application">
@@ -309,16 +309,14 @@
         <div id="compareTools" hidden>
           <section class="compare-filters filter-band" aria-label="追蹤清單篩選">
             <label><span>學年度</span><select id="compareYearFilter"><option value="all">全部學年度</option></select></label>
-            <div class="compare-channel-field">
-              <span>入學管道</span>
-              <div class="compare-channel-buttons" role="group" aria-label="追蹤入學管道">
-                <button class="ghost-button active" data-compare-channel-toggle="personal_application" aria-pressed="true">個人申請</button>
-                <button class="ghost-button active" data-compare-channel-toggle="tech_application" aria-pressed="true">四技申請</button>
-                <button class="ghost-button active" data-compare-channel-toggle="star_recommendation" aria-pressed="true">繁星推薦</button>
-                <button class="ghost-button active" data-compare-channel-toggle="exam_distribution" aria-pressed="true">分發入學</button>
-                <button class="ghost-button active" data-compare-channel-toggle="special_selection" aria-pressed="true">特殊選才</button>
-              </div>
-            </div>
+            <label><span>入學管道</span><select id="compareChannelFilter">
+              <option value="all">全部管道</option>
+              <option value="personal_application">個人申請</option>
+              <option value="tech_application">四技申請</option>
+              <option value="star_recommendation">繁星推薦</option>
+              <option value="exam_distribution">分發入學</option>
+              <option value="special_selection">特殊選才</option>
+            </select></label>
           </section>
           <div class="compare-result-summary"><button class="ghost-button" data-view-jump="workbench">繼續找校系</button></div>
         </div>
@@ -444,7 +442,7 @@
 
   <script src="./student-auth-config.js?v=20261029-auth1"></script>
   <script src="./student-supabase.js?v=20261029-records1"></script>
-<script src="./student-auth.js?v=20261029-records1"></script>
+<script src="./student-auth.js?v=20261029-ui3"></script>
 <script src="./student-records.js?v=20261029-records1"></script>
   <script src="./contact-config.js?v=20261023-tweak"></script>
   <script src="./usage-config.js?v=usage-20261027-counter-v2"></script>
@@ -455,6 +453,6 @@
   <script src="./admission-catalog.js?v=20261029-tech-application"></script>
   <script src="./explorer-link.js?v=20261023-intros"></script>
   <script src="./group-introductions.js?v=20261023-intros"></script>
-  <script src="./app.js?v=20261029-tech-application-b"></script>
+  <script src="./app.js?v=20261029-ui3-tech"></script>
 </body>
 </html>

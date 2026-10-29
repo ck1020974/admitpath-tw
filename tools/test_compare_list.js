@@ -5,16 +5,15 @@ const source = fs.readFileSync(require.resolve('../site/app.js'), 'utf8');
 const html = fs.readFileSync(require.resolve('../site/index.html'), 'utf8');
 const channels = ['personal_application', 'star_recommendation', 'exam_distribution', 'special_selection'];
 const records = Array.from({ length: 101 }, (_, i) => ({ id: String(i), year: i % 2 ? 114 : 115, channelKey: channels[i % 4], schoolName: '測試大學', departmentName: `測試系${i}` }));
-const buttons = channels.map(channel => ({ dataset: { compareChannelToggle: channel }, classList: { toggle() {} }, setAttribute(name, value) { this[name] = value; } }));
 const grid = { innerHTML: '', querySelectorAll: () => [] };
 const clear = {};
 const tools = {};
-const state = { records, compare: [], compareFilters: { year: 'all', channels: [...channels] } };
+const state = { records, compare: [], compareFilters: { year: 'all', channel: 'all' } };
 let alerts = 0;
-const context = { state, els: { compareGrid: grid, compareYearFilter: {} }, fmt: new Intl.NumberFormat('zh-Hant-TW'),
+const context = { state, els: { compareGrid: grid, compareYearFilter: {}, compareChannelFilter: {} }, fmt: new Intl.NumberFormat('zh-Hant-TW'),
   accountRecords:null,renderCompareImport(){},
   COMPARE_STORAGE_KEY: 'admitpath-tw:compare:v1',
-  document: { getElementById: id => id === 'compareTools' ? tools : id === 'clearCompareButton' ? clear : null, querySelectorAll: () => buttons }, window: { alert: () => alerts++, localStorage: { setItem() {} } },
+  document: { getElementById: id => id === 'compareTools' ? tools : id === 'clearCompareButton' ? clear : null }, window: { alert: () => alerts++, localStorage: { setItem() {} } },
   renderTable() {}, updateDetailCompareButton() {}, recordSummary: r => ({ key: { label: '條件', html: `標準${r.id}` }, sub: null }), channelBadge: r => r.channelKey, specialAdmissionBadgeHtml: () => '（軍校）', escapeHtml: String, escapeAttr: String };
 vm.createContext(context);
 const names = ['dataPending', 'saveCompare', 'toggleCompare', 'renderCompare', 'filteredCompareRecords', 'workbenchRecordRowHtml'];
@@ -43,17 +42,24 @@ assert.ok(state.compare.some(r => r.id === '100'));
 state.compareFilters.year = '114';
 context.renderCompare();
 assert.equal(context.filteredCompareRecords().length, 50);
-state.compareFilters.channels = ['star_recommendation'];
+state.compareFilters.channel = 'star_recommendation';
 context.renderCompare();
 assert.equal(context.filteredCompareRecords().length, 25);
-assert.equal(buttons[0]['aria-pressed'], 'false');
-assert.equal(buttons[1]['aria-pressed'], 'true');
-state.compareFilters.channels = [];
+assert.equal(context.els.compareChannelFilter.value, 'star_recommendation');
+state.compareFilters.channel = 'exam_distribution';
 context.renderCompare();
 assert.equal(context.filteredCompareRecords().length, 0);
 assert.equal(state.compare.length, 100);
-assert.ok(grid.innerHTML.includes('尚未選取入學管道'));
-state.compareFilters = { year: 'all', channels: [...channels] };
+assert.ok(grid.innerHTML.includes('目前篩選條件沒有符合的追蹤校系'));
+state.compareFilters.year = 'all';
+for (const channel of channels) {
+  state.compareFilters.channel = channel;
+  context.renderCompare();
+  assert.equal(context.filteredCompareRecords().length, 25);
+  assert.equal(context.els.compareChannelFilter.value, channel);
+  assert.equal(state.compare.length, 100);
+}
+state.compareFilters = { year: 'all', channel: 'all' };
 context.renderCompare();
 assert.equal(context.filteredCompareRecords().length, 100);
 const row = context.workbenchRecordRowHtml(records[0], true);
@@ -64,7 +70,11 @@ for (const comparing of [false, true]) {
   const ordered = context.workbenchRecordRowHtml(records[0], comparing);
   assert(ordered.indexOf('申請門檻') < ordered.indexOf('一階篩選'));
 }
-assert.equal((html.match(/data-compare-channel-toggle=/g) || []).length, 5); // 個申、四技、繁星、分發、特選
+assert.ok(!html.includes('data-compare-channel-toggle'));
+const channelSelect = html.match(/<select id="compareChannelFilter">([\s\S]*?)<\/select>/)[1];
+assert.equal((channelSelect.match(/<option /g) || []).length, 6); // 全部、個申、四技、繁星、分發、特選
+assert.ok(channelSelect.includes('value="tech_application"'));
+for (const channel of ['all', ...channels]) assert.ok(channelSelect.includes(`value="${channel}"`));
 assert.ok(html.includes('id="compareYearFilter"'));
 // Star admission rounds share the same row markup, bold values and separators.
 context.starThresholdParts = () => ['英文 均標'];

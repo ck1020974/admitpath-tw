@@ -23,7 +23,6 @@
       <h2 tabindex="-1">我的帳號</h2>
       <p class="student-dialog-name"></p>
       <dl></dl>
-      <p class="student-dialog-hint">登入後完成的探索成果與追蹤清單會儲存到你的帳號，供授權教師輔導使用。訪客紀錄需由你選擇匯入。</p>
       <p class="student-dialog-error" role="alert" hidden></p>
       <button class="student-dialog-logout" type="button">登出</button>
     </section>`;
