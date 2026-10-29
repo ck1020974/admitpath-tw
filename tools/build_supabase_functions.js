@@ -1,0 +1,11 @@
+'use strict';
+const fs = require('node:fs');
+const path = require('node:path');
+const root = path.resolve(__dirname, '..');
+const out = path.join(root, 'work/supabase-deploy');
+fs.mkdirSync(out, { recursive: true });
+const handler = fs.readFileSync(path.join(root, 'supabase/functions/student-access/handler.js'), 'utf8');
+const entry = fs.readFileSync(path.join(root, 'supabase/functions/student-access/index.ts'), 'utf8').replace(/^import[^\n]+\n/, '');
+fs.writeFileSync(path.join(out, 'student-access.ts'), handler + '\n' + entry);
+fs.copyFileSync(path.join(root, 'supabase/functions/roster-import/index.ts'), path.join(out, 'roster-import.ts'));
+console.log('Prepared two dependency-free Edge Function entries in ignored work/supabase-deploy/.');

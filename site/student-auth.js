@@ -9,7 +9,12 @@
       return url.href;
     } catch { return fallback.href; }
   }
-  function createClient({ config = {}, fetcher, origin }) {
+  function createClient({ config = {}, fetcher, origin, storage }) {
+    if (config.provider === "supabase") {
+      const provider = typeof module !== "undefined" && module.exports ? require('./student-supabase') : root.YuhsinSupabaseAuth;
+      if (!provider) throw new Error("登入模組未載入，請重新整理網頁。");
+      return provider.createClient({ config, fetcher, storage });
+    }
     const enabled = config.enabled === true && /^\/api\/[a-z0-9/-]+$/.test(config.apiBasePath || "");
     let current = null;
     async function request(path, body) {
@@ -50,7 +55,8 @@
   if (typeof module !== "undefined" && module.exports) { module.exports = { createClient, safeReturnUrl }; return; }
   const script = root.document.currentScript;
   const base = new URL("./", script.src);
-  const client = createClient({ config: root.YUHSIN_STUDENT_AUTH_CONFIG, fetcher: root.fetch.bind(root), origin: root.location.origin });
+  let sessionStorage; try { sessionStorage = root.sessionStorage; } catch {}
+  const client = createClient({ config: root.YUHSIN_STUDENT_AUTH_CONFIG, fetcher: root.fetch.bind(root), origin: root.location.origin, storage: sessionStorage });
   const ready = client.session();
   function renderLinks() {
     root.document.querySelectorAll("[data-student-account]").forEach(link => {
@@ -67,7 +73,7 @@
   function openDialog() {
     if (!dialogLoading) dialogLoading = new Promise((resolve, reject) => {
       const entry = root.document.createElement("script");
-      entry.src = new URL("student-login-dialog.js?v=20261028-modal1", base).href;
+      entry.src = new URL("student-login-dialog.js?v=20261029-auth1", base).href;
       entry.onload = resolve;
       entry.onerror = () => { entry.remove(); dialogLoading = null; reject(new Error("無法載入登入視窗，請稍後再試。")); };
       root.document.body.append(entry);

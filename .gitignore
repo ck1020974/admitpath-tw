@@ -5,6 +5,7 @@ docs/*
 !docs/author-support-setup.md
 !docs/usage-tracking.md
 !docs/student-login-setup.md
+!docs/student-backend-roadmap.md
 
 # Generated OCR assets and scratch work
 outputs/

@@ -1,0 +1,27 @@
+import assert from 'node:assert/strict';
+import { createHandler } from '../supabase/functions/student-access/handler.js';
+const origin = 'https://ck1020974.github.io';
+const projectUrl = 'https://abcdefghijklmnopqrst.supabase.co';
+let requests = [], limited = false;
+const handler = createHandler({ projectUrl, publicKey: 'public-fixture', serviceKey: 'private-fixture', allowedOrigins: [origin], fetcher: async (url, options) => {
+  requests.push({ url, options });
+  if (url.endsWith('consume_student_login_attempt')) return Response.json(!limited);
+  if (url.endsWith('lookup_student_login')) return Response.json('fixture@student.invalid');
+  if (url.includes('/auth/v1/token')) return Response.json({ access_token: 'access', refresh_token: 'refresh', expires_in: 3600 });
+  throw Error('Unexpected endpoint');
+}});
+const request = (body, source = origin) => new Request(projectUrl + '/functions/v1/student-access', { method: 'POST', headers: { Origin: source, 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+let response = await handler(request({ studentId:'ZZ00001', password:'fixture' },'https://other.example'));
+assert.equal(response.status,403); assert.equal(requests.length,0);
+response = await handler(new Request(projectUrl,{ method:'OPTIONS', headers:{Origin:origin} }));
+assert.equal(response.status,204); assert.equal(response.headers.get('Access-Control-Allow-Origin'),origin);
+response = await handler(request({ studentId:'ZZ00001', password:'fixture' }));
+assert.equal(response.status,200);
+const data = await response.json();assert.equal(data.access_token,'access');assert.ok(!JSON.stringify(data).includes('private-fixture'));
+assert.equal(JSON.parse(requests.at(-1).options.body).password,'fixture');
+assert.ok(!requests.at(-1).options.headers.Authorization, 'Auth password requests use the public key, not a management bearer');
+requests=[];limited=true;
+assert.equal((await handler(request({studentId:'ZZ00001',password:'fixture'}))).status,429);
+assert.equal(requests.length,1,'rate limit is checked before looking up account details');
+assert.equal((await handler(request({studentId:'ZZ00001',password:''}))).status,401);
+console.log('Student Edge Function: origin restriction, CORS, server-side rate limiting, validated credentials and management-key isolation passed.');

@@ -1,0 +1,9 @@
+project_id = "yuhsin-student-portal"
+
+# The login function accepts the legacy public anon JWT at the gateway;
+# the function itself verifies the student's password through Supabase Auth.
+[functions.student-access]
+verify_jwt = true
+
+[functions.roster-import]
+verify_jwt = true

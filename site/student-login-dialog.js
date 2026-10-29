@@ -11,7 +11,7 @@
     <section class="student-dialog-login">
       <h2 id="studentDialogTitle" tabindex="-1">登入</h2>
       <p class="student-dialog-status" role="status" hidden></p>
-      <form class="student-dialog-form">
+      <form class="student-dialog-form" method="post">
         <label>學號<input name="username" type="text" pattern="[A-Za-z]{2}[0-9]{5}" maxlength="7" autocomplete="username" spellcheck="false" autocapitalize="off" placeholder="7 碼學號" required></label>
         <label>密碼<span class="student-password-wrap"><input name="password" type="password" maxlength="128" autocomplete="current-password" placeholder="請輸入密碼" required><button class="student-password-toggle" type="button" aria-label="顯示密碼" aria-pressed="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6-10-6-10-6Z"/><circle cx="12" cy="12" r="3"/></svg></button></span></label>
         <p class="student-dialog-hint">預設密碼與學號相同；無法登入請聯絡老師。</p>
@@ -23,6 +23,7 @@
       <h2 tabindex="-1">我的帳號</h2>
       <p class="student-dialog-name"></p>
       <dl></dl>
+      <p class="student-dialog-hint">追蹤清單與測驗紀錄的帳號同步尚未開放，目前保留在使用的瀏覽器。</p>
       <p class="student-dialog-error" role="alert" hidden></p>
       <button class="student-dialog-logout" type="button">登出</button>
     </section>`;

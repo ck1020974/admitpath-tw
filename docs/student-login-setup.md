@@ -1,8 +1,8 @@
-# 學生登入介面與本機帳號驗證
+# 學生正式登入與本機帳號驗證
 
 2026-10-28：已製作主站／探索頁登入入口、學生登入頁、顯示密碼、錯誤提示、帳號資訊與登出。
 
-正式網站的 `site/student-auth-config.js` 維持 `enabled: false`，登入頁明確顯示尚未開放，送出按鈕停用且不傳送輸入資料。本機預覽服務可依私人名單實際驗證學生帳號。追蹤清單與施測歷程的帳號同步、教師後台及正式私人後端尚未實作。
+2026-10-29：正式網站已串接 Supabase Auth 與私人學生資料表，啟用 `provider: supabase`。共匯入 81 位學生，10A 的 14 位學生另保留原班級（1001／1002 各 7 位）。帳號及初始密碼都是原始學號。登入、登出、學生只能讀取自己資料及原班級對應皆已通過正式服務抽測。追蹤清單與施測歷程的帳號同步、教師介面尚未開放；目前仍保存在使用的瀏覽器。完整權限及後續工作見 [私人後台規劃](student-backend-roadmap.md)。
 
 ## 名單欄位
 
@@ -38,7 +38,7 @@ node tools/serve-student-login.js work/student-login/roster.json 5180
 
 API：`POST /login` 驗證帳號；`GET /session` 取得目前學生資訊；`POST /logout` 撤銷工作階段。工作階段存在伺服器記憶體，憑證使用 HttpOnly／SameSite=Strict cookie，兩小時到期，重開服務即失效。密碼驗證採 scrypt；錯誤登入有頻率限制。服務不提供私人名單靜態下載、教師權限或雲端紀錄。
 
-此服務僅用於本機驗證，不可直接改綁公網位址當正式服務。正式部署仍需私人後端、HTTPS、持久性工作階段／撤銷策略、資料庫權限與備份。登入前後目前都沿用既有瀏覽器追蹤與測驗存檔，介面已明確提示帳號同步尚未開放。
+此服務僅用於本機驗證，不可直接改綁公網位址當正式服務。正式網站使用獨立的 Supabase 驗證與資料庫權限。登入前後目前都沿用既有瀏覽器追蹤與測驗存檔，介面已明確提示帳號同步尚未開放。
 
 ## 介面設計
 
@@ -50,6 +50,8 @@ API：`POST /login` 驗證帳號；`GET /session` 取得目前學生資訊；`PO
 
 ```powershell
 node tools/test_student_login.js
+node tools/test_student_supabase.js
+node tools/test_student_access_function.mjs
 python tools/test_student_roster.py
 node tools/test_explorer_integration.js
 node tools/check-homepage-layout-contract.js
@@ -57,3 +59,5 @@ node tools/check-pages-deploy-contract.js
 ```
 
 測試使用虛構名單。涵蓋 A 組／原班分離、重複學號、名單外帳號拒絕、登入、登出、到期、頻率限制、私人檔案隔離、公開預覽不送出帳密及返回網址限制。
+
+`tools/verify_student_live.js` 為授權的正式環境抽測，僅從忽略的私人工作目錄讀取名單與公開設定；只輸出檢查結果，不輸出學號、姓名或工作階段。臨時匯入授權限時且只能使用一次，本次已消耗，不可重複匯入；後續匯入須另建授權。

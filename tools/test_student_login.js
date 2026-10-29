@@ -59,7 +59,14 @@ async function main() {
   assert.equal(safeReturnUrl("/admitpath-tw/#compare", urlBase), urlBase + "#compare");
   for (const invalid of ["https://other.example", "//other.example/", "javascript:alert(1)", "/another-site/", "/admitpath-tw/login/"]) assert.equal(safeReturnUrl(invalid, urlBase), urlBase);
   const config = fs.readFileSync(path.resolve(__dirname, "../site/student-auth-config.js"), "utf8");
-  assert.match(config, /enabled: false/);
+  const context = { window: {} };
+  require('node:vm').runInNewContext(config, context);
+  const production = context.window.YUHSIN_STUDENT_AUTH_CONFIG;
+  if (production.enabled) {
+    assert.equal(production.provider, 'supabase');
+    assert(require('../site/student-supabase').publicKeyValid(production.publishableKey), 'Production config must only use a public key');
+    assert.match(production.supabaseUrl, /^https:\/\/[a-z0-9-]+\.supabase\.co$/);
+  }
   console.log("Student login: roster-only verification, A/original class separation, cookie sessions, logout/expiry, rate limits, private-file isolation, disabled public preview and safe return links passed.");
 }
 main().catch(error => { console.error(error); process.exitCode = 1; });
