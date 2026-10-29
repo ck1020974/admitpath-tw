@@ -8,4 +8,5 @@ const handler = fs.readFileSync(path.join(root, 'supabase/functions/student-acce
 const entry = fs.readFileSync(path.join(root, 'supabase/functions/student-access/index.ts'), 'utf8').replace(/^import[^\n]+\n/, '');
 fs.writeFileSync(path.join(out, 'student-access.ts'), handler + '\n' + entry);
 fs.copyFileSync(path.join(root, 'supabase/functions/roster-import/index.ts'), path.join(out, 'roster-import.ts'));
-console.log('Prepared two dependency-free Edge Function entries in ignored work/supabase-deploy/.');
+fs.copyFileSync(path.join(root, 'supabase/functions/teacher-provision/index.ts'), path.join(out, 'teacher-provision.ts'));
+console.log('Prepared three dependency-free Edge Function entries in ignored work/supabase-deploy/.');

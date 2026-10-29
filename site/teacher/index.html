@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="robots" content="noindex,nofollow"><meta name="referrer" content="no-referrer">
+  <title>教師後台｜YUHSIN 祐馨升學網</title>
+  <link rel="stylesheet" href="./teacher.css?v=20261029-teacher1">
+  <script defer src="../student-auth-config.js?v=20261029-auth1"></script>
+  <script defer src="../student-supabase.js?v=20261029-teacher1"></script>
+  <script defer src="./teacher.js?v=20261029-teacher1"></script>
+</head>
+<body>
+  <header><a class="brand" href="../">YUHSIN <span>祐馨升學網</span></a><a href="../">返回網站</a></header>
+  <main>
+    <h1>教師後台</h1>
+    <p id="status" role="status">正在確認登入狀態…</p>
+    <section id="login" class="login" aria-labelledby="loginTitle" hidden>
+      <h2 id="loginTitle">教師登入</h2>
+      <p>使用授權的教師帳號查看學生名單。</p>
+      <form method="post">
+        <label>帳號<input name="username" autocomplete="username" pattern="[A-Za-z][A-Za-z0-9]{5,31}" maxlength="32" spellcheck="false" autocapitalize="off" required></label>
+        <label>密碼<input name="password" type="password" autocomplete="current-password" maxlength="128" required></label>
+        <label class="show"><input id="showPassword" type="checkbox">顯示密碼</label>
+        <p id="loginError" role="alert" hidden></p>
+        <button type="submit">登入教師後台</button>
+      </form>
+    </section>
+    <section id="workspace" aria-labelledby="rosterTitle" hidden>
+      <div class="workspace-heading"><div><h2 id="rosterTitle">學生名單</h2><p id="scope"></p></div><button id="logout" class="secondary" type="button">登出</button></div>
+      <p class="notice">目前可查看學生基本資料。追蹤清單與施測歷程的帳號同步尚未開放。</p>
+      <div class="filters">
+        <label>搜尋<input id="search" type="search" autocomplete="off" placeholder="姓名或學號"></label>
+        <label>上課班級<select id="group"><option value="">全部上課班級</option></select></label>
+        <label>原班級<select id="original"><option value="">全部原班級</option></select></label>
+      </div>
+      <p id="count" role="status"></p>
+      <div class="table-wrap" role="region" aria-label="學生名單，可橫向捲動" tabindex="0"><table>
+        <thead><tr><th scope="col">學號</th><th scope="col">姓名</th><th scope="col">上課班級</th><th scope="col">原班級</th><th scope="col">原班座號</th><th scope="col">狀態</th></tr></thead>
+        <tbody id="students"></tbody>
+      </table></div>
+      <p id="empty" hidden>沒有符合條件的學生，請調整搜尋或班級。</p>
+    </section>
+  </main>
+  <noscript>請開啟 JavaScript 以使用教師登入。</noscript>
+</body></html>

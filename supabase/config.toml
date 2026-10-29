@@ -7,3 +7,6 @@ verify_jwt = true
 
 [functions.roster-import]
 verify_jwt = true
+
+[functions.teacher-provision]
+verify_jwt = true
