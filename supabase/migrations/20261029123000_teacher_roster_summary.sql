@@ -28,7 +28,7 @@ where a.status='in_progress' and exists(
   where b.user_id=a.user_id and b.status='in_progress' and (b.started_at,b.id)>(a.started_at,a.id));
 
 -- exam_status: none | in_progress (unfinished, started within 7 days, never completed) | quick | deep
-create function public.teacher_roster_summary()
+create or replace function public.teacher_roster_summary()
 returns table(student uuid, last_sign_in_at timestamptz, tracking_count integer, exam_status text, priority_groups text[], exam_completed_at timestamptz)
 language sql stable security definer set search_path='' as $$
   select s.id,
@@ -53,5 +53,12 @@ language sql stable security definer set search_path='' as $$
 $$;
 revoke all on function public.teacher_roster_summary() from public,anon;
 grant execute on function public.teacher_roster_summary() to authenticated;
+
+-- When pasted into the dashboard SQL Editor, record it so a later `supabase db push` skips it.
+do $$ begin
+  if to_regclass('supabase_migrations.schema_migrations') is not null then
+    insert into supabase_migrations.schema_migrations(version,name) values('20261029123000','teacher_roster_summary') on conflict do nothing;
+  end if;
+end $$;
 
 commit;
