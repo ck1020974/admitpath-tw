@@ -111,6 +111,12 @@
         }
         return students;
       },
+      async rosterSummary(){
+        if(!teacher)throw new Error('請先登入教師帳號。');
+        const rows=await authorized('/rest/v1/rpc/teacher_roster_summary',{body:{}});
+        if(!Array.isArray(rows))throw new Error('無法讀取名單摘要。');
+        return rows;
+      },
       async syncRecords(body,expectedOwner){
         if(teacher)throw new Error('教師帳號不能代替學生儲存探索資料。');
         return authorized('/functions/v1/student-records',{body},expectedOwner);
