@@ -43,7 +43,7 @@ const els = {};
 let advancedFilterDraft = null;
 
 const fmt = new Intl.NumberFormat("zh-Hant-TW");
-const DATA_VERSION = "20261023-category-intros";
+const DATA_VERSION = "20261029-psychology-counseling";
 const COMPARE_STORAGE_KEY = "admitpath-tw:compare:v1";
 const accountRecords=window.YuhsinStudentRecords;
 let compareCloudRows=[],compareCloudBusy=false,compareGeneration=0;
@@ -3595,7 +3595,7 @@ function explorerCategoriesForGroup(groupName) {
       .filter((row) => row.groupName === groupName)
       .map((row) => [row.categoryName, row.categoryName])
   ).values()].map((name) => {
-    const rows = visibleGroupRows().filter((row) => row.groupName === groupName && row.categoryName === name);
+    const rows = selectedCategoryRows(groupName, name);
     const representative = categoryRepresentativeSchools(name, rows).slice(0, 3).map((item) => shortSchoolName(item.school));
     return {
       name,
@@ -3620,11 +3620,30 @@ function getCategoryNeedles(groupName, categoryName) {
   return cachedGroupNeedles(categoryName && groupName ? [groupName] : [], categoryName ? [categoryName] : [], true);
 }
 
+// 心理興趣同時涵蓋輔導與諮商；資料列仍保留原本的正式學類。
+function categorySelectionNames(categoryName) {
+  return categoryName === "心理學類" ? ["心理學類", "輔導諮商學類"] : [categoryName];
+}
+
+function selectedCategoryRows(groupName, categoryName) {
+  const categories = categoryName ? categorySelectionNames(categoryName) : [];
+  const rows = visibleGroupRows().filter(row => (!groupName || row.groupName === groupName)
+    && (!categories.length || categories.includes(row.categoryName)));
+  if (categoryName !== "心理學類") return rows;
+  // 跨列在兩個學類的同一校系只顯示一次，優先保留心理學類的來源列。
+  const unique = new Map();
+  rows.forEach(row => {
+    const key = normalize(row.schoolDepartmentName);
+    if (!unique.has(key) || row.categoryName === categoryName) unique.set(key, row);
+  });
+  return [...unique.values()];
+}
+
 // 按學群資料與選取條件快取，不再為每筆校系重掃學群或重建 Set。
 // 資料重新載入（新陣列）即使用新快取；保留原本 OR／學群內學類的語意。
 function cachedGroupNeedles(groupNames = [], categoryNames = [], withinGroup = false) {
   const groups = [...new Set(groupNames)].sort();
-  const categories = [...new Set(categoryNames)].sort();
+  const categories = [...new Set(categoryNames.flatMap(categorySelectionNames))].sort();
   const key = JSON.stringify([groups, categories, withinGroup]);
   cachedGroupNeedles.cache ||= new WeakMap();
   let cache = cachedGroupNeedles.cache.get(state.groups);
@@ -3680,10 +3699,7 @@ function matchesGroup(record, needles) {
 
 function getExplorerDepartmentRows() {
   if (!state.selectedGroup && !state.selectedCategory) return [];
-  const rows = visibleGroupRows().filter((row) => (
-    (!state.selectedGroup || row.groupName === state.selectedGroup)
-    && (!state.selectedCategory || row.categoryName === state.selectedCategory)
-  ));
+  const rows = selectedCategoryRows(state.selectedGroup, state.selectedCategory);
   const map = new Map();
   rows.forEach((row) => {
     const key = explorerRowKey(row);
@@ -3882,9 +3898,7 @@ function explorerGroupIntroHtml() {
 }
 
 function explorerCategoryIntroHtml() {
-  const rows = visibleGroupRows().filter((row) => (
-    row.groupName === state.selectedGroup && row.categoryName === state.selectedCategory
-  ));
+  const rows = selectedCategoryRows(state.selectedGroup, state.selectedCategory);
   const insight = getCategoryInsight(state.selectedCategory, state.selectedGroup, rows);
   const representativeSchools = categoryRepresentativeSchools(state.selectedCategory, rows);
   const categorySummary = categorySummaryProfile(state.selectedCategory, insight, state.selectedGroup);
@@ -3902,6 +3916,7 @@ function explorerCategoryIntroHtml() {
           <p class="explorer-stage-meta">${escapeHtml(state.selectedGroup)}</p>
           <h3>${escapeHtml(displayCategoryName(state.selectedCategory))}</h3>
           ${curated ? `<p>${escapeHtml(insight.summary)}</p>` : groupLine ? `<p>${escapeHtml(groupLine)}</p>` : `<p class="explorer-pending-note">這個學類的課程介紹整理中，可以先看相關校系。</p>`}
+          ${state.selectedCategory === "心理學類" ? '<p>包含心理、輔導與諮商相關科系；各科系保留原本學類標示。</p>' : ''}
         </div>
         <aside class="explorer-category-statpack">
           <div class="explorer-stat-card is-clickable" data-open-category-results>

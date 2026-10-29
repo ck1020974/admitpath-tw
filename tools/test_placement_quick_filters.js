@@ -11,7 +11,7 @@ vm.createContext(context);
 vm.runInContext(fs.readFileSync(require.resolve('../site/admission-catalog.js'), 'utf8'), context);
 context.AdmissionCatalog = context.window.AdmissionCatalog;
 context.AdmissionCatalog.initialize(records, special);
-for (const name of ['normalize', 'recordSearchText', 'queryKeywordMatches', 'placementSchoolScopeAllows', 'placementMatchesFilters', 'isInternationalDualDegree', 'quickCategoryNeedles', 'cachedGroupNeedles', 'groupRowsToNeedles', 'matchesGroup']) {
+for (const name of ['normalize', 'recordSearchText', 'queryKeywordMatches', 'placementSchoolScopeAllows', 'placementMatchesFilters', 'isInternationalDualDegree', 'quickCategoryNeedles', 'categorySelectionNames', 'cachedGroupNeedles', 'groupRowsToNeedles', 'matchesGroup']) {
   vm.runInContext(source.match(new RegExp(`function ${name}\\([\\s\\S]*?\\n\\}`))[0], context);
 }
 for (const [school, region] of [['國立臺灣大學', 'area-north'], ['國立中興大學', 'area-central'], ['國立成功大學', 'area-south'], ['國立東華大學', 'area-east']]) {
@@ -52,3 +52,10 @@ assert.equal(new Set(categories).size, 10);
 for (const category of categories) assert(groups.some(g => g.categoryName === category), category);
 assert(!html.includes('id="changePlacementChannel"'));
 console.log('Placement quick filters: four regions, real electrical category membership, clearing/unknown category and ten mapped presets passed.');
+
+// Psychology shortcuts also include counseling departments across admission years.
+for (const school of ["國立臺灣師範大學", "國立嘉義大學", "國立臺北教育大學"]) {
+  const rows = records.filter(r => r.schoolName === school && /輔導|諮商/.test(r.departmentName) && r.channelKey === "personal_application");
+  assert(rows.length, school);
+  for (const row of rows) assert(context.placementMatchesFilters(row, { ...profile, quickCategory: "心理學類" }), row.id);
+}

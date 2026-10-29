@@ -84,6 +84,7 @@ vm.runInContext([
   extractFunction("specialAdmissionModeAllows"),
   extractFunction("advancedCategoryNeedles"),
   extractFunction("groupRowsToNeedles"),
+  extractFunction("categorySelectionNames"),
   extractFunction("cachedGroupNeedles"),
   extractFunction("matchesGroup"),
 ].join("\n\n"), sandbox);

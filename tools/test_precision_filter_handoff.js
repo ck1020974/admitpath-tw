@@ -20,7 +20,7 @@ const ctx = { state: { records, groups, results: {}, view: 'workbench', linkedGr
 vm.createContext(ctx);
 vm.runInContext('let advancedFilterDraft = null;', ctx);
 for (const name of ['normalize', 'recordSearchText', 'queryKeywordMatches', 'refreshQueryYears', 'renderQueryShortcuts',
-  'placementSchoolScopeAllows', 'isInternationalDualDegree', 'quickCategoryNeedles', 'cachedGroupNeedles', 'groupRowsToNeedles', 'matchesGroup', 'applyFilters',
+  'placementSchoolScopeAllows', 'isInternationalDualDegree', 'quickCategoryNeedles', 'categorySelectionNames', 'cachedGroupNeedles', 'groupRowsToNeedles', 'matchesGroup', 'applyFilters',
   'placementMatchesFilters', 'defaultPlacementState', 'placementProfile', 'placementSubjects', 'defaultAdvancedFilters',
   'cloneAdvancedFilters', 'currentAdvancedFilters', 'clearOuterSchoolFilters', 'openAdvancedFilters', 'closeAdvancedFilters',
   'recordMatchesAdvancedFilters', 'specialAdmissionModeAllows', 'advancedSubjectKey', 'recordSubjectKeys',
