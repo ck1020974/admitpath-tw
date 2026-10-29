@@ -415,7 +415,8 @@
  }
  async function restoreAccountExploration(){
   const owner=accountRecords?.student?.id,epoch=++syncEpoch;
-  if(!restore()&&owner){
+  const saved=restore();
+  if((!saved||!Object.keys(saved.snapshot?.answers||{}).length)&&owner){
    syncMessage('正在載入你的探索成果…');
    try{
     const rows=await accountRecords.client.readResults(owner,1);
@@ -423,6 +424,7 @@
     if(rows.length){session.load(rows[0].answers);cloudContext={attemptId:rows[0].attempt_id,source:rows[0].attempt?.source||'live',ownerId:owner};measurement.restore(null,session.report());lastSavedView='results';}
    }catch(error){syncMessage('暫時無法載入帳號成果：'+error.message);}
   }
+  if(!owner)syncMessage('訪客成果保存在此瀏覽器；登入後可選擇匯入自己的紀錄。');
   if(el('importAccountExploration')){
    let guest=null;try{guest=JSON.parse(accountRecords?.guest(STORAGE_KEY)||'null');}catch{}
    el('importAccountExploration').hidden=!(owner&&guest?.snapshot);

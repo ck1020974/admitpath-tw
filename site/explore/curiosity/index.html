@@ -20,7 +20,7 @@
   <nav class="site-nav" id="siteNav" aria-label="主選單"><div class="nav-group"><a class="nav-primary" href="./" aria-current="page">學群探索</a><a href="../../#explorer">十八學群</a><a href="../../#workbench">校系查詢</a><a href="../../#placement">落點分析</a><a href="../../#compare">追蹤清單</a></div><a class="student-account-entry" data-student-account href="../../login/"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><circle cx="10" cy="6" r="3"/><path d="M4 17v-2a6 6 0 0 1 12 0v2"/></svg><span data-student-account-label>登入</span></a><button class="nav-support support-entry" id="supportAuthorButton" type="button" aria-haspopup="dialog" aria-controls="supportDialog" aria-label="預約諮詢與贊助" title="預約諮詢與贊助" hidden><span class="support-entry-heart" aria-hidden="true">♡</span><span class="nav-support-label">支持作者</span></button></nav>
  </div>
 </header>
-<aside class="account-sync-notice" aria-label="帳號儲存狀態"><p id="accountSyncStatus" role="status">訪客成果保存在此瀏覽器；登入後可選擇匯入自己的紀錄。</p><button id="retryAccountSync" type="button" hidden>重試儲存成果</button><button id="importAccountExploration" type="button" hidden>匯入這台瀏覽器的探索紀錄（請確認是自己的作答）</button></aside>
+<aside class="account-sync-notice" aria-label="帳號儲存狀態"><p id="accountSyncStatus" role="status">正在確認帳號儲存狀態…</p><button id="retryAccountSync" type="button" hidden>重試儲存成果</button><button id="importAccountExploration" type="button" hidden>匯入這台瀏覽器的探索紀錄（請確認是自己的作答）</button></aside>
 <main>
  <section id="intro" class="view intro" aria-labelledby="introTitle">
   <div id="introFirst">
@@ -38,7 +38,7 @@
    <button class="text-button restart-link" id="restartFromIntro" type="button" data-restart>重新開始</button>
   </div>
   <p class="error" id="introError" role="alert"></p>
-  <p class="intro-foot">答案只存在這台電腦・<button class="text-button" type="button" data-about>怎麼運作</button></p>
+  <p class="intro-foot">登入後可儲存探索成果・<button class="text-button" type="button" data-about>怎麼運作</button></p>
  </section>
 
  <div id="quizBar" class="quiz-bar" hidden>
@@ -157,7 +157,7 @@
  <p>最想知道的 3 題分屬 3 個不同領域、而且有興趣的學群橫跨至少 4 個領域（共 5 個），或這次沒有任何有興趣的方向時，結果頁會建議也可以考慮不分系。</p>
  <p>題庫共 108 題，每個學群 6 題。「深入探索」針對前 4 個方向各補問 3 題，並用課綱內容檢查最相關的幾科，完成後檢查過的科目改用具體內容計算。「重新測驗」每個學群再問 1 題還沒看過的問題，答完後一起計算興趣。</p>
  <p>題目、配對、權重及門檻由本站編輯，尚未經測量驗證，不是考招採計權重、科系適合率或放棄建議。陌生或尚未接觸的內容，不代表沒有學習能力。</p>
- <p>答案只存在這台電腦的瀏覽器裡，不會上傳。網站只統計匿名的使用次數（例如完成施測、重新測驗與深入探索的次數），不記錄作答內容、科目或名字。</p>
+ <p>未登入的作答保存在這台瀏覽器。登入後完成的探索成果、逐題答案與學科自評會儲存到你的帳號，供授權教師輔導使用；舊訪客紀錄需由你選擇匯入。匿名使用次數另行統計，不包含作答內容或名字。</p>
  <ul id="sources"></ul>
 </div></dialog>
 <!-- 支持作者視窗：和主站 index.html 的同一段，主站修改文字時這裡也要一起改。 -->
