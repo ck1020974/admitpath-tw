@@ -169,6 +169,10 @@ const techCategoryDefinitions = [
   ["管理學群", "觀光事業學類", /觀餐休閒/],
 ];
 
+// 四技申請：逐系人工確認過的學群對應（可同時屬於兩個學群）。有列在這份表的校系直接使用，
+// 不跑系名規則；表裡沒有的新校系（例如新年度新設的系）才退回 techCategoryDefinitions。
+const techCurated = JSON.parse(fs.readFileSync(path.join(root, "tools", "tech_application_groups.json"), "utf8"));
+
 const categoryIndex = new Map();
 for (const row of groups) {
   const key = `${row.groupName}|${row.categoryName}`;
@@ -216,7 +220,8 @@ const existingPairs = new Set(groups.map((row) => {
 }));
 const recordDepartments = new Map();
 for (const record of records) {
-  if (!meaningfulDepartment(record.departmentName)) continue;
+  const curated = record.channelKey === "tech_application" && techCurated[`${record.schoolName}${record.departmentName}`];
+  if (!curated && !meaningfulDepartment(record.departmentName)) continue;
   const key = `${normalize(record.schoolName)}|${normalize(record.departmentName)}`;
   if (!recordDepartments.has(key)) recordDepartments.set(key, { schoolName: record.schoolName, departmentName: record.departmentName, tech: false });
   if (record.channelKey === "tech_application") recordDepartments.get(key).tech = true;
@@ -227,7 +232,29 @@ let keyword = 0;
 let skipped = 0;
 const additions = [];
 const skippedNames = [];
+let curatedCount = 0;
 for (const { schoolName, departmentName, tech } of recordDepartments.values()) {
+  const curated = tech ? techCurated[`${schoolName}${departmentName}`] : null;
+  if (curated) {
+    curatedCount += 1;
+    for (const [groupName, categoryName] of curated) {
+      const mapping = categoryIndex.get(`${groupName}|${categoryName}`);
+      if (!mapping) throw new Error(`對應表的學類不存在：${schoolName}${departmentName} → ${groupName}／${categoryName}`);
+      const id = `${normalize(schoolName)}|${normalize(departmentName)}|${groupName}|${categoryName}`;
+      if (existingPairs.has(id)) continue;
+      existingPairs.add(id);
+      additions.push({
+        groupId: mapping.groupId,
+        groupName,
+        categoryId: mapping.categoryId,
+        categoryName,
+        schoolDepartmentName: `${schoolName}${departmentName}`,
+        sourceDepartmentId: `auto-tech-${normalize(schoolName)}-${normalize(departmentName)}`,
+        crossGroupNames: [],
+      });
+    }
+    continue;
+  }
   const mappings = inheritedMappings(schoolName, departmentName);
   const chosenMappings = mappings.length ? mappings : keywordMappings(departmentName, tech);
   if (mappings.length) inherited += 1;
@@ -256,5 +283,5 @@ for (const { schoolName, departmentName, tech } of recordDepartments.values()) {
 groups.push(...additions);
 groups.sort((a, b) => `${a.groupId}|${a.categoryId}|${a.schoolDepartmentName}`.localeCompare(`${b.groupId}|${b.categoryId}|${b.schoolDepartmentName}`, "zh-Hant"));
 fs.writeFileSync(groupsPath, JSON.stringify(groups), "utf8");
-console.log(JSON.stringify({ additions: additions.length, inherited, keyword, skipped, total: groups.length }, null, 2));
+console.log(JSON.stringify({ additions: additions.length, curated: curatedCount, inherited, keyword, skipped, total: groups.length }, null, 2));
 if (skippedNames.length) console.log(`四技申請尚未對應學群（${skippedNames.length}）：${skippedNames.join("、")}`);

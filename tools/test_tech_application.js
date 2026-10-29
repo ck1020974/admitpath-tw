@@ -30,10 +30,23 @@ assert.equal(sample(114, '101014').techApplication.screeningStandard, 87.69);
 assert.equal(sample(115, '101005').weightedSubjectsText, '國文×1、英文×2、數A×2');
 assert(tech.some(r => r.techApplication.screeningStandard === 0), '官方標準 0（未篩除）要保留');
 
-// 每個科大校系（除了少數待人工確認的名稱）都要對應到十八學群。
-const mapped = new Set(groups.map(g => g.schoolDepartmentName));
-const unmapped = [...new Set(tech.map(r => r.schoolName + r.departmentName))].filter(name => !mapped.has(name));
-assert(unmapped.length <= 5, `尚未對應學群：${unmapped.join('、')}`);
+// 每個科大校系都要依 tools/tech_application_groups.json 對應到十八學群（可同時兩個學群）。
+const curated = JSON.parse(fs.readFileSync(path.join(root, 'tools/tech_application_groups.json'), 'utf8'));
+const mapped = new Map();
+groups.forEach(g => { if (!mapped.has(g.schoolDepartmentName)) mapped.set(g.schoolDepartmentName, new Set()); mapped.get(g.schoolDepartmentName).add(`${g.groupName}|${g.categoryName}`); });
+const names = [...new Set(tech.map(r => r.schoolName + r.departmentName))];
+const unmapped = names.filter(name => !mapped.has(name));
+assert.equal(unmapped.length, 0, `尚未對應學群：${unmapped.join('、')}`);
+names.forEach(name => {
+  assert(curated[name], `對應表缺少：${name}`);
+  curated[name].forEach(([group, category]) => assert(mapped.get(name).has(`${group}|${category}`), `${name} 沒有 ${category}`));
+});
+// 人工確認過的幾個容易誤判的例子。
+const has = (name, category) => mapped.get(name)?.has(category);
+assert(has('國立屏東科技大學獸醫學系', '生物資源學群|獸醫學類'));
+assert(has('中臺科技大學醫學影像暨放射科學系', '醫藥衛生學群|影像放射學類') && !has('中臺科技大學醫學影像暨放射科學系', '大眾傳播學群|廣電電影學類'));
+assert(has('德明財經科技大學應用外語系日文組', '外語學群|日語文學類'));
+assert(has('國立臺北科技大學資訊工程系', '資訊學群|資訊工程學類') && !has('國立臺北科技大學資訊工程系', '工程學群|工程科學學類'));
 
 // 落點判定：用網站的函式計算。
 const context = { shortSubject: s => ({ 數學A: '數A', 數學B: '數B' }[s] || s), advancedSubjectKey: s => s };
@@ -61,4 +74,4 @@ assert.equal(result.status, 'miss');
 const open = tech.find(r => r.techApplication.screeningStandard === 0);
 assert.equal(context.evaluateTechPlacement(open, profile({})).status, 'match');
 
-console.log(`Tech application: ${tech.length} records (114: 602, 115: 593), official samples, unique T-codes, areas, 學群 mapping (${unmapped.length} pending), weighted-average placement boundary/near/miss/zero passed.`);
+console.log(`Tech application: ${tech.length} records (114: 602, 115: 593), official samples, unique T-codes, areas, 學群 mapping (all ${names.length} departments), weighted-average placement boundary/near/miss/zero passed.`);
