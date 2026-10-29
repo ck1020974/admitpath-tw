@@ -66,3 +66,9 @@
 - 權限／資料同步、教師後台等後續功能，每一項完成驗收才開放，介面不得宣稱已保存尚未同步的資料。
 
 參考：[Supabase Auth](https://supabase.com/docs/guides/auth)、[RLS](https://supabase.com/docs/guides/database/postgres/row-level-security)、[Edge Function CORS](https://supabase.com/docs/guides/functions/cors)。
+
+## 2026-10-29 連線後複查
+
+Supabase 管理連線確認專案為 ACTIVE_HEALTHY，81 位學生資料均在，所有 8 張公用／私人資料表皆啟用 RLS。已撤銷平台自動建立的 `rls_auto_enable()` 對 PUBLIC、anon、authenticated 的直接執行權限；自動開啟 RLS 的事件觸發器仍啟用。另補上輔導紀錄 `teacher_id` 外鍵索引。
+
+診斷剩餘項目：私人登入限制／匯入授權表故意不設一般使用者政策，代表預設拒絕；尚未有資料的歷程索引保留供未來功能使用。[密碼外洩檢查](https://supabase.com/docs/guides/auth/password-security#password-strength-and-leaked-password-protection) 尚未啟用，官方目前僅於 Pro 以上方案提供；本次未升級方案或更動使用者指定的學號預設密碼方式。管理函式的權限警告與缺少外鍵索引提示已消除。

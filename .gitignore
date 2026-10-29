@@ -11,6 +11,7 @@ docs/*
 outputs/
 tmp/
 work/
+supabase/.temp/
 *.log
 __pycache__/
 *.py[cod]
