@@ -490,7 +490,7 @@
 .query-shortcuts .placement-chip-row { gap: 7px; }
 .query-shortcuts .placement-chip { min-height: 32px; padding: 0 10px; font-weight: 600; }
 .query-shortcuts .query-dual-degree { border-style: dashed; }
-/* 三行的行首標籤（學校、TOP 10、地區）同寬，各行的兩字按鍵就能上下對齊。 */
+/* 三行的行首標籤（學校、熱門、地區）同寬，各行的兩字按鍵就能上下對齊。 */
 .query-shortcuts .placement-popular-label {
   box-sizing: border-box;
   width: 64px;
@@ -499,6 +499,7 @@
   text-align: center;
 }
 .query-shortcuts .placement-popular-label { display: inline-flex; align-items: center; min-height: 32px; }
+.query-shortcuts .placement-hot-label { color: #d0342c; }
 .query-shortcuts .placement-region-row { display: flex; flex-wrap: wrap; align-items: center; gap: 7px; margin-top: 10px; }
 .query-shortcuts .placement-chip:focus-visible { outline: 3px solid #176b88; outline-offset: 2px; }
 @media (max-width: 720px) {

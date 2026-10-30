@@ -1781,7 +1781,7 @@ function hydrateSchoolFilter() {
 }
 
 // 同一份捷徑內容與互動，供校系查詢和落點分析使用。
-// 學校、TOP 10 學類、地區、雙聯是四個獨立條件，可以同時選（例如：公立＋電機＋雙北），彼此取交集。
+// 學校、熱門學類、地區、雙聯是四個獨立條件，可以同時選（例如：公立＋電機＋雙北），彼此取交集。
 // 同一行內單選；再按一次已選的按鍵就取消。
 function toggleQueryShortcut(filters, category = "") {
   if (category) filters.quickCategory = filters.quickCategory === category ? "" : category;
