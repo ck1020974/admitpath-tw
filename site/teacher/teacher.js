@@ -106,7 +106,7 @@
   function message(id, text) { $(id).textContent = text; $(id).hidden = !text; }
   function clearWorkspace(reset=true) {
     closeDialog();clearDetail();epoch++;students=[];filtered=[];summaries=new Map();summaryReady=false;$('students').replaceChildren();
-    if(reset){for(const id of ['search','grade','group'])$(id).value='';picks={login:'',exam:'',tag:''};sort={key:'',direction:'asc'};}
+    if(reset){for(const id of ['search','grade','group'])$(id).value='';fillGroups();picks={login:'',exam:'',tag:''};sort={key:'',direction:'asc'};}
     $('workspace').hidden=true;$('logout').hidden=true;$('count').textContent='';$('empty').hidden=true;message('summaryStatus','');
   }
   function showLogin() { clearWorkspace(); $('login').hidden = false; }
@@ -118,7 +118,9 @@
         const button=document.createElement('button');button.type='button';button.className='pill'+((option.value==='off'||option.value==='none')&&count?' alert':'');
         button.setAttribute('aria-pressed',String(picks[kind]===option.value));
         if(kind==='login'){const dot=text('span','','light light-'+option.value);dot.setAttribute('aria-hidden','true');button.append(dot);}
+        if(!count)button.classList.add('empty');
         button.append(text('span',option.label),text('b',String(count)));
+        if(picks[kind]===option.value){const x=text('span','×','pill-clear');x.setAttribute('aria-hidden','true');button.append(x);button.title='再點一次取消篩選';}
         button.addEventListener('click',()=>{picks[kind]=picks[kind]===option.value?'':option.value;render();});
         fragment.append(button);
       }
@@ -138,7 +140,6 @@
     const baseList=students.filter(student=>model.matches(student,base,summaries.get(student.id),now));
     filtered=summaryReady?baseList.filter(student=>model.matches(student,{login:picks.login,exam:picks.exam,tag:picks.tag},summaries.get(student.id),now)):baseList;
     if(sort.key)filtered=filtered.map((s,i)=>[s,i]).sort((x,y)=>model.compare(sort.key,sort.direction,summaries.get(x[0].id),summaries.get(y[0].id))||x[1]-y[1]).map(x=>x[0]);
-    $('rosterTitle').textContent=$('group').value||'全部班群';
     $('overviewRows').hidden=!summaryReady;
     if(summaryReady)renderPills(baseList,now);
     renderTagFilter();
@@ -149,12 +150,12 @@
       const summary=summaries.get(s.id),row = document.createElement('tr');row.addEventListener('click',()=>openStudent(s,'tracking'));
       const name=document.createElement('td'),button=text('button',s.name,'student-select');button.type='button';button.dataset.studentId=s.id;button.setAttribute('aria-label','查看 '+s.name+' 的詳細資料');button.addEventListener('click',event=>{event.stopPropagation();openStudent(s,'tracking');});
       name.append(button);if(!s.active)name.append(text('span','停用','inactive'));name.append(text('span',s.original_class+'・'+s.original_seat_number+' 號','sub'));row.append(name);
-      if(showGroup)row.append(text('td',model.group(s)));
+      if(showGroup)row.append(text('td',model.group(s),'nowrap'));
       const loginCell=document.createElement('td'),trackCell=document.createElement('td'),examCell=document.createElement('td');trackCell.className='num';
       if(!summaryReady){for(const cell of [loginCell,trackCell,examCell])cell.append(text('span','—','muted'));}
       else{
         const light=model.login(summary?.last_sign_in_at,now),label=model.loginOptions.find(o=>o.value===light).label;
-        const wrap=text('span','','login-state');wrap.title=summary?.last_sign_in_at?'最後登入：'+date(summary.last_sign_in_at):label;
+        const wrap=text('span','','login-state');wrap.title=summary?.last_sign_in_at?'最後登入：'+date(summary.last_sign_in_at):'從未登入';
         const dot=text('span','','light light-'+light);dot.setAttribute('aria-hidden','true');
         wrap.append(dot,text('span',model.loginDate(summary?.last_sign_in_at)));if(summary?.last_sign_in_at)wrap.append(text('span','（'+label+'）','visually-hidden'));loginCell.append(wrap);
         const count=summary?.tracking_count||0;trackCell.append(count?text('span',String(count)):text('span','—','muted'));
@@ -168,7 +169,7 @@
       row.append(loginCell,trackCell,examCell,text('td','›','chev'));
       fragment.append(row);
     }
-    $('students').replaceChildren(fragment);$('count').textContent=(filtered.length===baseList.length?'':filtered.length+' / ')+baseList.length+' 位學生';$('empty').hidden=filtered.length!==0;
+    $('students').replaceChildren(fragment);$('count').textContent=(filtered.length===baseList.length?'':filtered.length+' / ')+baseList.length;$('count').setAttribute('aria-label','顯示 '+filtered.length+' 位，共 '+baseList.length+' 位學生');$('empty').hidden=filtered.length!==0;
     if(dialog.open)updateNav();
   }
   for(const th of document.querySelectorAll('th[data-sort]'))th.querySelector('button').addEventListener('click',()=>{
@@ -201,12 +202,20 @@
     catch { message('status','本機登入已清除；網路連線中斷，請稍後再試。'); }
     finally { showLogin(); resetPassword(); form.elements.username.value = ''; form.elements.username.focus(); }
   });
-  let gradeGroup;
   for(const value of model.gradeOptions){
-    if(value.startsWith('G')){gradeGroup=document.createElement('optgroup');gradeGroup.label=value;$('grade').append(gradeGroup);}
-    const option=document.createElement('option');option.value=option.textContent=value;gradeGroup.append(option);
+    const option=document.createElement('option');option.value=value;
+    if(value.startsWith('G')){option.textContent=value;option.className='grade-all';}else option.textContent=value+' 班';
+    $('grade').append(option);
   }
-  for(const value of model.groupOptions){const option=document.createElement('option');option.value=option.textContent=value;$('group').append(option);}
+  // Only list 班群 that belong to the chosen 年級, and reset an incompatible choice.
+  function fillGroups(){
+    const prefix=($('grade').value.match(/^(?:G)?(\d\d)/)||[])[1]||'',current=$('group').value;
+    const options=model.groupOptions.filter(value=>!prefix||value.startsWith(prefix));
+    const all=document.createElement('option');all.value='';all.textContent='班群';
+    $('group').replaceChildren(all,...options.map(value=>{const option=document.createElement('option');option.value=option.textContent=value;return option;}));
+    $('group').value=options.includes(current)?current:'';
+  }
+  fillGroups();$('grade').addEventListener('change',fillGroups);
   for (const id of ['search','group','grade']) $(id).addEventListener(id === 'search' ? 'input' : 'change',render);
   // Returning to a backgrounded teacher page revalidates authorization before displaying records.
   document.addEventListener('visibilitychange', async () => {

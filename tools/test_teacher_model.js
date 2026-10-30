@@ -17,7 +17,7 @@ assert.equal(model.login(iso(now-8*day),now),'yellow');assert.equal(model.login(
 assert.equal(model.loginDate(null),'從未登入');assert.equal(model.loginDate('2026-10-27T17:00:00Z'),'2026/10/28');assert.equal(model.loginDate('2026-03-05T01:00:00Z'),'2026/03/05');assert.equal(model.loginDate('2025-12-03T02:00:00Z'),'2025/12/03');
 assert.equal(model.abbreviate('大眾傳播學群'),'大傳');assert.equal(model.abbreviate('財經學群'),'財經');assert.equal(model.abbreviate('數理化學群'),'數理');assert.equal(model.abbreviate('不分系學群'),'不分系');
 assert.equal(model.exam(undefined).label,'未作答');assert.equal(model.exam({exam_status:'in_progress'}).label,'作答中');assert.equal(model.exam({exam_status:'quick'}).label,'未深入');
-assert.deepEqual(model.exam({exam_status:'deep',priority_groups:['大眾傳播學群','財經學群']}).groups,['大傳','財經']);assert.equal(model.exam({exam_status:'deep',priority_groups:[]}).label,'無優先學群');
+assert.deepEqual(model.exam({exam_status:'deep',priority_groups:['大眾傳播學群','財經學群']}).groups,['大傳','財經']);assert.equal(model.exam({exam_status:'deep',priority_groups:[]}).label,'無');
 const s1={last_sign_in_at:iso(now-day),exam_status:'deep',priority_groups:['資訊學群']};
 assert(model.matches(a,{login:'green',exam:'deep'},s1,now));assert(!model.matches(a,{login:'off'},s1,now));assert(model.matches(a,{login:'off',exam:'none'},undefined,now));
 assert(model.matches(a,{tag:'資訊'},s1,now));assert(!model.matches(a,{tag:'大傳'},s1,now));
