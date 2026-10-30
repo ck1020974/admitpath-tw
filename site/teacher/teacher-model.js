@@ -43,7 +43,7 @@
     const query=search.trim().toLocaleLowerCase();
     // Search also finds a 優先學群 by abbreviation (醫衛) or full name (醫藥衛生學群).
     const groupText=summary?.exam_status==='deep'?(summary.priority_groups||[]).flatMap(name=>[name,abbreviate(name)]).join(' ').toLocaleLowerCase():'';
-    return (!query||student.name.toLocaleLowerCase().includes(query)||student.student_id.toLowerCase().includes(query)||groupText.includes(query))
+    return (!query||student.name.toLocaleLowerCase().includes(query)||student.student_id.toLowerCase().includes(query)||groupText.includes(query)||(summary?.contact_email||'').toLocaleLowerCase().includes(query))
       &&(!gradeFilter||(gradeFilter.startsWith('G')?grade(student)===gradeFilter:String(student.original_class)===gradeFilter))
       &&(!groupFilter||group(student)===groupFilter)
       &&(!loginFilter||login(summary?.last_sign_in_at,now)===loginFilter)

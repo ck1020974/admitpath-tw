@@ -1,5 +1,5 @@
 -- 學生聯絡信箱與同意紀錄。
--- 學生只能透過下列兩個函式讀寫「自己的」資料；教師端的 select 權限不含這些欄位，教師後台看不到。
+-- 學生只能透過下列兩個函式讀寫「自己的」資料；一般教師讀不到，只有網站管理者（can_manage_accounts）可在教師後台看到信箱。
 -- 請在 Supabase SQL Editor 執行一次（可重複執行，不會重複建立欄位）。
 begin;
 alter table public.students
@@ -53,6 +53,19 @@ begin
 end;
 $$;
 
+-- 網站管理者專用：教師後台顯示與搜尋學生信箱（一般授課老師回傳空的）
+create or replace function public.admin_student_contacts()
+returns table(student uuid, contact_email text)
+language sql stable security definer set search_path = '' as $$
+  select s.id, s.contact_email
+  from public.students s
+  where s.contact_email is not null
+    and exists(select 1 from public.teacher_access t where t.id = auth.uid() and t.active and t.can_manage_accounts)
+    and private.can_view_student(s.id);
+$$;
+
+revoke all on function public.admin_student_contacts() from public, anon;
+grant execute on function public.admin_student_contacts() to authenticated;
 revoke all on function public.student_contact_info() from public, anon;
 revoke all on function public.student_save_contact(text, boolean, text) from public, anon;
 grant execute on function public.student_contact_info(), public.student_save_contact(text, boolean, text) to authenticated;

@@ -7,7 +7,8 @@
   const client = window.YuhsinSupabaseAuth.createClient({ config: { ...window.YUHSIN_STUDENT_AUTH_CONFIG, accountType: 'teacher' }, fetcher: window.fetch.bind(window), storage });
   const form = $('login').querySelector('form'), submit = form.querySelector('button');
   const dialog=$('studentDialog');
-  let students = [], filtered = [], summaries = new Map(), summaryReady = false, epoch = 0;
+  let students = [], filtered = [], summaries = new Map(), contacts = new Map(), summaryReady = false, epoch = 0;
+  function withContact(id){const summary=summaries.get(id),email=contacts.get(id);return email?{...(summary||{}),contact_email:email}:summary;}
   let picks={login:'',exam:''},sort={key:'',direction:'asc'};
   let detailEpoch=0,selectedStudent=null;
   const dateOnly=value=>{const p=Object.fromEntries(new Intl.DateTimeFormat('en-CA',{timeZone:'Asia/Taipei',year:'numeric',month:'2-digit',day:'2-digit'}).formatToParts(new Date(value)).map(x=>[x.type,x.value]));return p.year+'/'+p.month+'/'+p.day;};
@@ -97,9 +98,21 @@
     const index=filtered.findIndex(s=>s.id===selectedStudent?.id);
     $('prevStudent').disabled=index<=0;$('nextStudent').disabled=index<0||index>=filtered.length-1;
   }
+  function contactChip(email){
+    const wrap=document.createElement('span');wrap.className='identity-email';
+    const link=document.createElement('a');link.href='mailto:'+email;link.textContent='✉ '+email;link.title='寫信給 '+email;
+    const copy=document.createElement('button');copy.type='button';copy.className='copy-email';copy.textContent='複製';copy.setAttribute('aria-label','複製信箱 '+email);
+    copy.addEventListener('click',async()=>{
+      try{await navigator.clipboard.writeText(email);}catch{const area=document.createElement('textarea');area.value=email;area.setAttribute('readonly','');area.style.position='fixed';area.style.opacity='0';document.body.append(area);area.select();try{document.execCommand('copy');}finally{area.remove();}}
+      copy.textContent='已複製';clearTimeout(copy._t);copy._t=setTimeout(()=>{copy.textContent='複製';},1500);
+    });
+    wrap.append(link,copy);return wrap;
+  }
   async function openStudent(student,tab='tracking'){
     clearDetail();selectedStudent=student;const version=detailEpoch;
     $('detailTitle').textContent=student.name;$('detailIdentity').replaceChildren(...[student.original_class+' 班 '+student.original_seat_number+' 號',model.group(student),student.student_id].map(value=>text('span',value)));
+    const email=contacts.get(student.id);
+    if(email)$('detailIdentity').append(contactChip(email));
     selectTab(tab);updateNav();
     if(!dialog.open)dialog.showModal();
     message('detailStatus','載入中…');
@@ -125,7 +138,7 @@
   dialog.addEventListener('close',()=>{const id=selectedStudent?.id;clearDetail();const trigger=id&&$('students').querySelector('button[data-student-id="'+id+'"]');if(trigger)trigger.focus();});
   function message(id, text) { $(id).textContent = text; $(id).hidden = !text; }
   function clearWorkspace(reset=true) {
-    closeDialog();clearDetail();epoch++;students=[];filtered=[];summaries=new Map();summaryReady=false;$('students').replaceChildren();
+    closeDialog();clearDetail();epoch++;students=[];filtered=[];summaries=new Map();contacts=new Map();summaryReady=false;$('students').replaceChildren();
     if(reset){for(const id of ['search','grade','group'])$(id).value='';fillGroups();picks={login:'',exam:''};sort={key:'',direction:'asc'};}
     $('workspace').hidden=true;$('filters').hidden=true;$('logout').hidden=true;$('count').textContent='';$('empty').hidden=true;message('summaryStatus','');
   }
@@ -151,7 +164,7 @@
   }
   function render() {
     const now=Date.now(),base={search:$('search').value,grade:$('grade').value,group:$('group').value};
-    const baseList=students.filter(student=>model.matches(student,base,summaries.get(student.id),now));
+    const baseList=students.filter(student=>model.matches(student,base,withContact(student.id),now));
     filtered=summaryReady?baseList.filter(student=>model.matches(student,{login:picks.login,exam:picks.exam},summaries.get(student.id),now)):baseList;
     if(sort.key)filtered=filtered.map((s,i)=>[s,i]).sort((x,y)=>model.compare(sort.key,sort.direction,summaries.get(x[0].id),summaries.get(y[0].id))||x[1]-y[1]).map(x=>x[0]);
     $('overviewRows').hidden=!summaryReady;
@@ -194,10 +207,13 @@
   async function workspace() {
     const version = ++epoch;
     $('login').hidden = true; $('workspace').hidden = true; message('status', '正在載入學生名單…');
-    const [rows,summary] = await Promise.all([client.listStudents(),client.rosterSummary().then(value=>({value}),error=>({error}))]);
+    const [rows,summary,contactRows] = await Promise.all([client.listStudents(),client.rosterSummary().then(value=>({value}),error=>({error})),typeof client.adminContacts==='function'?client.adminContacts().catch(()=>[]):[]]);
     if (version !== epoch) return;
     students = rows;
     summaryReady=!summary.error;summaries=new Map(summaryReady?summary.value.map(r=>[r.student,r]):[]);
+    // 只有網站管理者會拿到信箱，用於標題列顯示與搜尋。
+    contacts=new Map(contactRows.map(row=>[row.student,row.contact_email]));
+    const placeholder=contacts.size||client.current?.canManageAccounts?'搜尋姓名、學號或信箱':'搜尋姓名或學號';$('search').placeholder=placeholder;$('search').setAttribute('aria-label',placeholder);
     message('summaryStatus',summaryReady?'':'登入與作答狀況暫時無法載入，請稍後重新整理。');
     render();message('status','');$('workspace').hidden=false;$('filters').hidden=false;$('logout').hidden=false;
   }
