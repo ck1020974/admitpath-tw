@@ -18,6 +18,8 @@
     {value:'none',label:'未作答'},
   ];
   const abbreviations={'數理化':'數理','醫藥衛生':'醫衛','生命科學':'生科','生物資源':'生資','地球環境':'地環','建築設計':'建築','社會心理':'社心','大眾傳播':'大傳','文史哲':'文史','遊憩運動':'遊憩'};
+  const channels={'個人申請':'個申','繁星推薦':'繁星','分發入學':'分發','特殊選才':'特選','四技申請':'四技'};
+  const channelShort=name=>channels[name]||name||'';
   const group=student=>aliases[student.teaching_group]||student.teaching_group;
   const grade=student=>{const prefix=String(student.original_class||'').slice(0,2);return ['10','11','12'].includes(prefix)?'G'+prefix:'';};
   const abbreviate=name=>{const base=String(name||'').replace(/學群$/,'');return abbreviations[base]||base;};
@@ -54,6 +56,6 @@
     const diff=value(a)-value(b);
     return diff===0?0:(diff<0?-1:1)*(direction==='desc'?-1:1);
   }
-  const api={gradeOptions,groupOptions,loginOptions,examOptions,group,grade,abbreviate,login,loginDate,exam,matches,compare};
+  const api={channelShort,gradeOptions,groupOptions,loginOptions,examOptions,group,grade,abbreviate,login,loginDate,exam,matches,compare};
   if(typeof module!=='undefined'&&module.exports)module.exports=api;else root.YuhsinTeacherModel=api;
 })(typeof window!=='undefined'?window:globalThis);
