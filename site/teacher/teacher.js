@@ -27,15 +27,16 @@
     const part=(label,value,cls)=>{const span=document.createElement('span');span.append(text('span',label+' ','eval-label'),text('span',value||'—',cls));return span;};
     evalLine.append(part('整體',level,'eval-level'),part('拿手',(profile.strong||[]).map(subject).join('、'),'eval-strong'),part('吃力',(profile.weak||[]).map(subject).join('、'),'eval-weak'));
     addRow('學科自評',evalLine,'row-eval');
-    let any=false;
-    for(const type of ['priority','develop','potential','interest']){
-      const groups=report.groups.filter(g=>g.type===type);if(!groups.length)continue;any=true;
-      const line=document.createElement('span');line.className='group-line';
-      groups.forEach((g,i)=>{if(i)line.append(text('span','、','sep'));line.append(text('span',g.name.replace(/學群$/,''),'group-name'));if(g.strengths?.length)line.append(text('span','（拿手 '+g.strengths.join('、')+'）','group-note'));});
-      addRow(groups[0].typeName||data.resultTypes?.[type]?.name||type,line,type==='priority'?'row-priority':'');
-    }
-    if(!any)addRow('探索結果',text('span','這次沒有歸類出的學群。','muted'));
     item.append(rows);
+    // 學群沿用原本的呈現：類型標題＋學群清單，兩欄排列。
+    const cards=document.createElement('div');cards.className='result-groups';
+    for(const type of ['priority','develop','potential','interest']){
+      const groups=report.groups.filter(g=>g.type===type);if(!groups.length)continue;
+      const box=document.createElement('section');box.className='type-'+type;box.append(text('h4',groups[0].typeName||data.resultTypes?.[type]?.name||type));
+      const list=document.createElement('ul');for(const g of groups)list.append(text('li',g.name+(g.strengths?.length?'（拿手科目：'+g.strengths.join('、')+'）':'')));box.append(list);cards.append(box);
+    }
+    if(!cards.children.length)cards.append(text('p','這次沒有歸類出的學群。','muted'));
+    item.append(cards);
     // 3. 查看作答
     const answers=document.createElement('details');answers.className='answer-details';answers.append(text('summary','查看作答'));
     const interest={0:['沒興趣','a0'],1:['還好','a1'],2:['想知道','a2']};

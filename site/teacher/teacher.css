@@ -128,12 +128,12 @@ th.right,td.right{text-align:right}
 td.num{font-variant-numeric:tabular-nums}
 th:first-child,td:first-child{padding-left:20px}
 /* On desktop the roster fills the remaining window height, so there is no empty strip below it. */
-@media(min-width:700px) and (min-height:560px){
+@media(min-width:700px) and (min-height:460px){
   body{height:100dvh;display:flex;flex-direction:column}
   main{flex:1;min-height:0;width:100%;display:flex;flex-direction:column}
   #workspace:not([hidden]){flex:1;min-height:0;display:flex;flex-direction:column}
   .roster-panel{flex:1;min-height:0;display:flex;flex-direction:column}
-  .table-wrap{flex:1;max-height:none}
+  .table-wrap{flex:1;max-height:none;min-height:160px}
 }
 @media(max-width:1100px){.stat-groups{grid-template-columns:1fr}.stat-group+.stat-group{padding-left:0;border-left:0}th.c-name{width:20%}th.c-group{width:12%}th.c-track{width:13%}th.c-login{width:22%;padding-left:20px}td.login-cell{padding-left:20px}}
 @media(max-width:700px){.topbar-inner{padding:8px 20px}main{padding:18px 16px 24px}h1{font-size:22px}.filters{width:100%}.filters select{flex:1}.filters .search{width:100%}.stat-group{flex-direction:column;align-items:stretch;gap:6px}.stat-group .pills{grid-template-columns:repeat(2,minmax(0,1fr))}.login{padding:22px}.result-types,.eval-grid{grid-template-columns:1fr}.overview{padding:12px}.dialog-head{align-items:flex-start}}
@@ -154,17 +154,19 @@ th:first-child,td:first-child{padding-left:20px}
 .result-rows{display:grid;grid-template-columns:76px minmax(0,1fr);margin:0;font-size:15px}
 .result-rows dt,.result-rows dd{margin:0;padding:11px 0;border-bottom:1px solid #eef1ef}
 .result-rows dt{font-size:13px;font-weight:700;color:var(--muted);padding-top:13px}
-.result-rows dt.row-eval,.result-rows dd.row-eval{padding-bottom:14px;border-bottom-color:#dfe5e2}
+.result-rows dt.row-eval,.result-rows dd.row-eval{padding-top:4px;padding-bottom:14px}
+.result-rows dt.row-eval{padding-top:6px}
 .eval-line{display:flex;flex-wrap:wrap;gap:4px 22px}
 .eval-label{font-size:13px;color:var(--muted)}
 .eval-level{font-weight:700}
 .eval-strong{color:#0f665e;font-weight:600}
 .eval-weak{color:#9a4a22;font-weight:600}
-.group-name{font-weight:600}
-.group-note{font-size:13px;color:var(--muted);margin-left:2px}
-.sep{color:#9aa6a2}
-dt.row-priority{color:var(--accent)}
-dd.row-priority .group-name{color:#0f5f57;font-size:16px}
+.result-groups{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:4px 28px;font-size:15px;padding:6px 0 14px;border-bottom:1px solid #eef1ef}
+.result-groups h4{font-size:14px;color:var(--muted);margin:14px 0 6px}
+.result-groups .type-priority h4{color:var(--accent)}
+.result-groups ul{padding-left:20px;margin:0}
+.result-groups li{margin:5px 0}
+.result-groups .type-priority li{font-weight:600}
 .answer-details{margin-top:14px}
 .answer-details>summary{cursor:pointer;font-size:14px;font-weight:600;color:var(--accent);width:max-content}
 .answer-details h5{margin:16px 0 6px;font-size:13px;color:var(--muted)}
@@ -176,4 +178,9 @@ dd.row-priority .group-name{color:#0f5f57;font-size:16px}
 .answer-badge.a2,.answer-badge.m3{background:#dcefe9;color:#0f665e}
 .answer-badge.a0,.answer-badge.m0,.answer-badge.m1{background:#f6ebe7;color:#8a3f17}
 .version-info{margin:12px 0 0}
-@media(max-width:700px){.result-rows{grid-template-columns:64px minmax(0,1fr)}}
+@media(max-width:700px){.result-rows{grid-template-columns:64px minmax(0,1fr)}.result-groups{grid-template-columns:1fr}}
+/* Screen-reader-only text inside the roster must stay inside its scroll area, or the whole page gets a second scrollbar. */
+.table-wrap{position:relative}
+/* While a student window is open, only the window itself scrolls. */
+body:has(.student-dialog[open]) .table-wrap{overflow:hidden}
+html:has(.student-dialog[open]){overflow:hidden}
