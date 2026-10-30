@@ -20,7 +20,7 @@ assert.equal(model.exam(undefined).label,'未作答');assert.equal(model.exam({e
 assert.deepEqual(model.exam({exam_status:'deep',priority_groups:['大眾傳播學群','財經學群']}).groups,['大傳','財經']);assert.equal(model.exam({exam_status:'deep',priority_groups:[]}).label,'無');
 const s1={last_sign_in_at:iso(now-day),exam_status:'deep',priority_groups:['資訊學群']};
 assert(model.matches(a,{login:'green',exam:'deep'},s1,now));assert(!model.matches(a,{login:'off'},s1,now));assert(model.matches(a,{login:'off',exam:'none'},undefined,now));
-assert(model.matches(a,{tag:'資訊'},s1,now));assert(!model.matches(a,{tag:'大傳'},s1,now));
+assert(model.matches(a,{tag:'資訊'},s1,now));assert(model.matches(a,{search:'資訊'},s1,now));assert(model.matches(a,{search:'資訊學群'},s1,now));assert(!model.matches(a,{search:'醫衛'},s1,now));assert(!model.matches(a,{search:'資訊'},{exam_status:'quick'},now));assert(!model.matches(a,{tag:'大傳'},s1,now));
 const never={last_sign_in_at:null,tracking_count:0},old={last_sign_in_at:iso(now-99*day),tracking_count:9},fresh={last_sign_in_at:iso(now-day),tracking_count:2};
 assert.deepEqual([fresh,old,never].sort((x,y)=>model.compare('login','asc',x,y)),[never,old,fresh]);
 assert.deepEqual([never,fresh,old].sort((x,y)=>model.compare('tracking','desc',x,y)),[old,fresh,never]);
