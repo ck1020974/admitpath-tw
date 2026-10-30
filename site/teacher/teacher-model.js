@@ -6,10 +6,10 @@
   const aliases={'1001':'1001主','1002':'1002主','10A':'10理A'};
   const DAY=86400000;
   const loginOptions=[
-    {value:'green',label:'一週內'},
-    {value:'yellow',label:'三個月內'},
-    {value:'red',label:'超過三個月'},
-    {value:'off',label:'從未登入'},
+    {value:'green',label:'7天內'},
+    {value:'yellow',label:'90天內'},
+    {value:'red',label:'超過90天'},
+    {value:'off',label:'從未'},
   ];
   const examOptions=[
     {value:'deep',label:'已深入'},
@@ -34,7 +34,7 @@
   function exam(summary){
     const status=summary?.exam_status||'none';
     const groups=status==='deep'?(summary.priority_groups||[]).map(abbreviate):[];
-    const label=status==='deep'?(groups.length?groups.join('、'):'無優先學群'):examOptions.find(o=>o.value===status)?.label||'未作答';
+    const label=status==='deep'?(groups.length?groups.join('、'):'無'):examOptions.find(o=>o.value===status)?.label||'未作答';
     return {status,label,groups};
   }
   function matches(student,{search='',grade:gradeFilter='',group:groupFilter='',login:loginFilter='',exam:examFilter='',tag=''}={},summary,now=Date.now()){

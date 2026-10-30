@@ -118,7 +118,9 @@
         const button=document.createElement('button');button.type='button';button.className='pill'+((option.value==='off'||option.value==='none')&&count?' alert':'');
         button.setAttribute('aria-pressed',String(picks[kind]===option.value));
         if(kind==='login'){const dot=text('span','','light light-'+option.value);dot.setAttribute('aria-hidden','true');button.append(dot);}
+        if(!count)button.classList.add('empty');
         button.append(text('span',option.label),text('b',String(count)));
+        if(picks[kind]===option.value){const x=text('span','×','pill-clear');x.setAttribute('aria-hidden','true');button.append(x);button.title='再點一次取消篩選';}
         button.addEventListener('click',()=>{picks[kind]=picks[kind]===option.value?'':option.value;render();});
         fragment.append(button);
       }
@@ -153,7 +155,7 @@
       if(!summaryReady){for(const cell of [loginCell,trackCell,examCell])cell.append(text('span','—','muted'));}
       else{
         const light=model.login(summary?.last_sign_in_at,now),label=model.loginOptions.find(o=>o.value===light).label;
-        const wrap=text('span','','login-state');wrap.title=summary?.last_sign_in_at?'最後登入：'+date(summary.last_sign_in_at):label;
+        const wrap=text('span','','login-state');wrap.title=summary?.last_sign_in_at?'最後登入：'+date(summary.last_sign_in_at):'從未登入';
         const dot=text('span','','light light-'+light);dot.setAttribute('aria-hidden','true');
         wrap.append(dot,text('span',model.loginDate(summary?.last_sign_in_at)));if(summary?.last_sign_in_at)wrap.append(text('span','（'+label+'）','visually-hidden'));loginCell.append(wrap);
         const count=summary?.tracking_count||0;trackCell.append(count?text('span',String(count)):text('span','—','muted'));
@@ -209,7 +211,7 @@
   function fillGroups(){
     const prefix=($('grade').value.match(/^(?:G)?(\d\d)/)||[])[1]||'',current=$('group').value;
     const options=model.groupOptions.filter(value=>!prefix||value.startsWith(prefix));
-    const all=document.createElement('option');all.value='';all.textContent='全部班群';
+    const all=document.createElement('option');all.value='';all.textContent='班群';
     $('group').replaceChildren(all,...options.map(value=>{const option=document.createElement('option');option.value=option.textContent=value;return option;}));
     $('group').value=options.includes(current)?current:'';
   }

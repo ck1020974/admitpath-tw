@@ -86,12 +86,16 @@ body:has(.student-dialog[open]){overflow:hidden}
 .pill b{font-size:16px;font-variant-numeric:tabular-nums}
 .pill:hover{border-color:#9fb3ae}
 .pill.alert b{color:#a3342b}
+.pill.empty{color:#9aa8a4;border-color:#e6ebe8;background:#fafbfa}
+.pill.empty b{color:#b3bfbb}
+.pill.empty .light{opacity:.45}
+.pill-clear{margin-left:-2px;font-size:15px;line-height:1;color:var(--accent)}
 .pill[aria-pressed=true]{background:#e4f1ed;border-color:var(--accent);color:var(--accent)}
 .tag-filter{display:flex;align-items:center;gap:8px;margin:12px 0 0;font-size:14px;color:var(--muted)}
 .student-select{background:transparent;color:var(--ink);border:0;padding:0;min-height:0;font-weight:650;text-align:left;border-radius:4px}
 .sub{display:block;font-size:12px;color:#7b8b87;line-height:1.4}
 .inactive{margin-left:6px}
-.sort-button{background:transparent;border:0;color:inherit;font:inherit;font-weight:600;padding:0;min-height:0}
+.sort-button{white-space:nowrap;background:transparent;border:0;color:inherit;font:inherit;font-weight:600;padding:0;min-height:0}
 .sort-button::after{content:" ↕";color:#a9b6b2}
 th[aria-sort=ascending] .sort-button,th[aria-sort=descending] .sort-button{color:var(--accent)}
 th[aria-sort=ascending] .sort-button::after{content:" ↑";color:var(--accent)}
@@ -113,7 +117,7 @@ td.num,th.num{text-align:center;font-variant-numeric:tabular-nums}
 #summaryStatus{font-size:13px;color:#8b362c;margin:12px 0 0}
 option.grade-all{font-weight:700}
 table{table-layout:fixed;min-width:640px}
-th.c-name{width:20%}th.c-group{width:11%}th.c-login{width:18%}th.c-track{width:9%}th.c-chev{width:44px}
+th.c-name{width:19%}th.c-group{width:11%}th.c-login{width:18%}th.c-track{width:12%}th.c-chev{width:44px}
 td{overflow-wrap:anywhere}
 .student-select,.sub,.login-state,.nowrap{white-space:nowrap}
 [hidden]{display:none!important}
