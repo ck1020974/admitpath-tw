@@ -292,12 +292,24 @@
   show('results','resultsTitle');
   syncResult();
  }
+ // 推薦依據裡的興趣說明：跟 engine.js 的兩條規則一致。
+ function interestNote(row){
+  const avg=`含相關題目的興趣平均 ${row.interest.toFixed(1)}`;
+  if(row.checked){
+   const own=`深入確認後，本學群題目的平均 ${row.ownScore.toFixed(1)}`;
+   return row.ownScore>=engine.THRESHOLD?`${own}，達 ${engine.THRESHOLD}，列為有興趣（${avg}）。`
+    :row.interested?`${own}；${avg}，達 ${engine.THRESHOLD}，列為有興趣。`
+    :`${own}、${avg}，都未達 ${engine.THRESHOLD}。`;
+  }
+  if(row.ownScore>=2)return `本學群的題目有選「想知道」，列為有興趣（${avg}）。`;
+  return row.interested?`${avg}，達 ${engine.THRESHOLD}，列為有興趣。`:`本學群的題目沒有選「想知道」，${avg}，未達 ${engine.THRESHOLD}。`;
+ }
  function evidence(id){
   const row=report.groups.find(g=>g.id===id);
   el('evidenceTitle').textContent=short(row.name)+'｜推薦依據';
   const answered=row.subjects.filter(s=>s.pick!==null);
   el('evidenceContent').innerHTML=`<p>${esc(data.resultTypes[row.type].text)}</p>
-   <h3>好奇心</h3>${row.evidence.length?`<ul>${row.evidence.map(e=>`<li>${esc(e.text)}<small class="evidence-value">${interestLabel[e.value]}${e.primary?'・本學群的題目':''}</small></li>`).join('')}</ul><p>興趣平均 ${row.interest.toFixed(1)}（達 ${engine.THRESHOLD} 視為有興趣）。</p>`:'<p>這次的題目沒有直接連到這個方向。</p>'}
+   <h3>好奇心</h3>${row.evidence.length?`<ul>${row.evidence.map(e=>`<li>${esc(e.text)}<small class="evidence-value">${interestLabel[e.value]}${e.primary?'・本學群的題目':''}</small></li>`).join('')}</ul><p>${interestNote(row)}</p>`:'<p>這次的題目沒有直接連到這個方向。</p>'}
    <h3>學科</h3>${answered.length?`<ul>${row.subjects.map(s=>`<li>${esc(s.label)}：${esc(pickLabel[s.pick])}${typeof s.value==='number'?`（${s.value%1?s.value.toFixed(1):s.value} / 4）`:''}<small class="evidence-value">本站權重 ${s.weight}</small></li>`).join('')}</ul>${row.score!==null?`<p>加權平均 ${row.score.toFixed(1)} / 4，已評估的科目占參考權重的 ${Math.round(row.coverage*100)}%。</p>`:''}`:'<p>相關科目都沒有資料，這次不判斷基礎。</p>'}
    <p>權重、門檻與題目連結是本站編輯規則，不是錄取條件或適合率。</p><a href="${row.source}" target="_blank" rel="noopener noreferrer">ColleGo! 學群參考 ↗</a>`;
   el('evidenceDialog').showModal();

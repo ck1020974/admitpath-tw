@@ -10,6 +10,7 @@
  // 計分規則（本站編輯設定，未經測量驗證）
  const FAVOURITE=3;          // 最想知道＝3、想知道＝2、還好＝1、沒興趣＝0
  const THRESHOLD=1.5;        // 學群興趣平均達 1.5 視為「有興趣」
+ const OWN_WANTED=2;         // 或本學群自己的題目有一題「想知道」（深入確認過的方向改看本學群題目平均達 1.5）
  const PRIMARY_WEIGHT=2;     // 題目所屬學群的權重是跨群連結的 2 倍
  const FAVOURITES=3;         // 想知道超過 3 題時，挑出最想知道的 3 題
  const POTENTIAL_LIMIT=3;    // 「潛力發掘」最多列 3 個，避免全科都強時清單過長
@@ -141,24 +142,31 @@
    const extraRank=q=>isQuick(q.id)?-1:data.items.indexOf(q);answered.sort((x,y)=>extraRank(x)-extraRank(y)||quick.indexOf(x)-quick.indexOf(y));
    const scores=subjectScores();
    const ownValues=Object.values(scores).filter(v=>typeof v==='number');
-   const own=mean(ownValues);
+   const ownAvg=mean(ownValues);
    return data.groups.map(g=>{
     const evidence=answered.filter(q=>q.interestGroups.includes(g.id)).map(q=>({id:q.id,text:q.text,primary:q.group===g.id,favourite:favs.has(q.id),value:favs.has(q.id)?FAVOURITE:state.answers[q.id]}));
     let sum=0,weight=0;evidence.forEach(e=>{const w=e.primary?PRIMARY_WEIGHT:1;sum+=e.value*w;weight+=w;});
     const interest=weight?sum/weight:null;
+    // 本學群自己的題目：基礎探索與重新測驗看「最好的一題」，深入確認過的方向看「平均」，
+    // 這樣相鄰學群的題目不會把學生明確想知道的學群拖下來，深入確認仍能把方向刷掉。
+    const own=evidence.filter(e=>e.primary).map(e=>e.value);
+    const checked=deepComplete()&&state.deep.focus.includes(g.id);
+    const ownScore=own.length?(checked?mean(own):Math.max(...own)):null;
+    const ownInterest=ownScore!==null&&(checked?ownScore>=THRESHOLD:ownScore>=OWN_WANTED);
     const primaryQuick=quick.find(q=>q.group===g.id);
     const basis=weighted(scores,data.weights[g.id]);
     const subjects=Object.entries(data.weights[g.id]).map(([id,w])=>({id,label:data.subjects.find(s=>s.id===id).label,weight:w,value:scores[id],pick:state.profile.strong.includes(id)?'strong':state.profile.weak.includes(id)?'weak':required.includes(id)?'base':null}));
-    return {id:g.id,name:g.name,source:g.collego.url,interest,evidence,primaryAnswer:state.answers[primaryQuick.id],...basis,level:level(basis,own),subjects};
+    return {id:g.id,name:g.name,source:g.collego.url,interest,ownScore,checked,interested:ownInterest||(interest!==null&&interest>=THRESHOLD),evidence,primaryAnswer:state.answers[primaryQuick.id],...basis,level:level(basis,ownAvg),subjects};
    });
   }
   function classify(rows){
-   const interested=r=>r.interest!==null&&r.interest>=THRESHOLD;
+   const interested=r=>r.interested;
    rows.forEach(r=>{r.type=interested(r)?({strong:'priority',middle:'develop',weak:'interest',unknown:'interest'})[r.level]:'other';});
    rows.filter(r=>r.type==='other'&&r.level==='strong'&&r.primaryAnswer!==0)
     .sort((a,b)=>b.score-a.score||(b.interest??0)-(a.interest??0)||groupOrder.get(a.id)-groupOrder.get(b.id))
     .slice(0,POTENTIAL_LIMIT).forEach(r=>{r.type='potential';});
-   const order=(a,b)=>typeOrder.indexOf(a.type)-typeOrder.indexOf(b.type)||(b.interest??-1)-(a.interest??-1)||(b.score??-1)-(a.score??-1)||groupOrder.get(a.id)-groupOrder.get(b.id);
+   // 同一種方向裡，先看本學群自己題目的表現，再看含相鄰題目的加權平均，最後看學科。
+   const order=(a,b)=>typeOrder.indexOf(a.type)-typeOrder.indexOf(b.type)||(b.ownScore??-1)-(a.ownScore??-1)||(b.interest??-1)-(a.interest??-1)||(b.score??-1)-(a.score??-1)||groupOrder.get(a.id)-groupOrder.get(b.id);
    rows.sort(order);
    // 每種方向只留排序最前面的 6 個，避免同一個分頁卡片太多。
    const seen={};rows.forEach(r=>{if(r.type==='other')return;seen[r.type]=(seen[r.type]||0)+1;if(seen[r.type]>TYPE_LIMIT)r.type='other';});
@@ -178,7 +186,7 @@
   // unclear：沒有任何有興趣的學群。
   function undeclaredFor(groups){
    // 用興趣平均判斷「有興趣」，不受每種方向最多 6 個的限制影響。
-   const rule=data.undeclared,interested=groups.filter(g=>g.interest!==null&&g.interest>=THRESHOLD);
+   const rule=data.undeclared,interested=groups.filter(g=>g.interested);
    const domains=[...new Set(interested.map(g=>rule.domains[g.id]))];
    const favDomains=[...new Set(effectiveFavourites().map(id=>rule.domains[itemById.get(id).group]))];
    if(effectiveFavourites().length===FAVOURITES&&favDomains.length===FAVOURITES&&domains.length>=rule.minDomains)return {reason:'broad',domains:favDomains,group:rule.group};

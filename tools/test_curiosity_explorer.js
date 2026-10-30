@@ -201,6 +201,33 @@ assert.throws(()=>fixed().load({v:1}),/版本/);
  const s=student({likes:{A:2,D:2,L:2},favourite:['A1','D9','L5']});
  assert.equal(s.report().undeclared,null,'只橫跨 3 個領域');
 }
+// 本學群自己的題目選「想知道」就算有興趣，不會被相鄰學群的「沒興趣」拖下來。
+{
+ const likes=Object.fromEntries(data.groups.map(g=>[g.id,0]));
+ for(const g of data.groups){
+  const r=student({likes:{...likes,[g.id]:2},level:'mid'}).report().groups.find(x=>x.id===g.id);
+  assert.ok(r.interested&&r.type!=='other',`只對 ${g.id} 想知道，仍要列為有興趣`);
+ }
+ // 相鄰題目的「想知道」仍能把「還好」的學群帶上來（現有規則保留）。
+ const kept=student({likes:{Q:1,P:2,J:2,K:2,O:2}}).report().groups.find(x=>x.id==='Q');
+ assert.equal(kept.ownScore,1);
+}
+// 重新測驗：第一題沒興趣、新的一題想知道，就找回來；排序以本學群題目為先。
+{
+ const s=student({likes:{Q:0,P:2,O:2,L:2}});
+ assert.equal(typeOf(s.report(),'Q'),'other');
+ s.startExtra();s.extraQuestions().forEach(q=>s.answer(q.id,q.group==='Q'?2:0));
+ const q=s.report().groups.find(x=>x.id==='Q');assert.ok(q.interested&&q.type!=='other','重新測驗答想知道就列為有興趣');
+}
+// 深入確認過的方向看本學群題目平均：補問都沒興趣會被移出，大多想知道則保留。
+{
+ const run=value=>{const s=student({likes:{O:2,A:2},strong:['civics','chinese'],weak:['physics','chemistry']});s.startDeep();
+  assert.ok(s.snapshot().deep.focus.includes('O'));
+  s.deepQuestions().forEach(q=>s.answer(q.id,q.group==='O'?value(q):2));s.detailPlan().forEach(row=>row.goals.forEach(g=>s.goal(g.id,2)));
+  return s.report().groups.find(x=>x.id==='O');};
+ const dropped=run(()=>0);assert.equal(dropped.checked,true);assert.equal(dropped.interested,false,'深入題都沒興趣 → 移出');
+ let n=0;const kept=run(()=>n++<2?2:0);assert.equal(kept.ownScore,1.75,'最想知道 3＋想知道 2＋想知道 2＋沒興趣 0');assert.equal(kept.interested,true,'深入題 2 想知道 1 沒興趣 → 保留');
+}
 // 每種方向最多 6 個學群，其餘移到其他學群；排序最前面的留下。
 {
  const likes=Object.fromEntries(data.groups.map(g=>[g.id,2]));
