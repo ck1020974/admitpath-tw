@@ -15,31 +15,50 @@
   function text(tag,value,className){const node=document.createElement(tag);node.textContent=value;if(className)node.className=className;return node;}
   function clearDetail(){detailEpoch++;selectedStudent=null;$('detailTracking').replaceChildren();$('detailResults').replaceChildren();$('detailIdentity').textContent='';$('detailTitle').textContent='';$('tabResultsCount').textContent='';$('tabTrackingCount').textContent='';message('detailStatus','');attemptResults=[];attemptIndex=0;}
   function closeDialog(){if(dialog.open)dialog.close();}
+  function chipList(values,className){const box=text('span','','chips');for(const v of values)box.append(text('span',v,'chip '+(className||'')));if(!values.length)box.append(text('span','—','muted'));return box;}
   function renderResult(row){
-    const data=window.YuhsinCuriosityData,report=row.report,snapshot=row.answers;
+    const data=window.YuhsinCuriosityData,report=row.report||{groups:[]},snapshot=row.answers||{};
+    const profile=snapshot.profile||{strong:[],weak:[]},subject=id=>data.subjects.find(s=>s.id===id)?.label||id;
     const item=document.createElement('div');item.className='result-view';
-    const cards=document.createElement('div');cards.className='result-groups';
-    for(const type of ['priority','develop','interest','potential']){
+    // 1. 學科自評
+    const evalBox=document.createElement('section');evalBox.className='self-eval';evalBox.append(text('h4','學科自評'));
+    const grid=document.createElement('dl');grid.className='eval-grid';
+    const level=data.levelOptions?.find(o=>o.value===profile.level)?.label||{high:'前段',mid:'中間',low:'後段'}[profile.level]||'—';
+    for(const [label,node] of [['整體程度',text('span',level,'level-badge')],['最拿手',chipList((profile.strong||[]).map(subject),'chip-strong')],['比較吃力',chipList((profile.weak||[]).map(subject),'chip-weak')]]){
+      const cell=document.createElement('div');const dd=document.createElement('dd');dd.append(node);cell.append(text('dt',label),dd);grid.append(cell);
+    }
+    evalBox.append(grid);item.append(evalBox);
+    // 2. 探索結果（依類型分卡片）
+    const cards=document.createElement('div');cards.className='result-types';
+    for(const type of ['priority','develop','potential','interest']){
       const groups=report.groups.filter(g=>g.type===type);if(!groups.length)continue;
-      const box=document.createElement('section');box.append(text('h4',groups[0].typeName));
-      const list=document.createElement('ul');for(const g of groups)list.append(text('li',g.name+(g.strengths?.length?'（拿手科目：'+g.strengths.join('、')+'）':'')));box.append(list);cards.append(box);
+      const card=document.createElement('section');card.className='type-card type-'+type;
+      card.append(text('h4',groups[0].typeName||data.resultTypes?.[type]?.name||type));
+      const list=document.createElement('ul');
+      for(const g of groups){const li=document.createElement('li');li.append(text('span',g.name.replace(/學群$/,''),'group-name'));if(g.strengths?.length)li.append(text('span','拿手 '+g.strengths.join('、'),'group-note'));list.append(li);}
+      card.append(list);cards.append(card);
     }
+    if(!cards.children.length)cards.append(text('p','這次沒有歸類出的學群。','muted'));
     item.append(cards);
-    const answers=document.createElement('details');answers.append(text('summary','查看作答與學科自評'));
-    const level={high:'前段',mid:'中間',low:'後段'}[snapshot.profile.level];
-    const subject=id=>data.subjects.find(s=>s.id===id)?.label||id;
-    answers.append(text('p','整體程度：'+level+'；最拿手：'+snapshot.profile.strong.map(subject).join('、')+'；比較吃力：'+snapshot.profile.weak.map(subject).join('、')));
-    const list=document.createElement('ol');
-    for(const [id,value] of Object.entries(snapshot.answers)){
-      const q=data.items.find(q=>q.id===id);list.append(text('li',(q?.text||id)+'：'+(snapshot.favourites.includes(id)?'最想知道':{0:'沒興趣',1:'還好',2:'想知道'}[value])));
+    // 3. 查看作答
+    const answers=document.createElement('details');answers.className='answer-details';answers.append(text('summary','查看作答'));
+    const interest={0:['沒興趣','a0'],1:['還好','a1'],2:['想知道','a2']};
+    const qlist=document.createElement('ul');qlist.className='answer-list';
+    for(const [id,value] of Object.entries(snapshot.answers||{})){
+      const q=data.items.find(q=>q.id===id),[label,cls]=(snapshot.favourites||[]).includes(id)?['最想知道','a3']:(interest[value]||[String(value),'a1']);
+      const li=document.createElement('li');li.append(text('span',q?.text||id,'answer-q'),text('span',label,'answer-badge '+cls));qlist.append(li);
     }
-    if(snapshot.deep)for(const plan of snapshot.deep.plan){
+    if(qlist.children.length){answers.append(text('h5','興趣問題'),qlist);}
+    if(snapshot.deep)for(const plan of snapshot.deep.plan||[]){
+      const glist=document.createElement('ul');glist.className='answer-list';
       for(const goal of data.detailGoals(plan.subject,plan.context,plan.goalVersion)){
-        const value=snapshot.deep.goals[goal.id];if(value!==undefined)list.append(text('li',subject(plan.subject)+'｜'+(goal.text||goal.label||goal.id)+'：'+(data.masteryOptions.find(o=>o.value===value)?.label||String(value))));
+        const value=snapshot.deep.goals?.[goal.id];if(value===undefined)continue;
+        const li=document.createElement('li');li.append(text('span',goal.text||goal.label||goal.id,'answer-q'),text('span',data.masteryOptions.find(o=>o.value===value)?.label||String(value),'answer-badge m'+value));glist.append(li);
       }
+      if(glist.children.length)answers.append(text('h5','深入探索｜'+subject(plan.subject)),glist);
     }
-    answers.append(list);item.append(answers);
-    if(row.attempt)answers.append(text('p','題庫：'+row.attempt.bank_version+'；計分版本：'+row.attempt.scoring_version,'version-info'));
+    if(row.attempt)answers.append(text('p','題庫 '+row.attempt.bank_version+'｜計分 '+row.attempt.scoring_version,'version-info'));
+    item.append(answers);
     return item;
   }
   // One attempt can save several snapshots (quick, extra, deep, revision); show each attempt's final one.
