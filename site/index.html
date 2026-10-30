@@ -24,7 +24,7 @@
   <link rel="stylesheet" href="./styles.css?v=20261029-ui3">
   <link rel="stylesheet" href="./special.css?v=20260918-layout-fix">
   <link rel="stylesheet" href="./support.css?v=20261029-contact">
-  <link rel="stylesheet" href="./workbench.css?v=20261030-hot">
+  <link rel="stylesheet" href="./workbench.css?v=20261030-compare">
   <link rel="stylesheet" href="./layout.css?v=20261023-mobile">
   <link rel="stylesheet" href="./student-account.css?v=20261030-teacher1">
 </head>
@@ -190,8 +190,7 @@
           </table>
         </div>
         <button class="compare-tray" id="compareTray" type="button" data-view-jump="compare" hidden>
-          <span>追蹤清單</span>
-          <span class="compare-tray-go">查看清單</span>
+          查看清單
         </button>
       </section>
 
@@ -304,9 +303,11 @@
             <h2>追蹤清單</h2>
             <p>把感興趣的校系留下來，隨時查看招生條件。</p>
           </div>
-          <button class="ghost-button" id="clearCompareButton" hidden>清空清單</button>
+          <div class="workbench-actions" id="compareHeadActions" hidden>
+            <div class="result-meta"><strong id="compareCount">0</strong><span>筆追蹤</span></div>
+          </div>
         </div>
-        <div id="compareTools" hidden>
+        <div class="query-filter-panel compare-filter-panel" id="compareTools" hidden>
           <section class="compare-filters filter-band" aria-label="追蹤清單篩選">
             <label><span>學年度</span><select id="compareYearFilter"><option value="all">全部學年度</option></select></label>
             <label><span>入學管道</span><select id="compareChannelFilter">
@@ -317,8 +318,8 @@
               <option value="exam_distribution">分發入學</option>
               <option value="special_selection">特殊選才</option>
             </select></label>
+            <button class="ghost-button compare-clear-button" id="clearCompareButton" type="button">清空清單</button>
           </section>
-          <div class="compare-result-summary"><button class="ghost-button" data-view-jump="workbench">繼續找校系</button></div>
         </div>
         <div class="compare-grid" id="compareGrid"></div>
         <p id="compareStorageStatus" class="compare-storage-status" role="status"></p>
@@ -463,7 +464,7 @@
   <script src="./admission-catalog.js?v=20261029-tech-application"></script>
   <script src="./explorer-link.js?v=20261023-intros"></script>
   <script src="./group-introductions.js?v=20261023-intros"></script>
-  <script src="./app.js?v=20261030-combine"></script>
-  <script src="./back-to-top.js?v=20261030-1"></script>
+  <script src="./app.js?v=20261030-compare"></script>
+  <script src="./back-to-top.js?v=20261030-2"></script>
 </body>
 </html>

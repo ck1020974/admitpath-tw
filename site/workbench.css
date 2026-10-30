@@ -325,44 +325,37 @@
   color: #0f6e70;
 }
 
-/* ── 追蹤清單浮動列 ── */
+/* ── 追蹤清單浮動鈕：深色「查看清單」，回到頂端箭頭出現時排在它右邊 ── */
 .compare-tray {
   /* 主內容區設了 overflow，sticky 不會生效，所以固定在視窗右下角。 */
   position: fixed;
   right: 28px;
   bottom: 24px;
   z-index: 9; /* 在校系詳情抽屜（z-index 10）之下 */
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  width: max-content;
+  height: 46px;
   margin: 0;
-  padding: 7px 7px 7px 18px;
+  padding: 0 22px;
   border: 0;
   border-radius: 999px;
   background: var(--side);
   color: #fff;
   font: inherit;
   font-size: 14px;
+  font-weight: 800;
   box-shadow: 0 12px 28px rgba(16, 32, 51, .28);
   cursor: pointer;
+  transition: right .2s, background .15s;
 }
+.compare-tray:hover { background: #22364b; }
+.compare-tray:focus-visible { outline: 3px solid #176b88; outline-offset: 3px; }
+body.back-to-top-visible .compare-tray { right: 84px; }
 
-.compare-tray strong {
-  font-variant-numeric: tabular-nums;
-}
-
-.compare-tray-go {
-  padding: 7px 16px;
-  border-radius: 999px;
-  background: #fff;
-  color: var(--side);
-  font-weight: 800;
-}
-
-.compare-tray:hover .compare-tray-go {
-  background: #e8f6f4;
-}
+/* 追蹤清單頁：篩選放在和校系查詢相同的白色面板，清空清單靠右。 */
+#compareView .compare-filter-panel .compare-filters { align-items: flex-end; padding: 16px; }
+#compareView .compare-filter-panel .compare-filters select { min-height: 44px; }
+#compareView .compare-clear-button { margin-left: auto; min-height: 44px; color: #af432c; }
+#compareView .compare-clear-button:hover { border-color: rgba(190, 80, 52, .35); background: #fff3ee; }
+#compareView .compare-filter-panel + .compare-grid { margin-top: 16px; }
 
 /* 追蹤管道可複選；獨立邊框與 12px 間距讓每個操作清楚分開。 */
 #compareView .compare-channel-buttons {
@@ -387,10 +380,6 @@
   border-color: var(--side);
   background: var(--side);
   color: #fff;
-}
-
-#compareView .compare-result-summary {
-  justify-content: flex-end;
 }
 
 @media (max-width: 600px) {
@@ -460,11 +449,8 @@
     flex-basis: 100%;
   }
 
-  .compare-tray {
-    right: 50%;
-    bottom: 14px;
-    transform: translateX(50%);
-  }
+  .compare-tray { right: 16px; bottom: 16px; }
+  body.back-to-top-visible .compare-tray { right: 72px; }
 }
 
 @media (prefers-reduced-motion: reduce) {

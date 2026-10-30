@@ -5500,8 +5500,8 @@ function renderCompare() {
   const hasRecords = state.compare.length > 0;
   const tools = document.getElementById("compareTools");
   if (tools) tools.hidden = !hasRecords || dataPending();
-  const clearButton = document.getElementById("clearCompareButton");
-  if (clearButton) clearButton.hidden = !hasRecords || dataPending();
+  const headActions = document.getElementById("compareHeadActions");
+  if (headActions) headActions.hidden = !hasRecords || dataPending();
   if (dataPending()) {
     if (els.compareGrid) els.compareGrid.innerHTML = loadStatusHtml();
     return;
@@ -5529,6 +5529,8 @@ function renderCompare() {
       </section>`;
     return;
   }
+  const countEl = document.getElementById("compareCount");
+  if (countEl) countEl.textContent = fmt.format(visible.length);
   els.compareGrid.innerHTML = `<div class="table-shell rec-list"><table aria-label="已追蹤校系清單"><thead class="sr-only"><tr><th scope="col">管道</th><th scope="col">學校 / 校系與條件</th><th scope="col">操作</th></tr></thead><tbody>${visible.length
     ? visible.map(record => workbenchRecordRowHtml(record, true)).join('')
     : `<tr><td colspan="3"><div class="empty-state">目前篩選條件沒有符合的追蹤校系<br>篩選只影響顯示，不會移除追蹤校系。</div></td></tr>`}</tbody></table></div>`;

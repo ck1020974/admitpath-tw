@@ -3455,14 +3455,12 @@ tr:hover td {
 }
 
 .compare-filters > label { min-width: 180px; }
-.compare-result-summary { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin: 16px 0; color: var(--muted); font-size: 14px; }
 .compare-storage-status { margin: 16px 0 0; color: var(--muted); font-size: 13px; line-height: 1.6; }
 .compare-grid .table-shell { min-width: 0; width: 100%; }
 .compare-grid .year-number { white-space: nowrap; flex-shrink: 0; }
 .compare-grid table { min-width: 820px; }
 @media (max-width: 600px) {
   .compare-filters > label { width: 100%; }
-  .compare-result-summary { flex-wrap: wrap; }
 }
 
 .compare-overview {
