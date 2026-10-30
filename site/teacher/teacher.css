@@ -177,9 +177,8 @@ th:first-child,td:first-child{padding-left:20px}
 /* While a student window is open, only the window itself scrolls. */
 body:has(.student-dialog[open]) .table-wrap{overflow:hidden}
 html:has(.student-dialog[open]){overflow:hidden}
-#detailIdentity .identity-email{display:inline-flex;align-items:center;gap:6px}
-#detailIdentity .identity-email a{color:var(--accent);text-decoration:none;overflow-wrap:anywhere}
-#detailIdentity .identity-email a:hover{text-decoration:underline}
-#detailIdentity .copy-email{min-height:24px;padding:1px 8px;border:1px solid var(--line);border-radius:999px;background:var(--white);color:var(--muted);font-size:12px;font-weight:600;line-height:1.4;cursor:pointer}
-#detailIdentity .copy-email:hover{color:var(--accent);border-color:var(--accent)}
-#detailIdentity .identity-email::before{margin:0 4px 0 10px}
+#detailIdentity .identity-email{position:relative;display:inline-flex;align-items:center}
+#detailIdentity .email-copy{min-height:0;padding:0;border:0;border-radius:4px;background:none;color:inherit;font:inherit;font-weight:inherit;cursor:pointer;overflow-wrap:anywhere;text-align:left}
+#detailIdentity .email-copy:hover{color:var(--accent)}
+#detailIdentity .email-copied{position:absolute;left:100%;top:50%;margin-left:8px;transform:translateY(-50%);padding:1px 8px;border-radius:999px;background:var(--accent);color:#fff;font-size:12px;font-weight:600;white-space:nowrap;opacity:0;transition:opacity .15s;pointer-events:none}
+#detailIdentity .identity-email.is-copied .email-copied{opacity:1}

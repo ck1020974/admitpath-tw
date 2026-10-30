@@ -100,15 +100,18 @@
     const index=filtered.findIndex(s=>s.id===selectedStudent?.id);
     $('prevStudent').disabled=index<=0;$('nextStudent').disabled=index<0||index>=filtered.length-1;
   }
+  // 信箱和班級、學號同樣式；點一下就複製，旁邊短暫顯示「已複製」。
   function contactChip(email){
     const wrap=document.createElement('span');wrap.className='identity-email';
-    const link=document.createElement('a');link.href='mailto:'+email;link.textContent='✉ '+email;link.title='寫信給 '+email;
-    const copy=document.createElement('button');copy.type='button';copy.className='copy-email';copy.textContent='複製';copy.setAttribute('aria-label','複製信箱 '+email);
-    copy.addEventListener('click',async()=>{
+    const button=document.createElement('button');button.type='button';button.className='email-copy';button.textContent='✉ '+email;
+    button.title='點一下複製';button.setAttribute('aria-label','複製信箱 '+email);
+    const done=document.createElement('span');done.className='email-copied';done.setAttribute('role','status');
+    button.addEventListener('click',async()=>{
       try{await navigator.clipboard.writeText(email);}catch{const area=document.createElement('textarea');area.value=email;area.setAttribute('readonly','');area.style.position='fixed';area.style.opacity='0';document.body.append(area);area.select();try{document.execCommand('copy');}finally{area.remove();}}
-      copy.textContent='已複製';clearTimeout(copy._t);copy._t=setTimeout(()=>{copy.textContent='複製';},1500);
+      done.textContent='已複製';wrap.classList.add('is-copied');clearTimeout(button._t);
+      button._t=setTimeout(()=>{wrap.classList.remove('is-copied');done.textContent='';},1000);
     });
-    wrap.append(link,copy);return wrap;
+    wrap.append(button,done);return wrap;
   }
   async function openStudent(student,tab='tracking'){
     clearDetail();selectedStudent=student;const version=detailEpoch;
