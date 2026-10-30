@@ -41,7 +41,6 @@
       }
     }
     answers.append(list);item.append(answers);
-    item.append(text('p',report.limits?.[0]||'自評探索結果供輔導討論使用。','muted'));
     if(row.attempt)answers.append(text('p','題庫：'+row.attempt.bank_version+'；計分版本：'+row.attempt.scoring_version,'version-info'));
     return item;
   }
@@ -77,7 +76,7 @@
   }
   async function openStudent(student,tab='tracking'){
     clearDetail();selectedStudent=student;resultOffset=0;loadedResults=0;const version=detailEpoch;
-    $('detailTitle').textContent=student.name;$('detailIdentity').textContent=student.student_id+' · '+model.grade(student)+' · '+student.original_class+' 班 '+student.original_seat_number+' 號 · '+model.group(student);
+    $('detailTitle').textContent=student.name;$('detailIdentity').replaceChildren(...[student.original_class+' 班 '+student.original_seat_number+' 號',model.group(student),student.student_id].map(value=>text('span',value)));
     selectTab(tab);updateNav();
     if(!dialog.open)dialog.showModal();
     message('detailStatus','載入中…');
