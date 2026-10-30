@@ -7,7 +7,7 @@
   <link rel="stylesheet" href="../support.css?v=20261029-contact">
   <link rel="stylesheet" href="../site-header.css?v=20261030-teacher1">
   <link rel="stylesheet" href="../student-account.css?v=20261030-teacher1">
-  <link rel="stylesheet" href="./teacher.css?v=20261030-delete1">
+  <link rel="stylesheet" href="./teacher.css?v=20261030-delete2">
   <script defer src="../student-auth-config.js?v=20261029-auth1"></script>
   <script defer src="../student-supabase.js?v=20261030-delete1"></script>
   <script defer src="../student-auth.js?v=20261030-teacher1"></script>
@@ -22,7 +22,7 @@
   <script defer src="../explore/curiosity/exploration-model.js?v=20261030-weights1"></script>
   <script defer src="../explore/curiosity/data.js?v=20261029-records1"></script>
   <script defer src="./teacher-model.js?v=20261030-teacher1"></script>
-  <script defer src="./teacher.js?v=20261030-delete1"></script>
+  <script defer src="./teacher.js?v=20261030-delete2"></script>
 </head>
 <body>
   <header class="site-header">
@@ -57,7 +57,7 @@
           <p id="summaryStatus" role="status" hidden></p>
         </div>
         <div class="table-wrap" role="region" aria-label="學生名單" tabindex="0"><table>
-          <thead><tr><th scope="col" class="c-name">姓名 <span id="count" class="head-count" role="status"></span></th><th scope="col" id="groupHead" class="c-group">班群</th><th scope="col" id="deleteHead" class="c-del" hidden><span class="visually-hidden">刪除探索結果</span></th><th scope="col" class="c-exam">優先學群</th><th scope="col" class="num c-track" aria-sort="none" data-sort="tracking"><button type="button" class="sort-button">追蹤校系</button></th><th scope="col" class="c-login" aria-sort="none" data-sort="login"><button type="button" class="sort-button">最後登入</button></th><th scope="col" class="c-chev"><span class="visually-hidden">開啟</span></th></tr></thead>
+          <thead><tr><th scope="col" class="c-name">姓名 <span id="count" class="head-count" role="status"></span></th><th scope="col" id="groupHead" class="c-group">班群</th><th scope="col" class="c-exam">優先學群</th><th scope="col" id="deleteHead" class="c-del" hidden><span class="visually-hidden">刪除探索結果</span></th><th scope="col" class="num c-track" aria-sort="none" data-sort="tracking"><button type="button" class="sort-button">追蹤校系</button></th><th scope="col" class="c-login" aria-sort="none" data-sort="login"><button type="button" class="sort-button">最後登入</button></th><th scope="col" class="c-chev"><span class="visually-hidden">開啟</span></th></tr></thead>
           <tbody id="students"></tbody>
         </table></div>
         <p id="empty" hidden>沒有符合條件的學生。</p>

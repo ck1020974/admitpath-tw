@@ -147,8 +147,9 @@
   const deleteDialog=$('deleteDialog');let deleteTarget=null;
   function askDelete(student){
     deleteTarget=student;message('deleteStatus','');
-    const who=document.createElement('strong');who.textContent=student.name+'（'+student.original_class+' 班 '+student.original_seat_number+' 號）';
-    $('deleteText').replaceChildren('將刪除 ',who,' 的所有學群探索作答與結果，教師後台與學生帳號都不會再看到，無法復原。追蹤清單不受影響。');
+    const seat=String(student.original_seat_number||'').replace(/^0+(?=\d)/,'');
+    const who=document.createElement('strong');who.textContent=student.name+'（'+student.original_class+' 班 '+seat+' 號）';
+    $('deleteText').replaceChildren('確定要刪除 ',who,' 的所有學群探索作答與結果，',document.createElement('br'),'操作後將無法復原。');
     for(const id of ['deleteCancel','deleteConfirm'])$(id).disabled=false;$('deleteConfirm').textContent='刪除';
     deleteDialog.showModal();$('deleteCancel').focus();
   }
@@ -225,6 +226,7 @@
           examCell.append(chips);
         } else examCell.append(text('span',result.label,'state'));
       }
+      let delCell=null;
       if(canDelete){
         const cell=document.createElement('td');cell.className='c-del';
         if((summary?.exam_status||'none')!=='none'){
@@ -233,9 +235,10 @@
           del.addEventListener('click',event=>{event.stopPropagation();askDelete(s);});
           cell.append(del);
         }
-        row.append(cell);
+        delCell=cell;
       }
-      row.append(examCell,trackCell,loginCell,text('td','›','chev'));
+      row.append(examCell);if(delCell)row.append(delCell);
+      row.append(trackCell,loginCell,text('td','›','chev'));
       fragment.append(row);
     }
     $('students').replaceChildren(fragment);$('count').textContent=(filtered.length===baseList.length?'':filtered.length+' / ')+baseList.length;$('count').setAttribute('aria-label','顯示 '+filtered.length+' 位，共 '+baseList.length+' 位學生');$('empty').hidden=filtered.length!==0;
