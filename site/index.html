@@ -24,7 +24,7 @@
   <link rel="stylesheet" href="./styles.css?v=20261029-ui3">
   <link rel="stylesheet" href="./special.css?v=20260918-layout-fix">
   <link rel="stylesheet" href="./support.css?v=20261029-contact">
-  <link rel="stylesheet" href="./workbench.css?v=20261030-shortcuts">
+  <link rel="stylesheet" href="./workbench.css?v=20261030-regions">
   <link rel="stylesheet" href="./layout.css?v=20261023-mobile">
   <link rel="stylesheet" href="./student-account.css?v=20261030-teacher1">
 </head>
@@ -353,7 +353,7 @@
         <button type="button" class="placement-chip query-dual-degree" data-query-dual-degree aria-pressed="false" title="海外雙聯／雙學士招生學程，與 TOP 10 學類擇一篩選">雙聯</button>
       </div>
     </div>
-    <div class="placement-popular-categories" role="group" aria-label="TOP 10 學類與地區">
+    <div class="placement-popular-categories" role="group" aria-label="TOP 10 學類">
       <span class="placement-popular-label">TOP 10</span>
       <button type="button" class="placement-chip" data-placement-popular-category="電機工程學類" data-category-event="electrical" aria-pressed="false" title="電機工程學類">電機</button>
       <button type="button" class="placement-chip" data-placement-popular-category="資訊工程學類" data-category-event="computer-science" aria-pressed="false" title="資訊工程學類">資工</button>
@@ -367,11 +367,17 @@
       <button type="button" class="placement-chip" data-placement-popular-category="財務金融學類" data-category-event="finance" aria-pressed="false" title="財務金融學類">財金</button>
       <button type="button" class="placement-chip" data-placement-popular-category="心理學類" data-category-event="psychology" aria-pressed="false" title="心理學類、輔導諮商學類、犯罪防治學類">心理</button>
       <button type="button" class="placement-chip" data-placement-popular-category="大眾傳播學類" data-category-event="communication" aria-pressed="false" title="大眾傳播學類">傳播</button>
-      <span class="placement-area-label">地區：</span>
-      <button type="button" class="placement-chip" data-placement-school-scope="area-north">北區</button>
-      <button type="button" class="placement-chip" data-placement-school-scope="area-central">中區</button>
-      <button type="button" class="placement-chip" data-placement-school-scope="area-south">南區</button>
-      <button type="button" class="placement-chip" data-placement-school-scope="area-east">東區</button>
+      <button type="button" class="placement-chip" data-placement-popular-category="半導體" data-category-event="semiconductor" aria-pressed="false" title="系名含「半導體」的校系（跨電子、電機、光電、材料等學類）">半導體</button>
+    </div>
+    <div class="placement-region-row" role="group" aria-label="學校地區">
+      <span class="placement-popular-label">地區</span>
+      <button type="button" class="placement-chip" data-placement-school-scope="region-taipei">雙北</button>
+      <button type="button" class="placement-chip" data-placement-school-scope="region-taoyuan">桃竹苗</button>
+      <button type="button" class="placement-chip" data-placement-school-scope="region-taichung">中彰投</button>
+      <button type="button" class="placement-chip" data-placement-school-scope="region-chiayi">雲嘉南</button>
+      <button type="button" class="placement-chip" data-placement-school-scope="region-east">宜花東</button>
+      <button type="button" class="placement-chip" data-placement-school-scope="region-kaoping">高屏</button>
+      <button type="button" class="placement-chip" data-placement-school-scope="region-islands">離島</button>
     </div>
   </template>
     <footer class="site-foot">
@@ -457,6 +463,6 @@
   <script src="./admission-catalog.js?v=20261029-tech-application"></script>
   <script src="./explorer-link.js?v=20261023-intros"></script>
   <script src="./group-introductions.js?v=20261023-intros"></script>
-  <script src="./app.js?v=20261030-shortcuts"></script>
+  <script src="./app.js?v=20261030-regions"></script>
 </body>
 </html>

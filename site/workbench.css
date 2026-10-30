@@ -501,19 +501,20 @@
   text-align: center;
 }
 .query-shortcuts .placement-popular-label { display: inline-flex; align-items: center; min-height: 32px; }
-.query-shortcuts .placement-area-label { margin-left: 14px; color: var(--ink); font-size: 13px; font-weight: 700; white-space: nowrap; }
+.query-shortcuts .placement-region-row { display: flex; flex-wrap: wrap; align-items: center; gap: 7px; margin-top: 10px; }
 .query-shortcuts .placement-chip:focus-visible { outline: 3px solid #176b88; outline-offset: 2px; }
 @media (max-width: 720px) {
   .query-shortcuts { padding: 10px; }
   .query-shortcuts .placement-chip-row,
-  .query-shortcuts .placement-popular-categories {
+  .query-shortcuts .placement-popular-categories,
+  .query-shortcuts .placement-region-row {
     flex-wrap: nowrap;
     overflow-x: auto;
     padding: 2px 2px 8px;
     scrollbar-width: thin;
     scrollbar-color: #b6cfca transparent;
   }
-  .query-shortcuts .placement-chip, .query-shortcuts .placement-popular-label, .query-shortcuts .placement-area-label { flex-shrink: 0; white-space: nowrap; }
+  .query-shortcuts .placement-chip, .query-shortcuts .placement-popular-label { flex-shrink: 0; white-space: nowrap; }
 }
 
 /* ── 四技申請（科大）：磚紅色，和個申的青綠、繁星的橘黃、分發的藍、特選的紫區分 ── */

@@ -1734,6 +1734,8 @@ function advancedCategoryNeedles(groupName = "", categoryName = "") {
 }
 
 function quickCategoryNeedles(category) {
+  // 半導體跨電子、電機、光電、材料等學類，直接用系名含「半導體」比對。
+  if (category === "半導體") return (quickCategoryNeedles.semiconductor ||= new Set([normalize("半導體")]));
   const categories = [category];
   if (["心理學類", "法律學類"].includes(category)) categories.push("犯罪防治學類");
   return cachedGroupNeedles([], categories);
@@ -2800,7 +2802,43 @@ function placementResultSummary(evaluation) {
   return `約差 ${Number(evaluation.gapTotal.toFixed(1))}`;
 }
 
+// 七個地區：依各校主校區所在縣市（基隆併入雙北）。系名或校名標有校區的，改用該校區所在地。
+const SCHOOL_REGIONS = {
+  taipei: "世新大學 中國文化大學 中國科技大學 中華科技大學 亞東科技大學 台北海洋科技大學 國立政治大學 國立臺北商業大學 國立臺北大學 國立臺北教育大學 國立臺北科技大學 國立臺北藝術大學 國立臺北護理健康大學 國立臺灣大學 國立臺灣師範大學 國立臺灣海洋大學 國立臺灣科技大學 國立臺灣藝術大學 國防醫學大學 大同大學 宏國德霖科技大學 實踐大學 崇右影藝科技大學 德明財經科技大學 德育學校財團法人德育護理健康學院 明志科技大學 景文科技大學 東南科技大學 東吳大學 淡江大學 真理大學 聖約翰科技大學 致理科技大學 臺北城市科技大學 臺北基督學院 臺北市立大學 臺北醫學大學 華梵大學 輔仁大學 醒吾科技大學 銘傳大學 馬偕醫學大學 馬偕醫學院 黎明技術學院",
+  taoyuan: "中原大學 中華大學 健行科技大學 元培醫事科技大學 元智大學 南亞技術學院 國立中央大學 國立清華大學 國立陽明交通大學 國立聯合大學 國立體育大學 國防大學 敏實科技大學 明新科技大學 玄奘大學 育達科技大學 萬能科技大學 長庚大學 長庚學校財團法人長庚科技大學 開南大學 龍華科技大學",
+  taichung: "中國醫藥大學 中山醫學大學 中臺科技大學 亞洲大學 修平科技大學 僑光科技大學 南開科技大學 國立中興大學 國立勤益科技大學 國立暨南國際大學 國立彰化師範大學 國立臺中教育大學 國立臺中科技大學 國立臺灣體育運動大學 大葉大學 嶺東科技大學 建國科技大學 弘光科技大學 朝陽科技大學 東海大學 逢甲大學 靜宜大學",
+  chiayi: "中信科技大學 中信金融管理學院 中華醫事科技大學 南臺科技大學 南華大學 台南應用科技大學 吳鳳科技大學 嘉藥學校財團法人嘉南藥理大學 國立中正大學 國立嘉義大學 國立成功大學 國立臺南大學 國立臺南藝術大學 國立虎尾科技大學 國立雲林科技大學 崑山科技大學 康寧大學 長榮大學",
+  east: "佛光大學 國立宜蘭大學 國立東華大學 國立臺東大學 慈濟大學",
+  kaoping: "台鋼科技大學 國立中山大學 國立屏東大學 國立屏東科技大學 國立高雄大學 國立高雄師範大學 國立高雄科技大學 國立高雄餐旅大學 大仁科技大學 文藻外語大學 樹德科技大學 正修科技大學 美和科技大學 義守大學 輔英科技大學 高雄醫學大學",
+  islands: "國立金門大學 國立澎湖科技大學",
+};
+const regionSchoolKey = name => String(name || "").replace(/[（(].*?[)）]/g, "").replace(/台(?!北海洋|南應用|鋼)/g, "臺").replace(/\s/g, "");
+const SCHOOL_REGION_BY_NAME = new Map(Object.entries(SCHOOL_REGIONS)
+  .flatMap(([region, names]) => names.split(" ").map(name => [regionSchoolKey(name), region])));
+const CAMPUS_REGIONS = [
+  [/(臺北|台北|士林|淡水)(校區)?$|(臺北|台北|士林|淡水)校區/, "taipei"],
+  [/(桃園|新竹|林口)(校區)?$|(桃園|新竹|林口)校區/, "taoyuan"],
+  [/嘉義校區/, "chiayi"],
+  [/(高雄)$|高雄校區/, "kaoping"],
+];
+// 陽明交大的醫學、牙醫、藥學與醫事相關學系在臺北陽明校區，其餘在新竹。
+const NYCU_TAIPEI_DEPARTMENTS = /^(醫學系|牙醫學系|中醫學系|藥學系|護理學系|物理治療暨輔助科技學系|生物醫學影像暨放射科學系|醫學生物技術暨檢驗學系|生命科學系暨基因體科學研究所|生物醫學工程學系)/;
+
+function schoolRegion(record) {
+  const school = String(record?.schoolName || "");
+  const department = String(record?.departmentName || "").replace(/\s/g, "");
+  const campus = school.match(/[（(](.+?)[)）]/)?.[1] || department.match(/[^（(]*校區/g)?.pop() || "";
+  if (campus) {
+    const hit = CAMPUS_REGIONS.find(([pattern]) => pattern.test(campus));
+    if (hit) return hit[1];
+  }
+  const key = regionSchoolKey(school);
+  if (key === "國立陽明交通大學" && NYCU_TAIPEI_DEPARTMENTS.test(department)) return "taipei";
+  return SCHOOL_REGION_BY_NAME.get(key) || "";
+}
+
 function placementSchoolScopeAllows(record, scope = "all") {
+  if (scope.startsWith("region-")) return schoolRegion(record) === scope.slice(7);
   const areas = { "area-north": "北", "area-central": "中", "area-south": "南", "area-east": "東" };
   if (areas[scope]) return AdmissionCatalog.matchesArea(record, areas[scope]);
   if (scope === "public" || scope === "private") return schoolOwnership(record) === scope;
