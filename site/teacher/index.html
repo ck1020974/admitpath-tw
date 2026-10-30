@@ -4,9 +4,9 @@
   <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
   <meta name="robots" content="noindex,nofollow"><meta name="referrer" content="no-referrer">
   <title>教師後台｜YUHSIN 祐馨升學網</title>
-  <link rel="stylesheet" href="./teacher.css?v=20261030-dash2">
+  <link rel="stylesheet" href="./teacher.css?v=20261030-dash3">
   <script defer src="../student-auth-config.js?v=20261029-auth1"></script>
-  <script defer src="../student-supabase.js?v=20261030-dash2"></script>
+  <script defer src="../student-supabase.js?v=20261030-dash3"></script>
   <script defer src="../explore/curiosity/bank.js?v=20261029-records1"></script>
   <script defer src="../explore/curiosity/collego-reference.js?v=20261029-records1"></script>
   <script defer src="../explore/curiosity/curriculum.js?v=20261029-records1"></script>
@@ -14,8 +14,8 @@
   <script defer src="../explore/curiosity/subjects.js?v=20261029-records1"></script>
   <script defer src="../explore/curiosity/exploration-model.js?v=20261029-records1"></script>
   <script defer src="../explore/curiosity/data.js?v=20261029-records1"></script>
-  <script defer src="./teacher-model.js?v=20261030-dash2"></script>
-  <script defer src="./teacher.js?v=20261030-dash2"></script>
+  <script defer src="./teacher-model.js?v=20261030-dash3"></script>
+  <script defer src="./teacher.js?v=20261030-dash3"></script>
 </head>
 <body>
   <header><a class="brand" href="../">YUHSIN <span>祐馨升學網</span></a><div class="header-actions"><a href="../">返回網站</a><button id="logout" type="button" class="icon-button" aria-label="結束教師登入" title="結束登入" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="M10 4H5v16h5M14 8l4 4-4 4M9 12h10"/></svg></button></div></header>
@@ -37,16 +37,19 @@
       <section class="roster-panel" aria-labelledby="rosterTitle">
         <div class="overview">
           <h2 id="rosterTitle" class="visually-hidden">學生名單</h2>
-          <div class="overview-head">
-            <label><span class="visually-hidden">年級</span><select id="grade" aria-label="年級"><option value="">全部年級</option></select></label>
-            <label><span class="visually-hidden">班群</span><select id="group" aria-label="班群"><option value="">全部班群</option></select></label>
-            <label class="search"><span class="visually-hidden">搜尋</span><input id="search" type="search" autocomplete="off" placeholder="搜尋姓名或學號" aria-label="搜尋姓名或學號"></label>
+          <div class="overview-grid">
+            <span class="row-label" id="filterLabel">篩選</span>
+            <div class="overview-head" role="group" aria-labelledby="filterLabel">
+              <label><span class="visually-hidden">年級</span><select id="grade" aria-label="年級"><option value="">全部年級</option></select></label>
+              <label><span class="visually-hidden">班群</span><select id="group" aria-label="班群"><option value="">全部班群</option></select></label>
+              <label class="search"><span class="visually-hidden">搜尋</span><input id="search" type="search" autocomplete="off" placeholder="搜尋姓名或學號" aria-label="搜尋姓名或學號"></label>
+            </div>
+            <div id="overviewRows" class="overview-rows">
+              <span class="row-label" id="loginLabel">登入</span><div id="loginPills" class="pills" role="group" aria-labelledby="loginLabel"></div>
+              <span class="row-label" id="examLabel">探索</span><div id="examPills" class="pills" role="group" aria-labelledby="examLabel"></div>
+            </div>
           </div>
           <p id="summaryStatus" role="status" hidden></p>
-          <div id="overviewRows" class="overview-rows">
-            <span class="row-label" id="loginLabel">登入</span><div id="loginPills" class="pills" role="group" aria-labelledby="loginLabel"></div>
-            <span class="row-label" id="examLabel">探索</span><div id="examPills" class="pills" role="group" aria-labelledby="examLabel"></div>
-          </div>
           <p id="tagFilter" class="tag-filter" hidden></p>
         </div>
         <div class="table-wrap" role="region" aria-label="學生名單" tabindex="0"><table>
