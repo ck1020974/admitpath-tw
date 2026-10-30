@@ -106,7 +106,7 @@
   function message(id, text) { $(id).textContent = text; $(id).hidden = !text; }
   function clearWorkspace(reset=true) {
     closeDialog();clearDetail();epoch++;students=[];filtered=[];summaries=new Map();summaryReady=false;$('students').replaceChildren();
-    if(reset){for(const id of ['search','grade','group'])$(id).value='';picks={login:'',exam:'',tag:''};sort={key:'',direction:'asc'};}
+    if(reset){for(const id of ['search','grade','group'])$(id).value='';fillGroups();picks={login:'',exam:'',tag:''};sort={key:'',direction:'asc'};}
     $('workspace').hidden=true;$('logout').hidden=true;$('count').textContent='';$('empty').hidden=true;message('summaryStatus','');
   }
   function showLogin() { clearWorkspace(); $('login').hidden = false; }
@@ -138,7 +138,6 @@
     const baseList=students.filter(student=>model.matches(student,base,summaries.get(student.id),now));
     filtered=summaryReady?baseList.filter(student=>model.matches(student,{login:picks.login,exam:picks.exam,tag:picks.tag},summaries.get(student.id),now)):baseList;
     if(sort.key)filtered=filtered.map((s,i)=>[s,i]).sort((x,y)=>model.compare(sort.key,sort.direction,summaries.get(x[0].id),summaries.get(y[0].id))||x[1]-y[1]).map(x=>x[0]);
-    $('rosterTitle').textContent=$('group').value||'全部班群';
     $('overviewRows').hidden=!summaryReady;
     if(summaryReady)renderPills(baseList,now);
     renderTagFilter();
@@ -149,7 +148,7 @@
       const summary=summaries.get(s.id),row = document.createElement('tr');row.addEventListener('click',()=>openStudent(s,'tracking'));
       const name=document.createElement('td'),button=text('button',s.name,'student-select');button.type='button';button.dataset.studentId=s.id;button.setAttribute('aria-label','查看 '+s.name+' 的詳細資料');button.addEventListener('click',event=>{event.stopPropagation();openStudent(s,'tracking');});
       name.append(button);if(!s.active)name.append(text('span','停用','inactive'));name.append(text('span',s.original_class+'・'+s.original_seat_number+' 號','sub'));row.append(name);
-      if(showGroup)row.append(text('td',model.group(s)));
+      if(showGroup)row.append(text('td',model.group(s),'nowrap'));
       const loginCell=document.createElement('td'),trackCell=document.createElement('td'),examCell=document.createElement('td');trackCell.className='num';
       if(!summaryReady){for(const cell of [loginCell,trackCell,examCell])cell.append(text('span','—','muted'));}
       else{
@@ -201,12 +200,20 @@
     catch { message('status','本機登入已清除；網路連線中斷，請稍後再試。'); }
     finally { showLogin(); resetPassword(); form.elements.username.value = ''; form.elements.username.focus(); }
   });
-  let gradeGroup;
   for(const value of model.gradeOptions){
-    if(value.startsWith('G')){gradeGroup=document.createElement('optgroup');gradeGroup.label=value;$('grade').append(gradeGroup);}
-    const option=document.createElement('option');option.value=option.textContent=value;gradeGroup.append(option);
+    const option=document.createElement('option');option.value=value;
+    if(value.startsWith('G')){option.textContent=value+' 全年級';option.className='grade-all';}else option.textContent=value+' 班';
+    $('grade').append(option);
   }
-  for(const value of model.groupOptions){const option=document.createElement('option');option.value=option.textContent=value;$('group').append(option);}
+  // Only list 班群 that belong to the chosen 年級, and reset an incompatible choice.
+  function fillGroups(){
+    const prefix=($('grade').value.match(/^(?:G)?(\d\d)/)||[])[1]||'',current=$('group').value;
+    const options=model.groupOptions.filter(value=>!prefix||value.startsWith(prefix));
+    const all=document.createElement('option');all.value='';all.textContent='全部班群';
+    $('group').replaceChildren(all,...options.map(value=>{const option=document.createElement('option');option.value=option.textContent=value;return option;}));
+    $('group').value=options.includes(current)?current:'';
+  }
+  fillGroups();$('grade').addEventListener('change',fillGroups);
   for (const id of ['search','group','grade']) $(id).addEventListener(id === 'search' ? 'input' : 'change',render);
   // Returning to a backgrounded teacher page revalidates authorization before displaying records.
   document.addEventListener('visibilitychange', async () => {
