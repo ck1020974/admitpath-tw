@@ -46,7 +46,7 @@ tbody tr:hover{background:#f3f8f5}
 .light-off{background:#fff;box-shadow:inset 0 0 0 2px #a7b3af}
 .visually-hidden{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
 body:has(.student-dialog[open]){overflow:hidden}
-.student-dialog{width:min(820px,calc(100% - 32px));max-height:calc(100dvh - 12vh - 24px);margin:8vh auto auto;padding:0;border:1px solid var(--line);border-radius:16px;background:var(--white);color:var(--ink);overflow:hidden;box-shadow:0 24px 80px #122d3933}
+.student-dialog{width:min(820px,calc(100% - 32px));height:min(640px,calc(100dvh - 12vh - 24px));max-height:none;margin:8vh auto auto;padding:0;border:1px solid var(--line);border-radius:16px;background:var(--white);color:var(--ink);overflow:hidden;box-shadow:0 24px 80px #122d3933}
 .student-dialog[open]{display:flex;flex-direction:column}
 .student-dialog::backdrop{background:#122d3973}
 .dialog-head{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:14px 18px 14px 24px;background:#f0f6f3;border-bottom:1px solid var(--line)}
@@ -62,7 +62,7 @@ body:has(.student-dialog[open]){overflow:hidden}
 .dialog-tabs [role=tab]{background:transparent;border:0;border-bottom:3px solid transparent;border-radius:0;color:var(--muted);padding:10px 14px;min-height:44px}
 .dialog-tabs [role=tab][aria-selected=true]{color:var(--accent);border-bottom-color:var(--accent)}
 .tab-count:not(:empty){display:inline-block;min-width:22px;margin-left:4px;padding:0 6px;border-radius:11px;background:#dcece7;font-size:12px;line-height:20px}
-.dialog-body{padding:18px 24px 24px;overflow:auto;overscroll-behavior:contain}
+.dialog-body{flex:1;min-height:0;padding:18px 24px 24px;overflow:auto;overscroll-behavior:contain}
 #detailStatus{font-size:14px;color:#8b362c;margin:0 0 12px}
 .tracking-list{margin:0;padding-left:24px;font-size:15px}
 .tracking-list li{padding:9px 0;border-bottom:1px solid #edf0ee}
@@ -146,3 +146,17 @@ th:first-child,td:first-child{padding-left:20px}
 [hidden]{display:none!important}
 .dialog-nav .round-button{font-size:24px;line-height:1;color:var(--accent);padding-bottom:3px}
 .dialog-nav .round-button:disabled{opacity:.35;cursor:default}
+#panelResults:not([hidden]){display:flex;flex-direction:column;min-height:100%}
+#detailResults{flex:1;display:flex;flex-direction:column}
+.result-view{flex:1}
+.result-view .result-groups{margin-top:-8px}
+.result-view>details{margin:18px 0 0;font-size:14px}
+.result-view>details>summary{cursor:pointer;font-weight:600;color:var(--muted)}
+.result-view li{margin:7px 0}
+.result-foot{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:20px;padding-top:12px;border-top:1px solid #edf0ee}
+.result-foot .muted{margin:0}
+.result-pager{display:flex;align-items:center;gap:10px;margin-left:auto}
+.result-pager .round-button{width:32px;height:32px;min-height:32px;font-size:20px;line-height:1;color:var(--accent);padding-bottom:2px}
+.result-pager .round-button:disabled{opacity:.35;cursor:default}
+.pager-label{min-width:44px;text-align:center;font-size:14px;font-variant-numeric:tabular-nums;color:var(--ink)}
+.dialog-body:has(#panelResults:not([hidden])){display:flex;flex-direction:column}

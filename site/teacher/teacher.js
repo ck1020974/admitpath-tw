@@ -9,17 +9,15 @@
   const dialog=$('studentDialog');
   let students = [], filtered = [], summaries = new Map(), summaryReady = false, epoch = 0;
   let picks={login:'',exam:''},sort={key:'',direction:'asc'};
-  let detailEpoch=0,selectedStudent=null,resultOffset=0,loadedResults=0;
+  let detailEpoch=0,selectedStudent=null;
+  const dateOnly=value=>{const p=Object.fromEntries(new Intl.DateTimeFormat('en-CA',{timeZone:'Asia/Taipei',year:'numeric',month:'2-digit',day:'2-digit'}).formatToParts(new Date(value)).map(x=>[x.type,x.value]));return p.year+'/'+p.month+'/'+p.day;};
   const date=value=>new Intl.DateTimeFormat('zh-TW',{dateStyle:'medium',timeStyle:'short',timeZone:'Asia/Taipei'}).format(new Date(value));
   function text(tag,value,className){const node=document.createElement(tag);node.textContent=value;if(className)node.className=className;return node;}
-  function clearDetail(){detailEpoch++;selectedStudent=null;$('detailTracking').replaceChildren();$('detailResults').replaceChildren();$('detailIdentity').textContent='';$('detailTitle').textContent='';$('tabResultsCount').textContent='';$('tabTrackingCount').textContent='';message('detailStatus','');$('moreResults').hidden=true;}
+  function clearDetail(){detailEpoch++;selectedStudent=null;$('detailTracking').replaceChildren();$('detailResults').replaceChildren();$('detailIdentity').textContent='';$('detailTitle').textContent='';$('tabResultsCount').textContent='';$('tabTrackingCount').textContent='';message('detailStatus','');attemptResults=[];attemptIndex=0;}
   function closeDialog(){if(dialog.open)dialog.close();}
   function renderResult(row){
     const data=window.YuhsinCuriosityData,report=row.report,snapshot=row.answers;
-    const stage={quick:'初次探索',extra:'重新測驗補充',deep:'深入探索',revision:'修改後的成果'}[row.stage]||row.stage;
-    const item=document.createElement('details');item.className='result-history';
-    item.append(text('summary',date(row.completed_at)+' · '+stage+(row.round_number?' · 補充第 '+row.round_number+' 批':'')));
-    if(row.attempt?.source==='browser_import')item.append(text('p','由學生自行匯入的瀏覽器紀錄；上方時間為儲存時間。','muted'));
+    const item=document.createElement('div');item.className='result-view';
     const cards=document.createElement('div');cards.className='result-groups';
     for(const type of ['priority','develop','interest','potential']){
       const groups=report.groups.filter(g=>g.type===type);if(!groups.length)continue;
@@ -44,21 +42,28 @@
     if(row.attempt)answers.append(text('p','題庫：'+row.attempt.bank_version+'；計分版本：'+row.attempt.scoring_version,'version-info'));
     return item;
   }
-  async function moreResults(){
-    if(!selectedStudent)return;
-    const version=detailEpoch,id=selectedStudent.id;$('moreResults').disabled=true;
-    try{
-      const rows=await client.readResults(id,100,resultOffset);if(version!==detailEpoch)return;
-      appendResultRows(rows);
-      message('detailStatus','');
-    }catch(error){if(version===detailEpoch)message('detailStatus',error.message);}
-    finally{$('moreResults').disabled=false;}
+  // One attempt can save several snapshots (quick, extra, deep, revision); show each attempt's final one.
+  function latestPerAttempt(rows){
+    const seen=new Map();
+    for(const row of rows){const key=row.attempt_id||row.id,current=seen.get(key);if(!current||new Date(row.completed_at)>new Date(current.completed_at))seen.set(key,row);}
+    return [...seen.values()].sort((a,b)=>new Date(a.completed_at)-new Date(b.completed_at));
   }
-  $('moreResults').addEventListener('click',moreResults);
-  function appendResultRows(rows){
-    for(const row of rows){const item=renderResult(row);item.open=loadedResults===0;$('detailResults').append(item);loadedResults++;}
-    resultOffset+=rows.length;$('moreResults').hidden=rows.length<100;
-    if(!loadedResults)$('detailResults').append(text('p','尚無探索成果。','muted'));
+  let attemptResults=[],attemptIndex=0;
+  function showAttempt(index){
+    attemptIndex=index;const box=$('detailResults');box.replaceChildren();
+    if(!attemptResults.length){box.append(text('p','尚無探索成果。','muted'));return;}
+    const row=attemptResults[index];box.append(renderResult(row));
+    const foot=document.createElement('div');foot.className='result-foot';
+    const meta=text('span',dateOnly(row.completed_at)+' 測驗 · '+(row.report?.deep?'深入探索':'初次探索')+(row.attempt?.source==='browser_import'?' · 學生匯入的瀏覽器紀錄':''),'muted');
+    foot.append(meta);
+    if(attemptResults.length>1){
+      const pager=document.createElement('div');pager.className='result-pager';
+      const prev=text('button','‹','round-button');prev.type='button';prev.setAttribute('aria-label','上一次測驗');prev.disabled=index===0;prev.addEventListener('click',()=>showAttempt(index-1));
+      const next=text('button','›','round-button');next.type='button';next.setAttribute('aria-label','下一次測驗');next.disabled=index===attemptResults.length-1;next.addEventListener('click',()=>showAttempt(index+1));
+      const label=text('span',(index+1)+' / '+attemptResults.length,'pager-label');label.setAttribute('aria-live','polite');
+      pager.append(prev,label,next);foot.append(pager);
+    }
+    box.append(foot);
   }
   function selectTab(name,focus=false){
     for(const [tab,panel,key] of [['tabTracking','panelTracking','tracking'],['tabResults','panelResults','results']]){
@@ -70,25 +75,30 @@
     $(id).addEventListener('click',()=>selectTab(id==='tabTracking'?'tracking':'results'));
     $(id).addEventListener('keydown',event=>{if(!['ArrowLeft','ArrowRight','Home','End'].includes(event.key))return;event.preventDefault();selectTab(id==='tabTracking'?'results':'tracking',true);});
   }
+  async function readAllResults(id){
+    const rows=[];
+    for(let offset=0;;offset+=100){const page=await client.readResults(id,100,offset);if(!Array.isArray(page))break;rows.push(...page);if(page.length<100)break;}
+    return rows;
+  }
   function updateNav(){
     const index=filtered.findIndex(s=>s.id===selectedStudent?.id);
     $('prevStudent').disabled=index<=0;$('nextStudent').disabled=index<0||index>=filtered.length-1;
   }
   async function openStudent(student,tab='tracking'){
-    clearDetail();selectedStudent=student;resultOffset=0;loadedResults=0;const version=detailEpoch;
+    clearDetail();selectedStudent=student;const version=detailEpoch;
     $('detailTitle').textContent=student.name;$('detailIdentity').replaceChildren(...[student.original_class+' 班 '+student.original_seat_number+' 號',model.group(student),student.student_id].map(value=>text('span',value)));
     selectTab(tab);updateNav();
     if(!dialog.open)dialog.showModal();
     message('detailStatus','載入中…');
     try{
-      const [tracking,attempts,results]=await Promise.all([client.readTracking(student.id),client.readAttempts(student.id),client.readResults(student.id,100,0)]);if(version!==detailEpoch)return;
+      const [tracking,results]=await Promise.all([client.readTracking(student.id),readAllResults(student.id)]);if(version!==detailEpoch)return;
       const active=tracking.filter(r=>!r.removed_at);
       $('tabTrackingCount').textContent=String(active.length);
       if(!active.length)$('detailTracking').append(text('p','尚無追蹤校系。','muted'));
       else {const list=document.createElement('ol');list.className='tracking-list';for(const row of active){const item=document.createElement('li');item.append(text('strong',row.school_name+' '+row.department_name),text('span',row.admission_year+' 學年度・'+row.admission_channel,'muted'));list.append(item);}$('detailTracking').append(list);}
-      const done=attempts.filter(a=>a.status==='complete').length,open=attempts.filter(a=>a.status==='in_progress').length;
-      $('tabResultsCount').textContent=String(done);
-      appendResultRows(results);message('detailStatus','');
+      attemptResults=latestPerAttempt(results);
+      $('tabResultsCount').textContent=attemptResults.length?String(attemptResults.length):'';
+      showAttempt(Math.max(0,attemptResults.length-1));message('detailStatus','');
     }catch(error){if(version===detailEpoch)message('detailStatus',error.message);}
   }
   $('prevStudent').addEventListener('click',()=>{const i=filtered.findIndex(s=>s.id===selectedStudent?.id);if(i>0)openStudent(filtered[i-1],$('tabResults').getAttribute('aria-selected')==='true'?'results':'tracking');});
