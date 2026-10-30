@@ -67,7 +67,7 @@
     if(!attemptResults.length){box.append(text('p','尚無探索成果。','muted'));return;}
     const row=attemptResults[index];box.append(renderResult(row));
     const foot=document.createElement('div');foot.className='result-foot';
-    const meta=text('span',dateOnly(row.completed_at)+' 測驗 · '+(row.report?.deep?'深入探索':'初次探索')+(row.attempt?.source==='browser_import'?' · 學生匯入的瀏覽器紀錄':''),'muted');
+    const meta=text('span',dateOnly(row.completed_at)+' '+(row.report?.deep?'深入測驗':'基礎測驗')+(row.attempt?.source==='browser_import'?' · 學生匯入的瀏覽器紀錄':''),'muted');
     foot.append(meta);
     if(attemptResults.length>1){
       const pager=document.createElement('div');pager.className='result-pager';
