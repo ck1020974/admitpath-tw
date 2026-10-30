@@ -8,11 +8,11 @@
   const form = $('login').querySelector('form'), submit = form.querySelector('button');
   const dialog=$('studentDialog');
   let students = [], filtered = [], summaries = new Map(), summaryReady = false, epoch = 0;
-  let picks={login:'',exam:'',tag:''},sort={key:'',direction:'asc'};
+  let picks={login:'',exam:''},sort={key:'',direction:'asc'};
   let detailEpoch=0,selectedStudent=null,resultOffset=0,loadedResults=0;
   const date=value=>new Intl.DateTimeFormat('zh-TW',{dateStyle:'medium',timeStyle:'short',timeZone:'Asia/Taipei'}).format(new Date(value));
   function text(tag,value,className){const node=document.createElement(tag);node.textContent=value;if(className)node.className=className;return node;}
-  function clearDetail(){detailEpoch++;selectedStudent=null;$('detailTracking').replaceChildren();$('detailResults').replaceChildren();$('detailIdentity').textContent='';$('detailTitle').textContent='';$('detailCount').textContent='';$('tabTrackingCount').textContent='';message('detailStatus','');$('moreResults').hidden=true;}
+  function clearDetail(){detailEpoch++;selectedStudent=null;$('detailTracking').replaceChildren();$('detailResults').replaceChildren();$('detailIdentity').textContent='';$('detailTitle').textContent='';$('tabResultsCount').textContent='';$('tabTrackingCount').textContent='';message('detailStatus','');$('moreResults').hidden=true;}
   function closeDialog(){if(dialog.open)dialog.close();}
   function renderResult(row){
     const data=window.YuhsinCuriosityData,report=row.report,snapshot=row.answers;
@@ -27,8 +27,6 @@
       const list=document.createElement('ul');for(const g of groups)list.append(text('li',g.name+(g.strengths?.length?'（拿手科目：'+g.strengths.join('、')+'）':'')));box.append(list);cards.append(box);
     }
     item.append(cards);
-    if(report.undeclared)item.append(text('p','亦可探索不分系方向。'));
-    const other=report.groups.filter(g=>g.type==='other');if(other.length)item.append(text('p','其他學群：'+other.map(g=>g.name).join('、'),'muted'));
     const answers=document.createElement('details');answers.append(text('summary','查看作答與學科自評'));
     const level={high:'前段',mid:'中間',low:'後段'}[snapshot.profile.level];
     const subject=id=>data.subjects.find(s=>s.id===id)?.label||id;
@@ -90,7 +88,7 @@
       if(!active.length)$('detailTracking').append(text('p','尚無追蹤校系。','muted'));
       else {const list=document.createElement('ol');list.className='tracking-list';for(const row of active){const item=document.createElement('li');item.append(text('strong',row.school_name+' '+row.department_name),text('span',row.admission_year+' 學年度・'+row.admission_channel,'muted'));list.append(item);}$('detailTracking').append(list);}
       const done=attempts.filter(a=>a.status==='complete').length,open=attempts.filter(a=>a.status==='in_progress').length;
-      $('detailCount').textContent='完成 '+done+' 次探索'+(open?' · 進行中 '+open+' 次':'');
+      $('tabResultsCount').textContent=String(done);
       appendResultRows(results);message('detailStatus','');
     }catch(error){if(version===detailEpoch)message('detailStatus',error.message);}
   }
@@ -106,7 +104,7 @@
   function message(id, text) { $(id).textContent = text; $(id).hidden = !text; }
   function clearWorkspace(reset=true) {
     closeDialog();clearDetail();epoch++;students=[];filtered=[];summaries=new Map();summaryReady=false;$('students').replaceChildren();
-    if(reset){for(const id of ['search','grade','group'])$(id).value='';fillGroups();picks={login:'',exam:'',tag:''};sort={key:'',direction:'asc'};}
+    if(reset){for(const id of ['search','grade','group'])$(id).value='';fillGroups();picks={login:'',exam:''};sort={key:'',direction:'asc'};}
     $('workspace').hidden=true;$('filters').hidden=true;$('logout').hidden=true;$('count').textContent='';$('empty').hidden=true;message('summaryStatus','');
   }
   function showLogin() { clearWorkspace(); $('login').hidden = false; }
@@ -129,20 +127,13 @@
     make('login',model.loginOptions,s=>model.login(summaries.get(s.id)?.last_sign_in_at,now));
     make('exam',model.examOptions,s=>summaries.get(s.id)?.exam_status||'none');
   }
-  function renderTagFilter(){
-    const box=$('tagFilter');box.replaceChildren();box.hidden=!picks.tag;if(!picks.tag)return;
-    box.append(text('span','優先探索：'));
-    const clear=text('button',picks.tag+' ×','chip chip-active');clear.type='button';clear.setAttribute('aria-label','取消篩選 '+picks.tag);
-    clear.addEventListener('click',()=>{picks.tag='';render();});box.append(clear);
-  }
   function render() {
     const now=Date.now(),base={search:$('search').value,grade:$('grade').value,group:$('group').value};
     const baseList=students.filter(student=>model.matches(student,base,summaries.get(student.id),now));
-    filtered=summaryReady?baseList.filter(student=>model.matches(student,{login:picks.login,exam:picks.exam,tag:picks.tag},summaries.get(student.id),now)):baseList;
+    filtered=summaryReady?baseList.filter(student=>model.matches(student,{login:picks.login,exam:picks.exam},summaries.get(student.id),now)):baseList;
     if(sort.key)filtered=filtered.map((s,i)=>[s,i]).sort((x,y)=>model.compare(sort.key,sort.direction,summaries.get(x[0].id),summaries.get(y[0].id))||x[1]-y[1]).map(x=>x[0]);
     $('overviewRows').hidden=!summaryReady;
     if(summaryReady)renderPills(baseList,now);
-    renderTagFilter();
     const showGroup=!$('group').value;$('groupHead').hidden=!showGroup;
     for(const th of document.querySelectorAll('th[data-sort]'))th.setAttribute('aria-sort',sort.key===th.dataset.sort?(sort.direction==='asc'?'ascending':'descending'):'none');
     const fragment = document.createDocumentFragment();
@@ -151,7 +142,7 @@
       const name=document.createElement('td'),button=text('button',s.name,'student-select');button.type='button';button.dataset.studentId=s.id;button.setAttribute('aria-label','查看 '+s.name+' 的詳細資料');button.addEventListener('click',event=>{event.stopPropagation();openStudent(s,'tracking');});
       name.append(button);if(!s.active)name.append(text('span','停用','inactive'));name.append(text('span',s.original_class+'・'+s.original_seat_number+' 號','sub'));row.append(name);
       if(showGroup)row.append(text('td',model.group(s),'nowrap'));
-      const loginCell=document.createElement('td'),trackCell=document.createElement('td'),examCell=document.createElement('td');trackCell.className='num';
+      const loginCell=document.createElement('td'),trackCell=document.createElement('td'),examCell=document.createElement('td');trackCell.className='num';loginCell.className='login-cell';
       if(!summaryReady){for(const cell of [loginCell,trackCell,examCell])cell.append(text('span','—','muted'));}
       else{
         const light=model.login(summary?.last_sign_in_at,now),label=model.loginOptions.find(o=>o.value===light).label;
@@ -162,11 +153,12 @@
         const result=model.exam(summary);
         if(result.groups.length){
           const chips=text('span','','chips');
-          for(const g of result.groups){const chip=text('button',g,'chip'+(picks.tag===g?' chip-active':''));chip.type='button';chip.title='只看優先探索「'+g+'」的學生';chip.addEventListener('click',event=>{event.stopPropagation();picks.tag=picks.tag===g?'':g;render();});chips.append(chip);}
+          const query=$('search').value.trim();
+          for(const g of result.groups){const active=query===g;const chip=text('button',g,'chip'+(active?' chip-active':''));chip.type='button';chip.title=active?'再點一次清除搜尋':'搜尋優先學群「'+g+'」';chip.addEventListener('click',event=>{event.stopPropagation();$('search').value=active?'':g;render();});chips.append(chip);}
           examCell.append(chips);
         } else examCell.append(text('span',result.label,'state'));
       }
-      row.append(loginCell,trackCell,examCell,text('td','›','chev'));
+      row.append(examCell,trackCell,loginCell,text('td','›','chev'));
       fragment.append(row);
     }
     $('students').replaceChildren(fragment);$('count').textContent=(filtered.length===baseList.length?'':filtered.length+' / ')+baseList.length;$('count').setAttribute('aria-label','顯示 '+filtered.length+' 位，共 '+baseList.length+' 位學生');$('empty').hidden=filtered.length!==0;
@@ -217,11 +209,6 @@
   }
   fillGroups();$('grade').addEventListener('change',fillGroups);
   for (const id of ['search','group','grade']) $(id).addEventListener(id === 'search' ? 'input' : 'change',render);
-  // Returning to a backgrounded teacher page revalidates authorization before displaying records.
-  document.addEventListener('visibilitychange', async () => {
-    if (document.hidden) { clearWorkspace(false); return; }
-    try { if (await client.session()) await workspace(); else { showLogin(); message('status','請登入教師帳號。'); } }
-    catch (error) { showLogin(); message('status',error.message); }
-  });
+  // The roster loads once per login (or page load); switching tabs or windows keeps the current view.
   (async () => { try { if (await client.session()) await workspace(); else { showLogin(); message('status',''); } } catch(error) { showLogin(); message('status',error.message); } })();
 })();

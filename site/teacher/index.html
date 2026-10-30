@@ -4,9 +4,9 @@
   <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
   <meta name="robots" content="noindex,nofollow"><meta name="referrer" content="no-referrer">
   <title>教師後台｜YUHSIN 祐馨升學網</title>
-  <link rel="stylesheet" href="./teacher.css?v=20261030-ui1">
+  <link rel="stylesheet" href="./teacher.css?v=20261030-ui4">
   <script defer src="../student-auth-config.js?v=20261029-auth1"></script>
-  <script defer src="../student-supabase.js?v=20261030-ui1"></script>
+  <script defer src="../student-supabase.js?v=20261030-ui4"></script>
   <script defer src="../explore/curiosity/bank.js?v=20261029-records1"></script>
   <script defer src="../explore/curiosity/collego-reference.js?v=20261029-records1"></script>
   <script defer src="../explore/curiosity/curriculum.js?v=20261029-records1"></script>
@@ -14,8 +14,8 @@
   <script defer src="../explore/curiosity/subjects.js?v=20261029-records1"></script>
   <script defer src="../explore/curiosity/exploration-model.js?v=20261029-records1"></script>
   <script defer src="../explore/curiosity/data.js?v=20261029-records1"></script>
-  <script defer src="./teacher-model.js?v=20261030-ui1"></script>
-  <script defer src="./teacher.js?v=20261030-ui1"></script>
+  <script defer src="./teacher-model.js?v=20261030-ui4"></script>
+  <script defer src="./teacher.js?v=20261030-ui4"></script>
 </head>
 <body>
   <header class="topbar"><div class="topbar-inner">
@@ -48,14 +48,13 @@
         <h2 id="rosterTitle" class="visually-hidden">學生名單</h2>
         <div class="overview">
           <div id="overviewRows" class="stat-groups">
-            <div class="stat-group"><span class="row-label" id="loginLabel">登入</span><div id="loginPills" class="pills" role="group" aria-labelledby="loginLabel"></div></div>
             <div class="stat-group"><span class="row-label" id="examLabel">探索</span><div id="examPills" class="pills" role="group" aria-labelledby="examLabel"></div></div>
+            <div class="stat-group"><span class="row-label" id="loginLabel">登入</span><div id="loginPills" class="pills" role="group" aria-labelledby="loginLabel"></div></div>
           </div>
           <p id="summaryStatus" role="status" hidden></p>
-          <p id="tagFilter" class="tag-filter" hidden></p>
         </div>
         <div class="table-wrap" role="region" aria-label="學生名單" tabindex="0"><table>
-          <thead><tr><th scope="col" class="c-name">姓名 <span id="count" class="head-count" role="status"></span></th><th scope="col" id="groupHead" class="c-group">班群</th><th scope="col" class="c-login" aria-sort="none" data-sort="login"><button type="button" class="sort-button">最後登入</button></th><th scope="col" class="num c-track" aria-sort="none" data-sort="tracking"><button type="button" class="sort-button">追蹤校系</button></th><th scope="col">優先學群</th><th scope="col" class="c-chev"><span class="visually-hidden">開啟</span></th></tr></thead>
+          <thead><tr><th scope="col" class="c-name">姓名 <span id="count" class="head-count" role="status"></span></th><th scope="col" id="groupHead" class="c-group">班群</th><th scope="col" class="c-exam">優先學群</th><th scope="col" class="num c-track" aria-sort="none" data-sort="tracking"><button type="button" class="sort-button">追蹤校系</button></th><th scope="col" class="c-login" aria-sort="none" data-sort="login"><button type="button" class="sort-button">最後登入</button></th><th scope="col" class="c-chev"><span class="visually-hidden">開啟</span></th></tr></thead>
           <tbody id="students"></tbody>
         </table></div>
         <p id="empty" hidden>沒有符合條件的學生。</p>
@@ -65,19 +64,19 @@
       <div class="dialog-head">
         <div class="student-heading"><h2 id="detailTitle" tabindex="-1"></h2><p id="detailIdentity"></p></div>
         <div class="dialog-nav">
-          <button id="prevStudent" type="button" class="secondary" aria-label="上一位學生">‹ 上一位</button>
-          <button id="nextStudent" type="button" class="secondary" aria-label="下一位學生">下一位 ›</button>
+          <button id="prevStudent" type="button" class="round-button" aria-label="上一位學生" title="上一位">‹</button>
+          <button id="nextStudent" type="button" class="round-button" aria-label="下一位學生" title="下一位">›</button>
           <button id="closeDialog" type="button" class="dialog-close" aria-label="關閉">×</button>
         </div>
       </div>
       <div class="dialog-tabs" role="tablist" aria-label="學生資料">
-        <button id="tabTracking" type="button" role="tab" aria-controls="panelTracking" aria-selected="true">追蹤清單 <span id="tabTrackingCount"></span></button>
-        <button id="tabResults" type="button" role="tab" aria-controls="panelResults" aria-selected="false" tabindex="-1">探索結果</button>
+        <button id="tabTracking" type="button" role="tab" aria-controls="panelTracking" aria-selected="true">追蹤清單 <span id="tabTrackingCount" class="tab-count"></span></button>
+        <button id="tabResults" type="button" role="tab" aria-controls="panelResults" aria-selected="false" tabindex="-1">探索結果 <span id="tabResultsCount" class="tab-count"></span></button>
       </div>
       <div class="dialog-body">
         <p id="detailStatus" role="status" hidden></p>
         <section id="panelTracking" role="tabpanel" aria-labelledby="tabTracking"><div id="detailTracking"></div></section>
-        <section id="panelResults" role="tabpanel" aria-labelledby="tabResults" hidden><p id="detailCount"></p><div id="detailResults"></div><button id="moreResults" type="button" class="secondary" hidden>較早的成果</button></section>
+        <section id="panelResults" role="tabpanel" aria-labelledby="tabResults" hidden><div id="detailResults"></div><button id="moreResults" type="button" class="secondary" hidden>較早的成果</button></section>
       </div>
     </dialog>
   </main>
