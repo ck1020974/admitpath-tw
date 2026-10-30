@@ -15,12 +15,12 @@
 }
 
 /* ── 標題列：筆數與重設 ── */
-:is(#workbenchView, #placementView) .workbench-actions {
+:is(#workbenchView, #placementView, #compareView) .workbench-actions {
   align-items: baseline;
   gap: 16px;
 }
 
-:is(#workbenchView, #placementView) .result-meta {
+:is(#workbenchView, #placementView, #compareView) .result-meta {
   min-width: 0;
   min-height: 0;
   padding: 0;
@@ -31,7 +31,7 @@
   gap: 6px;
 }
 
-:is(#workbenchView, #placementView) .result-meta strong {
+:is(#workbenchView, #placementView, #compareView) .result-meta strong {
   font-size: 22px;
   font-variant-numeric: tabular-nums;
 }
