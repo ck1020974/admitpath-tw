@@ -33,7 +33,7 @@
     for(const type of ['priority','develop','potential','interest']){
       const groups=report.groups.filter(g=>g.type===type);if(!groups.length)continue;
       const box=document.createElement('section');box.className='type-'+type;box.append(text('h4',groups[0].typeName||data.resultTypes?.[type]?.name||type));
-      const list=document.createElement('ul');for(const g of groups)list.append(text('li',g.name+(g.strengths?.length?'（拿手科目：'+g.strengths.join('、')+'）':'')));box.append(list);cards.append(box);
+      const list=document.createElement('ul');for(const g of groups)list.append(text('li',g.name+(g.strengths?.length?'（'+g.strengths.join('、')+'）':'')));box.append(list);cards.append(box);
     }
     if(!cards.children.length)cards.append(text('p','這次沒有歸類出的學群。','muted'));
     item.append(cards);

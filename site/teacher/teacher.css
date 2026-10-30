@@ -151,23 +151,20 @@ th:first-child,td:first-child{padding-left:20px}
 .pager-label{min-width:44px;text-align:center;font-size:14px;font-variant-numeric:tabular-nums;color:var(--ink)}
 .dialog-body:has(#panelResults:not([hidden])){display:flex;flex-direction:column}
 /* 探索結果：標籤｜內容列表，不加外框 */
-.result-rows{display:grid;grid-template-columns:76px minmax(0,1fr);margin:0;font-size:15px}
-.result-rows dt,.result-rows dd{margin:0;padding:11px 0;border-bottom:1px solid #eef1ef}
+.result-rows{display:grid;grid-template-columns:76px minmax(0,1fr);margin:0;font-size:14px}
+.result-rows dt,.result-rows dd{margin:0;padding:4px 0}
 .result-rows dt{font-size:13px;font-weight:700;color:var(--muted);padding-top:13px}
-.result-rows dt.row-eval,.result-rows dd.row-eval{padding-top:4px;padding-bottom:14px}
-.result-rows dt.row-eval{padding-top:6px}
+.result-rows dt{padding-top:6px}
 .eval-line{display:flex;flex-wrap:wrap;gap:4px 22px}
 .eval-label{font-size:13px;color:var(--muted)}
 .eval-level{font-weight:700}
 .eval-strong{color:#0f665e;font-weight:600}
 .eval-weak{color:#9a4a22;font-weight:600}
-.result-groups{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:4px 28px;font-size:15px;padding:6px 0 14px;border-bottom:1px solid #eef1ef}
-.result-groups h4{font-size:14px;color:var(--muted);margin:14px 0 6px}
-.result-groups .type-priority h4{color:var(--accent)}
+.result-groups{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px 20px;font-size:14px}
+.result-groups h4{font-size:14px;color:var(--accent);margin:16px 0 6px}
 .result-groups ul{padding-left:20px;margin:0}
-.result-groups li{margin:5px 0}
-.result-groups .type-priority li{font-weight:600}
-.answer-details{margin-top:14px}
+.result-groups li{margin:7px 0}
+.answer-details{margin-top:20px}
 .answer-details>summary{cursor:pointer;font-size:14px;font-weight:600;color:var(--accent);width:max-content}
 .answer-details h5{margin:16px 0 6px;font-size:13px;color:var(--muted)}
 .answer-list{list-style:none;margin:0;padding:0}
