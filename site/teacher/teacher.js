@@ -15,31 +15,27 @@
   function text(tag,value,className){const node=document.createElement(tag);node.textContent=value;if(className)node.className=className;return node;}
   function clearDetail(){detailEpoch++;selectedStudent=null;$('detailTracking').replaceChildren();$('detailResults').replaceChildren();$('detailIdentity').textContent='';$('detailTitle').textContent='';$('tabResultsCount').textContent='';$('tabTrackingCount').textContent='';message('detailStatus','');attemptResults=[];attemptIndex=0;}
   function closeDialog(){if(dialog.open)dialog.close();}
-  function chipList(values,className){const box=text('span','','chips');for(const v of values)box.append(text('span',v,'chip '+(className||'')));if(!values.length)box.append(text('span','—','muted'));return box;}
   function renderResult(row){
     const data=window.YuhsinCuriosityData,report=row.report||{groups:[]},snapshot=row.answers||{};
     const profile=snapshot.profile||{strong:[],weak:[]},subject=id=>data.subjects.find(s=>s.id===id)?.label||id;
     const item=document.createElement('div');item.className='result-view';
-    // 1. 學科自評
-    const evalBox=document.createElement('section');evalBox.className='self-eval';evalBox.append(text('h4','學科自評'));
-    const grid=document.createElement('dl');grid.className='eval-grid';
+    // 學科自評與探索結果用「標籤｜內容」的列表呈現，不加外框。
+    const rows=document.createElement('dl');rows.className='result-rows';
+    const addRow=(label,node,className)=>{const dt=text('dt',label);const dd=document.createElement('dd');dd.append(node);if(className){dt.className=className;dd.className=className;}rows.append(dt,dd);};
     const level=data.levelOptions?.find(o=>o.value===profile.level)?.label||{high:'前段',mid:'中間',low:'後段'}[profile.level]||'—';
-    for(const [label,node] of [['整體程度',text('span',level,'level-badge')],['最拿手',chipList((profile.strong||[]).map(subject),'chip-strong')],['比較吃力',chipList((profile.weak||[]).map(subject),'chip-weak')]]){
-      const cell=document.createElement('div');const dd=document.createElement('dd');dd.append(node);cell.append(text('dt',label),dd);grid.append(cell);
-    }
-    evalBox.append(grid);item.append(evalBox);
-    // 2. 探索結果（依類型分卡片）
-    const cards=document.createElement('div');cards.className='result-types';
+    const evalLine=document.createElement('span');evalLine.className='eval-line';
+    const part=(label,value,cls)=>{const span=document.createElement('span');span.append(text('span',label+' ','eval-label'),text('span',value||'—',cls));return span;};
+    evalLine.append(part('整體',level,'eval-level'),part('拿手',(profile.strong||[]).map(subject).join('、'),'eval-strong'),part('吃力',(profile.weak||[]).map(subject).join('、'),'eval-weak'));
+    addRow('學科自評',evalLine,'row-eval');
+    let any=false;
     for(const type of ['priority','develop','potential','interest']){
-      const groups=report.groups.filter(g=>g.type===type);if(!groups.length)continue;
-      const card=document.createElement('section');card.className='type-card type-'+type;
-      card.append(text('h4',groups[0].typeName||data.resultTypes?.[type]?.name||type));
-      const list=document.createElement('ul');
-      for(const g of groups){const li=document.createElement('li');li.append(text('span',g.name.replace(/學群$/,''),'group-name'));if(g.strengths?.length)li.append(text('span','拿手 '+g.strengths.join('、'),'group-note'));list.append(li);}
-      card.append(list);cards.append(card);
+      const groups=report.groups.filter(g=>g.type===type);if(!groups.length)continue;any=true;
+      const line=document.createElement('span');line.className='group-line';
+      groups.forEach((g,i)=>{if(i)line.append(text('span','、','sep'));line.append(text('span',g.name.replace(/學群$/,''),'group-name'));if(g.strengths?.length)line.append(text('span','（拿手 '+g.strengths.join('、')+'）','group-note'));});
+      addRow(groups[0].typeName||data.resultTypes?.[type]?.name||type,line,type==='priority'?'row-priority':'');
     }
-    if(!cards.children.length)cards.append(text('p','這次沒有歸類出的學群。','muted'));
-    item.append(cards);
+    if(!any)addRow('探索結果',text('span','這次沒有歸類出的學群。','muted'));
+    item.append(rows);
     // 3. 查看作答
     const answers=document.createElement('details');answers.className='answer-details';answers.append(text('summary','查看作答'));
     const interest={0:['沒興趣','a0'],1:['還好','a1'],2:['想知道','a2']};
