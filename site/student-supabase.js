@@ -136,6 +136,13 @@
         const rows=await authorized('/rest/v1/rpc/admin_student_contacts',{body:{}});
         return Array.isArray(rows)?rows:[];
       },
+      // 網站管理者專用：刪除一位學生的全部探索作答與結果，回傳刪除的測驗次數。
+      async adminDeleteResults(studentId){
+        if(!teacher||!current?.canManageAccounts)throw new Error('只有網站管理者可以刪除探索結果。');
+        if(!studentId)throw new Error('找不到這位學生。');
+        try{const value=await authorized('/rest/v1/rpc/admin_delete_assessments',{body:{target:studentId}});return Number(value)||0;}
+        catch(error){if(error.status===404)throw new Error('刪除功能尚未開放，請稍後再試。');if(error.status===403||error.status===401)throw new Error('沒有刪除這位學生資料的權限。');throw error;}
+      },
       async syncRecords(body,expectedOwner){
         if(teacher)throw new Error('教師帳號不能代替學生儲存探索資料。');
         return authorized('/functions/v1/student-records',{body},expectedOwner);

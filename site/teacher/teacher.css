@@ -182,3 +182,21 @@ html:has(.student-dialog[open]){overflow:hidden}
 #detailIdentity .email-copy:hover{color:var(--accent)}
 #detailIdentity .email-copied{position:absolute;left:100%;top:50%;margin-left:8px;transform:translateY(-50%);padding:1px 8px;border-radius:999px;background:var(--accent);color:#fff;font-size:12px;font-weight:600;white-space:nowrap;opacity:0;transition:opacity .15s;pointer-events:none}
 #detailIdentity .identity-email.is-copied .email-copied{opacity:1}
+
+/* 刪除探索結果（只有網站管理者看得到）：平常淡淡的，滑到那一列才清楚，指到按鈕才變紅。 */
+.c-del{width:44px;padding-left:6px;padding-right:0}
+td.c-del{padding:6px 0 6px 6px}
+.delete-result{display:grid;place-items:center;width:32px;min-height:32px;height:32px;padding:0;border:1px solid transparent;border-radius:8px;background:transparent;color:#a3b0ac;opacity:.55;transition:opacity .15s,color .15s,background-color .15s,border-color .15s}
+tbody tr:hover .delete-result,.delete-result:focus-visible{opacity:1;color:#7b8b87}
+.delete-result:hover{opacity:1;color:#b3392f;background:#fbeceb;border-color:#f0cdca}
+.confirm-dialog{width:min(400px,calc(100% - 32px));padding:28px 28px 22px;border:1px solid var(--line);border-radius:16px;background:var(--white);color:var(--ink);box-shadow:0 24px 80px #122d3933;text-align:center}
+.confirm-dialog::backdrop{background:#122d3973}
+.confirm-icon{display:grid;place-items:center;width:48px;height:48px;margin:0 auto 14px;border-radius:50%;background:#fbeceb;color:#b3392f}
+.confirm-dialog h2{font-size:19px;margin:0 0 8px}
+.confirm-dialog p{margin:0 auto 18px;color:var(--muted);font-size:14px;line-height:1.7}
+.confirm-dialog p strong{color:var(--ink)}
+.confirm-status{color:#9c2b23!important}
+.confirm-actions{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.confirm-actions button{min-height:42px}
+button.danger{background:#b3392f;border-color:#b3392f}
+button.danger:hover{background:#9c2f26}

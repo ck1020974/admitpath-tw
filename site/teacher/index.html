@@ -7,9 +7,9 @@
   <link rel="stylesheet" href="../support.css?v=20261029-contact">
   <link rel="stylesheet" href="../site-header.css?v=20261030-teacher1">
   <link rel="stylesheet" href="../student-account.css?v=20261030-teacher1">
-  <link rel="stylesheet" href="./teacher.css?v=20261030-copy1">
+  <link rel="stylesheet" href="./teacher.css?v=20261030-delete1">
   <script defer src="../student-auth-config.js?v=20261029-auth1"></script>
-  <script defer src="../student-supabase.js?v=20261030-teacher1"></script>
+  <script defer src="../student-supabase.js?v=20261030-delete1"></script>
   <script defer src="../student-auth.js?v=20261030-teacher1"></script>
   <script defer src="../contact-config.js?v=20261023-tweak"></script>
   <script defer src="../support-config.js?v=20261015"></script>
@@ -19,10 +19,10 @@
   <script defer src="../explore/curiosity/curriculum.js?v=20261029-records1"></script>
   <script defer src="../explore/curiosity/units.js?v=20261029-records1"></script>
   <script defer src="../explore/curiosity/subjects.js?v=20261029-records1"></script>
-  <script defer src="../explore/curiosity/exploration-model.js?v=20261029-records1"></script>
+  <script defer src="../explore/curiosity/exploration-model.js?v=20261030-weights1"></script>
   <script defer src="../explore/curiosity/data.js?v=20261029-records1"></script>
   <script defer src="./teacher-model.js?v=20261030-teacher1"></script>
-  <script defer src="./teacher.js?v=20261030-copy1"></script>
+  <script defer src="./teacher.js?v=20261030-delete1"></script>
 </head>
 <body>
   <header class="site-header">
@@ -57,7 +57,7 @@
           <p id="summaryStatus" role="status" hidden></p>
         </div>
         <div class="table-wrap" role="region" aria-label="學生名單" tabindex="0"><table>
-          <thead><tr><th scope="col" class="c-name">姓名 <span id="count" class="head-count" role="status"></span></th><th scope="col" id="groupHead" class="c-group">班群</th><th scope="col" class="c-exam">優先學群</th><th scope="col" class="num c-track" aria-sort="none" data-sort="tracking"><button type="button" class="sort-button">追蹤校系</button></th><th scope="col" class="c-login" aria-sort="none" data-sort="login"><button type="button" class="sort-button">最後登入</button></th><th scope="col" class="c-chev"><span class="visually-hidden">開啟</span></th></tr></thead>
+          <thead><tr><th scope="col" class="c-name">姓名 <span id="count" class="head-count" role="status"></span></th><th scope="col" id="groupHead" class="c-group">班群</th><th scope="col" id="deleteHead" class="c-del" hidden><span class="visually-hidden">刪除探索結果</span></th><th scope="col" class="c-exam">優先學群</th><th scope="col" class="num c-track" aria-sort="none" data-sort="tracking"><button type="button" class="sort-button">追蹤校系</button></th><th scope="col" class="c-login" aria-sort="none" data-sort="login"><button type="button" class="sort-button">最後登入</button></th><th scope="col" class="c-chev"><span class="visually-hidden">開啟</span></th></tr></thead>
           <tbody id="students"></tbody>
         </table></div>
         <p id="empty" hidden>沒有符合條件的學生。</p>
@@ -80,6 +80,16 @@
         <p id="detailStatus" role="status" hidden></p>
         <section id="panelTracking" role="tabpanel" aria-labelledby="tabTracking"><div id="detailTracking"></div></section>
         <section id="panelResults" role="tabpanel" aria-labelledby="tabResults" hidden><div id="detailResults"></div></section>
+      </div>
+    </dialog>
+    <dialog id="deleteDialog" class="confirm-dialog" aria-labelledby="deleteTitle" aria-describedby="deleteText">
+      <div class="confirm-icon" aria-hidden="true"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M9 7V4.8c0-.4.4-.8.8-.8h4.4c.4 0 .8.4.8.8V7M6.5 7l.9 12.2c.1.9.8 1.6 1.7 1.6h5.8c.9 0 1.6-.7 1.7-1.6L17.5 7M10 11v6M14 11v6"/></svg></div>
+      <h2 id="deleteTitle">刪除探索結果？</h2>
+      <p id="deleteText"></p>
+      <p id="deleteStatus" class="confirm-status" role="alert" hidden></p>
+      <div class="confirm-actions">
+        <button id="deleteCancel" type="button" class="secondary">取消</button>
+        <button id="deleteConfirm" type="button" class="danger">刪除</button>
       </div>
     </dialog>
   </main>

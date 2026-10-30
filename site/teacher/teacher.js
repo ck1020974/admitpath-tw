@@ -142,8 +142,34 @@
   });
   dialog.addEventListener('close',()=>{const id=selectedStudent?.id;clearDetail();const trigger=id&&$('students').querySelector('button[data-student-id="'+id+'"]');if(trigger)trigger.focus();});
   function message(id, text) { $(id).textContent = text; $(id).hidden = !text; }
+  // ── 刪除探索結果（網站管理者）──
+  const trashIcon='<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M4 7h16M9 7V4.8c0-.4.4-.8.8-.8h4.4c.4 0 .8.4.8.8V7M6.5 7l.9 12.2c.1.9.8 1.6 1.7 1.6h5.8c.9 0 1.6-.7 1.7-1.6L17.5 7M10 11v6M14 11v6"/></svg>';
+  const deleteDialog=$('deleteDialog');let deleteTarget=null;
+  function askDelete(student){
+    deleteTarget=student;message('deleteStatus','');
+    const who=document.createElement('strong');who.textContent=student.name+'（'+student.original_class+' 班 '+student.original_seat_number+' 號）';
+    $('deleteText').replaceChildren('將刪除 ',who,' 的所有學群探索作答與結果，教師後台與學生帳號都不會再看到，無法復原。追蹤清單不受影響。');
+    for(const id of ['deleteCancel','deleteConfirm'])$(id).disabled=false;$('deleteConfirm').textContent='刪除';
+    deleteDialog.showModal();$('deleteCancel').focus();
+  }
+  $('deleteCancel').addEventListener('click',()=>deleteDialog.close());
+  deleteDialog.addEventListener('close',()=>{const id=deleteTarget?.id;deleteTarget=null;const trigger=id&&!dialog.open&&$('students').querySelector('button[data-student-id="'+id+'"]');if(trigger)trigger.focus();});
+  $('deleteConfirm').addEventListener('click',async()=>{
+    const student=deleteTarget;if(!student)return;
+    for(const id of ['deleteCancel','deleteConfirm'])$(id).disabled=true;$('deleteConfirm').textContent='刪除中…';message('deleteStatus','');
+    try{
+      await client.adminDeleteResults(student.id);
+      const summary=summaries.get(student.id);
+      if(summary)summaries.set(student.id,{...summary,exam_status:'none',priority_groups:null,exam_completed_at:null});
+      deleteDialog.close();render();
+      if(dialog.open&&selectedStudent?.id===student.id)openStudent(student,'results');
+    }catch(error){
+      message('deleteStatus',error.message||'刪除失敗，請稍後再試。');
+      for(const id of ['deleteCancel','deleteConfirm'])$(id).disabled=false;$('deleteConfirm').textContent='刪除';
+    }
+  });
   function clearWorkspace(reset=true) {
-    closeDialog();clearDetail();epoch++;students=[];filtered=[];summaries=new Map();contacts=new Map();summaryReady=false;$('students').replaceChildren();
+    closeDialog();if(deleteDialog.open)deleteDialog.close();clearDetail();epoch++;students=[];filtered=[];summaries=new Map();contacts=new Map();summaryReady=false;$('students').replaceChildren();
     if(reset){for(const id of ['search','grade','group'])$(id).value='';fillGroups();picks={login:'',exam:''};sort={key:'',direction:'asc'};}
     $('workspace').hidden=true;$('filters').hidden=true;$('count').textContent='';$('empty').hidden=true;message('summaryStatus','');
   }
@@ -175,6 +201,7 @@
     $('overviewRows').hidden=!summaryReady;
     if(summaryReady)renderPills(baseList,now);
     const showGroup=!$('group').value;$('groupHead').hidden=!showGroup;
+    const canDelete=summaryReady&&client.current?.canManageAccounts===true;$('deleteHead').hidden=!canDelete;
     for(const th of document.querySelectorAll('th[data-sort]'))th.setAttribute('aria-sort',sort.key===th.dataset.sort?(sort.direction==='asc'?'ascending':'descending'):'none');
     const fragment = document.createDocumentFragment();
     for (const s of filtered) {
@@ -197,6 +224,16 @@
           for(const g of result.groups){const active=query===g;const chip=text('button',g,'chip'+(active?' chip-active':''));chip.type='button';chip.title=active?'再點一次清除搜尋':'搜尋優先學群「'+g+'」';chip.addEventListener('click',event=>{event.stopPropagation();$('search').value=active?'':g;render();});chips.append(chip);}
           examCell.append(chips);
         } else examCell.append(text('span',result.label,'state'));
+      }
+      if(canDelete){
+        const cell=document.createElement('td');cell.className='c-del';
+        if((summary?.exam_status||'none')!=='none'){
+          const del=document.createElement('button');del.type='button';del.className='delete-result';del.innerHTML=trashIcon;
+          del.title='刪除探索結果';del.setAttribute('aria-label','刪除 '+s.name+' 的探索結果');
+          del.addEventListener('click',event=>{event.stopPropagation();askDelete(s);});
+          cell.append(del);
+        }
+        row.append(cell);
       }
       row.append(examCell,trackCell,loginCell,text('td','›','chev'));
       fragment.append(row);
