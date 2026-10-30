@@ -24,7 +24,7 @@
   <link rel="stylesheet" href="./styles.css?v=20261029-ui3">
   <link rel="stylesheet" href="./special.css?v=20260918-layout-fix">
   <link rel="stylesheet" href="./support.css?v=20261029-contact">
-  <link rel="stylesheet" href="./workbench.css?v=20261030-regions">
+  <link rel="stylesheet" href="./workbench.css?v=20261030-combine">
   <link rel="stylesheet" href="./layout.css?v=20261023-mobile">
   <link rel="stylesheet" href="./student-account.css?v=20261030-teacher1">
 </head>
@@ -336,7 +336,7 @@
   <template id="queryShortcutsTemplate">
     <div class="placement-school-scope" aria-label="學校快速篩選">
       <div class="placement-chip-row">
-        <button type="button" class="placement-chip active" data-placement-school-scope="all">全部</button>
+        <span class="placement-popular-label">學校</span>
         <button type="button" class="placement-chip" data-placement-school-scope="public">公立</button>
         <button type="button" class="placement-chip" data-placement-school-scope="private">私立</button>
         <button type="button" class="placement-chip top-school" data-placement-school-scope="top">頂大</button>
@@ -350,7 +350,7 @@
         <button type="button" class="placement-chip" data-placement-school-scope="teacher">師範</button>
         <button type="button" class="placement-chip" data-placement-school-scope="central">中字輩</button>
         <button type="button" class="placement-chip" data-placement-school-scope="tech">科大</button>
-        <button type="button" class="placement-chip query-dual-degree" data-query-dual-degree aria-pressed="false" title="海外雙聯／雙學士招生學程，與 TOP 10 學類擇一篩選">雙聯</button>
+        <button type="button" class="placement-chip query-dual-degree" data-query-dual-degree aria-pressed="false" title="海外雙聯／雙學士招生學程">雙聯</button>
       </div>
     </div>
     <div class="placement-popular-categories" role="group" aria-label="TOP 10 學類">
@@ -371,13 +371,13 @@
     </div>
     <div class="placement-region-row" role="group" aria-label="學校地區">
       <span class="placement-popular-label">地區</span>
-      <button type="button" class="placement-chip" data-placement-school-scope="region-taipei">雙北</button>
-      <button type="button" class="placement-chip" data-placement-school-scope="region-taoyuan">桃竹苗</button>
-      <button type="button" class="placement-chip" data-placement-school-scope="region-taichung">中彰投</button>
-      <button type="button" class="placement-chip" data-placement-school-scope="region-chiayi">雲嘉南</button>
-      <button type="button" class="placement-chip" data-placement-school-scope="region-east">宜花東</button>
-      <button type="button" class="placement-chip" data-placement-school-scope="region-kaoping">高屏</button>
-      <button type="button" class="placement-chip" data-placement-school-scope="region-islands">離島</button>
+      <button type="button" class="placement-chip" data-placement-region="taipei">雙北</button>
+      <button type="button" class="placement-chip" data-placement-region="taoyuan">桃竹苗</button>
+      <button type="button" class="placement-chip" data-placement-region="taichung">中彰投</button>
+      <button type="button" class="placement-chip" data-placement-region="chiayi">雲嘉南</button>
+      <button type="button" class="placement-chip" data-placement-region="east">宜花東</button>
+      <button type="button" class="placement-chip" data-placement-region="kaoping">高屏</button>
+      <button type="button" class="placement-chip" data-placement-region="islands">離島</button>
     </div>
   </template>
     <footer class="site-foot">
@@ -463,6 +463,6 @@
   <script src="./admission-catalog.js?v=20261029-tech-application"></script>
   <script src="./explorer-link.js?v=20261023-intros"></script>
   <script src="./group-introductions.js?v=20261023-intros"></script>
-  <script src="./app.js?v=20261030-precision"></script>
+  <script src="./app.js?v=20261030-combine"></script>
 </body>
 </html>

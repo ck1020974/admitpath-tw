@@ -27,6 +27,7 @@
     channel: "all",
     school: "all",
     schoolScope: "all",
+    region: "",
     quickCategory: "",
     dualDegreeOnly: false,
     keyword: "",
@@ -1248,7 +1249,7 @@ function updateFilter() {
 }
 
 function resetFilters() {
-  state.filters = { year: "all", channel: "all", school: "all", schoolScope: "all", quickCategory: "", dualDegreeOnly: false, keyword: "", advanced: defaultAdvancedFilters() };
+  state.filters = { year: "all", channel: "all", school: "all", schoolScope: "all", region: "", quickCategory: "", dualDegreeOnly: false, keyword: "", advanced: defaultAdvancedFilters() };
   advancedFilterDraft = null;
   resetExplorerState("overview");
   els.yearFilter.value = "all";
@@ -1309,12 +1310,12 @@ function clearOuterSchoolFilters(advanced) {
   const clearSchools = advanced.schools.length > 0;
   const clearGroups = advanced.groups.length > 0;
   if (state.view === "placement") {
-    if (clearSchools) Object.assign(state.placement, { school: "all", schoolScope: "all", schoolOwnership: "all", topUniversityOnly: false });
+    if (clearSchools) Object.assign(state.placement, { school: "all", schoolScope: "all", region: "", schoolOwnership: "all", topUniversityOnly: false });
     if (clearGroups) Object.assign(state.placement, { quickCategory: "", dualDegreeOnly: false, groups: [], categories: [] });
     hydratePlacementResultFilters();
   } else {
     if (clearSchools) {
-      Object.assign(state.filters, { school: "all", schoolScope: "all" });
+      Object.assign(state.filters, { school: "all", schoolScope: "all", region: "" });
       if (els.schoolFilter) els.schoolFilter.value = "all";
     }
     if (clearGroups) {
@@ -1757,6 +1758,7 @@ function applyFilters() {
     if (state.filters.school !== "all" && record.schoolName !== state.filters.school) return false;
     if (state.filters.dualDegreeOnly && !isInternationalDualDegree(record)) return false;
     if (!placementSchoolScopeAllows(record, state.filters.schoolScope || "all")) return false;
+    if (state.filters.region && schoolRegion(record) !== state.filters.region) return false;
     if (quickNeedles && (!quickNeedles.size || !matchesGroup(record, quickNeedles))) return false;
     if (groupNeedles.size && !matchesGroup(record, groupNeedles)) return false;
     if (categoryNeedles.size && !matchesGroup(record, categoryNeedles)) return false;
@@ -1779,14 +1781,11 @@ function hydrateSchoolFilter() {
 }
 
 // 同一份捷徑內容與互動，供校系查詢和落點分析使用。
+// 學校、TOP 10 學類、地區、雙聯是四個獨立條件，可以同時選（例如：公立＋電機＋雙北），彼此取交集。
+// 同一行內單選；再按一次已選的按鍵就取消。
 function toggleQueryShortcut(filters, category = "") {
-  if (category) {
-    filters.quickCategory = filters.quickCategory === category ? "" : category;
-    filters.dualDegreeOnly = false;
-  } else {
-    filters.dualDegreeOnly = !filters.dualDegreeOnly;
-    filters.quickCategory = "";
-  }
+  if (category) filters.quickCategory = filters.quickCategory === category ? "" : category;
+  else filters.dualDegreeOnly = !filters.dualDegreeOnly;
 }
 
 function mountQueryShortcuts() {
@@ -1796,53 +1795,60 @@ function mountQueryShortcuts() {
     const host = document.getElementById(id);
     if (!host) continue;
     host.appendChild(template.content.cloneNode(true));
+    const placement = id === "placementQuickFilters";
+    const filters = () => placement ? state.placement : state.filters;
+    const refresh = () => {
+      if (placement) { renderPlacementControls(); renderPlacementAnalysis(); }
+      else applyFilters();
+    };
     host.querySelector("[data-query-dual-degree]")?.addEventListener("click", () => {
-      const filters = id === "workbenchQuickFilters" ? state.filters : state.placement;
-      toggleQueryShortcut(filters);
-      if (id === "workbenchQuickFilters") applyFilters();
-      else renderPlacementAnalysis();
+      toggleQueryShortcut(filters());
+      refresh();
     });
-    if (id === "workbenchQuickFilters") {
-      host.querySelectorAll("[data-placement-school-scope]").forEach(button => {
-        button.dataset.workbenchSchoolScope = button.dataset.placementSchoolScope;
-        button.removeAttribute("data-placement-school-scope");
-        button.addEventListener("click", () => {
-          state.filters.schoolScope = button.dataset.workbenchSchoolScope;
-          state.filters.school = "all";
-          els.schoolFilter.value = "all";
-          applyFilters();
-        });
+    host.querySelectorAll("[data-placement-school-scope]").forEach(button => {
+      button.addEventListener("click", () => {
+        const f = filters();
+        const scope = button.dataset.placementSchoolScope;
+        f.schoolScope = f.schoolScope === scope ? "all" : scope;
+        // 學校捷徑和「學校」下拉選單是同一個維度，選捷徑就把下拉選單放回全部。
+        f.school = "all";
+        const select = placement ? els.placementSchoolFilter : els.schoolFilter;
+        if (select) select.value = "all";
+        refresh();
       });
-      host.querySelectorAll("[data-placement-popular-category]").forEach(button => {
-        button.dataset.workbenchPopularCategory = button.dataset.placementPopularCategory;
-        button.removeAttribute("data-placement-popular-category");
-        button.addEventListener("click", () => {
-          const category = button.dataset.workbenchPopularCategory;
-          toggleQueryShortcut(state.filters, category);
-          applyFilters();
-        });
+    });
+    host.querySelectorAll("[data-placement-region]").forEach(button => {
+      button.addEventListener("click", () => {
+        const f = filters();
+        const region = button.dataset.placementRegion;
+        f.region = f.region === region ? "" : region;
+        refresh();
       });
-    }
+    });
+    host.querySelectorAll("[data-placement-popular-category]").forEach(button => {
+      button.addEventListener("click", () => {
+        const category = button.dataset.placementPopularCategory;
+        toggleQueryShortcut(filters(), category);
+        if (placement && state.placement.quickCategory && button.dataset.categoryEvent) {
+          trackEvent(`placement-category-${button.dataset.categoryEvent}`, category);
+        }
+        refresh();
+      });
+    });
   }
 }
 
 function renderQueryShortcuts(id, filters) {
   const host = document.getElementById(id);
   if (!host) return;
-  host.querySelectorAll("[data-query-dual-degree]").forEach(button => {
-    button.classList.toggle("active", Boolean(filters.dualDegreeOnly));
-    button.setAttribute("aria-pressed", String(Boolean(filters.dualDegreeOnly)));
-  });
-  host.querySelectorAll("[data-placement-school-scope], [data-workbench-school-scope]").forEach(button => {
-    const selected = (button.dataset.placementSchoolScope ?? button.dataset.workbenchSchoolScope) === (filters.schoolScope || "all");
+  const mark = (button, selected) => {
     button.classList.toggle("active", selected);
     button.setAttribute("aria-pressed", String(selected));
-  });
-  host.querySelectorAll("[data-placement-popular-category], [data-workbench-popular-category]").forEach(button => {
-    const selected = (button.dataset.placementPopularCategory ?? button.dataset.workbenchPopularCategory) === (filters.quickCategory || "");
-    button.classList.toggle("active", selected);
-    button.setAttribute("aria-pressed", String(selected));
-  });
+  };
+  host.querySelectorAll("[data-query-dual-degree]").forEach(button => mark(button, Boolean(filters.dualDegreeOnly)));
+  host.querySelectorAll("[data-placement-school-scope]").forEach(button => mark(button, button.dataset.placementSchoolScope === filters.schoolScope));
+  host.querySelectorAll("[data-placement-region]").forEach(button => mark(button, button.dataset.placementRegion === (filters.region || "")));
+  host.querySelectorAll("[data-placement-popular-category]").forEach(button => mark(button, button.dataset.placementPopularCategory === (filters.quickCategory || "")));
 }
 
 function refreshQueryYears(select, filters) {
@@ -1888,14 +1894,13 @@ function setupContactLinks() {
 //   #workbench?channel=star_recommendation&year=115&q=資工
 //   #placement
 //   #workbench?record=115-personal_application-001012-115_apply
-const ROUTE_FILTER_KEYS = { channel: "channel", year: "year", school: "school", q: "keyword", scope: "schoolScope", category: "quickCategory", dual: "dualDegreeOnly" };
+const ROUTE_FILTER_KEYS = { channel: "channel", year: "year", school: "school", q: "keyword", scope: "schoolScope", region: "region", category: "quickCategory", dual: "dualDegreeOnly" };
 
 function routeHash() {
   if (state.view === "overview" && !state.openDetailId) return "";
   const params = new URLSearchParams();
   if (state.view === "workbench") {
     Object.entries(ROUTE_FILTER_KEYS).forEach(([param, key]) => {
-      if (key === "quickCategory" && state.filters.dualDegreeOnly) return;
       const value = state.filters[key];
       if (value && value !== "all") params.set(param, value === true ? "1" : value);
     });
@@ -1937,7 +1942,9 @@ function applyRoute(route) {
       const channel = [...els.channelFilter.options].some((option) => option.value === route.filters.channel) ? route.filters.channel : "all";
       const school = [...els.schoolFilter.options].some((option) => option.value === route.filters.school) ? route.filters.school : "all";
       Object.assign(state.filters, { year, channel, school, keyword: route.filters.keyword,
-        schoolScope: route.filters.schoolScope || "all", quickCategory: route.filters.dualDegreeOnly === "1" ? "" : route.filters.quickCategory || "",
+        schoolScope: route.filters.schoolScope || "all",
+        region: Object.hasOwn(SCHOOL_REGIONS, route.filters.region) ? route.filters.region : "",
+        quickCategory: route.filters.quickCategory || "",
         dualDegreeOnly: route.filters.dualDegreeOnly === "1" });
       els.yearFilter.value = year;
       els.channelFilter.value = channel;
@@ -2022,6 +2029,7 @@ function defaultPlacementState() {
     channel: "personal_application",
     school: "all",
     schoolScope: "all",
+    region: "",
     quickCategory: "",
     dualDegreeOnly: false,
     keyword: "",
@@ -2123,28 +2131,9 @@ function bindPlacementEvents() {
     if (value !== state.placement.channel) selectPlacementChannel(value);
   });
   els.placementKeywordInput?.addEventListener("input", debounce(updatePlacementResultFilters, 120));
-  document.querySelectorAll("[data-placement-school-scope]").forEach((button) => {
-    button.addEventListener("click", () => {
-      state.placement.schoolScope = button.dataset.placementSchoolScope || "all";
-      state.placement.school = "all";
-      if (els.placementSchoolFilter) els.placementSchoolFilter.value = "all";
-      renderPlacementControls();
-      renderPlacementAnalysis();
-    });
-  });
   document.querySelectorAll("[data-placement-result-tab]").forEach((button) => {
     button.addEventListener("click", () => {
       state.placement.resultTab = button.dataset.placementResultTab || "all";
-      renderPlacementAnalysis();
-    });
-  });
-  document.querySelectorAll("[data-placement-popular-category]").forEach(button => {
-    button.addEventListener("click", () => {
-      const category = button.dataset.placementPopularCategory || "";
-      toggleQueryShortcut(state.placement, category);
-      if (state.placement.quickCategory && button.dataset.categoryEvent) {
-        trackEvent(`placement-category-${button.dataset.categoryEvent}`, category);
-      }
       renderPlacementAnalysis();
     });
   });
@@ -2243,7 +2232,7 @@ function updatePlacementResultFilters() {
 }
 
 function resetPlacementFilters() {
-  Object.assign(state.placement, { year: "all", yearAuto: true, school: "all", keyword: "", schoolScope: "all", quickCategory: "", dualDegreeOnly: false,
+  Object.assign(state.placement, { year: "all", yearAuto: true, school: "all", keyword: "", schoolScope: "all", region: "", quickCategory: "", dualDegreeOnly: false,
     groups: [], categories: [], schoolOwnership: "all", topUniversityOnly: false, specialAdmissionMode: "exclude" });
   state.filters.advanced = defaultAdvancedFilters();
   advancedFilterDraft = null;
@@ -2256,7 +2245,7 @@ function renderPlacementControls() {
   renderQueryShortcuts("placementQuickFilters", state.placement);
   const reset = document.getElementById("placementResetFiltersButton");
   if (reset) reset.hidden = !(!state.placement.yearAuto || state.placement.school !== "all" || state.placement.keyword
-    || state.placement.schoolScope !== "all" || state.placement.quickCategory || state.placement.dualDegreeOnly || state.placement.groups.length || state.placement.categories.length
+    || state.placement.schoolScope !== "all" || state.placement.region || state.placement.quickCategory || state.placement.dualDegreeOnly || state.placement.groups.length || state.placement.categories.length
     || state.placement.schoolOwnership !== "all" || state.placement.topUniversityOnly || advancedFilterSummaryText());
   const channel = state.placement.channel;
   const subjects = placementSubjects(channel);
@@ -2385,6 +2374,7 @@ function placementProfile() {
     groups: [...state.placement.groups],
     categories: [...state.placement.categories],
     schoolScope: state.placement.schoolScope || "all",
+    region: state.placement.region || "",
     school: state.placement.school || "all",
     quickCategory: state.placement.quickCategory || "",
     dualDegreeOnly: Boolean(state.placement.dualDegreeOnly),
@@ -2532,6 +2522,7 @@ function placementMatchesFilters(record, profile) {
   if (profile.school && profile.school !== "all" && record.schoolName !== profile.school) return false;
   if (profile.dualDegreeOnly && !isInternationalDualDegree(record)) return false;
   if (!placementSchoolScopeAllows(record, profile.schoolScope)) return false;
+  if (profile.region && schoolRegion(record) !== profile.region) return false;
   if (!queryKeywordMatches(record, state.placement.keyword)) return false;
   if (typeof recordMatchesAdvancedFilters === "function" && !recordMatchesAdvancedFilters(record)) return false;
   if (!profile.channels.includes(record.channelKey)) return false;
@@ -2830,7 +2821,6 @@ function schoolRegion(record) {
 }
 
 function placementSchoolScopeAllows(record, scope = "all") {
-  if (scope.startsWith("region-")) return schoolRegion(record) === scope.slice(7);
   const areas = { "area-north": "北", "area-central": "中", "area-south": "南", "area-east": "東" };
   if (areas[scope]) return AdmissionCatalog.matchesArea(record, areas[scope]);
   if (scope === "public" || scope === "private") return schoolOwnership(record) === scope;
@@ -2896,7 +2886,7 @@ function renderTable() {
 function workbenchFiltersActive() {
   const f = state.filters;
   return f.year !== "all" || f.channel !== "all" || f.school !== "all" || Boolean(f.keyword)
-    || Boolean(f.schoolScope && f.schoolScope !== "all") || Boolean(f.quickCategory) || Boolean(f.dualDegreeOnly)
+    || Boolean(f.schoolScope && f.schoolScope !== "all") || Boolean(f.region) || Boolean(f.quickCategory) || Boolean(f.dualDegreeOnly)
     || Boolean(state.linkedGroup) || Boolean(advancedFilterSummaryText());
 }
 

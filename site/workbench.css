@@ -490,9 +490,7 @@
 .query-shortcuts .placement-chip-row { gap: 7px; }
 .query-shortcuts .placement-chip { min-height: 32px; padding: 0 10px; font-weight: 600; }
 .query-shortcuts .query-dual-degree { border-style: dashed; }
-/* 第二行的「TOP 10」和第一行的「全部」同寬，兩行的兩字按鍵就能上下對齊。 */
-.query-shortcuts [data-placement-school-scope="all"],
-.query-shortcuts [data-workbench-school-scope="all"],
+/* 三行的行首標籤（學校、TOP 10、地區）同寬，各行的兩字按鍵就能上下對齊。 */
 .query-shortcuts .placement-popular-label {
   box-sizing: border-box;
   width: 64px;
