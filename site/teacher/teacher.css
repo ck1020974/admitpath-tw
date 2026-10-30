@@ -64,10 +64,9 @@ body:has(.student-dialog[open]){overflow:hidden}
 .tab-count:not(:empty){display:inline-block;min-width:22px;margin-left:4px;padding:0 6px;border-radius:11px;background:#dcece7;font-size:12px;line-height:20px}
 .dialog-body{flex:1;min-height:0;padding:18px 24px 24px;overflow:auto;overscroll-behavior:contain}
 #detailStatus{font-size:14px;color:#8b362c;margin:0 0 12px}
-.tracking-list{margin:0;padding-left:24px;font-size:15px}
+.tracking-list{margin:0;padding:0;list-style:none;font-size:15px}
 .tracking-list li{padding:9px 0;border-bottom:1px solid #edf0ee}
 .tracking-list li:last-child{border-bottom:0}
-.tracking-list li::marker{color:var(--muted)}
 .track-tag{display:inline-block;min-width:64px;margin-right:12px;color:var(--muted);font-size:13px;font-variant-numeric:tabular-nums}
 .tracking-list strong{font-weight:600}
 .pill{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:36px;padding:0 14px;border:1px solid var(--line);border-radius:18px;background:var(--white);color:var(--ink);font-size:14px;font-weight:400}

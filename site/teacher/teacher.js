@@ -95,7 +95,7 @@
       const active=tracking.filter(r=>!r.removed_at);
       $('tabTrackingCount').textContent=String(active.length);
       if(!active.length)$('detailTracking').append(text('p','尚無追蹤校系。','muted'));
-      else {const list=document.createElement('ol');list.className='tracking-list';for(const row of active){const item=document.createElement('li');const tag=text('span',row.admission_year+' '+model.channelShort(row.admission_channel),'track-tag');tag.title=row.admission_year+' 學年度・'+row.admission_channel;item.append(tag,text('strong',row.school_name+' '+row.department_name));list.append(item);}$('detailTracking').append(list);}
+      else {const list=document.createElement('ul');list.className='tracking-list';for(const row of active){const item=document.createElement('li');const tag=text('span',row.admission_year+' '+model.channelShort(row.admission_channel),'track-tag');tag.title=row.admission_year+' 學年度・'+row.admission_channel;item.append(tag,text('strong',row.school_name+' '+row.department_name));list.append(item);}$('detailTracking').append(list);}
       attemptResults=latestPerAttempt(results);
       $('tabResultsCount').textContent=attemptResults.length?String(attemptResults.length):'';
       showAttempt(Math.max(0,attemptResults.length-1));message('detailStatus','');
