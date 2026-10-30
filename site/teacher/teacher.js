@@ -107,7 +107,7 @@
   function clearWorkspace(reset=true) {
     closeDialog();clearDetail();epoch++;students=[];filtered=[];summaries=new Map();summaryReady=false;$('students').replaceChildren();
     if(reset){for(const id of ['search','grade','group'])$(id).value='';fillGroups();picks={login:'',exam:'',tag:''};sort={key:'',direction:'asc'};}
-    $('workspace').hidden=true;$('logout').hidden=true;$('count').textContent='';$('empty').hidden=true;message('summaryStatus','');
+    $('workspace').hidden=true;$('filters').hidden=true;$('logout').hidden=true;$('count').textContent='';$('empty').hidden=true;message('summaryStatus','');
   }
   function showLogin() { clearWorkspace(); $('login').hidden = false; }
   function renderPills(base,now){
@@ -185,7 +185,7 @@
     students = rows;
     summaryReady=!summary.error;summaries=new Map(summaryReady?summary.value.map(r=>[r.student,r]):[]);
     message('summaryStatus',summaryReady?'':'登入與作答狀況暫時無法載入，請稍後重新整理。');
-    render();message('status','');$('workspace').hidden=false;$('logout').hidden=false;
+    render();message('status','');$('workspace').hidden=false;$('filters').hidden=false;$('logout').hidden=false;
   }
   $('showPassword').addEventListener('change', event => { form.elements.password.type = event.target.checked ? 'text' : 'password'; });
   function resetPassword() { form.elements.password.value = ''; form.elements.password.type = 'password'; $('showPassword').checked = false; }
