@@ -152,7 +152,7 @@ th:first-child,td:first-child{padding-left:20px}
 .dialog-body:has(#panelResults:not([hidden])){display:flex;flex-direction:column}
 /* 探索結果：標籤｜內容列表，不加外框 */
 .self-eval h4{font-size:14px;color:var(--accent);margin:2px 0 6px}
-.self-eval ul{display:flex;flex-wrap:wrap;gap:4px 40px;margin:0;padding-left:20px;font-size:14px}
+.self-eval ul{display:flex;flex-wrap:wrap;gap:4px 72px;margin:0;padding-left:20px;font-size:14px}
 .self-eval li{margin:7px 0}
 .result-groups{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px 20px;font-size:14px}
 .result-groups h4{font-size:14px;color:var(--accent);margin:16px 0 6px}
