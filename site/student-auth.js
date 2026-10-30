@@ -66,17 +66,30 @@
       if (!current.pathname.startsWith(target.pathname)) target.searchParams.set("return", current.pathname + current.search + current.hash);
       link.href = target.href;
       const label = link.querySelector("[data-student-account-label]");
-      if (label) label.textContent = client.current ? "我的帳號" : "登入";
+      if (label) label.textContent = client.current ? "帳號" : "登入";
     });
     const id=client.current?.id||null;
-    if(id!==previousStudentId){previousStudentId=id;root.dispatchEvent(new CustomEvent('yuhsin-auth-change',{detail:{id}}));}
+    if(id!==previousStudentId){previousStudentId=id;root.dispatchEvent(new CustomEvent('yuhsin-auth-change',{detail:{id}}));checkContact();}
+  }
+  let contactLoading;
+  function checkContact() {
+    if (!client.current) { root.YuhsinStudentContact?.check(root.YuhsinStudentAuth); return; }
+    if (client.current.role === "teacher") return;
+    if (!contactLoading) contactLoading = new Promise((resolve, reject) => {
+      const entry = root.document.createElement("script");
+      entry.src = new URL("student-contact.js?v=20261030-contact4", base).href;
+      entry.onload = resolve;
+      entry.onerror = () => { entry.remove(); contactLoading = null; reject(new Error("contact module")); };
+      root.document.body.append(entry);
+    });
+    contactLoading.then(() => root.YuhsinStudentContact.check(root.YuhsinStudentAuth)).catch(() => {});
   }
   root.YuhsinStudentAuth = { client, ready, baseUrl: base.href, safeReturnUrl, renderLinks };
   let dialogLoading;
   function openDialog() {
     if (!dialogLoading) dialogLoading = new Promise((resolve, reject) => {
       const entry = root.document.createElement("script");
-      entry.src = new URL("student-login-dialog.js?v=20261029-ui3", base).href;
+      entry.src = new URL("student-login-dialog.js?v=20261030-ui6", base).href;
       entry.onload = resolve;
       entry.onerror = () => { entry.remove(); dialogLoading = null; reject(new Error("無法載入登入視窗，請稍後再試。")); };
       root.document.body.append(entry);

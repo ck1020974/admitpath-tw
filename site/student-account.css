@@ -34,3 +34,45 @@ html.student-dialog-open { overflow: hidden; scrollbar-gutter: stable; }
 .student-dialog-account dt { color:#687c75; }
 .student-dialog-account dd { margin:0; font-weight:700; }
 @media(max-height:560px) { .student-login-dialog { padding:20px 24px; } .student-login-dialog h2 { margin-bottom:12px; } .student-dialog-form { gap:10px; } .student-dialog-status { margin-bottom:10px; } }
+
+/* 帳號視窗：信箱／接收升學資訊（筆圖示可修改） */
+.student-dialog-account dl div.student-contact-row { align-items:center; min-height:41px; }
+.student-dialog-account .student-contact-row dd { display:flex; align-items:center; gap:6px; min-width:0; }
+.student-contact-value { overflow-wrap:anywhere; text-align:right; }
+.student-contact-edit { display:grid; place-items:center; flex:none; width:28px; height:28px; padding:0; border:0; border-radius:50%; background:transparent; color:#567369; }
+.student-contact-edit:hover { background:#e6efeb; color:#137d73; }
+.student-contact-edit svg { width:16px; height:16px; }
+.student-contact-editor { display:flex; align-items:center; gap:6px; }
+.student-contact-editor input[type="email"] { width:190px; height:34px; padding:4px 8px; border:1px solid #bfcec7; border-radius:7px; background:#fff; color:#172f32; font:inherit; font-size:15px; font-weight:400; }
+.student-contact-editor input[aria-invalid="true"] { border-color:#ae3030; }
+.student-contact-toggle { display:flex; align-items:center; gap:6px; font-weight:400; }
+.student-contact-toggle input { width:18px; height:18px; margin:0; accent-color:#137d73; }
+.student-contact-save, .student-contact-cancel { min-height:34px; padding:4px 10px; border-radius:7px; font-size:13px; font-weight:700; white-space:nowrap; }
+.student-contact-save { border:0; background:#137d73; color:#fff; }
+.student-contact-cancel { border:1px solid #cfdcd6; background:#fff; color:#536762; }
+.student-contact-save:disabled, .student-contact-cancel:disabled { opacity:.6; cursor:default; }
+.student-dialog-account .student-dialog-error { margin:-6px 0 12px; }
+
+/* 首次登入：填寫信箱與同意 */
+html.student-contact-open { overflow:hidden; }
+.student-contact-dialog h2 { margin-right:0; }
+.student-contact-lead { margin:-8px 0 18px; color:#536762; }
+.student-dialog-form label.student-contact-check { display:flex; align-items:flex-start; gap:10px; font-weight:400; line-height:1.6; }
+.student-dialog-form .student-contact-check input { flex:none; width:20px; height:20px; margin:2px 0 0; padding:0; accent-color:#137d73; }
+.student-contact-check em { color:#ae3030; font-style:normal; font-size:12px; }
+.student-contact-notice-toggle { display:inline; padding:0 2px; border:0; background:none; color:#137d73; font-weight:700; text-decoration:underline; text-underline-offset:3px; }
+.student-contact-notice { padding:10px 12px; border:1px solid #dce5e0; border-radius:10px; background:#f6faf8; font-size:13px; }
+.student-contact-notice-list { margin:0; }
+.student-contact-notice-list div { display:grid; grid-template-columns:7.5em 1fr; gap:8px; padding:5px 0; border-bottom:1px dashed #dce5e0; }
+.student-contact-notice-list div:last-child { border-bottom:0; }
+.student-contact-notice-list dt { color:#687c75; }
+.student-contact-notice-list dd { margin:0; }
+.student-contact-notice-list a { color:#137d73; overflow-wrap:anywhere; }
+.student-dialog-form [aria-invalid="true"] { border-color:#ae3030; }
+.student-dialog-form .student-contact-check span { color:#172f32; font-size:14px; font-weight:400; }
+.student-dialog-account .student-contact-row dd { flex:1 1 auto; justify-content:flex-end; }
+.student-contact-editor { flex:1 1 auto; justify-content:flex-end; min-width:0; }
+.student-contact-editor input[type="email"] { flex:0 1 200px; width:auto; min-width:0; }
+.student-dialog-account .student-contact-row dt { flex:none; white-space:nowrap; }
+.student-contact-notice-text { margin:0; color:#455b55; font-size:13px; line-height:1.7; }
+.student-contact-notice-text a { color:#137d73; overflow-wrap:anywhere; }

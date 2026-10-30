@@ -117,6 +117,20 @@
         if(!Array.isArray(rows))throw new Error('無法讀取名單摘要。');
         return rows;
       },
+      async readContact(){
+        if(teacher)return null;
+        const rows=await authorized('/rest/v1/rpc/student_contact_info',{body:{}});
+        const row=Array.isArray(rows)?rows[0]:rows;
+        return row?{email:row.contact_email||'',wantsUpdates:Boolean(row.wants_updates),consentVersion:row.consent_version||'',consentAt:row.consent_at||null}:null;
+      },
+      async saveContact({email,wantsUpdates,consentVersion}){
+        if(teacher)throw new Error('教師帳號不需要填寫信箱。');
+        const value=String(email||'').trim();
+        if(value.length>254||!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(value))throw Object.assign(new Error('信箱格式不正確，請重新輸入。'),{status:400,field:'email'});
+        if(!/^\d{4}-\d{2}-\d{2}$/.test(consentVersion||''))throw new Error('請先勾選同意蒐集說明。');
+        try{const rows=await authorized('/rest/v1/rpc/student_save_contact',{body:{email_value:value,updates_value:Boolean(wantsUpdates),consent_value:consentVersion}});const row=Array.isArray(rows)?rows[0]:rows;return{email:row?.contact_email||value,wantsUpdates:Boolean(row?.wants_updates),consentVersion:row?.consent_version||consentVersion,consentAt:row?.consent_at||null};}
+        catch(error){if(error.status===400)throw Object.assign(new Error('信箱格式不正確，請重新輸入。'),{status:400,field:'email'});if(error.status===404)throw Object.assign(new Error('信箱功能尚未開放，請稍後再試。'),{status:404});throw error;}
+      },
       async syncRecords(body,expectedOwner){
         if(teacher)throw new Error('教師帳號不能代替學生儲存探索資料。');
         return authorized('/functions/v1/student-records',{body},expectedOwner);
