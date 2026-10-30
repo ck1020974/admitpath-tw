@@ -27,13 +27,6 @@ tbody tr:hover{background:#f3f8f5}
 .inactive{font-size:11px;color:#8c3229;padding-left:5px}
 #empty{padding:12px 18px;color:var(--muted);font-size:14px}
 .student-heading{min-width:0}
-.result-history{border:1px solid var(--line);border-radius:8px;padding:14px;margin:10px 0}
-.result-history>summary{font-weight:600;font-size:14px;cursor:pointer;min-height:24px}
-.result-history details{margin:16px 0;font-size:14px}
-.result-history li{margin:7px 0}
-.result-groups{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px 20px;font-size:14px}
-.result-groups h4{font-size:14px;color:var(--accent);margin:16px 0 6px}
-.result-groups ul{padding-left:20px;margin:0}
 .muted,.version-info{color:var(--muted);font-size:13px}
 .version-info{overflow-wrap:anywhere;margin-bottom:0}
 
@@ -135,25 +128,21 @@ th.right,td.right{text-align:right}
 td.num{font-variant-numeric:tabular-nums}
 th:first-child,td:first-child{padding-left:20px}
 /* On desktop the roster fills the remaining window height, so there is no empty strip below it. */
-@media(min-width:700px) and (min-height:560px){
+@media(min-width:700px) and (min-height:460px){
   body{height:100dvh;display:flex;flex-direction:column}
   main{flex:1;min-height:0;width:100%;display:flex;flex-direction:column}
   #workspace:not([hidden]){flex:1;min-height:0;display:flex;flex-direction:column}
   .roster-panel{flex:1;min-height:0;display:flex;flex-direction:column}
-  .table-wrap{flex:1;max-height:none}
+  .table-wrap{flex:1;max-height:none;min-height:160px}
 }
 @media(max-width:1100px){.stat-groups{grid-template-columns:1fr}.stat-group+.stat-group{padding-left:0;border-left:0}th.c-name{width:20%}th.c-group{width:12%}th.c-track{width:13%}th.c-login{width:22%;padding-left:20px}td.login-cell{padding-left:20px}}
-@media(max-width:700px){.topbar-inner{padding:8px 20px}main{padding:18px 16px 24px}h1{font-size:22px}.filters{width:100%}.filters select{flex:1}.filters .search{width:100%}.stat-group{flex-direction:column;align-items:stretch;gap:6px}.stat-group .pills{grid-template-columns:repeat(2,minmax(0,1fr))}.login{padding:22px}.result-groups{grid-template-columns:1fr}.overview{padding:12px}.dialog-head{align-items:flex-start}}
+@media(max-width:700px){.topbar-inner{padding:8px 20px}main{padding:18px 16px 24px}h1{font-size:22px}.filters{width:100%}.filters select{flex:1}.filters .search{width:100%}.stat-group{flex-direction:column;align-items:stretch;gap:6px}.stat-group .pills{grid-template-columns:repeat(2,minmax(0,1fr))}.login{padding:22px}.result-types,.eval-grid{grid-template-columns:1fr}.overview{padding:12px}.dialog-head{align-items:flex-start}}
 [hidden]{display:none!important}
 .dialog-nav .round-button{font-size:24px;line-height:1;color:var(--accent);padding-bottom:3px}
 .dialog-nav .round-button:disabled{opacity:.35;cursor:default}
 #panelResults:not([hidden]){display:flex;flex-direction:column;min-height:100%}
 #detailResults{flex:1;display:flex;flex-direction:column}
 .result-view{flex:1}
-.result-view .result-groups{margin-top:-8px}
-.result-view>details{margin:18px 0 0;font-size:14px}
-.result-view>details>summary{cursor:pointer;font-weight:600;color:var(--muted)}
-.result-view li{margin:7px 0}
 .result-foot{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:20px;padding-top:12px;border-top:1px solid #edf0ee}
 .result-foot .muted{margin:0}
 .result-pager{display:flex;align-items:center;gap:10px;margin-left:auto}
@@ -161,3 +150,28 @@ th:first-child,td:first-child{padding-left:20px}
 .result-pager .round-button:disabled{opacity:.35;cursor:default}
 .pager-label{min-width:44px;text-align:center;font-size:14px;font-variant-numeric:tabular-nums;color:var(--ink)}
 .dialog-body:has(#panelResults:not([hidden])){display:flex;flex-direction:column}
+/* 探索結果：標籤｜內容列表，不加外框 */
+.self-eval h4{font-size:14px;color:var(--accent);margin:2px 0 6px}
+.self-eval ul{display:flex;flex-wrap:wrap;gap:4px 72px;margin:0;padding-left:20px;font-size:14px}
+.self-eval li{margin:7px 0}
+.result-groups{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px 20px;font-size:14px}
+.result-groups h4{font-size:14px;color:var(--accent);margin:16px 0 6px}
+.result-groups ul{padding-left:20px;margin:0}
+.result-groups li{margin:7px 0}
+.answer-details{margin-top:20px}
+.answer-details>summary{cursor:pointer;font-size:14px;font-weight:600;color:var(--accent);width:max-content}
+.answer-details h5{margin:16px 0 6px;font-size:13px;color:var(--muted)}
+.answer-list{list-style:none;margin:0;padding:0}
+.answer-list li{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:7px 0;border-bottom:1px solid #f0f2f1;font-size:14px}
+.answer-q{min-width:0}
+.answer-badge{flex:none;padding:1px 10px;border-radius:11px;font-size:12px;background:#eef1f0;color:#6b7774}
+.answer-badge.a3,.answer-badge.m4{background:var(--accent);color:#fff}
+.answer-badge.a2,.answer-badge.m3{background:#dcefe9;color:#0f665e}
+.answer-badge.a0,.answer-badge.m0,.answer-badge.m1{background:#f6ebe7;color:#8a3f17}
+.version-info{margin:12px 0 0}
+@media(max-width:700px){.result-groups{grid-template-columns:1fr}}
+/* Screen-reader-only text inside the roster must stay inside its scroll area, or the whole page gets a second scrollbar. */
+.table-wrap{position:relative}
+/* While a student window is open, only the window itself scrolls. */
+body:has(.student-dialog[open]) .table-wrap{overflow:hidden}
+html:has(.student-dialog[open]){overflow:hidden}
