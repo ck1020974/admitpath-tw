@@ -57,7 +57,7 @@
         const rows = await request('/rest/v1/teacher_access?' + query, { token: tokens.access_token });
         const access = Array.isArray(rows) && rows.length === 1 ? rows[0] : null;
         if (!access?.active || access.id !== user.id) throw Object.assign(new Error('此帳號沒有教師權限，請聯絡管理者。'), { status: 403 });
-        current = { id: access.id, name: access.name, role: 'teacher', allGroups: access.all_groups, teachingGroups: access.teaching_groups || [] };
+        current = { id: access.id, name: access.name, role: 'teacher', allGroups: access.all_groups, teachingGroups: access.teaching_groups || [], canManageAccounts: access.can_manage_accounts === true };
         return current;
       }
       const query = new URLSearchParams({ select: 'id,student_id,name,teaching_group,original_class,original_seat_number,active', id: 'eq.' + user.id, limit: '1' });
@@ -116,6 +116,25 @@
         const rows=await authorized('/rest/v1/rpc/teacher_roster_summary',{body:{}});
         if(!Array.isArray(rows))throw new Error('無法讀取名單摘要。');
         return rows;
+      },
+      async readContact(){
+        if(teacher)return null;
+        const rows=await authorized('/rest/v1/rpc/student_contact_info',{body:{}});
+        const row=Array.isArray(rows)?rows[0]:rows;
+        return row?{email:row.contact_email||'',wantsUpdates:Boolean(row.wants_updates),consentVersion:row.consent_version||'',consentAt:row.consent_at||null}:null;
+      },
+      async saveContact({email,wantsUpdates,consentVersion}){
+        if(teacher)throw new Error('教師帳號不需要填寫信箱。');
+        const value=String(email||'').trim();
+        if(value.length>254||!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(value))throw Object.assign(new Error('信箱格式不正確，請重新輸入。'),{status:400,field:'email'});
+        if(!/^\d{4}-\d{2}-\d{2}$/.test(consentVersion||''))throw new Error('請先勾選同意蒐集說明。');
+        try{const rows=await authorized('/rest/v1/rpc/student_save_contact',{body:{email_value:value,updates_value:Boolean(wantsUpdates),consent_value:consentVersion}});const row=Array.isArray(rows)?rows[0]:rows;return{email:row?.contact_email||value,wantsUpdates:Boolean(row?.wants_updates),consentVersion:row?.consent_version||consentVersion,consentAt:row?.consent_at||null};}
+        catch(error){if(error.status===400)throw Object.assign(new Error('信箱格式不正確，請重新輸入。'),{status:400,field:'email'});if(error.status===404)throw Object.assign(new Error('信箱功能尚未開放，請稍後再試。'),{status:404});throw error;}
+      },
+      async adminContacts(){
+        if(!teacher||!current?.canManageAccounts)return [];
+        const rows=await authorized('/rest/v1/rpc/admin_student_contacts',{body:{}});
+        return Array.isArray(rows)?rows:[];
       },
       async syncRecords(body,expectedOwner){
         if(teacher)throw new Error('教師帳號不能代替學生儲存探索資料。');

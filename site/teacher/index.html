@@ -4,9 +4,16 @@
   <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
   <meta name="robots" content="noindex,nofollow"><meta name="referrer" content="no-referrer">
   <title>教師後台｜YUHSIN 祐馨升學網</title>
-  <link rel="stylesheet" href="./teacher.css?v=20261030-rv10">
+  <link rel="stylesheet" href="../support.css?v=20261029-contact">
+  <link rel="stylesheet" href="../site-header.css?v=20261030-teacher1">
+  <link rel="stylesheet" href="../student-account.css?v=20261030-teacher1">
+  <link rel="stylesheet" href="./teacher.css?v=20261030-teacher1">
   <script defer src="../student-auth-config.js?v=20261029-auth1"></script>
-  <script defer src="../student-supabase.js?v=20261030-rv10"></script>
+  <script defer src="../student-supabase.js?v=20261030-teacher1"></script>
+  <script defer src="../student-auth.js?v=20261030-teacher1"></script>
+  <script defer src="../contact-config.js?v=20261023-tweak"></script>
+  <script defer src="../support-config.js?v=20261015"></script>
+  <script defer src="../support.js?v=20261029-contact"></script>
   <script defer src="../explore/curiosity/bank.js?v=20261029-records1"></script>
   <script defer src="../explore/curiosity/collego-reference.js?v=20261029-records1"></script>
   <script defer src="../explore/curiosity/curriculum.js?v=20261029-records1"></script>
@@ -14,14 +21,17 @@
   <script defer src="../explore/curiosity/subjects.js?v=20261029-records1"></script>
   <script defer src="../explore/curiosity/exploration-model.js?v=20261029-records1"></script>
   <script defer src="../explore/curiosity/data.js?v=20261029-records1"></script>
-  <script defer src="./teacher-model.js?v=20261030-rv10"></script>
-  <script defer src="./teacher.js?v=20261030-rv10"></script>
+  <script defer src="./teacher-model.js?v=20261030-teacher1"></script>
+  <script defer src="./teacher.js?v=20261030-teacher1"></script>
 </head>
 <body>
-  <header class="topbar"><div class="topbar-inner">
-    <a class="brand" href="../" aria-label="回到祐馨升學網首頁"><span class="brand-mark" aria-hidden="true">Y</span><span class="brand-text"><strong>YUHSIN</strong><span>祐馨升學網</span></span></a>
-    <button id="logout" type="button" class="round-button" aria-label="登出教師後台" title="登出" hidden><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 4H5v16h5M14 8l4 4-4 4M9 12h10"/></svg></button>
-  </div></header>
+  <header class="site-header">
+   <div class="site-header-inner">
+    <a class="brand" href="../"><span class="brand-mark">Y</span><span class="brand-text"><strong>YUHSIN</strong><small>祐馨升學網</small></span></a>
+    <button class="site-menu" id="siteMenu" type="button" aria-expanded="false" aria-controls="siteNav"><svg viewBox="0 0 20 20" width="20" height="20" aria-hidden="true"><path d="M3 6h14M3 10h14M3 14h14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg><span>選單</span></button>
+  <nav class="site-nav" id="siteNav" aria-label="主選單"><div class="nav-group"><a class="nav-primary" href="../explore/curiosity/">學群探索</a><a href="../#explorer">十八學群</a><a href="../#workbench">校系查詢</a><a href="../#placement">落點分析</a><a href="../#compare">追蹤清單</a></div><a class="student-account-entry" data-student-account href="../login/"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><circle cx="10" cy="6" r="3"/><path d="M4 17v-2a6 6 0 0 1 12 0v2"/></svg><span data-student-account-label>登入</span></a><button class="nav-support support-entry" id="supportAuthorButton" type="button" aria-haspopup="dialog" aria-controls="supportDialog" aria-label="預約諮詢與贊助" title="預約諮詢與贊助" hidden><span class="support-entry-heart" aria-hidden="true">♡</span><span class="nav-support-label">支持作者</span></button></nav>
+   </div>
+  </header>
   <main>
     <div class="page-head">
       <h1>教師後台</h1>
@@ -32,16 +42,9 @@
       </div>
     </div>
     <p id="status" role="status">正在確認登入狀態…</p>
-    <section id="login" class="login" aria-labelledby="loginTitle" hidden>
-      <h2 id="loginTitle">教師登入</h2>
-      <p>使用授權的教師帳號查看學生名單。</p>
-      <form method="post">
-        <label>帳號<input name="username" autocomplete="username" pattern="[A-Za-z][A-Za-z0-9]{5,31}" maxlength="32" spellcheck="false" autocapitalize="off" required></label>
-        <label>密碼<input name="password" type="password" autocomplete="current-password" maxlength="128" required></label>
-        <label class="show"><input id="showPassword" type="checkbox">顯示密碼</label>
-        <p id="loginError" role="alert" hidden></p>
-        <button type="submit">登入教師後台</button>
-      </form>
+    <section id="signedOut" class="login" aria-label="尚未登入教師帳號" hidden>
+      <p>請先點右上角「登入」，使用授權的教師帳號登入後，再從「帳號」進入教師後台。</p>
+      <button type="button" data-student-account>登入</button>
     </section>
     <section id="workspace" aria-labelledby="rosterTitle" hidden>
       <section class="roster-panel" aria-labelledby="rosterTitle">
@@ -80,5 +83,32 @@
       </div>
     </dialog>
   </main>
+<dialog class="support-dialog" id="supportDialog" aria-labelledby="supportTitle" aria-describedby="supportIntro">
+    <div class="support-dialog-top">
+      <span class="support-eyebrow">YUHSIN · 祐馨升學網</span>
+      <form method="dialog"><button class="support-close" type="submit" aria-label="關閉支持作者視窗" autofocus>×</button></form>
+    </div>
+    <div class="support-content">
+      <div class="support-heading">
+        <span class="support-heart" aria-hidden="true">♡</span>
+        <h2 id="supportTitle">讓升學路上少一點迷惘</h2>
+      </div>
+      <p class="support-intro" id="supportIntro">我是一位中學公民科教師，自學程式設計，希望透過這個網站，陪學生把升學的選擇看得更清楚。你的支持，讓這份課堂外的陪伴持續下去。</p>
+      <div class="support-purpose">
+        <p><strong>每一份支持，都用在這裡</strong></p>
+        <ul><li>招生資料整理與更新</li><li>查詢工具改善與網站維護</li></ul>
+      </div>
+      <div class="support-payment">
+        <div class="support-actions">
+          <a class="support-pay-button support-booking-button" id="supportBookingLink" hidden>預約諮詢</a>
+          <button class="support-pay-button support-booking-button" id="supportBookingPending" type="button" disabled>預約諮詢</button>
+        <button class="support-pay-button" id="supportPaymentPending" type="button" disabled title="尚未開放贊助">贊助</button>
+        <a class="support-pay-button" id="supportPaymentLink" target="_blank" rel="noopener noreferrer" hidden>贊助 <span aria-hidden="true">↗</span><span class="support-sr-only">（在新分頁開啟付款平台）</span></a>
+        </div>
+        <p class="support-payment-note" id="supportPendingNote">贊助功能尚未開放。</p>
+        <p class="support-payment-note" id="supportPaymentNote" hidden>單次自由贊助，金額於付款平台填寫。付款、交易紀錄及相關聯絡方式請於平台確認。</p>
+      </div>
+    </div>
+  </dialog>
   <noscript>請開啟 JavaScript 以使用教師登入。</noscript>
 </body></html>

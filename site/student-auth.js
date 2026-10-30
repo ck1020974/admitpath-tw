@@ -58,6 +58,12 @@
   let sessionStorage; try { sessionStorage = root.sessionStorage; } catch {}
   const client = createClient({ config: root.YUHSIN_STUDENT_AUTH_CONFIG, fetcher: root.fetch.bind(root), origin: root.location.origin, storage: sessionStorage });
   const ready = client.session();
+  // 教師帳號與學生共用右上角「帳號」入口；教師的登入狀態另外保存。
+  let teacherClient = null;
+  if (root.YUHSIN_STUDENT_AUTH_CONFIG?.provider === "supabase" && root.YuhsinSupabaseAuth) {
+    try { teacherClient = root.YuhsinSupabaseAuth.createClient({ config: { ...root.YUHSIN_STUDENT_AUTH_CONFIG, accountType: "teacher" }, fetcher: root.fetch.bind(root), storage: sessionStorage }); } catch {}
+  }
+  const teacherReady = teacherClient ? teacherClient.session().catch(() => null) : Promise.resolve(null);
   let previousStudentId;
   function renderLinks() {
     root.document.querySelectorAll("[data-student-account]").forEach(link => {
@@ -66,17 +72,30 @@
       if (!current.pathname.startsWith(target.pathname)) target.searchParams.set("return", current.pathname + current.search + current.hash);
       link.href = target.href;
       const label = link.querySelector("[data-student-account-label]");
-      if (label) label.textContent = client.current ? "我的帳號" : "登入";
+      if (label) label.textContent = client.current || teacherClient?.current ? "帳號" : "登入";
     });
     const id=client.current?.id||null;
-    if(id!==previousStudentId){previousStudentId=id;root.dispatchEvent(new CustomEvent('yuhsin-auth-change',{detail:{id}}));}
+    if(id!==previousStudentId){previousStudentId=id;root.dispatchEvent(new CustomEvent('yuhsin-auth-change',{detail:{id}}));checkContact();}
   }
-  root.YuhsinStudentAuth = { client, ready, baseUrl: base.href, safeReturnUrl, renderLinks };
+  let contactLoading;
+  function checkContact() {
+    if (!client.current) { root.YuhsinStudentContact?.check(root.YuhsinStudentAuth); return; }
+    if (client.current.role === "teacher") return;
+    if (!contactLoading) contactLoading = new Promise((resolve, reject) => {
+      const entry = root.document.createElement("script");
+      entry.src = new URL("student-contact.js?v=20261030-contact4", base).href;
+      entry.onload = resolve;
+      entry.onerror = () => { entry.remove(); contactLoading = null; reject(new Error("contact module")); };
+      root.document.body.append(entry);
+    });
+    contactLoading.then(() => root.YuhsinStudentContact.check(root.YuhsinStudentAuth)).catch(() => {});
+  }
+  root.YuhsinStudentAuth = { client, ready, teacherClient, teacherReady, baseUrl: base.href, safeReturnUrl, renderLinks };
   let dialogLoading;
   function openDialog() {
     if (!dialogLoading) dialogLoading = new Promise((resolve, reject) => {
       const entry = root.document.createElement("script");
-      entry.src = new URL("student-login-dialog.js?v=20261029-ui3", base).href;
+      entry.src = new URL("student-login-dialog.js?v=20261030-ui7", base).href;
       entry.onload = resolve;
       entry.onerror = () => { entry.remove(); dialogLoading = null; reject(new Error("無法載入登入視窗，請稍後再試。")); };
       root.document.body.append(entry);
@@ -84,7 +103,7 @@
     return dialogLoading.then(() => root.YuhsinStudentAuth.openDialog());
   }
   const boot = () => {
-    renderLinks(); ready.then(renderLinks).catch(() => {});
+    renderLinks(); ready.then(renderLinks).catch(() => {}); teacherReady.then(renderLinks);
     root.document.addEventListener("click", event => {
       const link = event.target.closest("[data-student-account]");
       if (!link || event.ctrlKey || event.metaKey || event.shiftKey || event.altKey) return;

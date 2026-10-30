@@ -177,3 +177,9 @@ th:first-child,td:first-child{padding-left:20px}
 /* While a student window is open, only the window itself scrolls. */
 body:has(.student-dialog[open]) .table-wrap{overflow:hidden}
 html:has(.student-dialog[open]){overflow:hidden}
+#detailIdentity .identity-email{display:inline-flex;align-items:center;gap:6px}
+#detailIdentity .identity-email a{color:var(--accent);text-decoration:none;overflow-wrap:anywhere}
+#detailIdentity .identity-email a:hover{text-decoration:underline}
+#detailIdentity .copy-email{min-height:24px;padding:1px 8px;border:1px solid var(--line);border-radius:999px;background:var(--white);color:var(--muted);font-size:12px;font-weight:600;line-height:1.4;cursor:pointer}
+#detailIdentity .copy-email:hover{color:var(--accent);border-color:var(--accent)}
+#detailIdentity .identity-email::before{margin:0 4px 0 10px}
