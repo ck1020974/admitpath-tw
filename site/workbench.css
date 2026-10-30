@@ -489,7 +489,19 @@
 .query-shortcuts .placement-popular-categories { margin-top: 10px; gap: 7px; }
 .query-shortcuts .placement-chip-row { gap: 7px; }
 .query-shortcuts .placement-chip { min-height: 32px; padding: 0 10px; font-weight: 600; }
-.query-shortcuts .query-dual-degree { margin-left: 8px; border-style: dashed; }
+.query-shortcuts .query-dual-degree { border-style: dashed; }
+/* 第二行的「TOP 10」和第一行的「全部」同寬，兩行的兩字按鍵就能上下對齊。 */
+.query-shortcuts [data-placement-school-scope="all"],
+.query-shortcuts [data-workbench-school-scope="all"],
+.query-shortcuts .placement-popular-label {
+  box-sizing: border-box;
+  width: 64px;
+  padding: 0;
+  justify-content: center;
+  text-align: center;
+}
+.query-shortcuts .placement-popular-label { display: inline-flex; align-items: center; min-height: 32px; }
+.query-shortcuts .placement-area-label { margin-left: 14px; color: var(--ink); font-size: 13px; font-weight: 700; white-space: nowrap; }
 .query-shortcuts .placement-chip:focus-visible { outline: 3px solid #176b88; outline-offset: 2px; }
 @media (max-width: 720px) {
   .query-shortcuts { padding: 10px; }
@@ -501,7 +513,7 @@
     scrollbar-width: thin;
     scrollbar-color: #b6cfca transparent;
   }
-  .query-shortcuts .placement-chip, .query-shortcuts .placement-popular-label { flex-shrink: 0; white-space: nowrap; }
+  .query-shortcuts .placement-chip, .query-shortcuts .placement-popular-label, .query-shortcuts .placement-area-label { flex-shrink: 0; white-space: nowrap; }
 }
 
 /* ── 四技申請（科大）：磚紅色，和個申的青綠、繁星的橘黃、分發的藍、特選的紫區分 ── */

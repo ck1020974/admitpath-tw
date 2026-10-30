@@ -1856,6 +1856,8 @@ function refreshQueryYears(select, filters) {
   const years = [...new Set(state.records
     .filter(record => !filters.channel || filters.channel === "all" || record.channelKey === filters.channel)
     .map(record => String(record.year)).filter(Boolean))].sort((a, b) => b.localeCompare(a, "en"));
+  // 落點分析預設看最近一個年度；學生自己改過年度選單後就照他的選擇。
+  if (filters.yearAuto && years.length) filters.year = years[0];
   if (!years.includes(filters.year)) filters.year = "all";
   placementFilterOptions(select, years, "全部年度", filters.year, year => `${year}年度`);
 }
@@ -2022,6 +2024,7 @@ function defaultPlacementState() {
     groups: [],
     categories: [],
     year: "all",
+    yearAuto: true,
     channel: "personal_application",
     school: "all",
     schoolScope: "all",
@@ -2101,7 +2104,10 @@ function bindPlacementEvents() {
   });
   document.getElementById("placementOpenAdvancedFiltersButton")?.addEventListener("click", openAdvancedFilters);
   document.getElementById("placementResetFiltersButton")?.addEventListener("click", resetPlacementFilters);
-  els.placementYearFilter?.addEventListener("change", updatePlacementResultFilters);
+  els.placementYearFilter?.addEventListener("change", () => {
+    state.placement.yearAuto = false;
+    updatePlacementResultFilters();
+  });
   els.placementSchoolFilter?.addEventListener("change", updatePlacementResultFilters);
   els.placementChannelFilter?.addEventListener("change", () => {
     const value = els.placementChannelFilter.value;
@@ -2243,7 +2249,7 @@ function updatePlacementResultFilters() {
 }
 
 function resetPlacementFilters() {
-  Object.assign(state.placement, { year: "all", school: "all", keyword: "", schoolScope: "all", quickCategory: "", dualDegreeOnly: false,
+  Object.assign(state.placement, { year: "all", yearAuto: true, school: "all", keyword: "", schoolScope: "all", quickCategory: "", dualDegreeOnly: false,
     groups: [], categories: [], schoolOwnership: "all", topUniversityOnly: false, specialAdmissionMode: "exclude" });
   state.filters.advanced = defaultAdvancedFilters();
   advancedFilterDraft = null;
@@ -2255,7 +2261,7 @@ function resetPlacementFilters() {
 function renderPlacementControls() {
   renderQueryShortcuts("placementQuickFilters", state.placement);
   const reset = document.getElementById("placementResetFiltersButton");
-  if (reset) reset.hidden = !(state.placement.year !== "all" || state.placement.school !== "all" || state.placement.keyword
+  if (reset) reset.hidden = !(!state.placement.yearAuto || state.placement.school !== "all" || state.placement.keyword
     || state.placement.schoolScope !== "all" || state.placement.quickCategory || state.placement.dualDegreeOnly || state.placement.groups.length || state.placement.categories.length
     || state.placement.schoolOwnership !== "all" || state.placement.topUniversityOnly || advancedFilterSummaryText());
   const channel = state.placement.channel;
@@ -2799,6 +2805,8 @@ function placementSchoolScopeAllows(record, scope = "all") {
   if (areas[scope]) return AdmissionCatalog.matchesArea(record, areas[scope]);
   if (scope === "public" || scope === "private") return schoolOwnership(record) === scope;
   if (scope === "top") return isTopUniversity(record);
+  // 科大：四技申請的校系（科技大學、技術學院與招四技的大學）。
+  if (scope === "tech") return record.channelKey === "tech_application";
   if (scope === "central") return ["國立中央大學", "國立中興大學", "國立中山大學", "國立中正大學"].includes(record.schoolName);
   if (scope === "teacher") {
     return [
@@ -2812,6 +2820,7 @@ function placementSchoolScopeAllows(record, scope = "all") {
     nycu: ["國立陽明交通大學", "陽明交通大學"],
     ncku: ["國立成功大學", "成功大學"],
     nccu: ["國立政治大學", "政治大學"],
+    ntpu: ["國立臺北大學", "國立台北大學", "臺北大學", "台北大學"],
     scu: ["東吳大學"],
   };
   if (schoolScopes[scope]) return schoolScopes[scope].some((name) => normalize(name) === normalize(record.schoolName));
