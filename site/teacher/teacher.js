@@ -167,7 +167,7 @@
       row.append(loginCell,trackCell,examCell,text('td','›','chev'));
       fragment.append(row);
     }
-    $('students').replaceChildren(fragment);$('count').textContent=(filtered.length===baseList.length?'':filtered.length+' / ')+baseList.length+' 位學生';$('empty').hidden=filtered.length!==0;
+    $('students').replaceChildren(fragment);$('count').textContent=(filtered.length===baseList.length?'':filtered.length+' / ')+baseList.length;$('count').setAttribute('aria-label','顯示 '+filtered.length+' 位，共 '+baseList.length+' 位學生');$('empty').hidden=filtered.length!==0;
     if(dialog.open)updateNav();
   }
   for(const th of document.querySelectorAll('th[data-sort]'))th.querySelector('button').addEventListener('click',()=>{
@@ -202,7 +202,7 @@
   });
   for(const value of model.gradeOptions){
     const option=document.createElement('option');option.value=value;
-    if(value.startsWith('G')){option.textContent=value+' 全年級';option.className='grade-all';}else option.textContent=value+' 班';
+    if(value.startsWith('G')){option.textContent=value;option.className='grade-all';}else option.textContent=value+' 班';
     $('grade').append(option);
   }
   // Only list 班群 that belong to the chosen 年級, and reset an incompatible choice.
