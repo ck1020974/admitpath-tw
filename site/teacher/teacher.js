@@ -19,15 +19,11 @@
     const data=window.YuhsinCuriosityData,report=row.report||{groups:[]},snapshot=row.answers||{};
     const profile=snapshot.profile||{strong:[],weak:[]},subject=id=>data.subjects.find(s=>s.id===id)?.label||id;
     const item=document.createElement('div');item.className='result-view';
-    // 學科自評與探索結果用「標籤｜內容」的列表呈現，不加外框。
-    const rows=document.createElement('dl');rows.className='result-rows';
-    const addRow=(label,node,className)=>{const dt=text('dt',label);const dd=document.createElement('dd');dd.append(node);if(className){dt.className=className;dd.className=className;}rows.append(dt,dd);};
+    // 學科自評用跟學群相同的寫法：綠色標題＋一般文字。
     const level=data.levelOptions?.find(o=>o.value===profile.level)?.label||{high:'前段',mid:'中間',low:'後段'}[profile.level]||'—';
-    const evalLine=document.createElement('span');evalLine.className='eval-line';
-    const part=(label,value,cls)=>{const span=document.createElement('span');span.append(text('span',label+' ','eval-label'),text('span',value||'—',cls));return span;};
-    evalLine.append(part('整體',level,'eval-level'),part('拿手',(profile.strong||[]).map(subject).join('、'),'eval-strong'),part('吃力',(profile.weak||[]).map(subject).join('、'),'eval-weak'));
-    addRow('學科自評',evalLine,'row-eval');
-    item.append(rows);
+    const evalBox=document.createElement('section');evalBox.className='self-eval';
+    evalBox.append(text('h4','學科自評'),text('p','整體程度：'+level+'｜拿手：'+((profile.strong||[]).map(subject).join('、')||'—')+'｜吃力：'+((profile.weak||[]).map(subject).join('、')||'—')));
+    item.append(evalBox);
     // 學群沿用原本的呈現：類型標題＋學群清單，兩欄排列。
     const cards=document.createElement('div');cards.className='result-groups';
     for(const type of ['priority','develop','potential','interest']){
