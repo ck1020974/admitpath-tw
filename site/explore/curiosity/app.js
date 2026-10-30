@@ -236,7 +236,14 @@
  // 分頁下方的白話說明，學生不用先學分類名詞。
  const infoIcon='<svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M12 11v5M12 8h.01" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>';
  // 卡片放學群簡介；學生想知道的題目改放在 ⓘ 推薦依據裡。
- function cardWhy(row){return `<p class="card-about">${esc(data.descriptions[row.id])}</p>`;}
+ function cardWhy(row){return `<p class="card-about">${esc(row.undeclared?undeclaredText(row):data.descriptions[row.id])}</p>`;}
+ // 不分系沒有自己的題目，卡片與推薦依據改用推薦的情況說明。
+ function undeclaredText(row){
+  if(row.undeclaredReason==='broad')return `你想知道的問題橫跨${row.domains.join('、')}，可以先入學，大一大二多修課再選主修。`;
+  if(row.undeclaredReason==='unclear')return '還沒有明確的方向也沒關係，可以先入學，大一大二多修課再選主修。';
+  return '先入學、大一大二多修課，再決定主修的升學方式。';
+ }
+ const groupLink=row=>row.undeclared?mainLink(row.name,'不分系學類'):mainLink(row.name);
  // 卡片底部：一句話說明基礎。
  function cardMeta(row){
   if(row.type==='develop'){const weak=row.subjects.filter(s=>s.weight===3&&typeof s.value==='number'&&s.value<2.75).map(s=>s.label);if(weak.length)return ['可加強',weak.join('、')];}
@@ -247,15 +254,9 @@
   return `<div class="card-foot">${meta?`<span class="card-meta"><b>${esc(meta[0])}</b>${esc(meta[1])}</span>`:'<span></span>'}<span class="card-go" aria-hidden="true">${esc(go)}</span></div>`;
  }
  function card(row){
-  const cats=((intros[row.name]||{}).topCategories||[]).slice(0,3).map(c=>c.label.replace(/學類$/,''));
+  const cats=row.undeclared?['入學後再選主修']:((intros[row.name]||{}).topCategories||[]).slice(0,3).map(c=>c.label.replace(/學類$/,''));
   const name=short(row.name);
-  return `<article class="group-card"><div class="card-head"><h3><a class="group-link" href="${esc(mainLink(row.name))}">${esc(name)}</a></h3><button class="info-button" type="button" data-evidence="${row.id}" aria-haspopup="dialog" aria-controls="evidenceDialog" aria-label="${esc(name)}的推薦依據" title="推薦依據">${infoIcon}</button></div>${cats.length?`<p class="card-cats">${cats.map(esc).join('、')}</p>`:''}${cardWhy(row)}${cardFoot(cardMeta(row),'看學群介紹')}</article>`;
- }
- // 不分系：不屬於任何一種方向，只在第一個分頁的最後放一張，用虛線框和其他學群區分。
- function undeclaredCard(){
-  const und=report&&report.undeclared;if(!und)return '';
-  const text=und.reason==='broad'?`你想知道的問題橫跨${und.domains.join('、')}，可以先入學，大一大二多修課再選主修。`:'還沒有明確的方向也沒關係，可以先入學，大一大二多修課再選主修。';
-  return `<article class="group-card undeclared-card"><div class="card-head"><h3><a class="group-link" href="${esc(mainLink(und.group,'不分系學類'))}">不分系</a></h3></div><p class="card-cats">也可以考慮</p><p class="card-about">${esc(text)}</p>${cardFoot(null,'看不分系校系')}</article>`;
+  return `<article class="group-card"><div class="card-head"><h3><a class="group-link" href="${esc(groupLink(row))}">${esc(name)}</a></h3><button class="info-button" type="button" data-evidence="${row.id}" aria-haspopup="dialog" aria-controls="evidenceDialog" aria-label="${esc(name)}的推薦依據" title="推薦依據">${infoIcon}</button></div>${cats.length?`<p class="card-cats">${cats.map(esc).join('、')}</p>`:''}${cardWhy(row)}${cardFoot(cardMeta(row),row.undeclared?'看不分系校系':'看學群介紹')}</article>`;
  }
  const availableTypes=()=>sectionTypes.filter(t=>report.groups.some(g=>g.type===t));
  function renderTabs(focus=false){
@@ -266,7 +267,7 @@
   // 整張底紙的顏色跟著目前的分頁（見 styles.css 的 [data-type]）。
   el('sheet').dataset.type=tab;
   el('panelHint').textContent=data.resultTypes[tab].text;
-  el('resultCards').innerHTML=report.groups.filter(g=>g.type===tab).map(card).join('')+(tab===types[0]?undeclaredCard():'');
+  el('resultCards').innerHTML=report.groups.filter(g=>g.type===tab).map(card).join('');
   if(focus)el('tab-'+tab).focus();
  }
  function renderResults(){
@@ -278,11 +279,11 @@
   el('resultsTitle').textContent='你的探索方向';
   el('resultTabs').hidden=!types.length;el('resultPanel').hidden=!types.length;el('emptyResult').hidden=Boolean(types.length);
   if(types.length)renderTabs();
-  else{el('sheet').dataset.type='none';el('emptyCards').innerHTML=undeclaredCard();}
+  else{el('sheet').dataset.type='none';el('emptyCards').innerHTML='';}
   const others=report.groups.filter(g=>g.type==='other');
   el('otherGroups').hidden=!others.length;
   el('otherGroupsTitle').textContent=`其他學群（${others.length}）`;
-  el('otherGroupList').innerHTML=others.map(g=>`<a href="${esc(mainLink(g.name))}">${esc(short(g.name))}</a>`).join('');
+  el('otherGroupList').innerHTML=others.map(g=>`<a href="${esc(groupLink(g))}">${esc(short(g.name))}</a>`).join('');
   el('resultActions').hidden=report.deep&&!report.canExplore&&session.extraComplete();
   el('startDeep').hidden=report.deep;
   // 重新測驗：每個學群再問 1 題沒看過的題目；上一批沒答完時改成「繼續」。
@@ -304,14 +305,19 @@
   if(row.ownScore>=2)return `本學群的題目有選「想知道」，列為有興趣（${avg}）。`;
   return row.interested?`${avg}，達 ${engine.THRESHOLD}，列為有興趣。`:`本學群的題目沒有選「想知道」，${avg}，未達 ${engine.THRESHOLD}。`;
  }
+ function undeclaredWhy(row){
+  if(row.undeclaredReason==='broad')return `你最想知道的 3 題分屬${row.domains.join('、')}，有興趣的學群也橫跨 4 個以上的領域，所以列入不分系。學科依國文、英文、數學判斷基礎。`;
+  if(row.undeclaredReason==='unclear')return ['high','mid'].includes(session.snapshot().profile.level)?'這次沒有特別有興趣的學群，你的整體成績在前段或中間，可以考慮先進不分系，入學後再選主修。':'這次沒有特別有興趣的學群；可以先做深入探索，從相對比較強的科目找方向。';
+  return '不分系在你想知道的問題橫跨多個領域，或還沒有明確方向且整體成績在前段、中間時，才會列為推薦。';
+ }
  function evidence(id){
   const row=report.groups.find(g=>g.id===id);
   el('evidenceTitle').textContent=short(row.name)+'｜推薦依據';
   const answered=row.subjects.filter(s=>s.pick!==null);
   el('evidenceContent').innerHTML=`<p>${esc(data.resultTypes[row.type].text)}</p>
-   <h3>好奇心</h3>${row.evidence.length?`<ul>${row.evidence.map(e=>`<li>${esc(e.text)}<small class="evidence-value">${interestLabel[e.value]}${e.primary?'・本學群的題目':''}</small></li>`).join('')}</ul><p>${interestNote(row)}</p>`:'<p>這次的題目沒有直接連到這個方向。</p>'}
+   <h3>好奇心</h3>${row.undeclared?`<p>${esc(undeclaredWhy(row))}</p>`:row.evidence.length?`<ul>${row.evidence.map(e=>`<li>${esc(e.text)}<small class="evidence-value">${interestLabel[e.value]}${e.primary?'・本學群的題目':''}</small></li>`).join('')}</ul><p>${interestNote(row)}</p>`:'<p>這次的題目沒有直接連到這個方向。</p>'}
    <h3>學科</h3>${answered.length?`<ul>${row.subjects.map(s=>`<li>${esc(s.label)}：${esc(pickLabel[s.pick])}${typeof s.value==='number'?`（${s.value%1?s.value.toFixed(1):s.value} / 4）`:''}<small class="evidence-value">本站權重 ${s.weight}</small></li>`).join('')}</ul>${row.score!==null?`<p>加權平均 ${row.score.toFixed(1)} / 4，已評估的科目占參考權重的 ${Math.round(row.coverage*100)}%。</p>`:''}`:'<p>相關科目都沒有資料，這次不判斷基礎。</p>'}
-   <p>權重、門檻與題目連結是本站編輯規則，不是錄取條件或適合率。</p><a href="${row.source}" target="_blank" rel="noopener noreferrer">ColleGo! 學群參考 ↗</a>`;
+   <p>權重、門檻與題目連結是本站編輯規則，不是錄取條件或適合率。</p>${row.source?`<a href="${row.source}" target="_blank" rel="noopener noreferrer">ColleGo! 學群參考 ↗</a>`:''}`;
   el('evidenceDialog').showModal();
  }
  // ── 事件 ──

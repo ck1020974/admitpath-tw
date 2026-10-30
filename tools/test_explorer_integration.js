@@ -32,8 +32,8 @@ assert.equal(deployedData.items.length,108);
 // 一個入口：只有一個開始按鈕，沒有舊的四種版本入口。
 assert.equal([...html.matchAll(/id="start"/g)].length,1);
 assert.doesNotMatch(html,/data-depth=|data-clear|還沒修過|favouriteSummary|card-question/);
-// 不分系改成結果格子裡的一張卡片。
-assert.match(fs.readFileSync(path.join(destination,'curiosity/app.js'),'utf8'),/undeclared-card/);
+// 不分系是一般學群卡片（不再用虛線框）。
+assert.doesNotMatch(fs.readFileSync(path.join(destination,'curiosity/app.js'),'utf8'),/undeclared-card/);
 for(const id of ['question','favourites','subjects','levelOptions','strongChips','weakChips','results','resultTabs','deepDetails','sheet','resultActions','startExtra','evidenceDialog','aboutDialog','startDeep'])assert.match(html,new RegExp(`id="${id}"`),id);
 assert.equal(new URL('../../','https://example.org/admitpath-tw/explore/curiosity/').pathname,'/admitpath-tw/');
 console.log('Explorer integration: bundled assets, relative dependencies, main-site subnavigation, single entry, all 14 subjects, 108 questions and project-site base path passed.');

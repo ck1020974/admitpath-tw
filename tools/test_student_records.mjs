@@ -16,7 +16,7 @@ const handler=createRecordsHandler({projectUrl:'https://fixture.supabase.co',pub
   assert.equal(options.headers.Authorization,'Bearer server-only');rpcArgs=JSON.parse(options.body);return response({saved:true});
 }});
 const request=body=>handler(new Request('https://fixture.invalid',{method:'POST',headers:{Origin:'https://ck1020974.github.io',Authorization:'Bearer verified-student'},body:JSON.stringify(body)}));
-assert.equal((await request({action:'assessment-result',attemptId:attempt,source:'live',snapshot,owner_id:attempt,report:{forged:true}})).status,200);assert.equal(rpcArgs.owner_id,id);assert.equal(rpcArgs.report_value.forged,undefined);assert.equal(rpcArgs.report_value.groups.length,18);
+assert.equal((await request({action:'assessment-result',attemptId:attempt,source:'live',snapshot,owner_id:attempt,report:{forged:true}})).status,200);assert.equal(rpcArgs.owner_id,id);assert.equal(rpcArgs.report_value.forged,undefined);assert.equal(rpcArgs.report_value.groups.length,19);
 assert.equal((await request({action:'assessment-result',attemptId:attempt,source:'live',snapshot:broken})).status,422);
 assert.equal((await request({action:'tracking',operationId:attempt,changes:[{recordId:'unknown',removed:false,revision:0}]})).status,422);
 assert.equal((await request({action:'tracking',operationId:attempt,changes:[{recordId:'record-fixture',removed:false,revision:0,school:'forged'}]})).status,200);assert.equal(rpcArgs.changes_value[0].school,'學校');

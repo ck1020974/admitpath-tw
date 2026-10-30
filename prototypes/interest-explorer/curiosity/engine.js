@@ -10,6 +10,8 @@
  // 計分規則（本站編輯設定，未經測量驗證）
  const FAVOURITE=3;          // 最想知道＝3、想知道＝2、還好＝1、沒興趣＝0
  const THRESHOLD=1.5;        // 學群興趣平均達 1.5 視為「有興趣」
+ const UNDECLARED_ID='U';
+ const UNDECLARED_WEIGHTS={chinese:3,english:3,math:2};  // 不分系一階最常看國文、英文，其次數學（本站編輯設定）
  const OWN_WANTED=2;         // 或本學群自己的題目有一題「想知道」（深入確認過的方向改看本學群題目平均達 1.5）
  const PRIMARY_WEIGHT=2;     // 題目所屬學群的權重是跨群連結的 2 倍
  const FAVOURITES=3;         // 想知道超過 3 題時，挑出最想知道的 3 題
@@ -172,12 +174,30 @@
    const seen={};rows.forEach(r=>{if(r.type==='other')return;seen[r.type]=(seen[r.type]||0)+1;if(seen[r.type]>TYPE_LIMIT)r.type='other';});
    return rows.sort(order);
   }
+  // 不分系：沒有自己的題目，用跟其他學群一樣的卡片與分類。
+  //   興趣很廣（undeclaredFor 的 broad）→ 依國英數基礎分到優先探索／能力培養／興趣延伸；
+  //   還沒有方向（unclear）且自評前段或中間 → 潛力發掘；其餘列在其他學群。
+  function undeclaredRow(groups,und){
+   const scores=subjectScores(),own=mean(Object.values(scores).filter(v=>typeof v==='number'));
+   const basis=weighted(scores,UNDECLARED_WEIGHTS),lv=level(basis,own);
+   const subjects=Object.entries(UNDECLARED_WEIGHTS).map(([id,w])=>({id,label:data.subjects.find(s=>s.id===id).label,weight:w,value:scores[id],pick:state.profile.strong.includes(id)?'strong':state.profile.weak.includes(id)?'weak':required.includes(id)?'base':null}));
+   const reason=und?und.reason:null;
+   const type=reason==='broad'?({strong:'priority',middle:'develop',weak:'interest',unknown:'interest'})[lv]
+    :reason==='unclear'&&['high','mid'].includes(state.profile.level)?'potential':'other';
+   return {id:UNDECLARED_ID,name:data.undeclared.group,source:null,undeclared:true,undeclaredReason:reason,domains:und?und.domains:[],
+    interest:null,ownScore:null,checked:false,interested:reason==='broad',evidence:[],primaryAnswer:null,...basis,level:lv,subjects,type};
+  }
   function report(){
    if(!complete())throw Error('請先完成三個步驟。');
-   const groups=classify(groupRows()).map(r=>({...r,typeName:data.resultTypes[r.type].name,
+   const classified=classify(groupRows()),undeclared=undeclaredFor(classified);
+   // 不分系放在同一種方向的最後面，不受每種方向最多 6 個的限制。
+   const extra=undeclaredRow(classified,undeclared);
+   const at=classified.reduce((last,r,i)=>typeOrder.indexOf(r.type)<=typeOrder.indexOf(extra.type)?i+1:last,0);
+   classified.splice(at,0,extra);
+   const groups=classified.map(r=>({...r,typeName:data.resultTypes[r.type].name,
     reason:r.evidence.slice().sort((a,b)=>b.value-a.value||Number(b.primary)-Number(a.primary))[0]||null,
     strengths:r.subjects.filter(s=>s.weight>=2&&s.pick==='strong').map(s=>s.label)}));
-   return clone({version:data.version,deep:deepComplete(),extraRounds:state.extra.filter(extraRoundDone).length,canExplore:canExplore(),favourites:effectiveFavourites().map(id=>({id,text:itemById.get(id).text})),groups,undeclared:undeclaredFor(groups),
+   return clone({version:data.version,deep:deepComplete(),extraRounds:state.extra.filter(extraRoundDone).length,canExplore:canExplore(),favourites:effectiveFavourites().map(id=>({id,text:itemById.get(id).text})),groups,undeclared,
     limits:['這是自評探索，不是能力測驗、科系適合率或錄取預測。','學群權重、題目連結與分類門檻為本站編輯規則，未經測量驗證。','沒勾選的延伸科目（資訊、生活科技、美術、音樂）不算低分，也不放進計算。']});
   }
 

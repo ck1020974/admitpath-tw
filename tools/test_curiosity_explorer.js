@@ -117,10 +117,10 @@ assert.equal(engine.level({score:2.4,coverage:1},2),'strong');
 assert.equal(engine.level({score:1,coverage:1},1),'middle');
 assert.equal(engine.level({score:1.2,coverage:1},2),'weak');
 assert.equal(engine.level({score:3,coverage:0.3},2),'unknown');
-// 潛力發掘最多 3 個，也不列學生明確說「沒興趣」的方向。
+// 潛力發掘最多 3 個學群（不分系另計），也不列學生明確說「沒興趣」的方向。
 {
  const s=student({likes:{A:0,B:0,C:0,D:0,E:0,F:0,G:0,H:0,I:0,J:0,K:0,L:0,M:0,N:0,O:0,P:1,Q:1,R:1},level:'high'});
- const r=s.report(),potential=r.groups.filter(g=>g.type==='potential');
+ const r=s.report(),potential=r.groups.filter(g=>g.type==='potential'&&!g.undeclared);
  assert.ok(potential.length<=3);assert.ok(potential.every(g=>g.primaryAnswer!==0));
 }
 // 都回答「還好」：沒有推薦，建議也可以考慮不分系，深入確認仍能從學科找方向。
@@ -228,13 +228,30 @@ assert.throws(()=>fixed().load({v:1}),/版本/);
  const dropped=run(()=>0);assert.equal(dropped.checked,true);assert.equal(dropped.interested,false,'深入題都沒興趣 → 移出');
  let n=0;const kept=run(()=>n++<2?2:0);assert.equal(kept.ownScore,1.75,'最想知道 3＋想知道 2＋想知道 2＋沒興趣 0');assert.equal(kept.interested,true,'深入題 2 想知道 1 沒興趣 → 保留');
 }
+// 不分系是一般學群卡片：興趣很廣依國英數基礎分類；沒有方向時前段、中間列潛力發掘，後段不推。
+{
+ const U=r=>r.groups.find(g=>g.id==='U');
+ const broad=(level,strong,weak)=>U(student({likes:{A:2,D:2,L:2,O:2},favourite:['A1','D9','L5'],level,strong,weak}).report());
+ assert.equal(broad('high',['history','geography'],['earth','biology']).type,'priority','前段：國英數都強');
+ assert.equal(broad('mid',['history','geography'],['earth','biology']).type,'develop','中間：國英數普通');
+ assert.equal(broad('mid',['chinese','english'],['earth','biology']).type,'priority','中間但國英是強項');
+ assert.equal(broad('low',['history','geography'],['chinese','english']).type,'interest','後段且國英吃力');
+ assert.equal(U(student({level:'high'}).report()).type,'potential');
+ assert.equal(U(student({level:'mid'}).report()).type,'potential');
+ assert.equal(U(student({level:'low'}).report()).type,'other','後段、沒有方向：不推');
+ assert.equal(U(student({likes:{A:2,B:2,C:2},strong:['math','physics'],weak:['history','earth']}).report()).type,'other','興趣集中：不推');
+ // 不分系放在同一種方向的最後面，而且不會擠掉原本的學群。
+ const r=student({likes:{A:2,D:2,L:2,O:2},favourite:['A1','D9','L5'],level:'high'}).report();
+ const pri=r.groups.filter(g=>g.type==='priority');assert.equal(pri[pri.length-1].id,'U');
+}
 // 每種方向最多 6 個學群，其餘移到其他學群；排序最前面的留下。
 {
  const likes=Object.fromEntries(data.groups.map(g=>[g.id,2]));
  const r=student({likes,level:'mid',strong:['history','geography'],weak:['earth','biology']}).report();
- for(const t of ['priority','develop','interest','potential'])assert.ok(r.groups.filter(g=>g.type===t).length<=6,t+' 超過 6 個');
- assert.ok(['priority','develop','interest'].some(t=>r.groups.filter(g=>g.type===t).length===6),'全部有興趣時至少一類剛好 6 個');
+ for(const t of ['priority','develop','interest','potential'])assert.ok(r.groups.filter(g=>g.type===t&&!g.undeclared).length<=6,t+' 超過 6 個');
+ assert.ok(['priority','develop','interest'].some(t=>r.groups.filter(g=>g.type===t&&!g.undeclared).length===6),'全部有興趣時至少一類剛好 6 個');
  const kept=r.groups.filter(g=>g.type!=='other'&&g.type!=='potential');
- assert.equal(r.groups.filter(g=>g.type==='other').length,18-kept.length-r.groups.filter(g=>g.type==='potential').length);
+ assert.equal(r.groups.length,19,'18 學群加不分系');
+ assert.equal(r.groups.filter(g=>g.type==='other').length,19-kept.length-r.groups.filter(g=>g.type==='potential').length);
 }
 console.log('Curiosity explorer: random step-1 draw, 108-question bank, extra rounds, v4 links, fixed 18-question set, max 6 groups per type, option order, level plus 2–3 required subject picks, 不分系 suggestions, answer limits, favourites, relative subject levels, potential cap, deep check coverage, save/restore and 40 result-link round trips passed.');

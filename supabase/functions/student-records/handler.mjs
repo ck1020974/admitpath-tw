@@ -1,4 +1,4 @@
-export const SCORING_VERSION='portal-20261029-engine7-v1';
+export const SCORING_VERSION='portal-20261030-engine7-v2';
 export function stable(value){
   if(Array.isArray(value))return '['+value.map(stable).join(',')+']';
   if(value&&typeof value==='object')return '{'+Object.keys(value).sort().map(k=>JSON.stringify(k)+':'+stable(value[k])).join(',')+'}';
