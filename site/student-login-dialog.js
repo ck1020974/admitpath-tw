@@ -24,6 +24,7 @@
       <p class="student-dialog-name"></p>
       <dl></dl>
       <p class="student-dialog-error" role="alert" hidden></p>
+      <a class="student-dialog-teacher" href="#" hidden>進入教師後台</a>
       <button class="student-dialog-logout" type="button">登出</button>
     </section>`;
   document.body.append(dialog);
@@ -37,11 +38,9 @@
   const toggle = query(".student-password-toggle");
   const status = query(".student-dialog-status");
   const error = query(".student-dialog-login .student-dialog-error");
-  let teacherClient;
-  if (window.YUHSIN_STUDENT_AUTH_CONFIG?.provider === 'supabase' && window.YuhsinSupabaseAuth) {
-    let storage; try { storage = window.sessionStorage; } catch {}
-    teacherClient = window.YuhsinSupabaseAuth.createClient({ config: { ...window.YUHSIN_STUDENT_AUTH_CONFIG, accountType: 'teacher' }, fetcher: window.fetch.bind(window), storage });
-  }
+  const teacherClient = auth.teacherClient;
+  const teacherUrl = new URL("teacher/", auth.baseUrl);
+  const onTeacherPage = () => window.location.pathname.startsWith(teacherUrl.pathname);
   let busy = false;
   let opener;
   function message(element, text) { element.textContent = text; element.hidden = !text; }
@@ -134,8 +133,21 @@
   window.addEventListener("yuhsin-auth-change", () => { contact = null; contactFor = null; contactLoad = null; });
   function render() {
     const student = client.current;
-    login.hidden = Boolean(student);
-    account.hidden = !student;
+    const teacher = !student && teacherClient?.current;
+    login.hidden = Boolean(student || teacher);
+    account.hidden = !(student || teacher);
+    const teacherLink = query(".student-dialog-teacher");
+    teacherLink.hidden = !teacher;
+    teacherLink.href = teacherUrl.href;
+    if (teacher) {
+      query(".student-dialog-name").textContent = teacher.name;
+      const list = query("dl");
+      const row = document.createElement("div");
+      const term = document.createElement("dt"), value = document.createElement("dd");
+      term.textContent = "身分"; value.textContent = teacher.canManageAccounts ? "網站管理者" : "教師";
+      row.append(term, value); list.replaceChildren(row);
+      teacherLink.hidden = onTeacherPage();
+    }
     if (student) {
       query(".student-dialog-name").textContent = student.name;
       const list = query("dl");
@@ -181,8 +193,9 @@
       if (teacherClient && !/^[A-Za-z]{2}[0-9]{5}$/.test(accountId)) {
         await teacherClient.login(accountId, password.value);
         password.value = ""; hidePassword();
+        if (onTeacherPage()) { window.location.reload(); return; }
+        render();
         if (dialog.open) close();
-        window.location.assign(new URL('teacher/', auth.baseUrl).href);
         return;
       }
       await client.login(accountId, password.value);
@@ -198,7 +211,13 @@
     event.target.disabled = true;
     const accountError = query(".student-dialog-account .student-dialog-error");
     message(accountError, "");
-    try { await client.logout(); form.reset(); hidePassword(); render(); query("#studentDialogTitle").focus(); }
+    try {
+      if (!client.current && teacherClient?.current) {
+        await teacherClient.logout();
+        if (onTeacherPage()) { window.location.assign(auth.baseUrl); return; }
+      } else await client.logout();
+      form.reset(); hidePassword(); render(); query("#studentDialogTitle").focus();
+    }
     catch (failure) { message(accountError, failure.message); }
     finally { render(); event.target.disabled = false; }
   });
@@ -211,7 +230,7 @@
     document.documentElement.classList.add("student-dialog-open");
     dialog.showModal();
     // Focus the heading so mobile keyboards do not cover the form on opening.
-    query(client.current ? ".student-dialog-account h2" : "#studentDialogTitle").focus();
-    try { await auth.ready; render(); } catch (failure) { message(error, failure.message); }
+    query(client.current || teacherClient?.current ? ".student-dialog-account h2" : "#studentDialogTitle").focus();
+    try { await Promise.all([auth.ready, auth.teacherReady]); render(); } catch (failure) { message(error, failure.message); }
   };
 })();

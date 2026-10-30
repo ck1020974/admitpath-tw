@@ -76,3 +76,5 @@ html.student-contact-open { overflow:hidden; }
 .student-dialog-account .student-contact-row dt { flex:none; white-space:nowrap; }
 .student-contact-notice-text { margin:0; color:#455b55; font-size:13px; line-height:1.7; }
 .student-contact-notice-text a { color:#137d73; overflow-wrap:anywhere; }
+.student-dialog-teacher { display:flex; align-items:center; justify-content:center; width:100%; min-height:46px; margin:0 0 10px; padding:10px 16px; border:1px solid #137d73; border-radius:9px; background:#fff; color:#137d73; font-weight:700; text-decoration:none; }
+.student-dialog-teacher:hover { background:#e6efeb; }

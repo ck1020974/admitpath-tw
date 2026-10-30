@@ -3,9 +3,11 @@
   'use strict';
   const $ = id => document.getElementById(id);
   const model=window.YuhsinTeacherModel;
+  // 與右上角「帳號」共用同一個教師登入狀態；登入、登出都在帳號視窗完成。
   let storage; try { storage = window.sessionStorage; } catch {}
-  const client = window.YuhsinSupabaseAuth.createClient({ config: { ...window.YUHSIN_STUDENT_AUTH_CONFIG, accountType: 'teacher' }, fetcher: window.fetch.bind(window), storage });
-  const form = $('login').querySelector('form'), submit = form.querySelector('button');
+  const client = window.YuhsinStudentAuth?.teacherClient || window.YuhsinSupabaseAuth.createClient({ config: { ...window.YUHSIN_STUDENT_AUTH_CONFIG, accountType: 'teacher' }, fetcher: window.fetch.bind(window), storage });
+  const siteMenu=$('siteMenu');
+  if(siteMenu)siteMenu.addEventListener('click',()=>{const open=!document.body.classList.contains('menu-open');document.body.classList.toggle('menu-open',open);siteMenu.setAttribute('aria-expanded',String(open));});
   const dialog=$('studentDialog');
   let students = [], filtered = [], summaries = new Map(), contacts = new Map(), summaryReady = false, epoch = 0;
   function withContact(id){const summary=summaries.get(id),email=contacts.get(id);return email?{...(summary||{}),contact_email:email}:summary;}
@@ -140,9 +142,9 @@
   function clearWorkspace(reset=true) {
     closeDialog();clearDetail();epoch++;students=[];filtered=[];summaries=new Map();contacts=new Map();summaryReady=false;$('students').replaceChildren();
     if(reset){for(const id of ['search','grade','group'])$(id).value='';fillGroups();picks={login:'',exam:''};sort={key:'',direction:'asc'};}
-    $('workspace').hidden=true;$('filters').hidden=true;$('logout').hidden=true;$('count').textContent='';$('empty').hidden=true;message('summaryStatus','');
+    $('workspace').hidden=true;$('filters').hidden=true;$('count').textContent='';$('empty').hidden=true;message('summaryStatus','');
   }
-  function showLogin() { clearWorkspace(); $('login').hidden = false; }
+  function showLogin() { clearWorkspace(); $('signedOut').hidden = false; }
   function renderPills(base,now){
     const make=(kind,options,valueOf)=>{
       const box=$(kind+'Pills'),fragment=document.createDocumentFragment();
@@ -206,7 +208,7 @@
   });
   async function workspace() {
     const version = ++epoch;
-    $('login').hidden = true; $('workspace').hidden = true; message('status', '正在載入學生名單…');
+    $('signedOut').hidden = true; $('workspace').hidden = true; message('status', '正在載入學生名單…');
     const [rows,summary,contactRows] = await Promise.all([client.listStudents(),client.rosterSummary().then(value=>({value}),error=>({error})),typeof client.adminContacts==='function'?client.adminContacts().catch(()=>[]):[]]);
     if (version !== epoch) return;
     students = rows;
@@ -215,23 +217,8 @@
     contacts=new Map(contactRows.map(row=>[row.student,row.contact_email]));
     const placeholder=contacts.size||client.current?.canManageAccounts?'搜尋姓名、學號或信箱':'搜尋姓名或學號';$('search').placeholder=placeholder;$('search').setAttribute('aria-label',placeholder);
     message('summaryStatus',summaryReady?'':'登入與作答狀況暫時無法載入，請稍後重新整理。');
-    render();message('status','');$('workspace').hidden=false;$('filters').hidden=false;$('logout').hidden=false;
+    render();message('status','');$('signedOut').hidden=true;$('workspace').hidden=false;$('filters').hidden=false;
   }
-  $('showPassword').addEventListener('change', event => { form.elements.password.type = event.target.checked ? 'text' : 'password'; });
-  function resetPassword() { form.elements.password.value = ''; form.elements.password.type = 'password'; $('showPassword').checked = false; }
-  form.addEventListener('submit', async event => {
-    event.preventDefault(); if (submit.disabled) return;
-    submit.disabled = true; submit.textContent = '正在登入…'; message('loginError','');
-    try { await client.login(form.elements.username.value.trim(), form.elements.password.value); resetPassword(); await workspace(); $('rosterTitle').setAttribute('tabindex','-1'); $('rosterTitle').focus(); }
-    catch (error) { showLogin(); message('status',''); message('loginError',error.message); resetPassword(); form.elements.password.focus(); }
-    finally { submit.disabled = false; submit.textContent = '登入教師後台'; }
-  });
-  $('logout').addEventListener('click', async () => {
-    clearWorkspace(); $('login').hidden = true; message('status','正在結束登入…');
-    try { await client.logout(); message('status',''); }
-    catch { message('status','本機登入已清除；網路連線中斷，請稍後再試。'); }
-    finally { showLogin(); resetPassword(); form.elements.username.value = ''; form.elements.username.focus(); }
-  });
   for(const value of model.gradeOptions){
     const option=document.createElement('option');option.value=value;
     if(value.startsWith('G')){option.textContent=value;option.className='grade-all';}else option.textContent=value+' 班';
