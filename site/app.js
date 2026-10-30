@@ -1268,7 +1268,6 @@ function updateExplorerKeyword() {
 
 function defaultAdvancedFilters() {
   return {
-    area: "",
     excludedSubjects: [],
     subjectGroupsOpen: {},
     specialAdmissionMode: "exclude",
@@ -1279,7 +1278,6 @@ function defaultAdvancedFilters() {
 
 function cloneAdvancedFilters(filters = defaultAdvancedFilters()) {
   return {
-    area: filters.area || "",
     excludedSubjects: [...(filters.excludedSubjects || [])],
     subjectGroupsOpen: { ...(filters.subjectGroupsOpen || {}) },
     specialAdmissionMode: filters.specialAdmissionMode || "exclude",
@@ -1299,26 +1297,32 @@ function currentAdvancedFilters() {
 }
 
 function openAdvancedFilters() {
-  clearOuterSchoolFilters();
   advancedFilterDraft = cloneAdvancedFilters(currentAdvancedFilters());
   renderAdvancedFilterDrawer();
   els.advancedFilterDrawer?.classList.add("open");
   els.advancedFilterDrawer?.setAttribute("aria-hidden", "false");
 }
 
-function clearOuterSchoolFilters() {
-  // 精準篩選接手學校與學類，先移除外部相同維度，避免條件交集互相排除。
+function clearOuterSchoolFilters(advanced) {
+  // 套用精準篩選時，只有選了學校或學群，才清掉外部同一維度的捷徑，避免條件交集互相排除；
+  // 只排除科目或改招生類型時，外面的地區、學類捷徑照樣保留。
+  const clearSchools = advanced.schools.length > 0;
+  const clearGroups = advanced.groups.length > 0;
   if (state.view === "placement") {
-    Object.assign(state.placement, { school: "all", schoolScope: "all", quickCategory: "", dualDegreeOnly: false,
-      groups: [], categories: [], schoolOwnership: "all", topUniversityOnly: false });
+    if (clearSchools) Object.assign(state.placement, { school: "all", schoolScope: "all", schoolOwnership: "all", topUniversityOnly: false });
+    if (clearGroups) Object.assign(state.placement, { quickCategory: "", dualDegreeOnly: false, groups: [], categories: [] });
     hydratePlacementResultFilters();
   } else {
-    Object.assign(state.filters, { school: "all", schoolScope: "all", quickCategory: "", dualDegreeOnly: false });
-    state.linkedGroup = "";
-    state.linkedCategory = "";
-    if (els.schoolFilter) els.schoolFilter.value = "all";
+    if (clearSchools) {
+      Object.assign(state.filters, { school: "all", schoolScope: "all" });
+      if (els.schoolFilter) els.schoolFilter.value = "all";
+    }
+    if (clearGroups) {
+      Object.assign(state.filters, { quickCategory: "", dualDegreeOnly: false });
+      state.linkedGroup = "";
+      state.linkedCategory = "";
+    }
   }
-  applyFilters();
 }
 
 function closeAdvancedFilters() {
@@ -1339,7 +1343,6 @@ function renderAdvancedFilterSummary() {
 function advancedFilterSummaryText() {
   const advanced = currentAdvancedFilters();
   const parts = [];
-  if (advanced.area) parts.push(advanced.area === 'unknown' ? '區域未分類' : `${advanced.area}區`);
   if (advanced.excludedSubjects.length) parts.push(`不看 ${advanced.excludedSubjects.join("、")}`);
   if (advanced.specialAdmissionMode === "include") parts.push("含特殊組");
   if (advanced.specialAdmissionMode === "only") parts.push("只看特殊組");
@@ -1352,7 +1355,7 @@ function renderAdvancedFilterDrawer() {
   if (!els.advancedFilterBody) return;
   const advanced = advancedFilterDraft || currentAdvancedFilters();
   const groupNames = advancedGroupNames();
-  const schools = advancedSchoolOptions(advanced.area);
+  const schools = advancedSchoolOptions();
   els.advancedFilterBody.innerHTML = `
     <section class="advanced-section">
       <div class="advanced-section-head">
@@ -1398,9 +1401,6 @@ function renderAdvancedFilterDrawer() {
         <h3>學校</h3>
         <span>至多 5 間</span>
       </div>
-      <label class="advanced-select-single"><span>區域</span>
-        <select id="advancedAreaPicker">${[['','全部區域'],['北','北區'],['中','中區'],['南','南區'],['東','東區']].map(([value,label]) => `<option value="${value}" ${advanced.area === value ? 'selected' : ''}>${label}</option>`).join('')}</select>
-      </label>
       <label class="advanced-select-single"><span>學校</span>
         <select id="advancedSchoolPicker" ${advanced.schools.length >= 5 ? "disabled" : ""}>
           <option value="">選擇學校</option>
@@ -1472,13 +1472,12 @@ function advancedSubjectGroupsHtml(advanced) {
   return `${groupCards}${expandedGroups}`;
 }
 
-function advancedSchoolOptions(area = '') {
-  return AdmissionCatalog.schoolOptions(area);
+function advancedSchoolOptions() {
+  return AdmissionCatalog.schoolOptions();
 }
 
 function advancedFilterChipsHtml(advanced = currentAdvancedFilters()) {
   const chips = [
-    advanced.area ? (advanced.area === 'unknown' ? '區域未分類' : `${advanced.area}區`) : '',
     ...advanced.excludedSubjects.map((subject) => `不看 ${subject}`),
     advanced.specialAdmissionMode === "include" ? "含特殊組" : "",
     advanced.specialAdmissionMode === "only" ? "只看特殊組" : "",
@@ -1489,13 +1488,6 @@ function advancedFilterChipsHtml(advanced = currentAdvancedFilters()) {
 }
 
 function bindAdvancedFilterEvents() {
-  els.advancedFilterBody.querySelector('#advancedAreaPicker')?.addEventListener('change', event => {
-    const advanced = advancedFilterDraft || (advancedFilterDraft = cloneAdvancedFilters(currentAdvancedFilters()));
-    advanced.area = event.target.value;
-    const allowed = new Set(advancedSchoolOptions(advanced.area).map(school => school.name));
-    advanced.schools = advanced.schools.filter(name => allowed.has(name));
-    renderAdvancedFilterDrawer();
-  });
   els.advancedFilterBody.querySelectorAll("[data-toggle-advanced-subject-group]").forEach((button) => {
     button.addEventListener("click", () => {
       const advanced = advancedFilterDraft || (advancedFilterDraft = cloneAdvancedFilters(currentAdvancedFilters()));
@@ -1551,6 +1543,7 @@ function bindAdvancedFilterEvents() {
   });
   els.advancedFilterBody.querySelector("#applyAdvancedFiltersButton")?.addEventListener("click", () => {
     state.filters.advanced = cloneAdvancedFilters(advancedFilterDraft || currentAdvancedFilters());
+    clearOuterSchoolFilters(state.filters.advanced);
     closeAdvancedFilters();
     applyFilters();
   });
@@ -1581,7 +1574,6 @@ function recordMatchesAdvancedFilters(record) {
     schools: [],
   };
   if (advanced.schools?.length && !advanced.schools.includes(record.schoolName)) return false;
-  if (advanced.area && !AdmissionCatalog.matchesArea(record, advanced.area)) return false;
   if (!specialAdmissionModeAllows(record, advanced.specialAdmissionMode || "exclude")) return false;
   const excluded = new Set((advanced.excludedSubjects || []).map(advancedSubjectKey).filter(Boolean));
   if (excluded.size) {
