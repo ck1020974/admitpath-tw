@@ -22,7 +22,8 @@
     // 學科自評用跟學群相同的寫法：綠色標題＋一般文字。
     const level=data.levelOptions?.find(o=>o.value===profile.level)?.label||{high:'前段',mid:'中間',low:'後段'}[profile.level]||'—';
     const evalBox=document.createElement('section');evalBox.className='self-eval';
-    evalBox.append(text('h4','學科自評'),text('p','整體程度：'+level+'｜拿手：'+((profile.strong||[]).map(subject).join('、')||'—')+'｜吃力：'+((profile.weak||[]).map(subject).join('、')||'—')));
+    const evalList=document.createElement('ul');for(const line of ['整體程度：'+level,'拿手科目：'+((profile.strong||[]).map(subject).join('、')||'—'),'吃力科目：'+((profile.weak||[]).map(subject).join('、')||'—')])evalList.append(text('li',line));
+    evalBox.append(text('h4','學科自評'),evalList);
     item.append(evalBox);
     // 學群沿用原本的呈現：類型標題＋學群清單，兩欄排列。
     const cards=document.createElement('div');cards.className='result-groups';
