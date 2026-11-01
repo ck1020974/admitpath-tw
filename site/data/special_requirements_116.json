@@ -1,0 +1,64 @@
+{
+  "year": 116,
+  "verifiedAt": "2026-11-01",
+  "note": "依各校 116 學年度特殊選才簡章整理，報名前請以學校公告為準。原型資料，僅含示範校系。",
+  "records": {
+    "國立臺灣大學|物理學系": {
+      "logic": "any",
+      "recommend": "須由就讀高中推薦，本系限定各校推薦人數",
+      "items": [
+        { "type": "rank", "label": "物理 校排前 1%", "text": "高中部定「物理」各學期皆達全校修課學生前 1%" },
+        { "type": "rank", "label": "物理 前 5%＋大學課程", "text": "物理前 5%，且積極修習大學物理課程或具研究特殊才能" },
+        { "type": "class", "label": "科學班 物理數學 前 60%", "text": "科學班應屆生，「物理」與「數學A」皆達全班前 60%" },
+        { "type": "contest", "label": "物理競賽金銀牌", "text": "國際或全國物理競賽金牌、銀牌或等同獎項" }
+      ],
+      "sourceUrl": "https://exam.aca.ntu.edu.tw/marsApply/Index.aspx"
+    },
+    "國立成功大學|外國語文學系": {
+      "logic": "nOf",
+      "n": 2,
+      "items": [
+        { "type": "lang", "label": "TOEFL iBT 95", "text": "TOEFL iBT 95 以上" },
+        { "type": "lang", "label": "IELTS 8", "text": "IELTS 8 以上（各項 7 以上）" },
+        { "type": "lang", "label": "GEPT 高級", "text": "全民英檢高級以上" },
+        { "type": "lang", "label": "TOEIC 960", "text": "TOEIC 聽讀 960 且說寫各 360 以上" },
+        { "type": "lang", "label": "CEFR C1", "text": "CEFR C1" },
+        { "type": "other", "label": "母語英語", "text": "母語為英語" },
+        { "type": "contest", "label": "英語競賽前三", "text": "全國英語競賽前三名、全國高中英語辯論最佳辯士、IOL 國家隊" }
+      ],
+      "sourceUrl": "https://adms-acad.ncku.edu.tw/p/406-1044-195648,r472.php?Lang=zh-tw"
+    },
+    "國立中興大學|外國語文學系": {
+      "logic": "all",
+      "items": [
+        { "type": "lang", "label": "英文 CEFR C1", "text": "英文達 CEFR C1（或其他外語特殊成就）" },
+        { "type": "rank", "label": "國文 全班前 15%", "text": "國文全班前 15% 或平均 85 分以上；或國語文競賽佳作以上" }
+      ],
+      "sourceUrl": "https://recruit.nchu.edu.tw/college-exam/special/116/116special_PAPER.aspx"
+    },
+    "國立政治大學|統計學系": {
+      "logic": "all",
+      "items": [
+        { "type": "rank", "label": "數學 每學期前 25%", "text": "在校每學期數學成績皆達前 25%（必要條件）" },
+        { "type": "contest", "label": "數理／資料競賽或科展", "text": "另須符合其一：數理或資料科學科展優異、數學或資料分析競賽優異、數理重要競賽獎項、數理資料科學特殊專長" }
+      ],
+      "sourceUrl": "https://www.nccu.edu.tw/p/406-1000-24055,r116.php?Lang=zh-tw"
+    },
+    "國立清華大學|電機工程學系": {
+      "logic": "any",
+      "items": [
+        { "type": "contest", "label": "科展／奧林匹亞", "text": "全國科展高中組參賽、ISEF 參賽、臺灣國際科展獲獎、國際奧林匹亞獲獎或選訓結訓、數理資訊學科競賽全國決賽獲獎、旺宏科學獎優等以上" },
+        { "type": "work", "label": "開源／電子系統作品", "text": "大型開源程式或電子系統設計有具體貢獻" },
+        { "type": "other", "label": "實驗教育成果", "text": "實驗教育或自學有成果" }
+      ],
+      "sourceUrl": "https://adms.site.nthu.edu.tw/p/406-1207-314304,r330.php?Lang=zh-tw"
+    },
+    "國立陽明交通大學|電機工程學系": {
+      "logic": "open",
+      "items": [
+        { "type": "other", "label": "無數字門檻", "text": "招收特殊教育資歷、才能，或數學、物理、軟硬體設計實作有特殊表現者；跨領域能力尤佳" }
+      ],
+      "sourceUrl": "https://exam.nycu.edu.tw/std-bspc.html"
+    }
+  }
+}
