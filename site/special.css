@@ -45,7 +45,7 @@
 /* 報名狀態標籤（接在校系名稱後） */
 .sp-reg-badge {
   display: inline-flex; align-items: center; align-self: center; padding: 1px 9px; border-radius: 999px;
-  font-size: 12px; font-weight: 800; line-height: 1.5; white-space: nowrap; 
+  font-size: 12px; font-weight: 800; line-height: 1.5; white-space: nowrap;
 }
 .sp-reg-badge i { font-style: normal; margin-left: 1px; opacity: .7; }
 .sp-reg-badge.is-open { background: #fff4d6; color: #8a5a00; box-shadow: inset 0 0 0 1px #f2d48a; }
