@@ -5119,7 +5119,7 @@ function formatSpecialExamText(text) {
 }
 
 // 特殊選才報名門檻：清單列顯示重點標籤，詳情頁依類型分組列出完整條件。
-const SPECIAL_REQ_TYPES = { identity: "身分", rank: "在校成績", lang: "語言檢定", apcs: "程式檢定", exam: "其他檢定", cert: "證照", class: "科學班／資優班", contest: "競賽／科展", work: "作品／專長", other: "其他" };
+const SPECIAL_REQ_TYPES = { identity: "身分", rank: "在校成績", lang: "語言檢定", apcs: "程式檢定", exam: "其他檢定", cert: "證照", class: "科學班／資優班", contest: "競賽／科展", course: "課程／營隊", work: "作品／成果", experience: "經歷／服務", talent: "特殊才能", recommend: "推薦", other: "其他" };
 
 function specialRequirementLogicText(group) {
   if (group.logic === "all") return { long: "以下條件須全部符合", strict: true };
