@@ -44,7 +44,7 @@ const els = {};
 let advancedFilterDraft = null;
 
 const fmt = new Intl.NumberFormat("zh-Hant-TW");
-const DATA_VERSION = "20261101-special-requirements";
+const DATA_VERSION = "20261101-detail-slim";
 const COMPARE_STORAGE_KEY = "admitpath-tw:compare:v1";
 const accountRecords=window.YuhsinStudentRecords;
 let compareCloudRows=[],compareCloudBusy=false,compareGeneration=0;
