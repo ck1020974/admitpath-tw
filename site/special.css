@@ -56,3 +56,4 @@
 .sp-req-group { margin: 16px 0 6px; padding-top: 12px; border-top: 1px dashed var(--line); font-size: 14px; font-weight: 800; color: var(--ink); }
 .sp-req-detail h3 + .sp-req-group { margin-top: 4px; padding-top: 0; border-top: 0; }
 .sp-req-alt { margin: 8px 0 0; font-size: 13px; color: var(--muted); }
+.sp-req-open { margin: 0; font-size: 13px; line-height: 1.7; color: var(--ink); }

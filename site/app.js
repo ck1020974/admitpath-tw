@@ -5119,7 +5119,16 @@ function formatSpecialExamText(text) {
 }
 
 // 特殊選才報名門檻：清單列顯示重點標籤，詳情頁依類型分組列出完整條件。
-const SPECIAL_REQ_TYPES = { identity: "身分", rank: "在校成績", lang: "語言檢定", apcs: "程式檢定", exam: "其他檢定", cert: "證照", class: "科學班／資優班", contest: "競賽／科展", course: "課程／營隊", work: "作品／成果", experience: "經歷／服務", talent: "特殊才能", recommend: "推薦", other: "其他" };
+// 資料保留細分類型（之後做篩選用），詳情頁合併成 7 組顯示。
+const SPECIAL_REQ_DISPLAY = [
+  ["身分推薦", ["identity", "recommend"]],
+  ["證照檢定", ["lang", "apcs", "exam", "cert"]],
+  ["在校成績", ["rank"]],
+  ["特殊班級", ["class"]],
+  ["競賽成果", ["contest", "work"]],
+  ["課程經歷", ["course", "experience"]],
+  ["特殊才能", ["talent", "other"]],
+];
 
 function specialRequirementLogicText(group) {
   if (group.logic === "all") return { long: "以下條件須全部符合", strict: true };
@@ -5138,10 +5147,12 @@ function specialRequirementDetailHtml(source) {
   const groups = req.groups || [req];
   const groupHtml = (group) => {
     const logic = specialRequirementLogicText(group);
-    const rows = Object.keys(SPECIAL_REQ_TYPES).map((type) => [type, group.items.filter((item) => item.type === type)]).filter(([, list]) => list.length);
+    const rows = SPECIAL_REQ_DISPLAY.map(([label, types]) => [label, group.items.filter((item) => types.includes(item.type) || (label === "特殊才能" && !SPECIAL_REQ_DISPLAY.some(([, list]) => list.includes(item.type))))]).filter(([, list]) => list.length);
     return `${groups.length > 1 ? `<h4 class="sp-req-group">${escapeHtml(group.name || "一般組")}</h4>` : ""}
       <p class="sp-req-lead${logic.strict ? " is-strict" : ""}">${escapeHtml(logic.long)}</p>
-      <div class="detail-list">${rows.map(([type, list]) => `<div class="kv"><span>${escapeHtml(SPECIAL_REQ_TYPES[type])}</span><span>${list.map((item) => escapeHtml(item.text)).join("\n")}</span></div>`).join("")}</div>
+      ${group.logic === "open"
+        ? `<p class="sp-req-open">${escapeHtml(group.items.map((item) => item.text).join("；"))}</p>`
+        : `<div class="detail-list">${rows.map(([label, list]) => `<div class="kv"><span>${escapeHtml(label)}</span><span>${list.map((item) => escapeHtml(item.text)).join("\n")}</span></div>`).join("")}</div>`}
       ${group.alt?.length ? `<p class="sp-req-alt">或：${escapeHtml(group.alt.join("；"))}</p>` : ""}`;
   };
   return `<section class="detail-section sp-req-detail">
