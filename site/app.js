@@ -5121,13 +5121,13 @@ function formatSpecialExamText(text) {
 // 特殊選才報名門檻：清單列顯示重點標籤，詳情頁依類型分組列出完整條件。
 // 資料保留細分類型（之後做篩選用），詳情頁合併成 7 組顯示。
 const SPECIAL_REQ_DISPLAY = [
-  ["身分推薦", ["identity", "recommend"]],
+  ["身分資格", ["identity"]],
   ["證照檢定", ["lang", "apcs", "exam", "cert"]],
   ["在校成績", ["rank"]],
   ["特殊班級", ["class"]],
   ["競賽成果", ["contest", "work"]],
   ["課程經歷", ["course", "experience"]],
-  ["特殊才能", ["talent", "other"]],
+  ["特殊才能", ["talent", "recommend", "other"]],
 ];
 
 function specialRequirementLogicText(group) {
