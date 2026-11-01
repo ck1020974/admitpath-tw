@@ -44,7 +44,7 @@ const els = {};
 let advancedFilterDraft = null;
 
 const fmt = new Intl.NumberFormat("zh-Hant-TW");
-const DATA_VERSION = "20261029-tech-groups";
+const DATA_VERSION = "20261101-special-requirements";
 const COMPARE_STORAGE_KEY = "admitpath-tw:compare:v1";
 const accountRecords=window.YuhsinStudentRecords;
 let compareCloudRows=[],compareCloudBusy=false,compareGeneration=0;
@@ -1150,7 +1150,7 @@ async function loadData() {
   const specialRequirements = await fetchJson("./data/special_requirements_116.json").catch(() => null);
   if (specialRequirements) {
     specialData.flatMap(dataset => dataset.records).forEach((item) => {
-      const requirement = item.year === specialRequirements.year && specialRequirements.records[`${item.school}|${item.department}`];
+      const requirement = item.year === specialRequirements.year && specialRequirements.records[`${item.school}|${item.department}|${item.plan}`];
       if (requirement) item.requirements = { ...requirement, verifiedAt: specialRequirements.verifiedAt };
     });
   }
@@ -2970,7 +2970,7 @@ function recordSummary(record) {
     const shortEnd = (start, end) => end.slice(0, 4) === start.slice(0, 4) ? end.slice(5) : end;
     return {
       key: { label: "名額", html: `<b>${escapeHtml(record.quota)} 名</b>` },
-      secondKey: range ? { label: "報名日期", html: `<span class="sp-reg-date">${escapeHtml(range.start)} ~ ${escapeHtml(shortEnd(range.start, range.end))}</span>${tentative ? `<span class="rec-muted sp-reg-tentative">暫定</span>` : ""}` } : null,
+      secondKey: range ? { label: "報名", html: `<span class="sp-reg-date">${escapeHtml(range.start)} ~ ${escapeHtml(shortEnd(range.start, range.end))}</span>${tentative ? `<span class="rec-muted sp-reg-tentative">暫定</span>` : ""}` } : null,
     };
   }
   if (record.channelKey === "personal_application") {
@@ -5119,13 +5119,14 @@ function formatSpecialExamText(text) {
 }
 
 // 特殊選才報名門檻：清單列顯示重點標籤，詳情頁依類型分組列出完整條件。
-const SPECIAL_REQ_TYPES = { rank: "在校成績", lang: "語言檢定", apcs: "程式檢定", cert: "證照", class: "科學班／資優班", contest: "競賽／科展", work: "作品／專長", identity: "身分", other: "其他" };
+const SPECIAL_REQ_TYPES = { identity: "身分", rank: "在校成績", lang: "語言檢定", apcs: "程式檢定", exam: "其他檢定", cert: "證照", class: "科學班／資優班", contest: "競賽／科展", work: "作品／專長", other: "其他" };
 
-function specialRequirementLogicText(req) {
-  if (req.logic === "all") return { short: "須全部符合", long: "以下條件須全部符合" };
-  if (req.logic === "nOf") return { short: `須符合 ${req.n} 項`, long: `以下條件須至少符合 ${req.n} 項` };
-  if (req.logic === "open") return { short: "", long: "簡章未列明確門檻" };
-  return { short: "擇一", long: "符合以下任一條件即可報名" };
+function specialRequirementLogicText(group) {
+  if (group.logic === "all") return { long: "以下條件須全部符合", strict: true };
+  if (group.logic === "nOf") return { long: `以下條件須至少符合 ${group.n} 項`, strict: true };
+  if (group.logic === "identity") return { long: "限特定身分報考", strict: true };
+  if (group.logic === "open") return { long: "簡章未列明確數字門檻", strict: false };
+  return { long: "符合以下任一條件即可報名", strict: false };
 }
 
 function specialRequirementDetailHtml(source) {
@@ -5134,14 +5135,20 @@ function specialRequirementDetailHtml(source) {
     if (source.year !== 116) return "";
     return `<section class="detail-section sp-req-detail"><h3>報名門檻</h3><p class="sp-req-note">本校系門檻整理中，請先查閱下方官方招生簡章。</p></section>`;
   }
-  const logic = specialRequirementLogicText(req);
-  const groups = Object.keys(SPECIAL_REQ_TYPES).map((type) => [type, req.items.filter((item) => item.type === type)]).filter(([, list]) => list.length);
+  const groups = req.groups || [req];
+  const groupHtml = (group) => {
+    const logic = specialRequirementLogicText(group);
+    const rows = Object.keys(SPECIAL_REQ_TYPES).map((type) => [type, group.items.filter((item) => item.type === type)]).filter(([, list]) => list.length);
+    return `${groups.length > 1 ? `<h4 class="sp-req-group">${escapeHtml(group.name || "一般組")}</h4>` : ""}
+      <p class="sp-req-lead${logic.strict ? " is-strict" : ""}">${escapeHtml(logic.long)}</p>
+      <div class="detail-list">${rows.map(([type, list]) => `<div class="kv"><span>${escapeHtml(SPECIAL_REQ_TYPES[type])}</span><span>${list.map((item) => escapeHtml(item.text)).join("\n")}</span></div>`).join("")}</div>
+      ${group.alt?.length ? `<p class="sp-req-alt">或：${escapeHtml(group.alt.join("；"))}</p>` : ""}`;
+  };
   return `<section class="detail-section sp-req-detail">
     <h3>報名門檻</h3>
-    <p class="sp-req-lead${req.logic === "any" || req.logic === "open" ? "" : " is-strict"}">${escapeHtml(logic.long)}</p>
+    ${groups.map(groupHtml).join("")}
     ${req.recommend ? `<p class="sp-req-alert">${escapeHtml(req.recommend)}</p>` : ""}
-    <div class="detail-list">${groups.map(([type, list]) => `<div class="kv"><span>${escapeHtml(SPECIAL_REQ_TYPES[type])}</span><span>${list.map((item) => escapeHtml(item.text)).join("\n")}</span></div>`).join("")}</div>
-    <p class="sp-req-note">依 ${escapeHtml(source.year)} 學年度簡章整理，核對日期 ${escapeHtml(req.verifiedAt)}；報名前請以學校公告為準。${req.sourceUrl ? ` <a href="${escapeAttr(req.sourceUrl)}" target="_blank" rel="noreferrer">學校簡章公告</a>` : ""}</p>
+    <p class="sp-req-note">依 ${escapeHtml(source.year)} 學年度簡章整理，核對日期 ${escapeHtml(req.verifiedAt)}；報名前請以學校公告為準。${req.sourceUrl ? ` <a href="${escapeAttr(req.sourceUrl)}" target="_blank" rel="noreferrer">學校招生簡章</a>` : ""}</p>
   </section>`;
 }
 
