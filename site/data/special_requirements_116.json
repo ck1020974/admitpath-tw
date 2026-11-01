@@ -2745,7 +2745,7 @@
      "logic": "open",
      "items": [
       {
-       "type": "rank",
+       "type": "talent",
        "text": "篩選看生命科學或昆蟲領域成就、生物科成績優異等"
       }
      ],
@@ -2774,7 +2774,7 @@
      "logic": "identity",
      "items": [
       {
-       "type": "rank",
+       "type": "talent",
        "text": "篩選看國語文成績優異、法律相關成就，無數字門檻"
       }
      ],
