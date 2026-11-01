@@ -5205,9 +5205,177 @@ function specialSelectionDetailHtml(source) {
   return summary + specialRequirementDetailHtml(source) + scheduleHtml + contactHtml + `<p class="sp-footnote">${notes.join("；")}。</p>`;
 }
 
+// ===== 個人申請／繁星詳情頁（精簡版）：摘要列 → 門檻表 → 其他 → 底部連結 =====
+const valueOk = (value) => value != null && String(value).trim() !== "" && !["--", "---", "-"].includes(String(value).trim());
+
+function compactSubjectName(subject) {
+  const text = normalizeSubject(subject);
+  if (["國文", "英文", "數學A", "數學B", "社會", "自然", "英聽"].includes(text)) return shortSubject(text);
+  const parts = String(subject || "").match(/數學?A|數學?B|國|英|社|自/g);
+  return parts && parts.join("").length === String(subject).replace(/\s/g, "").length
+    ? parts.map((part) => ({ 國: "國", 英: "英", 社: "社", 自: "自" }[part] || part.replace("數學", "數"))).join("+")
+    : String(subject || "");
+}
+
+function subjectSetKey(subjects) {
+  return (subjects || []).map((subject) => compactSubjectName(subject).replace(/^(國|英|社|自)[文會然]?$/, "$1")).sort().join("+");
+}
+
+function detailSummaryHtml(items, extra = "") {
+  return `<section class="detail-section sp-summary"><div class="sp-summary-row">${items.filter(Boolean).map(([label, value]) => `<div><span>${escapeHtml(label)}</span><b>${value}</b></div>`).join("")}</div>${extra}</section>`;
+}
+
+function detailFooterHtml(links, note) {
+  const list = links.filter(([, url]) => url);
+  return `<p class="sp-footnote">${list.map(([label, url]) => `<a href="${escapeAttr(url)}" target="_blank" rel="noopener">${escapeHtml(label)}</a>`).join("・")}${list.length && note ? "<br>" : ""}${note ? escapeHtml(note) : ""}</p>`;
+}
+
+function gsatStandardScore(year, subject, standard) {
+  const score = state.gsatStandards?.[String(year)]?.[normalizeSubject(subject)]?.[String(standard || "").trim()];
+  return score != null ? String(score) : "";
+}
+
+function personalApplicationDetailHtml(record) {
+  const cac = record.cacDetail;
+  const quota = Number(record.quota) || 0;
+  const interview = Number(record.expectedSecondStageCount) || 0;
+  const ratio = quota && interview ? ` <small>約 ${Math.round((interview / quota) * 10) / 10} 倍</small>` : "";
+  const summary = detailSummaryHtml([
+    ["名額", `${escapeHtml(record.quota || "--")} 名`],
+    interview ? ["甄試", `${interview} 人${ratio}`] : null,
+    valueOk(record.screeningDate) ? ["甄試日期", escapeHtml(record.screeningDate)] : null,
+    record.examRequired === "是" ? ["術科", "需考術科"] : null,
+  ], `<div class="detail-status-row">${dataQualityStatusPillHtml(record)}</div>`);
+
+  // 第一階段：門檻、篩選倍率與上一年度篩選級分合成一張表。
+  const ranked = (record.applySieveResult?.rankedItems || []).filter((item) => item.subjects?.length);
+  const usedRanked = new Set();
+  const rows = [...(cac.screeningSubjects || []), ...(cac.apcsSubjects || []), ...(cac.artSubjects || [])]
+    .filter((item) => valueOk(item.subject))
+    .map((item) => {
+      const isApcs = (cac.apcsSubjects || []).includes(item) || /APCS/.test(item.subject);
+      const isArt = (cac.artSubjects || []).includes(item);
+      const name = isApcs || isArt ? String(item.subject) : compactSubjectName(item.subject);
+      const key = isApcs || isArt ? "" : subjectSetKey(name.split("+"));
+      const match = key && ranked.find((rank, index) => !usedRanked.has(index) && subjectSetKey(rank.subjects) === key && (usedRanked.add(index), true));
+      const multiplier = item.screening_multiplier === "◎" ? "依主修" : valueOk(item.screening_multiplier) ? `${item.screening_multiplier} 倍` : "—";
+      return {
+        name,
+        standard: valueOk(item.standard) ? `${item.standard}${isApcs && /^\d+$/.test(item.standard) ? " 級" : ""}` : "—",
+        standardScore: !isApcs && !isArt && valueOk(item.standard) ? gsatStandardScore(record.year, item.subject, item.standard) || "—" : "—",
+        multiplier,
+        result: match && valueOk(match.score) ? String(match.score) : "—",
+      };
+    });
+  ranked.forEach((rank, index) => {
+    if (usedRanked.has(index)) return;
+    rows.push({ name: rank.subjects.map(compactSubjectName).join("+"), standard: "—", standardScore: "—", multiplier: valueOk(rank.multiplier) ? `${rank.multiplier} 倍` : "—", result: valueOk(rank.score) ? String(rank.score) : "—" });
+  });
+  // 同倍率的科目會加總篩選：單科列標示「併計」，讓學生對照下方合計列。
+  rows.forEach((row) => {
+    if (row.result !== "—" || row.multiplier === "—" || row.name.includes("+")) return;
+    const key = subjectSetKey([row.name]);
+    if (rows.some((other) => other.name.includes("+") && other.multiplier === row.multiplier && other.result !== "—" && subjectSetKey(other.name.split("+")).split("+").includes(key))) row.result = "併計";
+  });
+  const specializations = record.applySieveResult?.specializations || [];
+  const noResult = !ranked.some((rank) => valueOk(rank.score));
+  const stage1 = `<section class="detail-section">
+    <h3>第一階段</h3>
+    ${rows.length ? `<table class="stage-table">
+      <colgroup><col class="c-subject"><col class="c-std"><col class="c-num"><col class="c-mul"><col class="c-num"></colgroup><thead><tr><th>科目</th><th>門檻</th><th>級分</th><th class="col-split">篩選</th><th>級分</th></tr></thead>
+      <tbody>${rows.map((row) => `<tr><td>${escapeHtml(row.name)}</td><td>${escapeHtml(row.standard)}</td><td class="num">${escapeHtml(row.standardScore)}</td><td class="col-split">${escapeHtml(row.multiplier)}</td><td class="num strong">${escapeHtml(row.result)}</td></tr>`).join("")}</tbody>
+    </table>` : `<p class="sp-req-note is-top">未設學測檢定與倍率。</p>`}
+    <p class="stage-note">門檻級分為 ${escapeHtml(record.year)} 學年度五標；篩選級分為 ${escapeHtml(record.year)} 學年度一階通過的最低級分${noResult ? `（${escapeHtml(personalApplicationNoResultLabel(record))}）` : ""}。</p>
+    ${specializations.length ? `<div class="detail-list">${specializations.map((sp) => kv(`${sp.major}（${sp.quota}名）`, `${sp.artStandards ? `術科檢定 ${sp.artStandards}；` : ""}${(sp.rankedItems || []).map((item) => `${(item.subjects || []).join("+")}${item.multiplier ? ` ${item.multiplier}倍` : ""} ${item.score || "未列"}`).join("；")}`)).join("")}</div>` : ""}
+    ${valueOk(cac.overEnrollmentScreening) ? `<p class="stage-note">超額篩選：${escapeHtml(String(cac.overEnrollmentScreening).replace(/\s*\n\s*/g, " "))}</p>` : ""}
+    <details class="sp-raw"><summary>怎麼看這張表</summary><p>先通過「門檻」的級分，再依「篩選」倍率由大到小篩選，同倍率的科目合計。右側級分是該年度實際篩到的最低分；標示「併計」的科目已和同倍率科目加總，看下方合計列。可當作參考線，但符合不代表一定通過或錄取。術科、主修與 APCS 須另外核對簡章。</p></details>
+  </section>`;
+
+  const items = cac.secondStageItems || [];
+  const weights = (cac.screeningSubjects || []).filter((item) => valueOk(item.score_weight) && valueOk(item.subject)).map((item) => `${compactSubjectName(item.subject)}${String(item.score_weight).replace("*", "×")}`);
+  const stage2 = `<section class="detail-section">
+    <h3>第二階段</h3>
+    <div class="detail-list">
+      ${kv("學測成績", `${cac.academicPercentage || "--"}${weights.length && cac.academicPercentage && cac.academicPercentage !== "0%" ? `（${weights.join("、")}）` : ""}`)}
+      ${cac.artPercentage ? kv("術科成績", cac.artPercentage) : ""}
+      ${items.map((item) => kv(item.item, [valueOk(item.standard) ? item.standard : "", item.percentage ? `佔 ${item.percentage}` : ""].filter(Boolean).join("，") || "--")).join("")}
+      ${cac.apcsSubjects?.length ? kv("APCS", cac.apcsSubjects.map((item) => `${shortSubject(item.subject)} ${item.standard || "--"}，倍率 ${item.screening_multiplier || "--"}`).join("；")) : ""}
+    </div>
+    ${cac.sameScoreOrder?.length ? `<p class="stage-note">同分參酌：${escapeHtml(cac.sameScoreOrder.map((text) => String(text).replace(/^[一二三四五六七八九十]+、/, "")).join(" › "))}</p>` : ""}
+  </section>`;
+
+  const review = (cac.reviewItems || cac.reviewDescription || cac.interviewOrTestDescription) ? `<section class="detail-section">
+    <h3>審查重點</h3>
+    <div class="detail-list">
+      ${cac.reviewItems ? kv("審查項目", cac.reviewItems) : ""}
+      ${cac.reviewDescription ? kv("審查說明", cac.reviewDescription) : ""}
+    </div>
+    ${cac.interviewOrTestDescription ? `<details class="sp-raw"><summary>甄試時間與地點等細節</summary><p>${escapeHtml(cac.interviewOrTestDescription)}</p></details>` : ""}
+  </section>` : "";
+
+  return summary + stage1 + stage2 + review + detailFooterHtml([
+    ["官方校系分則", record.detailUrl],
+    ["一階篩選原表", record.applySieveResult?.sourceImageUrl],
+  ], `資料來源：${record.sourceOrganization || "大學甄選入學委員會"}；實際規定以官方公告為準。`);
+}
+
+function starDetailHtml(record) {
+  const cac = record.cacDetail;
+  const result = record.starAdmissionResult;
+  const rank = record.starRankStandard?.academicRankPercentileStandard;
+  const isEight = result?.standardType === "eight";
+  const group = record.starGroup || record.category;
+  const summary = detailSummaryHtml([
+    ["名額", `${escapeHtml(record.quota || "--")} 名`],
+    group && group !== "一般" ? ["學群", escapeHtml(group)] : null,
+    rank ? ["在校排名", escapeHtml(rank)] : null,
+    result && valueOk(result.totalCount) ? [isEight ? "通過篩選" : "錄取", `${escapeHtml(result.totalCount)} 人`] : null,
+  ], `<div class="detail-status-row">${dataQualityStatusPillHtml(record)}</div>`);
+
+  // 檢定：科目、門檻、級分三欄；優先用錄取標準 PDF 中的實際級分。
+  const pdf = result?.testRequirements || [];
+  const tests = (pdf.length ? pdf : cac.testRequirements || []).filter((item) => valueOk(item.standard));
+  const testHtml = `<section class="detail-section">
+    <h3>學測檢定</h3>
+    ${tests.length ? `<table class="stage-table is-narrow"><thead><tr><th>科目</th><th>門檻</th><th>級分</th></tr></thead><tbody>${tests.map((item) => {
+      const score = valueOk(item.score) ? item.score : gsatStandardScore(record.year, item.subject, item.standard);
+      return `<tr><td>${escapeHtml(shortSubject(item.subject))}</td><td>${escapeHtml(item.standard)}</td><td class="num">${escapeHtml(score || "—")}</td></tr>`;
+    }).join("")}</tbody></table>` : `<p class="sp-req-note is-top">未設學測檢定。</p>`}
+    ${result?.artExamRequirements?.length ? `<p class="stage-note">術科檢定：${escapeHtml(formatStarPdfRequirements(record.year, result.artExamRequirements))}</p>` : ""}
+  </section>`;
+
+  // 比序：順位、項目與上一年度錄取標準合在同一張表。
+  const standards = result?.distributionStandards || [];
+  const order = cac.distributionOrder || [];
+  const orderRows = (standards.length ? standards.map((item) => ({ rank: item.rank, label: order[item.rank - 1] ? String(order[item.rank - 1]).replace(/^\d+、/, "") : item.item, first: item.firstRoundStandard, second: item.secondRoundStandard }))
+    : order.map((text, index) => ({ rank: index + 1, label: String(text).replace(/^\d+、/, ""), first: "", second: "" })));
+  const hasSecond = orderRows.some((row) => valueOk(row.second));
+  const hasResult = orderRows.some((row) => valueOk(row.first));
+  const lastUsed = orderRows.reduce((last, row) => (valueOk(row.first) || valueOk(row.second) ? row.rank : last), 0);
+  const orderHtml = orderRows.length ? `<section class="detail-section">
+    <h3>${isEight ? "比序與篩選標準" : "比序與錄取標準"}</h3>
+    <table class="stage-table">
+      <colgroup><col class="c-rank"><col>${hasResult ? `<col class="c-res">` : ""}${hasSecond ? `<col class="c-res">` : ""}</colgroup><thead><tr><th>順位</th><th>比序項目</th>${hasResult ? `<th>${escapeHtml(record.year)} ${hasSecond ? "第一輪" : "標準"}</th>` : ""}${hasSecond ? `<th>第二輪</th>` : ""}</tr></thead>
+      <tbody>${orderRows.map((row) => `<tr class="${hasResult && row.rank > lastUsed ? "is-unused" : ""}"><td class="num">${escapeHtml(row.rank)}</td><td>${escapeHtml(row.label)}</td>${hasResult ? `<td class="num strong">${escapeHtml(valueOk(row.first) ? row.first : row.rank > lastUsed ? "未用到" : "—")}</td>` : ""}${hasSecond ? `<td class="num strong">${escapeHtml(valueOk(row.second) ? row.second : "—")}</td>` : ""}</tr>`).join("")}</tbody>
+    </table>
+    ${hasResult ? `<p class="stage-note">標準為 ${escapeHtml(record.year)} 學年度最後錄取者的數值；「未用到」表示比到前面項目就已決定錄取名單。${!hasSecond ? "第二輪從缺。" : ""}</p>` : ""}
+  </section>` : "";
+
+  const notes = String(cac.notes || "");
+  const notesHtml = /限|須|不得|不予|僅|需具|需檢附|需繳|辨色|色盲|體格|不受理/.test(notes) ? `<section class="detail-section"><h3>注意事項</h3><p class="stage-note is-body">${escapeHtml(notes.replace(/\n{2,}/g, "\n"))}</p></section>` : "";
+
+  return summary + testHtml + orderHtml + notesHtml + detailFooterHtml([
+    ["官方校系分則", record.detailUrl],
+    [`${record.year} 錄取標準原表`, result?.sourceUrl],
+    ["在校排名標準", record.starRankStandard?.sourceUrl],
+  ], `資料來源：${record.sourceOrganization || "大學甄選入學委員會"}；實際規定以官方公告為準。`);
+}
+
 function detailHtml(record, result) {
   if (record.specialSelection) return specialSelectionDetailHtml(record.specialSelection);
   if (record.channelKey === "tech_application") return techApplicationDetailHtml(record);
+  if (record.channelKey === "personal_application" && !record.militaryAdmission && record.cacDetail) return personalApplicationDetailHtml(record);
+  if (record.channelKey === "star_recommendation" && record.cacDetail) return starDetailHtml(record);
   const weighted = record.weightedSubjects?.filter((item) => item.raw && item.raw !== "--" && item.raw !== "---") || [];
   const cac = record.cacDetail;
   return `

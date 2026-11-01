@@ -76,3 +76,21 @@
 .sp-footnote { margin: 4px 4px 0; color: var(--muted); font-size: 12px; line-height: 1.7; }
 .sp-footnote a { color: inherit; text-decoration: underline; }
 .sp-req-note.is-top { margin: 0 0 8px; }
+
+/* 個人申請／繁星詳情：門檻表 */
+.stage-table { width: 100%; min-width: 0; border-collapse: collapse; table-layout: fixed; font-size: 13px; font-variant-numeric: tabular-nums; }
+.stage-table th { position: static; background: transparent; letter-spacing: 0; }
+.stage-table tr:hover td { background: transparent; }
+.stage-table td { font-size: 13px; }
+.stage-table .c-subject { width: 32%; } .stage-table .c-std { width: 16%; } .stage-table .c-num { width: 13%; } .stage-table .c-mul { width: 17%; }
+.stage-table .c-rank { width: 12%; } .stage-table .c-res { width: 22%; }
+.stage-table th { padding: 6px 8px; border-bottom: 1px solid var(--line); color: var(--muted); font-size: 12px; font-weight: 700; text-align: left; white-space: nowrap; }
+.stage-table td { padding: 8px; border-bottom: 1px solid var(--line); vertical-align: top; }
+.stage-table td.num { white-space: nowrap; }
+.stage-table td.strong { font-weight: 800; }
+.stage-table .col-split { border-left: 1px solid var(--line); }
+.stage-table.is-narrow { width: 70%; }
+.stage-table tr.is-unused td { color: var(--muted); font-weight: 400; }
+.stage-note { margin: 8px 0 0; color: var(--muted); font-size: 12px; line-height: 1.7; }
+.stage-note.is-body { white-space: pre-line; font-size: 13px; color: var(--ink); }
+.sp-summary .detail-status-row { margin-top: 10px; }
