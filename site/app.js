@@ -5355,7 +5355,7 @@ function starDetailHtml(record) {
   const orderHtml = orderRows.length ? `<section class="detail-section">
     <h3>${isEight ? "比序與篩選標準" : "比序與錄取標準"}</h3>
     <table class="stage-table">
-      <colgroup><col class="c-rank"><col>${hasResult ? `<col class="c-res">` : ""}${hasSecond ? `<col class="c-res">` : ""}</colgroup><thead><tr><th>順位</th><th>比序項目</th>${hasResult ? `<th>${escapeHtml(record.year)} ${hasSecond ? "第一輪" : "標準"}</th>` : ""}${hasSecond ? `<th>第二輪</th>` : ""}</tr></thead>
+      <colgroup><col class="c-rank"><col>${hasResult ? `<col class="c-res">` : ""}${hasSecond ? `<col class="c-res">` : ""}</colgroup><thead><tr><th>順位</th><th>比序項目</th>${hasResult ? `<th>${hasSecond ? "第一輪" : `${escapeHtml(record.year)} 標準`}</th>` : ""}${hasSecond ? `<th>第二輪</th>` : ""}</tr></thead>
       <tbody>${orderRows.map((row) => `<tr class="${hasResult && row.rank > lastUsed ? "is-unused" : ""}"><td class="num">${escapeHtml(row.rank)}</td><td>${escapeHtml(row.label)}</td>${hasResult ? `<td class="num strong">${escapeHtml(valueOk(row.first) ? row.first : row.rank > lastUsed ? "未用到" : "—")}</td>` : ""}${hasSecond ? `<td class="num strong">${escapeHtml(valueOk(row.second) ? row.second : "—")}</td>` : ""}</tr>`).join("")}</tbody>
     </table>
     ${hasResult ? `<p class="stage-note">標準為 ${escapeHtml(record.year)} 學年度最後錄取者的數值；「未用到」表示比到前面項目就已決定錄取名單。${!hasSecond ? "第二輪從缺。" : ""}</p>` : ""}
