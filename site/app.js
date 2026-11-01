@@ -2949,7 +2949,6 @@ function workbenchRecordRowHtml(record, comparing = false) {
             <span class="rec-dept program-name">${escapeHtml(record.departmentName)}${specialAdmissionBadgeHtml(record)}</span>
             ${specialRegistrationBadgeHtml(record)}
           </button>
-          ${summary.requirement || ""}
           ${summary.sub?.label === "申請門檻" ? subHtml + keyHtml : keyHtml + subHtml}
         </td>
         <td class="rec-action">
@@ -2965,12 +2964,13 @@ function workbenchRecordRowHtml(record, comparing = false) {
 function recordSummary(record) {
   const steps = (items) => items.map((text) => `<b>${escapeHtml(text)}</b>`).join('<i class="rec-step" aria-hidden="true">›</i><span class="sr-only">，</span>');
   if (record.specialSelection) {
-    const tags = AdmissionCatalog.examTags(record.specialSelection);
-    const plan = record.specialSelection.plan === "資安外加" ? ["資安外加"] : [];
+    // 工作臺只放名額與報名日期，門檻、甄選方式等細節留在詳情頁。
+    const range = specialRegistrationRange(record.specialSelection);
+    const tentative = Boolean(record.specialSelection.tentative?.registration);
+    const shortEnd = (start, end) => end.slice(0, 4) === start.slice(0, 4) ? end.slice(5) : end;
     return {
-      key: { label: "名額", html: `<b>${escapeHtml(record.quota)} 名</b>${record.specialSelection.requirements?.recommend ? `<span class="sp-req-chip is-warn sp-quota-note">需高中推薦</span>` : ""}` },
-      sub: { label: tags.conditional ? "甄選（分階段）" : "甄選", text: [...plan, ...tags.tags].join("、") },
-      requirement: specialRequirementRowHtml(record.specialSelection),
+      key: { label: "名額", html: `<b>${escapeHtml(record.quota)} 名</b>` },
+      secondKey: range ? { label: "報名日期", html: `<span class="sp-reg-date">${escapeHtml(range.start)} ~ ${escapeHtml(shortEnd(range.start, range.end))}</span>${tentative ? `<span class="rec-muted sp-reg-tentative">暫定</span>` : ""}` } : null,
     };
   }
   if (record.channelKey === "personal_application") {
@@ -5097,8 +5097,8 @@ function specialRegistrationStatus(source, today = new Date()) {
   const tentative = Boolean(source.tentative?.registration) || /報名日期（暫定）/.test(source.schedule || "");
   const note = tentative ? "日期為暫定，以學校簡章為準" : "";
   if (day > end) return { key: "closed", label: "已截止", short: "已截止", note };
-  if (day < start) return { key: "upcoming", label: `尚未開始（${md(start)} 起）`, short: `${md(start)} 起報名`, note };
-  return { key: "open", label: `報名中（至 ${md(end)}）`, short: `報名中・至 ${md(end)}`, note };
+  if (day < start) return { key: "upcoming", label: `尚未開始（${md(start)} 起）`, short: "尚未開始", note };
+  return { key: "open", label: `報名中（至 ${md(end)}）`, short: "報名中", note };
 }
 
 function specialRegistrationBadgeHtml(record) {
@@ -5106,7 +5106,7 @@ function specialRegistrationBadgeHtml(record) {
   const status = specialRegistrationStatus(record.specialSelection);
   if (!status) return "";
   const title = `報名期間 ${specialRegistrationRange(record.specialSelection).start} ~ ${specialRegistrationRange(record.specialSelection).end}${status.note ? `；${status.note}` : ""}`;
-  return `<span class="sp-reg-badge is-${status.key}" title="${escapeAttr(title)}">${escapeHtml(status.short)}${status.note ? "<i>*</i>" : ""}</span>`;
+  return `<span class="sp-reg-badge is-${status.key}" title="${escapeAttr(title)}">${escapeHtml(status.short)}</span>`;
 }
 
 // 考試項目：簡章常把「審查」「口試」連成一行，依項目換行。
@@ -5120,23 +5120,12 @@ function formatSpecialExamText(text) {
 
 // 特殊選才報名門檻：清單列顯示重點標籤，詳情頁依類型分組列出完整條件。
 const SPECIAL_REQ_TYPES = { rank: "在校成績", lang: "語言檢定", apcs: "程式檢定", cert: "證照", class: "科學班／資優班", contest: "競賽／科展", work: "作品／專長", identity: "身分", other: "其他" };
-const SPECIAL_REQ_NUMERIC = new Set(["rank", "lang", "apcs"]);
 
 function specialRequirementLogicText(req) {
   if (req.logic === "all") return { short: "須全部符合", long: "以下條件須全部符合" };
   if (req.logic === "nOf") return { short: `須符合 ${req.n} 項`, long: `以下條件須至少符合 ${req.n} 項` };
   if (req.logic === "open") return { short: "", long: "簡章未列明確門檻" };
   return { short: "擇一", long: "符合以下任一條件即可報名" };
-}
-
-function specialRequirementRowHtml(source) {
-  const req = source?.requirements;
-  if (!req) return source?.year === 116 ? `<p class="rec-sub sp-req-row"><span class="rec-label">報名門檻</span><span class="rec-muted">整理中・請見簡章</span></p>` : "";
-  if (req.logic === "open") return `<p class="rec-sub sp-req-row"><span class="rec-label">報名門檻</span><span class="sp-req-chip is-open">無數字門檻</span><span class="rec-muted">看特殊表現與書審</span></p>`;
-  const items = [...req.items].sort((a, b) => SPECIAL_REQ_NUMERIC.has(b.type) - SPECIAL_REQ_NUMERIC.has(a.type));
-  const shown = items.slice(0, 3);
-  const logic = specialRequirementLogicText(req);
-  return `<p class="rec-sub sp-req-row"><span class="rec-label">報名門檻</span><span class="sp-req-chips">${logic.short ? `<span class="sp-req-logic${req.logic === "any" ? "" : " is-strict"}">${escapeHtml(logic.short)}</span>` : ""}${shown.map((item) => `<span class="sp-req-chip${SPECIAL_REQ_NUMERIC.has(item.type) ? " is-num" : ""}">${escapeHtml(item.label)}</span>`).join("")}${items.length > shown.length ? `<span class="rec-muted">等 ${items.length} 項</span>` : ""}</span></p>`;
 }
 
 function specialRequirementDetailHtml(source) {

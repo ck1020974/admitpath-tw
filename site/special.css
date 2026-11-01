@@ -42,13 +42,14 @@
 .sp-req-note { margin: 10px 0 0; color: var(--muted); font-size: 12px; line-height: 1.7; }
 .sp-req-note a { color: inherit; text-decoration: underline; }
 .sp-req-detail .kv span:first-child { font-weight: 700; }
-.sp-quota-note { margin-left: 10px; align-self: center; }
 /* 報名狀態標籤（接在校系名稱後） */
 .sp-reg-badge {
   display: inline-flex; align-items: center; align-self: center; padding: 1px 9px; border-radius: 999px;
   font-size: 12px; font-weight: 800; line-height: 1.5; white-space: nowrap; 
 }
 .sp-reg-badge i { font-style: normal; margin-left: 1px; opacity: .7; }
-.sp-reg-badge.is-open { background: #e3f5ec; color: #0b7a4b; box-shadow: inset 0 0 0 1px #b6e2cb; }
+.sp-reg-badge.is-open { background: #fff4d6; color: #8a5a00; box-shadow: inset 0 0 0 1px #f2d48a; }
 .sp-reg-badge.is-upcoming { background: #e8f0fe; color: #2753b5; box-shadow: inset 0 0 0 1px #c6d6f7; }
-.sp-reg-badge.is-closed { background: #f1f2f4; color: #8a94a3; box-shadow: inset 0 0 0 1px #e0e3e8; }
+.sp-reg-badge.is-closed { background: #fdeceb; color: #b42318; box-shadow: inset 0 0 0 1px #f6c9c4; }
+.sp-reg-date { font-size: 14px; font-weight: 700; font-variant-numeric: tabular-nums; }
+.sp-reg-tentative { margin-left: 8px; font-size: 12px; }
