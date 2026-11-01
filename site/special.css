@@ -57,3 +57,22 @@
 .sp-req-detail h3 + .sp-req-group { margin-top: 4px; padding-top: 0; border-top: 0; }
 .sp-req-alt { margin: 8px 0 0; font-size: 13px; color: var(--muted); }
 .sp-req-open { margin: 0; font-size: 13px; line-height: 1.7; color: var(--ink); }
+
+/* 特殊選才詳情頁：摘要列、日程、聯絡、底部註記 */
+.sp-summary-row { display: flex; flex-wrap: wrap; gap: 10px 40px; align-items: flex-start; }
+.sp-summary-row > div { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.sp-summary-row span { color: var(--muted); font-size: 12px; font-weight: 700; }
+.sp-summary-row b { font-size: 16px; font-weight: 800; line-height: 1.5; }
+.sp-summary-row b .sp-reg-badge { font-style: normal; vertical-align: 2px; margin-right: 2px; }
+.sp-summary-row small { margin-left: 6px; color: var(--muted); font-size: 12px; font-weight: 700; }
+.sp-summary-plan { margin: 10px 0 0; font-size: 13px; font-weight: 700; color: #0f6b5c; }
+.sp-raw { margin-top: 12px; font-size: 13px; color: var(--muted); }
+.sp-raw summary { cursor: pointer; font-weight: 700; }
+.sp-raw p { margin: 8px 0 0; white-space: pre-line; line-height: 1.7; color: var(--ink); }
+.sp-contact { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px 16px; }
+.sp-contact p { margin: 0; font-size: 13px; }
+.sp-contact p span { margin-right: 10px; color: var(--muted); font-weight: 700; }
+.sp-brochure { text-decoration: none; }
+.sp-footnote { margin: 4px 4px 0; color: var(--muted); font-size: 12px; line-height: 1.7; }
+.sp-footnote a { color: inherit; text-decoration: underline; }
+.sp-req-note.is-top { margin: 0 0 8px; }

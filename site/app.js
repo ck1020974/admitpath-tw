@@ -5141,8 +5141,8 @@ function specialRequirementLogicText(group) {
 function specialRequirementDetailHtml(source) {
   const req = source.requirements;
   if (!req) {
-    if (source.year !== 116) return "";
-    return `<section class="detail-section sp-req-detail"><h3>報名門檻</h3><p class="sp-req-note">本校系門檻整理中，請先查閱下方官方招生簡章。</p></section>`;
+    // 尚未整理門檻的校系：保留教育部資料的招生對象，並提示查閱簡章。
+    return `<section class="detail-section sp-req-detail"><h3>${source.year === 116 ? "報名門檻" : "招生對象"}</h3>${source.year === 116 ? `<p class="sp-req-note is-top">本校系門檻整理中，請查閱官方招生簡章。</p>` : ""}${source.target ? `<div class="detail-list"><div class="kv"><span>招生對象</span><span>${escapeHtml(source.target)}</span></div></div>` : ""}</section>`;
   }
   const groups = req.groups || [req];
   const groupHtml = (group) => {
@@ -5159,18 +5159,54 @@ function specialRequirementDetailHtml(source) {
     <h3>報名門檻</h3>
     ${groups.map(groupHtml).join("")}
     ${req.recommend ? `<p class="sp-req-alert">${escapeHtml(req.recommend)}</p>` : ""}
-    <p class="sp-req-note">依 ${escapeHtml(source.year)} 學年度簡章整理，核對日期 ${escapeHtml(req.verifiedAt)}；報名前請以學校公告為準。${req.sourceUrl ? ` <a href="${escapeAttr(req.sourceUrl)}" target="_blank" rel="noreferrer">學校招生簡章</a>` : ""}</p>
   </section>`;
 }
 
+// 重要日程：優先用結構化日期，否則解析「【項目】日期」文字。
+function specialScheduleRows(source) {
+  const rows = [];
+  const re = /【([^】（]+)(（暫定）)?】\s*([^【\n]+)/g;
+  let match;
+  while ((match = re.exec(source.schedule || ""))) rows.push({ label: match[1].replace(/日期$/, "").trim(), value: match[3].trim(), tentative: Boolean(match[2]) });
+  return rows;
+}
+
+function specialSelectionDetailHtml(source) {
+  const status = specialRegistrationStatus(source);
+  const range = specialRegistrationRange(source);
+  const exam = AdmissionCatalog.examTags(source);
+  const md = (text) => text.replace(/^\d{4}\//, "").replace(/^0/, "").replace(/\/0/, "/");
+  const schedule = specialScheduleRows(source);
+  const tentative = schedule.some((row) => row.tentative);
+  const examText = formatSpecialExamText(source.exam);
+  const contact = String(source.contact || "").split("\n").map((line) => line.replace(/^(聯絡人|聯絡電話)[:：]/, "").trim()).filter(Boolean).join("｜");
+  const summary = `<section class="detail-section sp-summary">
+    <div class="sp-summary-row">
+      <div><span>名額</span><b>${escapeHtml(source.quota)} 名</b></div>
+      ${status ? `<div><span>報名</span><b><i class="sp-reg-badge is-${status.key}">${escapeHtml(status.short)}</i>${range ? ` ${escapeHtml(md(range.start))}–${escapeHtml(md(range.end))}` : ""}</b></div>` : ""}
+      <div><span>甄選</span><b>${escapeHtml(exam.tags.join("＋"))}${exam.conditional ? `<small>分階段</small>` : ""}</b></div>
+    </div>
+    ${source.plan === "資安外加" ? `<p class="sp-summary-plan">資安外加名額</p>` : ""}
+    ${examText ? `<details class="sp-raw"><summary>查看考試項目原文</summary><p>${escapeHtml(examText)}</p></details>` : ""}
+  </section>`;
+  const scheduleHtml = schedule.length ? `<section class="detail-section"><h3>重要日程</h3>
+    <div class="detail-list">${schedule.map((row) => `<div class="kv"><span>${escapeHtml(row.label)}</span><span>${escapeHtml(row.value)}</span></div>`).join("")}</div>
+    ${tentative ? `<p class="sp-req-note">以上日期為教育部彙整的暫定日期，以學校簡章為準。</p>` : ""}</section>` : "";
+  const contactHtml = `<section class="detail-section sp-contact">
+    ${contact ? `<p><span>聯絡</span>${escapeHtml(contact)}</p>` : ""}
+    ${source.url ? `<a class="ghost-button sp-brochure" href="${escapeAttr(source.url)}" target="_blank" rel="noreferrer">官方招生簡章</a>` : ""}
+  </section>`;
+  const req = source.requirements;
+  const notes = [
+    req ? `報名門檻依 ${source.year} 學年度各校簡章整理（核對 ${req.verifiedAt}）` : "",
+    source.sourceUrl ? `名額與日程來自<a href="${escapeAttr(source.sourceUrl)}#page=${source.sourcePage}" target="_blank" rel="noreferrer">教育部 ${source.year} 學年度特殊選才招生資訊</a>` : `名額與日程來自教育部特殊選才招生資訊`,
+    "實際條件與日期以學校公告為準",
+  ].filter(Boolean);
+  return summary + specialRequirementDetailHtml(source) + scheduleHtml + contactHtml + `<p class="sp-footnote">${notes.join("；")}。</p>`;
+}
+
 function detailHtml(record, result) {
-  if (record.specialSelection) {
-    const source = record.specialSelection;
-    const block = (title, text) => text ? `<section class="detail-section"><h3>${title}</h3><p style="white-space:pre-line;line-height:1.75">${escapeHtml(text)}</p></section>` : '';
-    const status = specialRegistrationStatus(source);
-    return block('招生概覽', `${source.plan}｜招生 ${source.quota} 名${status ? `\n報名狀態：${status.label}${status.note ? `（${status.note}）` : ''}` : ''}`) + specialRequirementDetailHtml(source)
-      + [['考試項目與成績採計', formatSpecialExamText(source.exam)], ['日程公告', source.schedule], ['招生對象', source.target], ['聯絡資訊', source.contact], ['備註', source.note]].map(([title, text]) => block(title, text)).join('') + (source.url ? `<section class="detail-section"><a href="${escapeAttr(source.url)}" target="_blank" rel="noreferrer">官方招生簡章</a></section>` : '') + (source.sourceUrl ? `<section class="detail-section"><h3>資料來源</h3><p>教育部 116 學年度${escapeHtml(source.plan)}招生資訊，第 ${source.sourcePage} 頁，序號 ${source.sourceSerial}。各校考試及招生日期以各校公告簡章為準。</p><a href="${escapeAttr(source.sourceUrl)}#page=${source.sourcePage}" target="_blank" rel="noreferrer">查看來源 PDF</a></section>` : '');
-  }
+  if (record.specialSelection) return specialSelectionDetailHtml(record.specialSelection);
   if (record.channelKey === "tech_application") return techApplicationDetailHtml(record);
   const weighted = record.weightedSubjects?.filter((item) => item.raw && item.raw !== "--" && item.raw !== "---") || [];
   const cac = record.cacDetail;
