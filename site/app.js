@@ -1011,6 +1011,7 @@ function bindEvents() {
     button.addEventListener("click", () => {
       els.channelFilter.value = button.dataset.channelPick;
       state.filters.channel = button.dataset.channelPick;
+      if (state.filters.channel === "special_selection") state.filters.year = latestYearForChannel("special_selection");
       setView("workbench");
       applyFilters();
     });
@@ -1145,7 +1146,7 @@ async function loadData() {
     fetchJson("./data/category_representatives.json"),
     fetchJson("./data/apply114_quality_report.json"),
   ]);
-  const specialData = await Promise.all([115, 116].map(year => fetchJson(`./data/special_admissions_${year}.json`)));
+  const specialData = await Promise.all([116, 115].map(year => fetchJson(`./data/special_admissions_${year}.json`)));
   // 特殊選才報名門檻（依簡章人工整理）；檔案缺漏時不影響其他資料。
   const specialRequirements = await fetchJson("./data/special_requirements_116.json").catch(() => null);
   if (specialRequirements) {
@@ -1246,9 +1247,20 @@ function mergeRecordDetail(record, detail) {
   record.detailLoaded = true;
 }
 
+// 切到特殊選才時，預設看最新年度（116），學生仍可自己改回其他年度。
+function latestYearForChannel(channel) {
+  const years = state.records.filter(record => record.channelKey === channel).map(record => record.year);
+  return years.length ? String(Math.max(...years)) : "all";
+}
+
 function updateFilter() {
+  const channelChanged = state.filters.channel !== els.channelFilter.value;
   state.filters.year = els.yearFilter.value;
   state.filters.channel = els.channelFilter.value;
+  if (channelChanged && state.filters.channel === "special_selection") {
+    state.filters.year = latestYearForChannel("special_selection");
+    els.yearFilter.value = state.filters.year;
+  }
   if (state.filters.school !== els.schoolFilter.value) state.filters.schoolScope = "all";
   state.filters.school = els.schoolFilter.value;
   state.filters.keyword = els.keywordInput.value.trim();
