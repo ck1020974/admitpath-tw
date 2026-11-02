@@ -27,7 +27,11 @@ export function createHandler({ projectUrl, publicKey, serviceKey, allowedOrigin
       if (!lookup.ok) return json(503, { error: 'SERVICE_UNAVAILABLE' });
       const email = await lookup.json();
       // Missing accounts also take the Auth path; do not reveal roster membership.
-      const result = await post('/auth/v1/token?grant_type=password', { email: email || 'unregistered@student.invalid', password }, { apikey: publicKey, 'Content-Type': 'application/json' });
+      const signIn = secret => post('/auth/v1/token?grant_type=password', { email: email || 'unregistered@student.invalid', password: secret }, { apikey: publicKey, 'Content-Type': 'application/json' });
+      let result = await signIn(password);
+      // 初始密碼就是學號：學生用小寫輸入學號當密碼時，再用大寫學號試一次。
+      // 只在輸入內容（不分大小寫）等於學號時才重試，學生自己改過的密碼仍需精確比對。
+      if (!result.ok && email && password !== sid && password.toUpperCase() === sid) result = await signIn(sid);
       if (!result.ok || !email) return json(401, { error: 'INVALID_CREDENTIALS' });
       const token = await result.json();
       return json(200, { access_token: token.access_token, refresh_token: token.refresh_token, expires_in: token.expires_in, expires_at: token.expires_at });
