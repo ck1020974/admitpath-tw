@@ -261,7 +261,7 @@
     const placeholder=contacts.size||client.current?.canManageAccounts?'搜尋姓名、學號或信箱':'搜尋姓名或學號';$('search').placeholder=placeholder;$('search').setAttribute('aria-label',placeholder);
     message('summaryStatus',summaryReady?'':'登入與作答狀況暫時無法載入，請稍後重新整理。');
     render();message('status','');$('signedOut').hidden=true;$('workspace').hidden=false;$('filters').hidden=false;
-    // 站長按鈕：只有後端確認是站長（owner_site_stats 回傳資料）才顯示。
+    // 網站數據按鈕：只有後端確認是網站管理者（owner_site_stats 回傳資料）才顯示。
     if(typeof client.ownerStats==='function')client.ownerStats().then(stats=>{if(version===epoch)$('ownerStatsButton').hidden=!stats;}).catch(()=>{});
   }
   const ownerDialog=$('ownerDialog');

@@ -1,4 +1,4 @@
-/* 站長數據：只有站長帳號（teacher_access.is_site_owner）看得到這個視窗。
+/* 網站數據：只有網站管理者（teacher_access.can_manage_accounts）看得到這個視窗。
    上半部「全站使用」來自 GoatCounter 公開計數（不分是否登入、無個人資料）；
    下半部「會員」來自 Supabase owner_site_stats()（只有總數與班群統計）。 */
 (function () {

@@ -1,15 +1,13 @@
--- 站長（網站持有者）專用的會員統計。
--- 只有 teacher_access.is_site_owner = true 的帳號能呼叫；一般教師、網站管理者（can_manage_accounts）都不行。
--- 指定站長請另外執行：update public.teacher_access set is_site_owner = true where id = '<站長的 user id>';
+-- 網站管理者（teacher_access.can_manage_accounts）專用的會員統計；一般授課老師不能呼叫。
+-- 只回傳總數、班群統計與熱門追蹤校系，不含個別學生資料。
 begin;
-alter table public.teacher_access add column if not exists is_site_owner boolean not null default false;
 
 create or replace function public.owner_site_stats()
 returns jsonb
 language plpgsql stable security definer set search_path = '' as $$
 declare result jsonb;
 begin
-  if not exists(select 1 from public.teacher_access t where t.id = auth.uid() and t.active and t.is_site_owner) then
+  if not exists(select 1 from public.teacher_access t where t.id = auth.uid() and t.active and t.can_manage_accounts) then
     raise exception 'not allowed' using errcode = '42501';
   end if;
   with base as (
