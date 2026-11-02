@@ -83,7 +83,7 @@
     if (client.current.role === "teacher") return;
     if (!contactLoading) contactLoading = new Promise((resolve, reject) => {
       const entry = root.document.createElement("script");
-      entry.src = new URL("student-contact.js?v=20261030-contact4", base).href;
+      entry.src = new URL("student-contact.js?v=20261102-skip", base).href;
       entry.onload = resolve;
       entry.onerror = () => { entry.remove(); contactLoading = null; reject(new Error("contact module")); };
       root.document.body.append(entry);
@@ -95,7 +95,7 @@
   function openDialog() {
     if (!dialogLoading) dialogLoading = new Promise((resolve, reject) => {
       const entry = root.document.createElement("script");
-      entry.src = new URL("student-login-dialog.js?v=20261030-ui7", base).href;
+      entry.src = new URL("student-login-dialog.js?v=20261102-skip", base).href;
       entry.onload = resolve;
       entry.onerror = () => { entry.remove(); dialogLoading = null; reject(new Error("無法載入登入視窗，請稍後再試。")); };
       root.document.body.append(entry);

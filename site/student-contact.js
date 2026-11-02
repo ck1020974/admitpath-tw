@@ -1,4 +1,4 @@
-/* 學生首次登入：填寫信箱與同意事項（必填才能繼續使用登入後的功能）。
+/* 學生首次登入：邀請填寫信箱與同意事項。可以按「略過」先不填，之後在「帳號」補填。
    說明文字有修改時，請把 VERSION 改成修改當天的日期，學生下次登入會重新確認。 */
 (function (root) {
   "use strict";
@@ -8,6 +8,10 @@
   const EMAIL_PATTERN = /^[^@\s]+@[^@\s]+\.[^@\s]+$/;
   let dialog, checking = null;
 
+  // 略過的紀錄存在這台電腦，同一版說明不再跳出；說明改版（VERSION 改變）才會再詢問一次。
+  const skipKey = id => "yuhsin-contact-skip:" + id;
+  function skipped(id) { try { return root.localStorage.getItem(skipKey(id)) === VERSION; } catch { return false; } }
+  function remember(id) { try { root.localStorage.setItem(skipKey(id), VERSION); } catch {} }
   function needsSetup(info) { return !info || !info.email || info.consentVersion !== VERSION; }
 
   function build(auth) {
@@ -16,14 +20,15 @@
     dialog.setAttribute("aria-labelledby", "studentContactTitle");
     dialog.innerHTML = `
       <h2 id="studentContactTitle" tabindex="-1">帳號設定</h2>
-      <p class="student-contact-lead">請留下你的信箱，完成後即可開始使用。</p>
+      <p class="student-contact-lead">留下信箱，可以收到帳號通知；也可以先略過，之後在「帳號」補填。</p>
       <form class="student-dialog-form" novalidate>
         <label>信箱<input name="email" type="email" maxlength="254" autocomplete="email" spellcheck="false" autocapitalize="off" placeholder="name@example.com" required></label>
         <label class="student-contact-check"><input name="updates" type="checkbox"><span>我想要收到升學相關資訊</span></label>
-        <label class="student-contact-check"><input name="consent" type="checkbox" required><span>我同意<button class="student-contact-notice-toggle" type="button" aria-expanded="false">蒐集說明</button><em>（必勾）</em></span></label>
+        <label class="student-contact-check"><input name="consent" type="checkbox" required><span>我同意<button class="student-contact-notice-toggle" type="button" aria-expanded="false">蒐集說明</button><em>（送出時必勾）</em></span></label>
         <div class="student-contact-notice" hidden>${NOTICE}</div>
         <p class="student-dialog-error" role="alert" hidden></p>
         <button class="student-dialog-submit" type="submit">送出</button>
+        <button class="student-contact-skip" type="button">略過，先不填</button>
       </form>`;
     root.document.body.append(dialog);
     const form = dialog.querySelector("form");
@@ -33,8 +38,10 @@
     const toggle = dialog.querySelector(".student-contact-notice-toggle");
     const notice = dialog.querySelector(".student-contact-notice");
     const show = text => { error.textContent = text; error.hidden = !text; };
-    // 必填：Esc 與點背景都不能關閉。
-    dialog.addEventListener("cancel", event => event.preventDefault());
+    // 不填也能使用：按「略過」或 Esc 都會關閉，並記住這次的選擇。
+    const skip = () => { const id = auth.client.current?.id; if (id) remember(id); close(); };
+    dialog.querySelector(".student-contact-skip").addEventListener("click", skip);
+    dialog.addEventListener("cancel", event => { event.preventDefault(); skip(); });
     toggle.addEventListener("click", () => {
       notice.hidden = !notice.hidden;
       toggle.setAttribute("aria-expanded", String(!notice.hidden));
@@ -80,11 +87,14 @@
     if (!student || student.role === "teacher" || typeof auth.client.readContact !== "function") { close(); return Promise.resolve(); }
     if (checking) return checking;
     checking = auth.client.readContact()
-      .then(info => { if (auth.client.current?.id === student.id && needsSetup(info)) open(auth, info); })
+      .then(info => { if (auth.client.current?.id === student.id && needsSetup(info) && !skipped(student.id)) open(auth, info); })
       .catch(() => {})
       .finally(() => { checking = null; });
     return checking;
   }
 
-  root.YuhsinStudentContact = { VERSION, NOTICE, EMAIL_PATTERN, check, needsSetup };
+  // 帳號視窗補填信箱時使用：還沒同意蒐集說明的學生，改開這個視窗一起勾選。
+  function openSetup(auth, info) { open(auth, info); }
+
+  root.YuhsinStudentContact = { VERSION, NOTICE, EMAIL_PATTERN, check, needsSetup, openSetup };
 })(window);

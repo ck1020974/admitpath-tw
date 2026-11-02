@@ -79,6 +79,13 @@
   }
   function startEdit(cell, key) {
     message(accountError(), "");
+    // 先前略過、還沒同意蒐集說明的學生：開啟信箱設定視窗，一次填好信箱並勾選同意。
+    const setup = window.YuhsinStudentContact;
+    if (!contact?.consentVersion && setup?.openSetup && window.YuhsinStudentAuth) {
+      if (dialog.open) dialog.close();
+      setup.openSetup(window.YuhsinStudentAuth, contact);
+      return;
+    }
     const form = document.createElement("form"); form.className = "student-contact-editor"; form.noValidate = true;
     let input;
     if (key === "email") {
