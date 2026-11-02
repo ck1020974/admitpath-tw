@@ -1746,6 +1746,39 @@ function advancedCategoryNeedles(groupName = "", categoryName = "") {
   return new Set();
 }
 
+// 快速篩選可複選：值以逗號串起（例如 "ntu,nthu"），同一行取聯集、不同行取交集。
+function shortcutList(value) {
+  return value && value !== "all" ? String(value).split(",").filter(Boolean) : [];
+}
+
+function toggleShortcutValue(value, item, empty = "") {
+  const list = shortcutList(value);
+  const next = list.includes(item) ? list.filter(entry => entry !== item) : [...list, item];
+  return next.length ? next.join(",") : empty;
+}
+
+function quickCategoriesNeedles(value) {
+  const categories = shortcutList(value);
+  if (!categories.length) return null;
+  if (categories.length === 1) return quickCategoryNeedles(categories[0]);
+  quickCategoriesNeedles.cache ||= new Map();
+  const key = [...categories].sort().join(",");
+  if (!quickCategoriesNeedles.cache.has(key)) {
+    quickCategoriesNeedles.cache.set(key, new Set(categories.flatMap(category => [...quickCategoryNeedles(category)])));
+  }
+  return quickCategoriesNeedles.cache.get(key);
+}
+
+function schoolScopesAllow(record, value) {
+  const scopes = shortcutList(value);
+  return !scopes.length || scopes.some(scope => placementSchoolScopeAllows(record, scope));
+}
+
+function regionsAllow(record, value) {
+  const regions = shortcutList(value);
+  return !regions.length || regions.includes(schoolRegion(record));
+}
+
 function quickCategoryNeedles(category) {
   // 半導體跨電子、電機、光電、材料等學類，直接用系名含「半導體」比對。
   if (category === "半導體") return (quickCategoryNeedles.semiconductor ||= new Set([normalize("半導體")]));
@@ -1771,14 +1804,14 @@ function applyFilters() {
   renderQueryShortcuts("workbenchQuickFilters", state.filters);
   const groupNeedles = getGroupNeedles(state.linkedGroup);
   const categoryNeedles = getCategoryNeedles(state.linkedGroup, state.linkedCategory);
-  const quickNeedles = state.filters.quickCategory ? quickCategoryNeedles(state.filters.quickCategory) : null;
+  const quickNeedles = quickCategoriesNeedles(state.filters.quickCategory);
   state.filtered = state.records.filter((record) => {
     if (state.filters.year !== "all" && String(record.year) !== state.filters.year) return false;
     if (state.filters.channel !== "all" && record.channelKey !== state.filters.channel) return false;
     if (state.filters.school !== "all" && record.schoolName !== state.filters.school) return false;
     if (state.filters.dualDegreeOnly && !isInternationalDualDegree(record)) return false;
-    if (!placementSchoolScopeAllows(record, state.filters.schoolScope || "all")) return false;
-    if (state.filters.region && schoolRegion(record) !== state.filters.region) return false;
+    if (!schoolScopesAllow(record, state.filters.schoolScope)) return false;
+    if (!regionsAllow(record, state.filters.region)) return false;
     if (quickNeedles && (!quickNeedles.size || !matchesGroup(record, quickNeedles))) return false;
     if (groupNeedles.size && !matchesGroup(record, groupNeedles)) return false;
     if (categoryNeedles.size && !matchesGroup(record, categoryNeedles)) return false;
@@ -1802,9 +1835,9 @@ function hydrateSchoolFilter() {
 
 // 同一份捷徑內容與互動，供校系查詢和落點分析使用。
 // 學校、熱門學類、地區、雙聯是四個獨立條件，可以同時選（例如：公立＋電機＋雙北），彼此取交集。
-// 同一行內單選；再按一次已選的按鍵就取消。
+// 同一行內可複選（取聯集）；再按一次已選的按鍵就取消。
 function toggleQueryShortcut(filters, category = "") {
-  if (category) filters.quickCategory = filters.quickCategory === category ? "" : category;
+  if (category) filters.quickCategory = toggleShortcutValue(filters.quickCategory, category);
   else filters.dualDegreeOnly = !filters.dualDegreeOnly;
 }
 
@@ -1829,7 +1862,7 @@ function mountQueryShortcuts() {
       button.addEventListener("click", () => {
         const f = filters();
         const scope = button.dataset.placementSchoolScope;
-        f.schoolScope = f.schoolScope === scope ? "all" : scope;
+        f.schoolScope = toggleShortcutValue(f.schoolScope, scope, "all");
         // 學校捷徑和「學校」下拉選單是同一個維度，選捷徑就把下拉選單放回全部。
         f.school = "all";
         const select = placement ? els.placementSchoolFilter : els.schoolFilter;
@@ -1841,7 +1874,7 @@ function mountQueryShortcuts() {
       button.addEventListener("click", () => {
         const f = filters();
         const region = button.dataset.placementRegion;
-        f.region = f.region === region ? "" : region;
+        f.region = toggleShortcutValue(f.region, region);
         refresh();
       });
     });
@@ -1849,7 +1882,7 @@ function mountQueryShortcuts() {
       button.addEventListener("click", () => {
         const category = button.dataset.placementPopularCategory;
         toggleQueryShortcut(filters(), category);
-        if (placement && state.placement.quickCategory && button.dataset.categoryEvent) {
+        if (placement && shortcutList(state.placement.quickCategory).includes(category) && button.dataset.categoryEvent) {
           trackEvent(`placement-category-${button.dataset.categoryEvent}`, category);
         }
         refresh();
@@ -1866,9 +1899,9 @@ function renderQueryShortcuts(id, filters) {
     button.setAttribute("aria-pressed", String(selected));
   };
   host.querySelectorAll("[data-query-dual-degree]").forEach(button => mark(button, Boolean(filters.dualDegreeOnly)));
-  host.querySelectorAll("[data-placement-school-scope]").forEach(button => mark(button, button.dataset.placementSchoolScope === filters.schoolScope));
-  host.querySelectorAll("[data-placement-region]").forEach(button => mark(button, button.dataset.placementRegion === (filters.region || "")));
-  host.querySelectorAll("[data-placement-popular-category]").forEach(button => mark(button, button.dataset.placementPopularCategory === (filters.quickCategory || "")));
+  host.querySelectorAll("[data-placement-school-scope]").forEach(button => mark(button, shortcutList(filters.schoolScope).includes(button.dataset.placementSchoolScope)));
+  host.querySelectorAll("[data-placement-region]").forEach(button => mark(button, shortcutList(filters.region).includes(button.dataset.placementRegion)));
+  host.querySelectorAll("[data-placement-popular-category]").forEach(button => mark(button, shortcutList(filters.quickCategory).includes(button.dataset.placementPopularCategory)));
 }
 
 function refreshQueryYears(select, filters) {
@@ -1963,7 +1996,7 @@ function applyRoute(route) {
       const school = [...els.schoolFilter.options].some((option) => option.value === route.filters.school) ? route.filters.school : "all";
       Object.assign(state.filters, { year, channel, school, keyword: route.filters.keyword,
         schoolScope: route.filters.schoolScope || "all",
-        region: Object.hasOwn(SCHOOL_REGIONS, route.filters.region) ? route.filters.region : "",
+        region: shortcutList(route.filters.region).filter(region => Object.hasOwn(SCHOOL_REGIONS, region)).join(","),
         quickCategory: route.filters.quickCategory || "",
         dualDegreeOnly: route.filters.dualDegreeOnly === "1" });
       els.yearFilter.value = year;
@@ -2547,8 +2580,8 @@ function placementMatchesFilters(record, profile) {
   if (state.placement.year !== "all" && String(record.year) !== state.placement.year) return false;
   if (profile.school && profile.school !== "all" && record.schoolName !== profile.school) return false;
   if (profile.dualDegreeOnly && !isInternationalDualDegree(record)) return false;
-  if (!placementSchoolScopeAllows(record, profile.schoolScope)) return false;
-  if (profile.region && schoolRegion(record) !== profile.region) return false;
+  if (!schoolScopesAllow(record, profile.schoolScope)) return false;
+  if (!regionsAllow(record, profile.region)) return false;
   if (!queryKeywordMatches(record, state.placement.keyword)) return false;
   if (typeof recordMatchesAdvancedFilters === "function" && !recordMatchesAdvancedFilters(record)) return false;
   if (!profile.channels.includes(record.channelKey)) return false;
@@ -2558,7 +2591,7 @@ function placementMatchesFilters(record, profile) {
   const needles = placementSelectedNeedles(profile);
   if (needles.size && !matchesGroup(record, needles)) return false;
   if (profile.quickCategory) {
-    const categoryNeedles = quickCategoryNeedles(profile.quickCategory);
+    const categoryNeedles = quickCategoriesNeedles(profile.quickCategory);
     if (!categoryNeedles.size || !matchesGroup(record, categoryNeedles)) return false;
   }
   return true;
