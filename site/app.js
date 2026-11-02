@@ -1432,16 +1432,8 @@ function renderAdvancedFilterDrawer() {
         ${advanced.schools.length ? advanced.schools.map((name) => `<button class="advanced-current-chip" data-remove-advanced-school="${escapeAttr(name)}">${escapeHtml(name)} ×</button>`).join("") : `<span class="advanced-empty">尚未選擇學校</span>`}
       </div>
     </section>
-    <section class="advanced-section advanced-current-section">
-      <div class="advanced-section-head">
-        <h3>已選條件（尚未套用）</h3>
-      </div>
-      <div class="advanced-current">
-        ${advancedFilterChipsHtml(advanced) || `<span class="advanced-empty">尚未選擇精準條件</span>`}
-      </div>
-    </section>
     <div class="advanced-drawer-actions">
-      <button class="ghost-button" id="clearAdvancedFiltersButton">清除精準條件</button>
+      <button class="ghost-button" id="clearAdvancedFiltersButton">清除篩選</button>
       <button class="solid-button" id="applyAdvancedFiltersButton">套用篩選</button>
     </div>
   `;
@@ -1495,17 +1487,6 @@ function advancedSubjectGroupsHtml(advanced) {
 
 function advancedSchoolOptions() {
   return AdmissionCatalog.schoolOptions();
-}
-
-function advancedFilterChipsHtml(advanced = currentAdvancedFilters()) {
-  const chips = [
-    ...advanced.excludedSubjects.map((subject) => `不看 ${subject}`),
-    advanced.specialAdmissionMode === "include" ? "含特殊組" : "",
-    advanced.specialAdmissionMode === "only" ? "只看特殊組" : "",
-    ...advanced.groups,
-    ...advanced.schools,
-  ].filter(Boolean);
-  return chips.map((chip) => `<span class="advanced-current-chip">${escapeHtml(chip)}</span>`).join("");
 }
 
 function bindAdvancedFilterEvents() {
@@ -1718,6 +1699,7 @@ function specialAdmissionInfo(record) {
     { pattern: /屯蒙/, label: "屯蒙" },
     { pattern: /柳川招生組/, label: "柳川" },
     { pattern: /青年儲蓄帳戶組|青年儲蓄/, label: "青年儲蓄" },
+    { pattern: /芝山組|芝山/, label: "芝山" },
   ];
   const match = patterns.find((item) => item.pattern.test(text));
   return match ? { special: true, label: match.label } : { special: false, label: "" };
@@ -1851,6 +1833,8 @@ function mountQueryShortcuts() {
     const placement = id === "placementQuickFilters";
     const filters = () => placement ? state.placement : state.filters;
     const refresh = () => {
+      // 套用精準篩選後又點快速篩選，代表改用快速篩選找：先清空精準篩選，避免兩邊條件交集成 0 筆。
+      if (advancedFilterSummaryText()) state.filters.advanced = defaultAdvancedFilters();
       if (placement) { renderPlacementControls(); renderPlacementAnalysis(); }
       else applyFilters();
     };
