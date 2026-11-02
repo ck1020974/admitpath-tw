@@ -200,3 +200,30 @@ tbody tr:hover .delete-result,.delete-result:focus-visible{opacity:1;color:#7b8b
 .confirm-actions button{min-height:42px}
 button.danger{background:#b3392f;border-color:#b3392f}
 button.danger:hover{background:#9c2f26}
+/* 站長數據 */
+.head-title{display:flex;align-items:center;gap:12px}
+.owner-button{min-height:34px;padding:0 14px;border:1px solid var(--accent);border-radius:999px;background:#fff;color:var(--accent);font-size:14px;font-weight:700;cursor:pointer}
+.owner-button:hover{background:#eaf4f1}
+.owner-dialog{height:min(760px,calc(100dvh - 8vh - 24px));margin-top:4vh}
+.os-section+.os-section{margin-top:28px;padding-top:20px;border-top:1px solid var(--line)}
+.os-section h3{margin:0 0 12px;font-size:17px}
+.os-section h3 small{margin-left:6px;color:var(--muted);font-size:13px;font-weight:400}
+.os-section h4{margin:20px 0 8px;font-size:15px}
+.os-cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(112px,1fr));gap:10px}
+.os-card{display:flex;flex-direction:column;gap:2px;padding:12px 14px;border:1px solid var(--line);border-radius:12px;background:#fafaf7}
+.os-card span{color:var(--muted);font-size:13px}
+.os-card b{font-size:22px;font-variant-numeric:tabular-nums}
+.os-card small{color:var(--accent);font-size:12px}
+.os-table{width:100%;border-collapse:collapse;font-size:14px}
+.os-table th,.os-table td{padding:7px 10px;border-bottom:1px solid var(--line);text-align:left;font-weight:400}
+.os-table thead th{color:var(--muted);font-size:13px;background:#f6f5f1}
+.os-table .num{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+.os-table td small{margin-left:6px;color:var(--muted);font-size:12px}
+.os-top{margin:0;padding:0;list-style:none;font-size:14px}
+.os-top li{display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:1px solid var(--line)}
+.os-top li span:nth-child(2){flex:1}
+.os-rank{width:22px;color:var(--muted);text-align:right;font-variant-numeric:tabular-nums}
+.os-note{margin:10px 0 0;color:var(--muted);font-size:13px;line-height:1.7}
+.os-note a{color:var(--accent)}
+.os-table tbody th{background:none;color:var(--ink);position:static}
+.os-table thead th{position:static;top:auto}.os-table th{box-shadow:none}

@@ -172,7 +172,7 @@
   function clearWorkspace(reset=true) {
     closeDialog();if(deleteDialog.open)deleteDialog.close();clearDetail();epoch++;students=[];filtered=[];summaries=new Map();contacts=new Map();summaryReady=false;$('students').replaceChildren();
     if(reset){for(const id of ['search','grade','group'])$(id).value='';fillGroups();picks={login:'',exam:''};sort={key:'',direction:'asc'};}
-    $('workspace').hidden=true;$('filters').hidden=true;$('count').textContent='';$('empty').hidden=true;message('summaryStatus','');
+    $('workspace').hidden=true;$('filters').hidden=true;$('ownerStatsButton').hidden=true;if(ownerDialog.open)ownerDialog.close();$('count').textContent='';$('empty').hidden=true;message('summaryStatus','');
   }
   function showLogin() { clearWorkspace(); $('signedOut').hidden = false; }
   function renderPills(base,now){
@@ -261,7 +261,18 @@
     const placeholder=contacts.size||client.current?.canManageAccounts?'搜尋姓名、學號或信箱':'搜尋姓名或學號';$('search').placeholder=placeholder;$('search').setAttribute('aria-label',placeholder);
     message('summaryStatus',summaryReady?'':'登入與作答狀況暫時無法載入，請稍後重新整理。');
     render();message('status','');$('signedOut').hidden=true;$('workspace').hidden=false;$('filters').hidden=false;
+    // 站長按鈕：只有後端確認是站長（owner_site_stats 回傳資料）才顯示。
+    if(typeof client.ownerStats==='function')client.ownerStats().then(stats=>{if(version===epoch)$('ownerStatsButton').hidden=!stats;}).catch(()=>{});
   }
+  const ownerDialog=$('ownerDialog');
+  $('closeOwner').addEventListener('click',()=>ownerDialog.close());
+  ownerDialog.addEventListener('click',event=>{if(event.target===ownerDialog)ownerDialog.close();});
+  $('ownerStatsButton').addEventListener('click',async()=>{
+    const button=$('ownerStatsButton');button.disabled=true;
+    try{const stats=await client.ownerStats();if(!stats){button.hidden=true;return;}window.YuhsinOwnerStats.open(ownerDialog,stats);}
+    catch(error){window.alert(error.message||'網站數據暫時無法載入。');}
+    finally{button.disabled=false;}
+  });
   for(const value of model.gradeOptions){
     const option=document.createElement('option');option.value=value;
     if(value.startsWith('G')){option.textContent=value;option.className='grade-all';}else option.textContent=value+' 班';

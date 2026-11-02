@@ -136,6 +136,12 @@
         const rows=await authorized('/rest/v1/rpc/admin_student_contacts',{body:{}});
         return Array.isArray(rows)?rows:[];
       },
+      // 站長專用：全站會員統計（只有總數與班群統計，不含個別學生）。非站長或功能未開通時回傳 null。
+      async ownerStats(){
+        if(!teacher||!current?.canManageAccounts)return null;
+        try{const value=await authorized('/rest/v1/rpc/owner_site_stats',{body:{}});return value&&typeof value==='object'?value:null;}
+        catch(error){if([401,403,404].includes(error.status)||error.code==='42501')return null;throw error;}
+      },
       // 網站管理者專用：刪除一位學生的全部探索作答與結果，回傳刪除的測驗次數。
       async adminDeleteResults(studentId){
         if(!teacher||!current?.canManageAccounts)throw new Error('只有網站管理者可以刪除探索結果。');

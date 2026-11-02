@@ -7,9 +7,9 @@
   <link rel="stylesheet" href="../support.css?v=20261029-contact">
   <link rel="stylesheet" href="../site-header.css?v=20261030-teacher1">
   <link rel="stylesheet" href="../student-account.css?v=20261102-skip">
-  <link rel="stylesheet" href="./teacher.css?v=20261030-delete2">
+  <link rel="stylesheet" href="./teacher.css?v=20261102-owner1">
   <script defer src="../student-auth-config.js?v=20261029-auth1"></script>
-  <script defer src="../student-supabase.js?v=20261030-delete1"></script>
+  <script defer src="../student-supabase.js?v=20261102-owner1"></script>
   <script defer src="../student-auth.js?v=20261102-skip"></script>
   <script defer src="../contact-config.js?v=20261023-tweak"></script>
   <script defer src="../support-config.js?v=20261015"></script>
@@ -23,7 +23,9 @@
   <script defer src="../explore/curiosity/exploration-model.js?v=20261030-weights1"></script>
   <script defer src="../explore/curiosity/data.js?v=20261029-records1"></script>
   <script defer src="./teacher-model.js?v=20261030-teacher1"></script>
-  <script defer src="./teacher.js?v=20261030-delete2"></script>
+  <script defer src="../usage-config.js?v=usage-20261027-counter-v2"></script>
+  <script defer src="./owner-stats.js?v=20261102-owner1"></script>
+  <script defer src="./teacher.js?v=20261102-owner1"></script>
 </head>
 <body>
   <header class="site-header">
@@ -35,7 +37,7 @@
   </header>
   <main>
     <div class="page-head">
-      <h1>教師後台</h1>
+      <div class="head-title"><h1>教師後台</h1><button id="ownerStatsButton" type="button" class="owner-button" hidden>網站數據</button></div>
       <div id="filters" class="filters" role="group" aria-label="篩選學生" hidden>
         <select id="grade" aria-label="年級"><option value="">年級</option></select>
         <select id="group" aria-label="班群"><option value="">班群</option></select>
@@ -81,6 +83,16 @@
         <p id="detailStatus" role="status" hidden></p>
         <section id="panelTracking" role="tabpanel" aria-labelledby="tabTracking"><div id="detailTracking"></div></section>
         <section id="panelResults" role="tabpanel" aria-labelledby="tabResults" hidden><div id="detailResults"></div></section>
+      </div>
+    </dialog>
+    <dialog id="ownerDialog" class="student-dialog owner-dialog" aria-labelledby="ownerTitle">
+      <div class="dialog-head">
+        <div class="student-heading"><h2 id="ownerTitle">網站數據</h2><p class="identity">只有站長帳號看得到這個頁面</p></div>
+        <div class="dialog-nav"><button id="closeOwner" type="button" class="dialog-close" aria-label="關閉">×</button></div>
+      </div>
+      <div class="dialog-body">
+        <section class="os-section" aria-labelledby="ownerSiteTitle"><h3 id="ownerSiteTitle">全站使用 <small>所有訪客，含未登入</small></h3><div id="ownerSite"></div></section>
+        <section class="os-section" aria-labelledby="ownerMembersTitle"><h3 id="ownerMembersTitle">會員 <small>登入的學生帳號</small></h3><div id="ownerMembers"></div></section>
       </div>
     </dialog>
     <dialog id="deleteDialog" class="confirm-dialog" aria-labelledby="deleteTitle" aria-describedby="deleteText">
