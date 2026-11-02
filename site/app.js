@@ -2455,7 +2455,9 @@ function placementAnalysisRows(profile) {
   const rows = state.records
     .filter((record) => placementMatchesFilters(record, profile))
     .map((record) => ({ record, evaluation: evaluatePlacementRecord(record, profile) }))
+    // 同一狀態內一般大學在前、科大（四技）在後；四技的級分差換算方式不同，不和個申混在一起比。
     .sort((a, b) => placementStatusWeight(a.evaluation.status) - placementStatusWeight(b.evaluation.status)
+      || isTechRecord(a.record) - isTechRecord(b.record)
       || a.evaluation.gapTotal - b.evaluation.gapTotal
       || collator.compare(`${a.record.schoolCode}${a.record.departmentName}`, `${b.record.schoolCode}${b.record.departmentName}`));
   placementAnalysisRows.cache = { key, records: state.records, results: state.results,
@@ -2500,6 +2502,10 @@ function placementHasAnyInput(profile) {
   if (profile.channels.length === 1 && profile.channels[0] === "star_recommendation"
     && !(Number(profile.scores.在校) > 0 && Number(profile.scores.在校) <= 100)) return false;
   return Object.values(profile.scores || {}).some(value => String(value ?? "").trim() !== "");
+}
+
+function isTechRecord(record) {
+  return record.channelKey === "tech_application" ? 1 : 0;
 }
 
 function placementStatusWeight(status) {
