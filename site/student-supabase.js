@@ -136,7 +136,7 @@
         const rows=await authorized('/rest/v1/rpc/admin_student_contacts',{body:{}});
         return Array.isArray(rows)?rows:[];
       },
-      // 網站管理者專用：全站會員統計（只有總數與班群統計，不含個別學生）。非站長或功能未開通時回傳 null。
+      // 網站管理者專用：全站會員統計（只有總數與班群統計，不含個別學生）。非網站管理者或功能未開通時回傳 null。
       async ownerStats(){
         if(!teacher||!current?.canManageAccounts)return null;
         try{const value=await authorized('/rest/v1/rpc/owner_site_stats',{body:{}});return value&&typeof value==='object'?value:null;}

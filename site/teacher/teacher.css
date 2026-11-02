@@ -200,7 +200,7 @@ tbody tr:hover .delete-result,.delete-result:focus-visible{opacity:1;color:#7b8b
 .confirm-actions button{min-height:42px}
 button.danger{background:#b3392f;border-color:#b3392f}
 button.danger:hover{background:#9c2f26}
-/* 站長數據 */
+/* 網站數據（網站管理者） */
 .head-title{display:flex;align-items:center;gap:12px}
 .owner-button{min-height:34px;padding:0 14px;border:1px solid var(--accent);border-radius:999px;background:#fff;color:var(--accent);font-size:14px;font-weight:700;cursor:pointer}
 .owner-button:hover{background:#eaf4f1}
