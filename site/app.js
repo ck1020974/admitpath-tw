@@ -2008,6 +2008,31 @@ const VIEW_TITLES = { overview: "首頁", workbench: "查詢工作台", placemen
 function trackPage(view) { try { window.YuhsinUsage?.page(`view/${view}`, VIEW_TITLES[view] || view); } catch {} }
 function trackEvent(name, title, options) { try { window.YuhsinUsage?.event(name, title, options); } catch {} }
 
+// 校系屬於哪些學群（同一系可能跨學群），只用來統計各學群的熱門程度，不記錄是哪一個校系。
+// 先用學群對照表的「校系全名」精確比對，找不到才退回模糊比對，避免把資工算進生命科學學群。
+function recordGroupNamesForUsage(record) {
+  if (!record || !state.groups?.length) return [];
+  if (recordGroupNamesForUsage.source !== state.groups) {
+    const index = new Map();
+    visibleGroupRows().forEach((row) => {
+      const key = normalize(row.schoolDepartmentName).replace(/[（(].*?[）)]/g, "");
+      if (!index.has(key)) index.set(key, new Set());
+      index.get(key).add(row.groupName);
+    });
+    recordGroupNamesForUsage.index = index;
+    recordGroupNamesForUsage.source = state.groups;
+  }
+  const key = normalize(`${record.schoolName}${record.departmentName}`).replace(/[（(].*?[）)]/g, "");
+  const exact = recordGroupNamesForUsage.index.get(key);
+  const names = exact ? [...exact] : [...new Set(visibleGroupRows().map(row => row.groupName))]
+    .filter(name => matchesGroup(record, getGroupNeedles(name)));
+  return names.slice(0, 3);
+}
+
+function trackRecordGroups(prefix, title, record) {
+  recordGroupNamesForUsage(record).forEach(name => trackEvent(`${prefix}/${name}`, title));
+}
+
 function setView(view) {
   state.view = view;
   trackPage(view);
@@ -5003,6 +5028,7 @@ function openDetail(id) {
   trackEvent("detail-open", "打開校系詳情");
   const record = state.records.find((item) => item.id === id);
   if (!record) return;
+  trackRecordGroups("detail-group", "打開校系詳情（學群）", record);
   const result = record.channelKey === "exam_distribution" ? distributionResult(record) : null;
   els.detailMeta.textContent = `${record.year} ${record.channel}`;
   els.detailTitle.textContent = `${record.schoolName} ${record.departmentName}`;
@@ -5815,13 +5841,17 @@ function clearCompare() {
 }
 
 function toggleCompare(id) {
-  if(accountRecords?.student)return changeCloudCompare([{recordId:id,removed:state.compare.some(r=>r.id===id)}]);
+  if(accountRecords?.student){
+    const removed=state.compare.some(r=>r.id===id);
+    if(!removed){trackEvent("compare-add","加入追蹤清單");trackRecordGroups("compare-group","加入追蹤（學群）",state.records.find(r=>r.id===id));}
+    return changeCloudCompare([{recordId:id,removed}]);
+  }
   const exists = state.compare.some((item) => item.id === id);
   if (exists) {
     state.compare = state.compare.filter((item) => item.id !== id);
   } else {
     const record = state.records.find((item) => item.id === id);
-    if (record && state.compare.length < 100) { state.compare.push(record); try { window.YuhsinUsage?.event("compare-add", "加入追蹤清單"); } catch {} }
+    if (record && state.compare.length < 100) { state.compare.push(record); trackEvent("compare-add", "加入追蹤清單"); trackRecordGroups("compare-group", "加入追蹤（學群）", record); }
     else {
       if (record) window.alert("追蹤清單最多可選取 100 個校系，請先移除部分校系再加入。");
       return;
