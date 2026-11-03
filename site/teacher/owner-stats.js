@@ -60,7 +60,7 @@
     const table = `<table class="os-table"><thead><tr><th scope="col">學群</th><th scope="col" class="num">打開詳情</th><th scope="col" class="num">加入追蹤</th></tr></thead><tbody>${rows.map(r => `<tr><th scope="row">${esc(r.g)}</th><td class="num">${num(r.detail)}</td><td class="num">${num(r.compare)}</td></tr>`).join('')}</tbody></table>`;
     box.innerHTML = `<div class="os-cards">${cards}</div>
       <h4>各學群熱門程度</h4>${table}
-      <p class="os-note">次數，不是人數；同一個系跨兩個學群時兩邊各算一次。${base.start ? `從 ${esc(base.start)} 起算。` : ''}${failed ? `有 ${failed} 項暫時讀不到，顯示為「—」。` : ''}學群數字從 2026/11/02 開始記錄。 <a href="https://${esc(base.code)}.goatcounter.com" target="_blank" rel="noopener noreferrer">開啟 GoatCounter 完整後台 ↗</a></p>`;
+      <p class="os-note">次數，不是人數；同一個系跨兩個學群時兩邊各算一次。${base.start ? `從 ${esc(base.start)} 起算。` : ''}${failed ? `有 ${failed} 項暫時讀不到，顯示為「—」。` : ''}學群數字從 2026/11/02 開始記錄；2026/11/03 以前，同一次瀏覽中重複的動作只算一次，登入學生的加入追蹤在 11/02 以前也沒有計入。 <a href="https://${esc(base.code)}.goatcounter.com" target="_blank" rel="noopener noreferrer">開啟 GoatCounter 完整後台 ↗</a></p>`;
   }
 
   function renderMembers(box, stats) {

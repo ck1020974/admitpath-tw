@@ -2030,7 +2030,7 @@ function recordGroupNamesForUsage(record) {
 }
 
 function trackRecordGroups(prefix, title, record) {
-  recordGroupNamesForUsage(record).forEach(name => trackEvent(`${prefix}/${name}`, title));
+  recordGroupNamesForUsage(record).forEach(name => trackEvent(`${prefix}/${name}`, title, { total: true }));
 }
 
 function setView(view) {
@@ -2208,7 +2208,7 @@ function showPlacementResults() {
     .find(input => !input.closest("label").hidden && !input.checkValidity());
   if (invalid) { invalid.reportValidity(); return; }
   state.placement.stage = "results";
-  trackEvent("placement-run", "查看落點分析結果");
+  trackEvent("placement-run", "查看落點分析結果", { total: true });
   state.placement.resultTab = "match";
   renderPlacementStage();
   renderPlacementAnalysis();
@@ -5025,7 +5025,7 @@ function bindExplorerEvents() {
 }
 
 function openDetail(id) {
-  trackEvent("detail-open", "打開校系詳情");
+  trackEvent("detail-open", "打開校系詳情", { total: true });
   const record = state.records.find((item) => item.id === id);
   if (!record) return;
   trackRecordGroups("detail-group", "打開校系詳情（學群）", record);
@@ -5843,7 +5843,7 @@ function clearCompare() {
 function toggleCompare(id) {
   if(accountRecords?.student){
     const removed=state.compare.some(r=>r.id===id);
-    if(!removed){trackEvent("compare-add","加入追蹤清單");trackRecordGroups("compare-group","加入追蹤（學群）",state.records.find(r=>r.id===id));}
+    if(!removed){trackEvent("compare-add","加入追蹤清單",{total:true});trackRecordGroups("compare-group","加入追蹤（學群）",state.records.find(r=>r.id===id));}
     return changeCloudCompare([{recordId:id,removed}]);
   }
   const exists = state.compare.some((item) => item.id === id);
@@ -5851,7 +5851,7 @@ function toggleCompare(id) {
     state.compare = state.compare.filter((item) => item.id !== id);
   } else {
     const record = state.records.find((item) => item.id === id);
-    if (record && state.compare.length < 100) { state.compare.push(record); trackEvent("compare-add", "加入追蹤清單"); trackRecordGroups("compare-group", "加入追蹤（學群）", record); }
+    if (record && state.compare.length < 100) { state.compare.push(record); trackEvent("compare-add", "加入追蹤清單", { total: true }); trackRecordGroups("compare-group", "加入追蹤（學群）", record); }
     else {
       if (record) window.alert("追蹤清單最多可選取 100 個校系，請先移除部分校系再加入。");
       return;
