@@ -8,7 +8,6 @@
     ['/site-visit', '網站造訪'],
     ['placement-run', '落點分析'],
     ['curiosity-result', '完成學群探索'],
-    ['detail-open', '打開校系詳情'],
     ['compare-add', '加入追蹤'],
   ];
   const fmt = new Intl.NumberFormat('zh-Hant-TW');
@@ -84,37 +83,40 @@
     }
     if (failed === paths.length) { box.innerHTML = '<p class="os-note">全站統計暫時讀不到，請稍後再試，或直接到 GoatCounter 後台查看。</p>'; return; }
     const cards = SITE_EVENTS.map(([path, label]) => `<div class="os-card"><span>${esc(label)}</span><b>${num(result.get(path))}</b></div>`).join('');
+    // 依「加入追蹤」排名（比打開詳情更能代表興趣），前 5 名用長條，其餘收合。
     const rows = GROUPS.map(g => ({ g, detail: result.get(`detail-group/${g}`), compare: result.get(`compare-group/${g}`) }))
-      .sort((a, b) => (b.detail || 0) - (a.detail || 0) || (b.compare || 0) - (a.compare || 0));
-    const table = `<table class="os-table"><thead><tr><th scope="col">學群</th><th scope="col" class="num">打開詳情</th><th scope="col" class="num">加入追蹤</th></tr></thead><tbody>${rows.map(r => `<tr><th scope="row">${esc(r.g)}</th><td class="num">${num(r.detail)}</td><td class="num">${num(r.compare)}</td></tr>`).join('')}</tbody></table>`;
-    box.innerHTML = `<div class="os-cards">${cards}</div>
-      <h4>各學群熱門程度</h4>${table}`;
+      .sort((a, b) => (b.compare || 0) - (a.compare || 0) || (b.detail || 0) - (a.detail || 0));
+    const max = Math.max(1, ...rows.map(r => r.compare || 0));
+    const bar = r => `<li><span class="os-bar-name">${esc(r.g)}</span><span class="os-bar-track"><span class="os-bar" style="width:${Math.round((r.compare || 0) / max * 100)}%"></span></span><b>${num(r.compare)}</b><small>詳情 ${num(r.detail)}</small></li>`;
+    box.innerHTML = `<div class="os-cards os-cards-4">${cards}</div>
+      <h4>熱門學群 <small>依加入追蹤次數</small></h4>
+      <ol class="os-bars">${rows.slice(0, 5).map(bar).join('')}</ol>
+      <details class="os-more"><summary>看全部學群</summary><ol class="os-bars" start="6">${rows.slice(5).map(bar).join('')}</ol></details>`;
   }
 
   function renderMembers(box, stats) {
     const t = stats.totals || {};
+    const avg = t.tracking_users ? (t.tracking_items / t.tracking_users).toFixed(1) : '';
     const cards = [
-      ['學生帳號', num(t.students), ''],
-      ['登入過', num(t.signed_in), pct(t.signed_in, t.students)],
-      ['近 7 天登入', num(t.active_7d), pct(t.active_7d, t.students)],
-      ['完成學群探索', num(t.explored), pct(t.explored, t.students)],
-      ['有追蹤校系', num(t.tracking_users), pct(t.tracking_users, t.students)],
-      ['追蹤校系總數', num(t.tracking_items), t.tracking_users ? '平均 ' + (t.tracking_items / t.tracking_users).toFixed(1) + ' 個' : ''],
+      ['登入過', `${num(t.signed_in)}<em> / ${num(t.students)}</em>`, `${pct(t.signed_in, t.students)}・近 7 天 ${num(t.active_7d)} 人`],
+      ['完成探索', num(t.explored), pct(t.explored, t.students)],
+      ['有追蹤', num(t.tracking_users), t.tracking_items ? `共 ${num(t.tracking_items)} 個・平均 ${avg} 個` : ''],
     ].map(([label, value, sub]) => `<div class="os-card"><span>${esc(label)}</span><b>${value}</b>${sub ? `<small>${esc(sub)}</small>` : ''}</div>`).join('');
-    const groups = (stats.groups || []).map(g => `<tr><th scope="row">${esc(g.group)}</th><td class="num">${num(g.students)}</td><td class="num">${num(g.signed_in)}<small>${pct(g.signed_in, g.students)}</small></td><td class="num">${num(g.explored)}<small>${pct(g.explored, g.students)}</small></td><td class="num">${num(g.tracking_users)}<small>${pct(g.tracking_users, g.students)}</small></td></tr>`).join('');
-    const top = (stats.top_departments || []).map((d, i) => `<li><span class="os-rank">${i + 1}</span><span>${esc(d.school)} ${esc(d.department)}</span><b>${num(d.students)} 人</b></li>`).join('');
-    const when = stats.generated_at ? new Intl.DateTimeFormat('zh-TW', { dateStyle: 'medium', timeStyle: 'short', timeZone: 'Asia/Taipei' }).format(new Date(stats.generated_at)) : '';
-    box.innerHTML = `<div class="os-cards">${cards}</div>
-      <h4>各班群</h4>
-      <table class="os-table"><thead><tr><th scope="col">班群</th><th scope="col" class="num">人數</th><th scope="col" class="num">登入過</th><th scope="col" class="num">完成探索</th><th scope="col" class="num">有追蹤</th></tr></thead><tbody>${groups || '<tr><td colspan="5">尚無資料</td></tr>'}</tbody></table>
-      <h4>最多人追蹤的校系</h4>
-      ${top ? `<ol class="os-top">${top}</ol>` : '<p class="os-note">還沒有學生追蹤校系。</p>'}
-      <p class="os-note">只統計啟用中的學生帳號。${when ? '更新時間：' + esc(when) + '。' : ''}</p>`;
+    const groupRows = stats.groups || [];
+    const groups = groupRows.map(g => `<tr><th scope="row">${esc(g.group)}</th><td class="num">${num(g.students)}</td><td class="num">${num(g.signed_in)}<small>${pct(g.signed_in, g.students)}</small></td><td class="num">${num(g.explored)}<small>${pct(g.explored, g.students)}</small></td><td class="num">${num(g.tracking_users)}<small>${pct(g.tracking_users, g.students)}</small></td></tr>`).join('');
+    const item = (d, i) => `<li><span class="os-rank">${i + 1}</span><span>${esc(d.school)} ${esc(d.department)}</span><b>${num(d.students)} 人</b></li>`;
+    const deps = stats.top_departments || [];
+    box.innerHTML = `<div class="os-cards os-cards-3">${cards}</div>
+      <h4>熱門追蹤校系</h4>
+      ${deps.length ? `<ol class="os-top">${deps.slice(0, 5).map(item).join('')}</ol>${deps.length > 5 ? `<details class="os-more"><summary>看全部</summary><ol class="os-top">${deps.slice(5).map((d, i) => item(d, i + 5)).join('')}</ol></details>` : ''}` : '<p class="os-note">還沒有學生追蹤校系。</p>'}
+      ${groupRows.length ? `<details class="os-more os-groups"><summary>各班群（${groupRows.length} 個）</summary><table class="os-table"><thead><tr><th scope="col">班群</th><th scope="col" class="num">人數</th><th scope="col" class="num">登入過</th><th scope="col" class="num">完成探索</th><th scope="col" class="num">有追蹤</th></tr></thead><tbody>${groups}</tbody></table></details>` : ''}`;
   }
 
   window.YuhsinOwnerStats = {
     open(dialog, stats, client) {
       renderMembers(dialog.querySelector('#ownerMembers'), stats);
+      const updated = dialog.querySelector('#ownerUpdated');
+      if (updated) updated.textContent = stats.generated_at ? '更新時間 ' + new Intl.DateTimeFormat('zh-TW', { dateStyle: 'medium', timeStyle: 'short', timeZone: 'Asia/Taipei' }).format(new Date(stats.generated_at)) : '';
       dialog.showModal();
       renderSite(dialog.querySelector('#ownerSite'), client).catch(() => { dialog.querySelector('#ownerSite').innerHTML = '<p class="os-note">全站統計暫時讀不到，請稍後再試。</p>'; });
     },

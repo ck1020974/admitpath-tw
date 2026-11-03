@@ -227,3 +227,18 @@ button.danger:hover{background:#9c2f26}
 .os-note a{color:var(--accent)}
 .os-table tbody th{background:none;color:var(--ink);position:static}
 .os-table thead th{position:static;top:auto}.os-table th{box-shadow:none}
+.os-cards-3{grid-template-columns:repeat(3,1fr)}
+.os-card b em{font-style:normal;font-size:15px;font-weight:400;color:var(--muted)}
+.os-section h4 small{margin-left:6px;color:var(--muted);font-size:12px;font-weight:400}
+.os-bars{margin:0;padding:0;list-style:none;font-size:14px}
+.os-bars li{display:grid;grid-template-columns:7em 1fr 3.5em 5.5em;align-items:center;gap:10px;padding:6px 0}
+.os-bar-track{height:10px;border-radius:999px;background:#eef0ec;overflow:hidden}
+.os-bar{display:block;height:100%;min-width:2px;border-radius:999px;background:var(--accent)}
+.os-bars b{text-align:right;font-variant-numeric:tabular-nums}
+.os-bars small{color:var(--muted);font-size:12px;white-space:nowrap}
+.os-more{margin-top:8px}
+.os-more summary{cursor:pointer;color:var(--accent);font-size:14px;padding:4px 0}
+.os-groups{margin-top:18px}
+.os-groups summary{font-weight:700;color:var(--ink);font-size:15px}
+.os-cards-4{grid-template-columns:repeat(4,1fr)}
+@media (max-width:560px){.os-cards-4{grid-template-columns:repeat(2,1fr)}.os-cards-3{grid-template-columns:1fr}.os-bars li{grid-template-columns:6em 1fr 3em}.os-bars small{display:none}}
