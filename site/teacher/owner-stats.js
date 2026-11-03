@@ -88,8 +88,7 @@
       .sort((a, b) => (b.detail || 0) - (a.detail || 0) || (b.compare || 0) - (a.compare || 0));
     const table = `<table class="os-table"><thead><tr><th scope="col">學群</th><th scope="col" class="num">打開詳情</th><th scope="col" class="num">加入追蹤</th></tr></thead><tbody>${rows.map(r => `<tr><th scope="row">${esc(r.g)}</th><td class="num">${num(r.detail)}</td><td class="num">${num(r.compare)}</td></tr>`).join('')}</tbody></table>`;
     box.innerHTML = `<div class="os-cards">${cards}</div>
-      <h4>各學群熱門程度</h4>${table}
-      <p class="os-note">次數，不是人數；同一個系跨兩個學群時兩邊各算一次。${base.start ? `從 ${esc(base.start)} 起算。` : ''}${failed ? `有 ${failed} 項暫時讀不到，顯示為「—」。` : ''}${extra?.total ? `「加入追蹤」已補計 11/02 傍晚以前會員加入的 ${fmt.format(extra.total)} 筆。` : ''}學群數字從 2026/11/02 開始記錄；2026/11/03 以前，同一次瀏覽中重複的動作只算一次。 <a href="https://${esc(base.code)}.goatcounter.com" target="_blank" rel="noopener noreferrer">開啟 GoatCounter 完整後台 ↗</a></p>`;
+      <h4>各學群熱門程度</h4>${table}`;
   }
 
   function renderMembers(box, stats) {
