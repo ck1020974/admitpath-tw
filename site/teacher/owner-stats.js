@@ -45,14 +45,43 @@
     return { result, failed };
   }
 
+  // 2026/11/02 18:00 以前，登入學生加入追蹤沒有送到 GoatCounter；這段期間的會員追蹤從資料庫補計。
+  const BACKFILL_BEFORE = '2026-11-02T10:00:00Z';
+  const normalize = value => String(value || '').toLowerCase().replace(/\s+/g, '').replace(/[（(].*?[）)]/g, '');
+  let groupIndex = null;
+  async function loadGroupIndex() {
+    if (groupIndex) return groupIndex;
+    const rows = await fetch('../data/group_departments.json', { credentials: 'omit' }).then(r => r.ok ? r.json() : []);
+    const index = new Map();
+    for (const row of Array.isArray(rows) ? rows : []) {
+      if (row.groupName === '跨領域') continue;
+      const key = normalize(row.schoolDepartmentName);
+      if (!index.has(key)) index.set(key, new Set());
+      index.get(key).add(row.groupName);
+    }
+    return (groupIndex = index);
+  }
+  async function backfill(client) {
+    if (typeof client?.adminTrackingAddedBefore !== 'function') return null;
+    const [rows, index] = await Promise.all([client.adminTrackingAddedBefore(BACKFILL_BEFORE), loadGroupIndex().catch(() => new Map())]);
+    const groups = new Map();
+    for (const row of rows) for (const g of [...(index.get(normalize(row.school_name + row.department_name)) || [])].slice(0, 3)) groups.set(g, (groups.get(g) || 0) + 1);
+    return { total: rows.length, groups };
+  }
+
   const num = value => value === null || value === undefined ? '—' : fmt.format(value);
 
-  async function renderSite(box) {
+  async function renderSite(box, client) {
     const base = counterBase();
     if (!base) { box.innerHTML = '<p class="os-note">全站統計尚未啟用。</p>'; return; }
     box.innerHTML = '<p class="os-note">正在讀取全站統計…</p>';
     const paths = [...SITE_EVENTS.map(([path]) => path), ...GROUPS.flatMap(g => [`detail-group/${g}`, `compare-group/${g}`])];
-    const { result, failed } = await countAll(base, paths);
+    const [{ result, failed }, extra] = await Promise.all([countAll(base, paths), backfill(client).catch(() => null)]);
+    // 補計：加入追蹤與各學群的「加入追蹤」加上資料庫裡漏記的會員追蹤。
+    if (extra?.total) {
+      if (result.get('compare-add') !== null) result.set('compare-add', (result.get('compare-add') || 0) + extra.total);
+      for (const [g, n] of extra.groups) { const key = `compare-group/${g}`; if (result.get(key) !== null) result.set(key, (result.get(key) || 0) + n); }
+    }
     if (failed === paths.length) { box.innerHTML = '<p class="os-note">全站統計暫時讀不到，請稍後再試，或直接到 GoatCounter 後台查看。</p>'; return; }
     const cards = SITE_EVENTS.map(([path, label]) => `<div class="os-card"><span>${esc(label)}</span><b>${num(result.get(path))}</b></div>`).join('');
     const rows = GROUPS.map(g => ({ g, detail: result.get(`detail-group/${g}`), compare: result.get(`compare-group/${g}`) }))
@@ -60,7 +89,7 @@
     const table = `<table class="os-table"><thead><tr><th scope="col">學群</th><th scope="col" class="num">打開詳情</th><th scope="col" class="num">加入追蹤</th></tr></thead><tbody>${rows.map(r => `<tr><th scope="row">${esc(r.g)}</th><td class="num">${num(r.detail)}</td><td class="num">${num(r.compare)}</td></tr>`).join('')}</tbody></table>`;
     box.innerHTML = `<div class="os-cards">${cards}</div>
       <h4>各學群熱門程度</h4>${table}
-      <p class="os-note">次數，不是人數；同一個系跨兩個學群時兩邊各算一次。${base.start ? `從 ${esc(base.start)} 起算。` : ''}${failed ? `有 ${failed} 項暫時讀不到，顯示為「—」。` : ''}學群數字從 2026/11/02 開始記錄；2026/11/03 以前，同一次瀏覽中重複的動作只算一次，登入學生的加入追蹤在 11/02 以前也沒有計入。 <a href="https://${esc(base.code)}.goatcounter.com" target="_blank" rel="noopener noreferrer">開啟 GoatCounter 完整後台 ↗</a></p>`;
+      <p class="os-note">次數，不是人數；同一個系跨兩個學群時兩邊各算一次。${base.start ? `從 ${esc(base.start)} 起算。` : ''}${failed ? `有 ${failed} 項暫時讀不到，顯示為「—」。` : ''}${extra?.total ? `「加入追蹤」已補計 11/02 傍晚以前會員加入的 ${fmt.format(extra.total)} 筆。` : ''}學群數字從 2026/11/02 開始記錄；2026/11/03 以前，同一次瀏覽中重複的動作只算一次。 <a href="https://${esc(base.code)}.goatcounter.com" target="_blank" rel="noopener noreferrer">開啟 GoatCounter 完整後台 ↗</a></p>`;
   }
 
   function renderMembers(box, stats) {
@@ -85,10 +114,10 @@
   }
 
   window.YuhsinOwnerStats = {
-    open(dialog, stats) {
+    open(dialog, stats, client) {
       renderMembers(dialog.querySelector('#ownerMembers'), stats);
       dialog.showModal();
-      renderSite(dialog.querySelector('#ownerSite')).catch(() => { dialog.querySelector('#ownerSite').innerHTML = '<p class="os-note">全站統計暫時讀不到，請稍後再試。</p>'; });
+      renderSite(dialog.querySelector('#ownerSite'), client).catch(() => { dialog.querySelector('#ownerSite').innerHTML = '<p class="os-note">全站統計暫時讀不到，請稍後再試。</p>'; });
     },
   };
 })();

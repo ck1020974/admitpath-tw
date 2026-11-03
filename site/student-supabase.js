@@ -142,6 +142,17 @@
         try{const value=await authorized('/rest/v1/rpc/owner_site_stats',{body:{}});return value&&typeof value==='object'?value:null;}
         catch(error){if([401,403,404].includes(error.status)||error.code==='42501')return null;throw error;}
       },
+      // 網站管理者專用：某個時間點以前加入的追蹤（含之後已移除的），只取校系名稱，用來補計全站統計漏記的部分。
+      async adminTrackingAddedBefore(iso){
+        if(!teacher||!current?.canManageAccounts)return [];
+        const rows=[];
+        for(let offset=0;;offset+=1000){
+          const query=new URLSearchParams({select:'school_name,department_name',added_at:'lt.'+iso,order:'id.asc',limit:'1000',offset:String(offset)});
+          const page=await authorized('/rest/v1/tracking_items?'+query);
+          if(!Array.isArray(page))break;rows.push(...page);if(page.length<1000)break;
+        }
+        return rows;
+      },
       // 網站管理者專用：刪除一位學生的全部探索作答與結果，回傳刪除的測驗次數。
       async adminDeleteResults(studentId){
         if(!teacher||!current?.canManageAccounts)throw new Error('只有網站管理者可以刪除探索結果。');

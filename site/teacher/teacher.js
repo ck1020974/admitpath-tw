@@ -269,7 +269,7 @@
   ownerDialog.addEventListener('click',event=>{if(event.target===ownerDialog)ownerDialog.close();});
   $('ownerStatsButton').addEventListener('click',async()=>{
     const button=$('ownerStatsButton');button.disabled=true;
-    try{const stats=await client.ownerStats();if(!stats){button.hidden=true;return;}window.YuhsinOwnerStats.open(ownerDialog,stats);}
+    try{const stats=await client.ownerStats();if(!stats){button.hidden=true;return;}window.YuhsinOwnerStats.open(ownerDialog,stats,client);}
     catch(error){window.alert(error.message||'網站數據暫時無法載入。');}
     finally{button.disabled=false;}
   });
