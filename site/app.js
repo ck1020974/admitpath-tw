@@ -1907,7 +1907,7 @@ function setupContactLinks() {
   const config = window.YUHSIN_CONTACT_CONFIG || {};
   const email = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(config.email || "") ? config.email : "";
   const safeUrl = (value) => { try { const url = new URL(value); return url.protocol === "https:" ? url.href : ""; } catch { return ""; } };
-  const booking = safeUrl(config.bookingUrl) || (email ? `mailto:${email}?subject=${encodeURIComponent("預約諮詢")}` : "") || safeUrl(config.lineUrl);
+  const booking = (email ? `mailto:${email}?subject=${encodeURIComponent("錯誤回報")}` : "");
   const invite = email ? `mailto:${email}?subject=${encodeURIComponent("合作邀請")}` : safeUrl(config.lineUrl);
   const actions = document.getElementById("aboutActions");
   if (actions) actions.hidden = !booking;
@@ -1915,7 +1915,7 @@ function setupContactLinks() {
   if (bookingLink && booking) { bookingLink.href = booking; if (booking.startsWith("https:")) { bookingLink.target = "_blank"; bookingLink.rel = "noopener noreferrer"; } }
   const inviteLink = document.getElementById("contactInvite");
   if (inviteLink) { inviteLink.hidden = !invite; if (invite) inviteLink.href = invite; }
-  document.querySelectorAll("[data-contact-link]").forEach((link) => link.addEventListener("click", () => trackEvent("contact-click", "預約諮詢")));
+  document.querySelectorAll("[data-contact-link]").forEach((link) => link.addEventListener("click", () => trackEvent("contact-click", "錯誤回報")));
   const footEmail = document.getElementById("footEmail");
   const footLine = document.getElementById("footLine");
   if (footEmail && email) { footEmail.hidden = false; footEmail.href = `mailto:${email}`; footEmail.textContent = email; }

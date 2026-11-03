@@ -13,12 +13,8 @@ function resolveSupportPaymentUrl(config) {
 }
 
 function resolveSupportBookingUrl(config) {
-  const safeUrl = value => {
-    try { const url = new URL(value); return url.protocol === "https:" && !url.username && !url.password ? url.href : ""; }
-    catch { return ""; }
-  };
   const email = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(config?.email || "") ? config.email : "";
-  return safeUrl(config?.bookingUrl) || (email ? `mailto:${email}?subject=${encodeURIComponent("預約諮詢")}` : "") || safeUrl(config?.lineUrl);
+  return (email ? `mailto:${email}?subject=${encodeURIComponent("錯誤回報")}` : "");
 }
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -38,7 +34,7 @@ document.addEventListener("DOMContentLoaded", () => {
     bookingLink.hidden = false;
     if (bookingPending) bookingPending.hidden = true;
     if (bookingUrl.startsWith("https:")) { bookingLink.target = "_blank"; bookingLink.rel = "noopener noreferrer"; }
-    bookingLink.addEventListener("click", () => window.YuhsinUsage?.event("contact-click", "預約諮詢"));
+    bookingLink.addEventListener("click", () => window.YuhsinUsage?.event("contact-click", "錯誤回報"));
   }
   if (paymentUrl) {
     paymentLink.href = paymentUrl;
