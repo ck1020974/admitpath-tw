@@ -30,11 +30,14 @@
     item.append(evalBox);
     // 學群沿用原本的呈現：類型標題＋學群清單，兩欄排列。
     const cards=document.createElement('div');cards.className='result-groups';
-    const shown=model.directions(report.groups);
-    for(const type of ['priority','develop','interest','potential','other']){
-      const groups=shown.filter(g=>g.type===type);if(!groups.length)continue;
-      const box=document.createElement('section');box.className='type-'+type;box.append(text('h4',type==='other'?'待探索':groups[0].typeName||data.resultTypes?.[type]?.name||type));
-      const list=document.createElement('ul');for(const g of groups){const hint=model.subjectHint(g);list.append(text('li',g.name+(type==='other'?'':hint.subjects.length?'（'+hint.label+'：'+hint.subjects.join('、')+'）':'（'+hint.label+'：待確認）')));}box.append(list);cards.append(box);
+    // The 2–6 limit belongs to the roster summary only. Keep every classified group here.
+    for(const type of ['priority','develop','interest','potential']){
+      const groups=report.groups.filter(g=>g.type===type);
+      const box=document.createElement('section');box.className='type-'+type;box.append(text('h4',groups[0]?.typeName||data.resultTypes?.[type]?.name||type));
+      if(groups.length){
+        const list=document.createElement('ul');for(const g of groups){const hint=model.subjectHint(g);list.append(text('li',g.name+(hint.subjects.length?'（'+hint.label+'：'+hint.subjects.join('、')+'）':'（'+hint.label+'：待確認）')));}box.append(list);
+      }else box.append(text('p','本次無此類學群。','muted'));
+      cards.append(box);
     }
     if(!cards.children.length)cards.append(text('p','這次沒有歸類出的學群。','muted'));
     item.append(cards);
