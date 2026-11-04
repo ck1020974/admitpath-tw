@@ -30,10 +30,11 @@
     item.append(evalBox);
     // 學群沿用原本的呈現：類型標題＋學群清單，兩欄排列。
     const cards=document.createElement('div');cards.className='result-groups';
-    for(const type of ['priority','develop','potential','interest']){
-      const groups=report.groups.filter(g=>g.type===type);if(!groups.length)continue;
-      const box=document.createElement('section');box.className='type-'+type;box.append(text('h4',groups[0].typeName||data.resultTypes?.[type]?.name||type));
-      const list=document.createElement('ul');for(const g of groups)list.append(text('li',g.name+(g.strengths?.length?'（'+g.strengths.join('、')+'）':'')));box.append(list);cards.append(box);
+    const shown=model.directions(report.groups);
+    for(const type of ['priority','develop','interest','potential','other']){
+      const groups=shown.filter(g=>g.type===type);if(!groups.length)continue;
+      const box=document.createElement('section');box.className='type-'+type;box.append(text('h4',type==='other'?'待探索':groups[0].typeName||data.resultTypes?.[type]?.name||type));
+      const list=document.createElement('ul');for(const g of groups){const hint=model.subjectHint(g);list.append(text('li',g.name+(type==='other'?'':hint.subjects.length?'（'+hint.label+'：'+hint.subjects.join('、')+'）':'（'+hint.label+'：待確認）')));}box.append(list);cards.append(box);
     }
     if(!cards.children.length)cards.append(text('p','這次沒有歸類出的學群。','muted'));
     item.append(cards);
@@ -161,7 +162,7 @@
     try{
       await client.adminDeleteResults(student.id);
       const summary=summaries.get(student.id);
-      if(summary)summaries.set(student.id,{...summary,exam_status:'none',priority_groups:null,exam_completed_at:null});
+      if(summary)summaries.set(student.id,{...summary,exam_status:'none',priority_groups:null,direction_groups:[],exam_completed_at:null});
       deleteDialog.close();render();
       if(dialog.open&&selectedStudent?.id===student.id)openStudent(student,'results');
     }catch(error){
@@ -222,7 +223,7 @@
         if(result.groups.length){
           const chips=text('span','','chips');
           const query=$('search').value.trim();
-          for(const g of result.groups){const active=query===g;const chip=text('button',g,'chip'+(active?' chip-active':''));chip.type='button';chip.title=active?'再點一次清除搜尋':'搜尋優先學群「'+g+'」';chip.addEventListener('click',event=>{event.stopPropagation();$('search').value=active?'':g;render();});chips.append(chip);}
+          for(const item of result.items){const g=model.abbreviate(item.name),active=query===g,typeName=item.type==='other'?'待探索':window.YuhsinCuriosityData.resultTypes[item.type]?.name||item.type;const chip=text('button',g,'chip chip-'+item.type+(active?' chip-active':''));chip.type='button';chip.title=typeName+'｜'+(active?'再點一次清除搜尋':'點選搜尋「'+g+'」');chip.setAttribute('aria-label',g+'：'+typeName);chip.addEventListener('click',event=>{event.stopPropagation();$('search').value=active?'':g;render();});chips.append(chip);}
           examCell.append(chips);
         } else examCell.append(text('span',result.label,'state'));
       }
@@ -252,14 +253,15 @@
   async function workspace() {
     const version = ++epoch;
     $('signedOut').hidden = true; $('workspace').hidden = true; message('status', '正在載入學生名單…');
-    const [rows,summary,contactRows] = await Promise.all([client.listStudents(),client.rosterSummary().then(value=>({value}),error=>({error})),typeof client.adminContacts==='function'?client.adminContacts().catch(()=>[]):[]]);
+    const [rows,summary,contactRows,directions] = await Promise.all([client.listStudents(),client.rosterSummary().then(value=>({value}),error=>({error})),typeof client.adminContacts==='function'?client.adminContacts().catch(()=>[]):[],client.rosterDirections().then(value=>({value}),error=>({error}))]);
     if (version !== epoch) return;
     students = rows;
     summaryReady=!summary.error;summaries=new Map(summaryReady?summary.value.map(r=>[r.student,r]):[]);
+    if(directions.value)for(const [student,groups] of directions.value){const summary=summaries.get(student);if(summary)summary.direction_groups=groups;}
     // 只有網站管理者會拿到信箱，用於標題列顯示與搜尋。
     contacts=new Map(contactRows.map(row=>[row.student,row.contact_email]));
     const placeholder=contacts.size||client.current?.canManageAccounts?'搜尋姓名、學號或信箱':'搜尋姓名或學號';$('search').placeholder=placeholder;$('search').setAttribute('aria-label',placeholder);
-    message('summaryStatus',summaryReady?'':'登入與作答狀況暫時無法載入，請稍後重新整理。');
+    message('summaryStatus',!summaryReady?'登入與作答狀況暫時無法載入，請稍後重新整理。':directions.error?'完整學群摘要暫時無法載入，目前僅顯示優先探索，請稍後重新整理。':'');
     render();message('status','');$('signedOut').hidden=true;$('workspace').hidden=false;$('filters').hidden=false;
     // 網站數據按鈕：只有後端確認是網站管理者（owner_site_stats 回傳資料）才顯示。
     if(typeof client.ownerStats==='function')client.ownerStats().then(stats=>{if(version===epoch)$('ownerStatsButton').hidden=!stats;}).catch(()=>{});

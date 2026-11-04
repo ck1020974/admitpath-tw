@@ -7,11 +7,16 @@ const result = (data,status=200)=>({ok:status<400,status,json:async()=>data});
 const token = {access_token:'teacher-token',refresh_token:'teacher-refresh',expires_in:3600};
 (async()=>{
   const data = new Map(); const storage = {getItem:k=>data.get(k),setItem:(k,v)=>data.set(k,v),removeItem:k=>data.delete(k)};
-  let pages=0;
+  let pages=0,directionPages=0;
   const fetcher=async(path,options)=>{
     if(path.includes('grant_type=password')) {assert.deepEqual(JSON.parse(options.body),{email:'tt00001@teacher.invalid',password:'fixture-password'});return result(token);}
     if(path.includes('/auth/v1/user')) return result({id:access.id});
     if(path.includes('/teacher_access?')) return result([access]);
+    if(path.includes('/assessment_results?')) {
+      assert.equal(options.headers.Authorization,'Bearer teacher-token');
+      const query=new URL(path).searchParams;assert.equal(query.get('report->>deep'),'eq.true');assert.equal(query.get('order'),'completed_at.desc,id.desc');
+      directionPages++;return result(directionPages===1?Array.from({length:100},(_,n)=>({user_id:'s'+n,groups:[{name:'new'}]})):[{user_id:'s0',groups:[{name:'old'}]}]);
+    }
     if(path.includes('/students?')) {assert.equal(options.headers.Authorization,'Bearer teacher-token');pages++;return result(pages===1?Array.from({length:200},(_,n)=>({id:'student-'+n})):[]);}
     if(path.includes('/logout')) return result(null,204);
     throw Error('Unexpected endpoint');
@@ -19,6 +24,7 @@ const token = {access_token:'teacher-token',refresh_token:'teacher-refresh',expi
   const client=createClient({config,storage,fetcher});
   assert.equal((await client.login('TT00001','fixture-password')).role,'teacher');
   assert.equal((await client.listStudents()).length,200);assert.equal(pages,2);
+  const directions=await client.rosterDirections();assert.equal(directionPages,2);assert.equal(directions.size,100);assert.equal(directions.get('s0')[0].name,'new');
   assert.equal(await createClient({config:{...config,accountType:'student'},storage,fetcher}).session(),null,'Teacher sessions must be separate from student sessions');
   assert([...data.values()].every(v=>!v.includes('fixture-password')));
   await client.logout();assert.equal(data.size,0);

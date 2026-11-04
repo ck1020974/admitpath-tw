@@ -26,3 +26,17 @@ assert.deepEqual([fresh,old,never].sort((x,y)=>model.compare('login','asc',x,y))
 assert.deepEqual([never,fresh,old].sort((x,y)=>model.compare('tracking','desc',x,y)),[old,fresh,never]);
 console.log('Teacher overview: login lights at 7/90-day boundaries, Taipei dates, abbreviations, exam labels, login/exam/tag filters and sorting passed.');
 console.log('Teacher filters: all requested options, G10 aliases, grade/original-class intersections and account search passed.');
+const row=(id,type)=>({id,name:id+'學群',type});
+const mixed=[row('A','other'),row('B','interest'),row('C','develop'),row('D','priority'),row('E','potential')];
+assert.deepEqual(model.directions(mixed).map(r=>r.id),['D','C']);
+assert.deepEqual(model.directions([row('A','potential'),row('B','other')]).map(r=>r.id),['A','B']);
+assert.equal(model.directions(Array.from({length:9},(_,i)=>row(String(i),'priority'))).length,6);
+assert.deepEqual(model.directions([row('A','priority'),...Array.from({length:8},(_,i)=>row(String(i),'develop'))]).map(r=>r.id),['A','0','1','2','3','4']);
+const summary={exam_status:'deep',priority_groups:[],direction_groups:mixed};
+assert(model.matches(a,{search:'C學群'},summary));assert(!model.matches(a,{search:'A學群'},summary));
+const subjects=[{label:'國文',value:3,weight:3},{label:'英文',value:1,weight:2},{label:'數學',value:2,weight:2},{label:'未評',value:null,weight:3},{label:'次要',value:0,weight:1}];
+for(const type of ['priority','potential'])assert.deepEqual(model.subjectHint({type,subjects}),{label:'優勢',subjects:['國文','數學']});
+for(const type of ['develop','interest'])assert.deepEqual(model.subjectHint({type,subjects}),{label:'補強',subjects:['英文','數學']});
+assert.deepEqual(model.subjectHint({type:'interest',subjects:[]}),{label:'補強',subjects:[]});
+assert.deepEqual(mixed.map(r=>r.type),['other','interest','develop','priority','potential'],'Display selection must not change stored classifications');
+console.log('Teacher directions: 2–6 limits, category order, search and subject hints passed.');

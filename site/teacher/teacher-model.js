@@ -33,16 +33,32 @@
     const parts=Object.fromEntries(new Intl.DateTimeFormat('en-CA',{timeZone:'Asia/Taipei',year:'numeric',month:'2-digit',day:'2-digit'}).formatToParts(new Date(lastSignIn)).map(p=>[p.type,p.value]));
     return parts.year+'/'+parts.month+'/'+parts.day;
   }
+  // Keep stored classifications intact; only choose what the teacher overview displays.
+  function directions(rows=[]){
+    const selected=[],seen=new Set();
+    const add=(type,limit)=>{for(const row of rows){if(selected.length>=limit)break;if(row.type!==type||seen.has(row.id||row.name))continue;seen.add(row.id||row.name);selected.push(row);}};
+    add('priority',6);add('develop',6);
+    for(const type of ['interest','potential','other'])add(type,2);
+    return selected;
+  }
+  function subjectHint(row){
+    const advantage=['priority','potential'].includes(row.type),label=advantage?'優勢':'補強';
+    // Deep results already contain updated subject values. Never treat missing values as low scores.
+    const subjects=(row.subjects||[]).filter(s=>s.weight>=2&&typeof s.value==='number'&&Number.isFinite(s.value));
+    subjects.sort((a,b)=>(advantage?b.value-a.value:a.value-b.value)||b.weight-a.weight);
+    return {label,subjects:subjects.slice(0,2).map(s=>s.label)};
+  }
   function exam(summary){
     const status=summary?.exam_status||'none';
-    const groups=status==='deep'?(summary.priority_groups||[]).map(abbreviate):[];
+    const items=status==='deep'?(Array.isArray(summary.direction_groups)?directions(summary.direction_groups):(summary.priority_groups||[]).map(name=>({name,type:'priority'}))):[];
+    const groups=items.map(g=>abbreviate(g.name));
     const label=status==='deep'?(groups.length?groups.join('、'):'無'):examOptions.find(o=>o.value===status)?.label||'未作答';
-    return {status,label,groups};
+    return {status,label,groups,items};
   }
   function matches(student,{search='',grade:gradeFilter='',group:groupFilter='',login:loginFilter='',exam:examFilter='',tag=''}={},summary,now=Date.now()){
     const query=search.trim().toLocaleLowerCase();
     // Search also finds a 優先學群 by abbreviation (醫衛) or full name (醫藥衛生學群).
-    const groupText=summary?.exam_status==='deep'?(summary.priority_groups||[]).flatMap(name=>[name,abbreviate(name)]).join(' ').toLocaleLowerCase():'';
+    const groupText=exam(summary).items.flatMap(g=>[g.name,abbreviate(g.name)]).join(' ').toLocaleLowerCase();
     return (!query||student.name.toLocaleLowerCase().includes(query)||student.student_id.toLowerCase().includes(query)||groupText.includes(query)||(summary?.contact_email||'').toLocaleLowerCase().includes(query))
       &&(!gradeFilter||(gradeFilter.startsWith('G')?grade(student)===gradeFilter:String(student.original_class)===gradeFilter))
       &&(!groupFilter||group(student)===groupFilter)
@@ -56,6 +72,6 @@
     const diff=value(a)-value(b);
     return diff===0?0:(diff<0?-1:1)*(direction==='desc'?-1:1);
   }
-  const api={channelShort,gradeOptions,groupOptions,loginOptions,examOptions,group,grade,abbreviate,login,loginDate,exam,matches,compare};
+  const api={directions,subjectHint,channelShort,gradeOptions,groupOptions,loginOptions,examOptions,group,grade,abbreviate,login,loginDate,exam,matches,compare};
   if(typeof module!=='undefined'&&module.exports)module.exports=api;else root.YuhsinTeacherModel=api;
 })(typeof window!=='undefined'?window:globalThis);

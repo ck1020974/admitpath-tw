@@ -117,6 +117,18 @@
         if(!Array.isArray(rows))throw new Error('無法讀取名單摘要。');
         return rows;
       },
+      async rosterDirections(){
+        if(!teacher)throw new Error('請先登入教師帳號。');
+        const latest=new Map();
+        for(let offset=0;;offset+=100){
+          const query=new URLSearchParams({select:'user_id,groups:report->groups', 'report->>deep':'eq.true',order:'completed_at.desc,id.desc',limit:'100',offset:String(offset)});
+          const rows=await authorized('/rest/v1/assessment_results?'+query);
+          if(!Array.isArray(rows))throw new Error('無法讀取學群摘要。');
+          for(const row of rows)if(!latest.has(row.user_id))latest.set(row.user_id,row.groups);
+          if(rows.length<100)break;
+        }
+        return latest;
+      },
       async readContact(){
         if(teacher)return null;
         const rows=await authorized('/rest/v1/rpc/student_contact_info',{body:{}});
