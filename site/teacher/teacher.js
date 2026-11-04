@@ -228,6 +228,7 @@
           const query=$('search').value.trim();
           for(const item of result.items){const g=model.abbreviate(item.name),active=query===g,typeName=item.type==='other'?'待探索':window.YuhsinCuriosityData.resultTypes[item.type]?.name||item.type;const chip=text('button',g,'chip chip-'+item.type+(active?' chip-active':''));chip.type='button';chip.title=typeName+'｜'+(active?'再點一次清除搜尋':'點選搜尋「'+g+'」');chip.setAttribute('aria-label',g+'：'+typeName);chip.addEventListener('click',event=>{event.stopPropagation();$('search').value=active?'':g;render();});chips.append(chip);}
           examCell.append(chips);
+          if(result.status==='quick')examCell.append(text('span','未深入','sub'));
         } else examCell.append(text('span',result.label,'state'));
       }
       let delCell=null;

@@ -50,7 +50,7 @@
   }
   function exam(summary){
     const status=summary?.exam_status||'none';
-    const items=status==='deep'?(Array.isArray(summary.direction_groups)?directions(summary.direction_groups):(summary.priority_groups||[]).map(name=>({name,type:'priority'}))):[];
+    const items=['deep','quick'].includes(status)?(Array.isArray(summary.direction_groups)?directions(summary.direction_groups):(summary.priority_groups||[]).map(name=>({name,type:'priority'}))):[];
     const groups=items.map(g=>abbreviate(g.name));
     const label=status==='deep'?(groups.length?groups.join('、'):'無'):examOptions.find(o=>o.value===status)?.label||'未作答';
     return {status,label,groups,items};

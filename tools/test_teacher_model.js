@@ -34,6 +34,12 @@ assert.equal(model.directions(Array.from({length:9},(_,i)=>row(String(i),'priori
 assert.deepEqual(model.directions([row('A','priority'),...Array.from({length:8},(_,i)=>row(String(i),'develop'))]).map(r=>r.id),['A','0','1','2','3','4']);
 const summary={exam_status:'deep',priority_groups:[],direction_groups:mixed};
 assert(model.matches(a,{search:'C學群'},summary));assert(!model.matches(a,{search:'A學群'},summary));
+const quickSummary={...summary,exam_status:'quick'};
+assert.deepEqual(model.exam(quickSummary).groups,model.exam(summary).groups);
+assert.equal(model.exam(quickSummary).status,'quick');
+assert(model.matches(a,{search:'C學群',exam:'quick'},quickSummary));
+assert(!model.matches(a,{exam:'deep'},quickSummary));
+assert.equal(model.exam({...summary,exam_status:'in_progress'}).groups.length,0);
 const subjects=[{label:'國文',value:3,weight:3},{label:'英文',value:1,weight:2},{label:'數學',value:2,weight:2},{label:'未評',value:null,weight:3},{label:'次要',value:0,weight:1}];
 for(const type of ['priority','potential'])assert.deepEqual(model.subjectHint({type,subjects}),{label:'優勢',subjects:['國文','數學']});
 for(const type of ['develop','interest'])assert.deepEqual(model.subjectHint({type,subjects}),{label:'補強',subjects:['英文','數學']});

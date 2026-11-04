@@ -14,8 +14,8 @@ const token = {access_token:'teacher-token',refresh_token:'teacher-refresh',expi
     if(path.includes('/teacher_access?')) return result([access]);
     if(path.includes('/assessment_results?')) {
       assert.equal(options.headers.Authorization,'Bearer teacher-token');
-      const query=new URL(path).searchParams;assert.equal(query.get('report->>deep'),'eq.true');assert.equal(query.get('order'),'completed_at.desc,id.desc');
-      directionPages++;return result(directionPages===1?Array.from({length:100},(_,n)=>({user_id:'s'+n,groups:[{name:'new'}]})):[{user_id:'s0',groups:[{name:'old'}]}]);
+      const query=new URL(path).searchParams;assert.equal(query.has('report->>deep'),false);assert.equal(query.get('order'),'completed_at.desc,id.desc');
+      directionPages++;return result(directionPages===1?Array.from({length:100},(_,n)=>({user_id:'s'+n,deep:n===2,groups:[{name:'new'}]})):[{user_id:'s0',deep:false,groups:[{name:'old'}]},{user_id:'s1',deep:true,groups:[{name:'deep'}]},{user_id:'s2',deep:true,groups:[{name:'older-deep'}]}]);
     }
     if(path.includes('/students?')) {assert.equal(options.headers.Authorization,'Bearer teacher-token');pages++;return result(pages===1?Array.from({length:200},(_,n)=>({id:'student-'+n})):[]);}
     if(path.includes('/logout')) return result(null,204);
@@ -25,6 +25,7 @@ const token = {access_token:'teacher-token',refresh_token:'teacher-refresh',expi
   assert.equal((await client.login('TT00001','fixture-password')).role,'teacher');
   assert.equal((await client.listStudents()).length,200);assert.equal(pages,2);
   const directions=await client.rosterDirections();assert.equal(directionPages,2);assert.equal(directions.size,100);assert.equal(directions.get('s0')[0].name,'new');
+  assert.equal(directions.get('s1')[0].name,'deep');assert.equal(directions.get('s2')[0].name,'new');
   assert.equal(await createClient({config:{...config,accountType:'student'},storage,fetcher}).session(),null,'Teacher sessions must be separate from student sessions');
   assert([...data.values()].every(v=>!v.includes('fixture-password')));
   await client.logout();assert.equal(data.size,0);
