@@ -235,6 +235,8 @@ vm.runInContext(
   ["114-personal_application-001752-114_apply", 3, "42", "NTU Hope H third rank"],
   // 2026-11 官方原表比對。
   ["114-personal_application-021022-114_apply", 1, "32", "NTOU Shipping first rank"],
+  ["114-personal_application-002092-114_apply", 1, "47", "NTNU Civic Education filled first rank"],
+  ["114-personal_application-002092-114_apply", 2, "14", "NTNU Civic Education filled second rank"],
   ["114-personal_application-023292-114_apply", 1, "25", "NCUE Fine Arts academic rank"],
 ].forEach(([recordId, rank, expected, label]) => {
   const record = records.find((item) => item.id === recordId);
