@@ -4223,9 +4223,10 @@ function explorerCategoryIntroHtml() {
   const insight = getCategoryInsight(state.selectedCategory, state.selectedGroup, rows);
   const representative = categoryRepresentativeGroups(state.selectedCategory, rows);
   const representativeSections = [
-    ["一般大學", representative.general.slice(0, 6)],
-    ["科大", representative.tech.slice(0, representative.general.length ? 3 : 6)],
+    ["一般大學", representative.general.slice(0, representative.tech.length ? 5 : 6)],
+    ["科大", representative.tech.slice(0, representative.general.length ? 5 : 6)],
   ].filter(([, schools]) => schools.length);
+  const representativeSplit = representativeSections.length > 1;
   const categorySummary = categorySummaryProfile(state.selectedCategory, insight, state.selectedGroup);
   const representativeCount = representativeSections.reduce((sum, [, schools]) => sum + schools.length, 0);
   const curated = isCuratedCategory(state.selectedCategory);
@@ -4287,8 +4288,9 @@ function explorerCategoryIntroHtml() {
             </div>
             <span class="explorer-panel-count">${fmt.format(representativeCount)}</span>
           </div>
-          ${representativeSections.length ? representativeSections.map(([label, schools]) => `
-            ${representativeSections.length > 1 ? `<h5 class="explorer-representative-label">${escapeHtml(label)}</h5>` : ""}
+          ${representativeSections.length ? `<div class="${representativeSplit ? "explorer-representative-split" : ""}">${representativeSections.map(([label, schools]) => `
+            <div>
+            ${representativeSplit ? `<h5 class="explorer-representative-label">${escapeHtml(label)}</h5>` : ""}
             <div class="explorer-representative-grid">
               ${schools.map((item) => `
                 <article class="representative-school-card">
@@ -4297,7 +4299,8 @@ function explorerCategoryIntroHtml() {
                 </article>
               `).join("")}
             </div>
-          `).join("") : `<p class="explorer-panel-empty">目前沒有整理到相關校系。</p>`}
+            </div>
+          `).join("")}</div>` : `<p class="explorer-panel-empty">目前沒有整理到相關校系。</p>`}
         </aside>
       </section>
     </div>

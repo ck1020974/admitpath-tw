@@ -3268,10 +3268,53 @@ tr:hover td {
   justify-self: start;
 }
 
+.explorer-representative-split {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 28px;
+  margin-top: 14px;
+}
+
 .explorer-representative-label {
-  margin: 16px 0 -4px;
+  margin: 0;
+  padding-bottom: 8px;
+  border-bottom: 2px solid rgba(231, 218, 193, .96);
   color: #6d4711;
   font-size: 14px;
+}
+
+.explorer-representative-split .explorer-representative-grid {
+  display: block;
+  margin-top: 0;
+}
+
+.explorer-representative-split .representative-school-card {
+  display: grid;
+  grid-template-columns: minmax(0, 2fr) minmax(0, 3fr);
+  align-items: baseline;
+  gap: 10px;
+  padding: 10px 0;
+  border: 0;
+  border-bottom: 1px solid rgba(231, 218, 193, .6);
+  border-radius: 0;
+  background: none;
+  box-shadow: none;
+}
+
+.explorer-representative-split .representative-school-name {
+  font-size: 15px;
+}
+
+.explorer-representative-split .representative-departments {
+  min-height: 0;
+  -webkit-line-clamp: 1;
+}
+
+@media (max-width: 720px) {
+  .explorer-representative-split {
+    grid-template-columns: 1fr;
+    gap: 18px;
+  }
 }
 
 .compare-reminder {
