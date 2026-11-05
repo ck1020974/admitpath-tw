@@ -4,10 +4,10 @@ const vm = require('node:vm');
 const source = fs.readFileSync(require.resolve('../site/app.js'), 'utf8');
 const ctx = { state: { records: [], specialRecordsBySchool: new Map(), recordIndexByFullName: new Map(), recordIndexBySchoolDept: new Map() } };
 vm.createContext(ctx);
-for (const name of ['normalize', 'splitSchoolDepartmentName', 'stripSchoolCampus', 'schoolMatchKey', 'isDepartmentVariant', 'specialRecordsForGroupRow', 'explorerRecordKey', 'chooseExplorerRepresentative', 'explorerChannelRank', 'explorerChannelRecords']) {
+for (const name of ['normalize', 'splitSchoolDepartmentName', 'stripSchoolCampus', 'schoolMatchKey', 'isDepartmentVariant', 'specialRecordsForGroupRow', 'explorerRecordKey', 'explorerChannelSummaries']) {
   vm.runInContext(source.match(new RegExp(`function ${name}\\([\\s\\S]*?\\n\\}`))[0], ctx);
 }
-vm.runInContext(source.match(/const EXPLORER_CHANNEL_ORDER = \{[\s\S]*?\n\};/)[0], ctx);
+vm.runInContext(source.match(/const EXPLORER_CHANNELS = \[[\s\S]*?\n\];/)[0], ctx);
 
 const special = (schoolName, departmentName, year = 116) => ({ id: `${schoolName}${departmentName}${year}`, year, channelKey: 'special_selection', schoolName, departmentName });
 const fixtures = [
@@ -42,21 +42,21 @@ assert.deepEqual(matches('國立政治大學統計學系(A組)', [special('國�
 assert.equal(ctx.stripSchoolCampus('實踐大學(高雄)'), '實踐大學');
 assert.equal(ctx.stripSchoolCampus('國立臺灣大學'), '國立臺灣大學');
 
-// 按鈕最前面是 116 特選，卡片預設內容仍是一般管道。
-const records = [
-  { year: 115, channelKey: 'special_selection' },
-  { year: 114, channelKey: 'personal_application' },
-  { year: 116, channelKey: 'special_selection' },
-  { year: 115, channelKey: 'personal_application' },
-];
-assert.deepEqual(Array.from(ctx.explorerChannelRecords(records), item => item.key), ['116-special_selection', '115-personal_application', '114-personal_application', '115-special_selection']);
-assert.equal(ctx.chooseExplorerRepresentative(records).year, 115);
-assert.equal(ctx.chooseExplorerRepresentative(records).channelKey, 'personal_application');
-assert.equal(ctx.chooseExplorerRepresentative(records, '116-special_selection').channelKey, 'special_selection');
+// 管道按鈕的數量看最新年度，同一筆招生資料分屬多組時只算一次。
+const rec = (id, year, channelKey) => ({ id, year, channelKey });
+ctx.findRecordsForGroupRow = row => row.records;
+const summaries = ctx.explorerChannelSummaries([
+  { records: [rec('a', 115, 'personal_application'), rec('b', 114, 'personal_application'), rec('s', 116, 'special_selection')] },
+  { records: [rec('a', 115, 'personal_application'), rec('t', 115, 'tech_application')] },
+]);
+assert.deepEqual(Array.from(summaries, item => [item.key, item.count]), [['personal_application', 1], ['tech_application', 1], ['special_selection', 1]]);
+assert.deepEqual(Array.from(summaries[0].years), [115, 114]);
 
 // 清單不再於資料層截斷，科大（代碼排在最後）才看得到。
 assert.doesNotMatch(source.match(/function getExplorerDepartmentRows\([\s\S]*?\n\}/)[0], /\.slice\(/);
 const list = source.match(/function explorerDepartmentListHtml\([\s\S]*?\n\}/)[0];
 assert.match(list, /fmt\.format\(allRows\.length\)\} 個相關校系/, '標題顯示全部筆數');
 assert.match(list, /data-explorer-load-more/);
-console.log('Explorer department rows: special matching across groups and campuses, channel order and full list passed.');
+assert.match(list, /workbenchRecordRowHtml\(record\)/, '和校系查詢共用同一種列');
+assert.doesNotMatch(list, /explorerKeyword/, '第四層沒有搜尋');
+console.log('Explorer department rows: special matching across groups and campuses, channel summaries and full list passed.');

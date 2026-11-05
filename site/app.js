@@ -15,10 +15,10 @@ const state = {
   selectedExplorerStage: "overview",
   selectedGroup: "",
   selectedCategory: "",
-  explorerKeyword: "",
   linkedGroup: "",
   linkedCategory: "",
-  explorerChannelSelection: {},
+  explorerChannel: "personal_application",
+  explorerYear: "",
   explorerListKey: "",
   explorerVisibleCount: 0,
   explorerListFilter: "",
@@ -956,6 +956,7 @@ const APPLY_SIEVE_SCORE_OVERRIDES = {
   "114-personal_application-027432-114_apply": { clear: true },
   "114-personal_application-032062-114_apply": { clear: true },
   "114-personal_application-099142-114_apply": { clear: true },
+  "115-personal_application-060072-115_apply": { additions: [{ rank: 1, multiplier: "10", subjects: ["國文", "英文"], score: "3", label: "國文+英文3" }] },
   // 2026-11 補上官方原表有列、資料缺漏的校系；科目與倍率取自校系分則。
   "114-personal_application-002092-114_apply": { additions: [{ rank: 1, multiplier: "4", subjects: ["國文","英文","數B","社會"], score: "47", label: "國文+英文+數B+社會47" }, { rank: 2, multiplier: "3", subjects: ["社會"], score: "14", label: "社會14" }] },
   "114-personal_application-002252-114_apply": { additions: [{ rank: 1, multiplier: "10", subjects: ["國文","英文","數A","自然"], score: "42", label: "國文+英文+數A+自然42" }, { rank: 2, multiplier: "3", subjects: ["自然"], score: "14", label: "自然14" }] },
@@ -1230,7 +1231,6 @@ async function init() {
     state.selectedGroup = explorerLink.group;
     state.selectedExplorerStage = categoryInGroup ? "category" : "group";
     state.selectedCategory = categoryInGroup ? explorerLink.category : "";
-    state.explorerKeyword = "";
     const backLink = document.getElementById("curiosityBackLink");
     if (backLink && explorerLink.fromCuriosity) backLink.hidden = false;
     if (explorerLink.fromCuriosity) trackEvent("from-curiosity", "從學群探索結果進入", { once: true });
@@ -1496,10 +1496,10 @@ function resetExplorerState(stage = "overview") {
   state.selectedExplorerStage = stage;
   state.selectedGroup = "";
   state.selectedCategory = "";
-  state.explorerKeyword = "";
   state.linkedGroup = "";
   state.linkedCategory = "";
-  state.explorerChannelSelection = {};
+  state.explorerChannel = "personal_application";
+  state.explorerYear = "";
   state.explorerListFilter = "";
 }
 
@@ -1618,12 +1618,6 @@ function resetFilters() {
   renderExplorer();
   renderAdvancedFilterDrawer();
   applyFilters();
-}
-
-function updateExplorerKeyword() {
-  const input = document.getElementById("explorerKeywordInput");
-  state.explorerKeyword = input?.value.trim() || "";
-  renderExplorer();
 }
 
 function defaultAdvancedFilters() {
@@ -3476,52 +3470,8 @@ function getHighlight(record) {
   return "";
 }
 
-function highlightHtml(record) {
-  if (record.specialSelection) {
-    const summary = AdmissionCatalog.examTags(record.specialSelection);
-    return `<div class="sp-exam-summary">${record.specialSelection.plan === '資安外加' ? '<span class="sp-exam-tag">資安外加</span>' : ''}${summary.tags.map(tag => `<span class="sp-exam-tag">${escapeHtml(tag)}</span>`).join('')}<span class="sp-exam-tag">名額 ${record.quota} 名</span>${summary.conditional ? '<span class="sp-exam-context">分階段／附條件 · 詳見詳情</span>' : ''}</div>`;
-  }
-  if (record.channelKey === "tech_application") {
-    const screening = techScreeningText(record);
-    return `<div class="standard-list">${screening ? `<span class="standard-chip screening">一階最低 ${escapeHtml(screening)}</span>` : ""}${(record.weightedSubjects || []).map((item) => `<span class="standard-chip threshold">${escapeHtml(`${shortSubject(item.subject)}×${item.weight}`)}</span>`).join("")}</div>`;
-  }
-  if (record.channelKey === "personal_application") {
-    const parts = personalApplicationStandardParts(record);
-    if (parts.length) {
-      return `<div class="standard-list">${parts.map((part) => (
-        `<span class="standard-chip ${escapeAttr(part.type)}">${escapeHtml(part.text)}</span>`
-      )).join("")}</div>`;
-    }
-  }
-  if (record.channelKey === "star_recommendation") {
-    return starStandardHtml(record) || escapeHtml(getHighlight(record) || "");
-  }
-  if (record.channelKey === "exam_distribution") {
-    return distributionHighlightHtml(record);
-  }
-  return escapeHtml(getHighlight(record) || "");
-}
-
 function distributionResult(record) {
   return record?.programCode ? state.results[`${record.year}-${record.programCode}`] : null;
-}
-
-function distributionHighlightHtml(record) {
-  const result = distributionResult(record);
-  const parts = [];
-  if (result?.regularTotalScore) {
-    parts.push(`<span class="standard-chip distribution-total">總分 ${escapeHtml(result.regularTotalScore)}</span>`);
-  }
-  if (result?.regularTieBreak && result.regularTieBreak !== "-----") {
-    parts.push(`<span class="standard-chip distribution-tie">同分 ${escapeHtml(result.regularTieBreak)}</span>`);
-  }
-  const subjectLine = distributionWeightsHtml(record);
-  return `
-    <div class="distribution-standard">
-      ${parts.length ? `<div class="standard-list">${parts.join("")}</div>` : ""}
-      ${subjectLine}
-    </div>
-  `;
 }
 
 function distributionWeightsHtml(record) {
@@ -4177,10 +4127,6 @@ function explorerCategoriesForGroup(groupName) {
   }).sort((a, b) => b.count - a.count || a.name.localeCompare(b.name, "zh-Hant"));
 }
 
-function explorerRowKey(row) {
-  return `${row.sourceDepartmentId || ""}|${row.schoolDepartmentName}|${row.categoryName}`;
-}
-
 function getGroupNeedles(groupName) {
   return cachedGroupNeedles(groupName ? [groupName] : []);
 }
@@ -4269,41 +4215,7 @@ function matchesGroup(record, needles) {
 
 function getExplorerDepartmentRows() {
   if (!state.selectedGroup && !state.selectedCategory) return [];
-  const rows = selectedCategoryRows(state.selectedGroup, state.selectedCategory);
-  const map = new Map();
-  rows.forEach((row) => {
-    const key = explorerRowKey(row);
-    if (!map.has(key)) {
-      const records = findRecordsForGroupRow(row);
-      // 篩特選時，卡片直接顯示特選內容。
-      const selectedChannelKey = state.explorerChannelSelection[key]
-        || (["special", "open"].includes(state.explorerListFilter) ? "116-special_selection" : "");
-      map.set(key, {
-        ...row,
-        key,
-        records,
-        representative: chooseExplorerRepresentative(records, selectedChannelKey),
-      });
-    }
-  });
-  const keyword = normalize(state.explorerKeyword);
-  return [...map.values()].filter((row) => {
-    if (!keyword) return true;
-    const representative = row.representative;
-    const haystack = normalize([
-      row.categoryName,
-      row.schoolDepartmentName,
-      representative?.schoolName,
-      representative?.departmentName,
-    ].filter(Boolean).join(" "));
-    return haystack.includes(keyword);
-  }).sort((a, b) => {
-    const ar = a.representative;
-    const br = b.representative;
-    const as = ar ? `${ar.schoolCode}${ar.departmentName}` : a.schoolDepartmentName;
-    const bs = br ? `${br.schoolCode}${br.departmentName}` : b.schoolDepartmentName;
-    return as.localeCompare(bs, "zh-Hant");
-  });
+  return selectedCategoryRows(state.selectedGroup, state.selectedCategory);
 }
 
 function stripSchoolCampus(schoolName) {
@@ -4352,14 +4264,6 @@ function isTechGroupRow(row) {
   return state.techSchoolKeys.has(schoolMatchKey(splitSchoolDepartmentName(row.schoolDepartmentName).schoolName));
 }
 
-// 科大、116 特選與目前可報名的狀態；row.records 是清單已查好的資料。
-function explorerRowFlags(row) {
-  const records = row.records || findRecordsForGroupRow(row);
-  const specials = records.filter((record) => explorerRecordKey(record) === "116-special_selection");
-  const active = specials.find((record) => isRegistrationActive(specialRegistrationStatus(record.specialSelection)));
-  return { tech: isTechGroupRow(row), special: specials.length > 0, active, specials };
-}
-
 function explorerRowStats(rows) {
   const unique = new Map(rows.map((row) => [row.schoolDepartmentName, row]));
   const stats = { general: 0, tech: 0 };
@@ -4368,14 +4272,6 @@ function explorerRowStats(rows) {
     else stats.general += 1;
   });
   return stats;
-}
-
-// 特選不分組，同一系在學群資料有多組時只留一列。
-function uniqueSpecialRows(rows) {
-  return [...new Map(rows.map((row) => {
-    const flags = explorerRowFlags(row);
-    return [(flags.active || flags.specials[0]).id, row];
-  })).values()];
 }
 
 function explorerStatChipsHtml(stats) {
@@ -4409,86 +4305,11 @@ function explorerRecordKey(record) {
   return `${record.year}-${record.channelKey}`;
 }
 
-const EXPLORER_CHANNEL_ORDER = {
-  "115-personal_application": 1,
-  "115-star_recommendation": 2,
-  "115-exam_distribution": 3,
-  "115-tech_application": 3.5,
-  "114-personal_application": 4,
-  "114-star_recommendation": 5,
-  "114-exam_distribution": 6,
-  "114-tech_application": 6.5,
-  "116-special_selection": 7,
-  "115-special_selection": 8,
-};
-
-function chooseExplorerRepresentative(records, preferredRecordKey = "") {
-  const pool = preferredRecordKey
-    ? records.filter((item) => explorerRecordKey(item) === preferredRecordKey)
-    : records;
-  return [...(pool.length ? pool : records)].sort((a, b) => {
-    return (EXPLORER_CHANNEL_ORDER[explorerRecordKey(a)] || 99) - (EXPLORER_CHANNEL_ORDER[explorerRecordKey(b)] || 99);
-  })[0] || null;
-}
-
-// 按鈕最前面放最新的 116 特選；卡片預設內容仍是一般管道，見 chooseExplorerRepresentative。
-function explorerChannelRank(record) {
-  const key = explorerRecordKey(record);
-  return key === "116-special_selection" ? 0 : EXPLORER_CHANNEL_ORDER[key] || 99;
-}
-
-function explorerChannelRecords(records) {
-  const uniqueRecords = new Map();
-  records.forEach((record) => {
-    const key = explorerRecordKey(record);
-    if (!uniqueRecords.has(key)) uniqueRecords.set(key, record);
-  });
-  return [...uniqueRecords.values()]
-    .sort((a, b) => explorerChannelRank(a) - explorerChannelRank(b))
-    .map((record) => ({ channelKey: record.channelKey, record, key: explorerRecordKey(record) }));
-}
-
 function explorerResultTitle() {
   if (state.selectedCategory && state.selectedGroup) return `${state.selectedGroup} / ${displayCategoryName(state.selectedCategory)}`;
   if (state.selectedCategory) return `${displayCategoryName(state.selectedCategory)} 相關校系`;
   if (state.selectedGroup) return `${state.selectedGroup} 相關校系`;
   return "請先選擇學群";
-}
-
-function explorerDepartmentCard(row) {
-  const record = row.representative;
-  const school = record?.schoolName || row.schoolDepartmentName.replace(row.schoolDepartmentName.replace(/^.*?(大學|學院)/, ""), "");
-  const department = record?.departmentName || row.schoolDepartmentName.replace(/^.*?(大學|學院)/, "");
-  const channelRecords = explorerChannelRecords(row.records);
-  const activeRecordKey = record ? explorerRecordKey(record) : channelRecords[0]?.key || "";
-  const activeChannelKey = record?.channelKey || channelRecords[0]?.channelKey || "";
-  const accentClass = `accent-${channelClass(activeChannelKey)}`;
-  const channels = channelRecords.map(({ channelKey, record: channelRecord, key }) => `
-    <button
-      class="channel-switch ${key === activeRecordKey ? "active" : ""} ${channelClass(channelKey)}"
-      data-explorer-channel="${escapeAttr(row.key)}"
-      data-channel-key="${escapeAttr(key)}"
-    >${escapeHtml(channelRecord.year)} ${escapeHtml(channelShort(channelKey))}</button>
-  `).join("");
-  const compactHighlight = record ? highlightHtml(record) : "";
-  const crossGroups = Array.isArray(row.crossGroupNames) ? row.crossGroupNames.filter(Boolean) : [];
-  const flags = explorerRowFlags(row);
-  const specialRecord = flags.active || flags.specials[0];
-  const specialBadge = specialRecord && specialRegistrationStatus(specialRecord.specialSelection)?.key !== "closed" ? specialRegistrationBadgeHtml(specialRecord) : "";
-  return `
-    <article class="explorer-dept-card ${accentClass} ${record ? "is-clickable" : ""}" ${record ? `data-detail-card="${escapeAttr(record.id)}"` : ""}>
-      <header>
-        <div>
-          <strong class="explorer-school-name">${escapeHtml(school || row.schoolDepartmentName)}</strong>
-          <span class="explorer-dept-name">${escapeHtml(department || row.schoolDepartmentName)}</span>
-        </div>
-        <span class="explorer-card-category">${escapeHtml(displayCategoryName(row.categoryName))}</span>
-      </header>
-      <div class="explorer-channels">${channels || "<span>暫無管道資料</span>"}${specialBadge}</div>
-      ${crossGroups.length ? `<p class="explorer-cross-groups">可跨學群：${escapeHtml(crossGroups.join("、"))}</p>` : ""}
-      ${compactHighlight ? `<div class="explorer-highlight">${compactHighlight}</div>` : ""}
-    </article>
-  `;
 }
 
 function explorerOverviewHtml() {
@@ -4572,14 +4393,10 @@ function explorerCategoryIntroHtml() {
           ${curated ? `<p>${escapeHtml(insight.summary)}</p>` : groupLine ? `<p>${escapeHtml(groupLine)}</p>` : `<p class="explorer-pending-note">這個學類的課程介紹整理中，可以先看相關校系。</p>`}
           ${state.selectedCategory === "心理學類" ? '<p>包含心理、輔導與諮商相關科系；各科系保留原本學類標示。</p>' : ''}
         </div>
-        <aside class="explorer-category-statpack">
-          <div class="explorer-stat-card is-clickable" data-open-category-results>
-            <button class="explorer-back-link stat-back-link" data-explorer-back-group>${onlyCategory ? "返回學群" : "返回學類"}</button>
-            <span>相關校系</span>
-            <strong>${fmt.format(rows.length)}</strong>
-            <p>看全部校系 →</p>
-          </div>
-        </aside>
+        <div class="explorer-category-actions">
+          <button class="explorer-back-link" data-explorer-back-group>${onlyCategory ? "返回學群" : "返回學類"}</button>
+          <button class="solid-button" data-open-category-results>看全部 ${fmt.format(rows.length)} 個校系 →</button>
+        </div>
       </section>
       ${curated ? `<section class="explorer-category-brief">
         <article class="explorer-brief-main">
@@ -5233,52 +5050,66 @@ function renderCategoryCourseHighlights(insight) {
   return rows.map(([label, items]) => `
     <div class="explorer-course-row">
       <span class="explorer-course-label">${label}</span>
-      <div class="explorer-course-cluster">
-        ${items.map((item) => `<span class="course-chip">${escapeHtml(item)}</span>`).join("")}
-      </div>
+      <ul class="explorer-course-list">
+        ${items.map((item) => `<li>${escapeHtml(item)}</li>`).join("")}
+      </ul>
     </div>
   `).join("");
 }
 
 const EXPLORER_PAGE_SIZE = 120;
-const EXPLORER_LIST_FILTERS = [
-  ["", "全部", () => true],
-  ["general", "一般大學", (flags) => !flags.tech],
-  ["tech", "科大", (flags) => flags.tech],
-  ["special", "116 特選", (flags) => flags.special],
-  ["open", "報名中", (flags) => Boolean(flags.active)],
+const EXPLORER_CHANNELS = [
+  ["personal_application", "個申"],
+  ["star_recommendation", "繁星"],
+  ["exam_distribution", "分發"],
+  ["tech_application", "四技"],
+  ["special_selection", "特選"],
 ];
 
-function explorerActiveDeadline(row) {
-  return registrationDate(specialRegistrationRange(explorerRowFlags(row).active.specialSelection).end).getTime();
+// 這個學類各管道的校系：同一校系可能分屬多組，以招生資料為單位去重。
+function explorerChannelSummaries(rows) {
+  const records = new Map();
+  rows.forEach((row) => findRecordsForGroupRow(row).forEach((record) => records.set(record.id, record)));
+  return EXPLORER_CHANNELS.map(([key, label]) => {
+    const channelRecords = [...records.values()].filter((record) => record.channelKey === key);
+    const years = [...new Set(channelRecords.map((record) => record.year))].sort((a, b) => b - a);
+    return { key, label, years, records: channelRecords, count: channelRecords.filter((record) => record.year === years[0]).length };
+  }).filter((item) => item.count);
+}
+
+function explorerRecordRank(record) {
+  return `${record.schoolCode}${record.departmentName}`;
 }
 
 function explorerDepartmentListHtml() {
-  const keywordRows = getExplorerDepartmentRows();
-  const filters = EXPLORER_LIST_FILTERS.map(([key, label, test]) => {
-    const rows = keywordRows.filter((row) => test(explorerRowFlags(row)));
-    return { key, label, rows: key === "special" || key === "open" ? uniqueSpecialRows(rows) : rows };
-  });
-  const activeFilter = filters.find((item) => item.key === state.explorerListFilter) || filters[0];
+  const channels = explorerChannelSummaries(getExplorerDepartmentRows());
+  const channel = channels.find((item) => item.key === state.explorerChannel) || channels[0];
+  const year = channel?.years.find((item) => String(item) === state.explorerYear) ?? channel?.years[0];
+  const yearRecords = (channel?.records || []).filter((record) => record.year === year);
+  const isActive = (record) => isRegistrationActive(specialRegistrationStatus(record.specialSelection));
+  const canFilterOpen = channel?.key === "special_selection" && yearRecords.some(isActive);
+  const openOnly = canFilterOpen && state.explorerListFilter === "open";
+  const collator = new Intl.Collator("zh-Hant");
   // 報名中先看最快截止的校系。
-  const allRows = activeFilter.key === "open"
-    ? [...activeFilter.rows].sort((a, b) => explorerActiveDeadline(a) - explorerActiveDeadline(b))
-    : activeFilter.rows;
-  // 換學類、篩選或改搜尋時，從第一頁重新顯示。
-  const listKey = JSON.stringify([state.selectedGroup, state.selectedCategory, normalize(state.explorerKeyword), activeFilter.key]);
+  const allRows = openOnly
+    ? compareDisplayOrder(yearRecords.filter(isActive))
+    : [...yearRecords].sort((a, b) => collator.compare(explorerRecordRank(a), explorerRecordRank(b)));
+  // 換學類、管道或年度時，從第一頁重新顯示。
+  const listKey = JSON.stringify([state.selectedGroup, state.selectedCategory, channel?.key, year, openOnly]);
   if (state.explorerListKey !== listKey) {
     state.explorerListKey = listKey;
     state.explorerVisibleCount = EXPLORER_PAGE_SIZE;
   }
   const rows = allRows.slice(0, state.explorerVisibleCount);
   const remaining = allRows.length - rows.length;
+  const chip = (attribute, value, label, active) => `<button class="placement-chip ${active ? "active" : ""}" type="button" ${attribute}="${escapeAttr(value)}" aria-pressed="${active}">${escapeHtml(label)}</button>`;
   return `
     <div class="explorer-stage explorer-department-stage">
       <div class="explorer-detail-head">
         <div class="explorer-detail-copy">
           <h3>${escapeHtml(explorerResultTitle())}</h3>
           <div class="explorer-detail-meta-row">
-            <p>${fmt.format(allRows.length)} 個相關校系${remaining ? `｜目前顯示 ${fmt.format(rows.length)} 個` : ""}｜點卡片可直接看詳細資料</p>
+            <p>${fmt.format(allRows.length)} 個相關校系${remaining ? `｜目前顯示 ${fmt.format(rows.length)} 個` : ""}</p>
           </div>
         </div>
         <div class="explorer-head-actions">
@@ -5286,23 +5117,21 @@ function explorerDepartmentListHtml() {
           <button class="ghost-button" id="applyGroupToSearchButton">查詢工作台</button>
         </div>
       </div>
-      <section class="explorer-toolbar">
-        <label class="explorer-search compact wide">
-          <span>校系搜尋</span>
-          <input id="explorerKeywordInput" type="search" placeholder="學校、科系、學類" value="${escapeAttr(state.explorerKeyword)}">
-        </label>
-        <div class="explorer-toolbar-actions">
-          <button class="ghost-button" id="clearExplorerKeywordButton">清除</button>
+      <div class="explorer-list-controls">
+        <div class="explorer-list-filters" role="group" aria-label="入學管道">
+          ${channels.map((item) => chip("data-explorer-channel-tab", item.key, `${item.label} ${fmt.format(item.count)}`, item.key === channel.key)).join("")}
+          ${canFilterOpen ? chip("data-explorer-open-only", "open", "報名中", openOnly) : ""}
         </div>
-      </section>
-      <div class="explorer-list-filters" role="group" aria-label="校系篩選">
-        ${filters.filter((item) => !item.key || item.rows.length || item.key === activeFilter.key).map((item) => `
-          <button class="placement-chip ${item.key === activeFilter.key ? "active" : ""}" type="button" data-explorer-list-filter="${escapeAttr(item.key)}" aria-pressed="${item.key === activeFilter.key}">${escapeHtml(item.label)} ${fmt.format(item.rows.length)}</button>
-        `).join("")}
+        <div class="explorer-list-filters" role="group" aria-label="年度">
+          ${(channel?.years || []).map((item) => chip("data-explorer-year", String(item), `${item}年度`, item === year)).join("")}
+        </div>
       </div>
       ${rows.length ? `
-        <div class="explorer-dept-grid">
-          ${rows.map((row) => explorerDepartmentCard(row)).join("")}
+        <div class="table-shell rec-list">
+          <table aria-label="${escapeAttr(explorerResultTitle())}校系">
+            <thead class="sr-only"><tr><th scope="col">管道</th><th scope="col">學校 / 校系與條件</th><th scope="col">操作</th></tr></thead>
+            <tbody>${rows.map((record) => workbenchRecordRowHtml(record)).join("")}</tbody>
+          </table>
         </div>
         ${remaining ? `<div class="explorer-load-more"><button class="ghost-button" data-explorer-load-more>再顯示 ${fmt.format(Math.min(remaining, EXPLORER_PAGE_SIZE))} 個（還有 ${fmt.format(remaining)} 個）</button></div>` : ""}
       ` : `<div class="empty-state">目前沒有可對應的校系資料。</div>`}
@@ -5451,7 +5280,6 @@ function bindExplorerEvents() {
       trackEvent(`explorer-group/${button.dataset.openGroup}`, "打開學群");
       state.selectedExplorerStage = categories.length === 1 ? "category" : "group";
       state.selectedCategory = categories.length === 1 ? categories[0].name : "";
-      state.explorerKeyword = "";
       renderExplorer();
     });
   });
@@ -5466,13 +5294,11 @@ function bindExplorerEvents() {
       state.selectedExplorerStage = onlyCategory ? "overview" : "group";
       if (onlyCategory) state.selectedGroup = "";
       state.selectedCategory = "";
-      state.explorerKeyword = "";
       renderExplorer();
     });
   });
   document.querySelector("[data-explorer-back-category]")?.addEventListener("click", () => {
     state.selectedExplorerStage = "category";
-    state.explorerKeyword = "";
     renderExplorer();
   });
   document.querySelectorAll("[data-open-category]").forEach((button) => {
@@ -5480,37 +5306,45 @@ function bindExplorerEvents() {
       state.selectedExplorerStage = "category";
       state.selectedCategory = button.dataset.openCategory || "";
       trackEvent(`explorer-category/${state.selectedCategory}`, "打開學類");
-      state.explorerKeyword = "";
       renderExplorer();
     });
   });
   document.querySelectorAll("[data-open-category-results]").forEach((button) => {
     button.addEventListener("click", () => {
       state.selectedExplorerStage = "departments";
-      state.explorerKeyword = "";
+      state.explorerChannel = "personal_application";
+      state.explorerYear = "";
       state.explorerListFilter = "";
       renderExplorer();
     });
   });
-  document.querySelectorAll("[data-explorer-channel]").forEach((button) => {
+  document.querySelectorAll("[data-explorer-channel-tab]").forEach((button) => {
     button.addEventListener("click", () => {
-      state.explorerChannelSelection[button.dataset.explorerChannel] = button.dataset.channelKey || "";
+      state.explorerChannel = button.dataset.explorerChannelTab;
+      state.explorerYear = "";
+      state.explorerListFilter = "";
       renderExplorer();
     });
   });
-  document.querySelectorAll("[data-explorer-list-filter]").forEach((button) => {
+  document.querySelectorAll("[data-explorer-year]").forEach((button) => {
     button.addEventListener("click", () => {
-      state.explorerListFilter = button.dataset.explorerListFilter;
+      state.explorerYear = button.dataset.explorerYear;
+      state.explorerListFilter = "";
       renderExplorer();
     });
+  });
+  document.querySelector("[data-explorer-open-only]")?.addEventListener("click", () => {
+    state.explorerListFilter = state.explorerListFilter === "open" ? "" : "open";
+    renderExplorer();
+  });
+  els.explorerRoot.querySelectorAll("[data-detail]").forEach((button) => {
+    button.addEventListener("click", () => openDetail(button.dataset.detail));
+  });
+  els.explorerRoot.querySelectorAll("[data-compare]").forEach((button) => {
+    button.addEventListener("click", () => toggleCompare(button.dataset.compare));
   });
   document.querySelector("[data-explorer-load-more]")?.addEventListener("click", () => {
     state.explorerVisibleCount += EXPLORER_PAGE_SIZE;
-    renderExplorer();
-  });
-  document.getElementById("explorerKeywordInput")?.addEventListener("input", debounce(updateExplorerKeyword, 100));
-  document.getElementById("clearExplorerKeywordButton")?.addEventListener("click", () => {
-    state.explorerKeyword = "";
     renderExplorer();
   });
   document.getElementById("applyGroupToSearchButton")?.addEventListener("click", () => {

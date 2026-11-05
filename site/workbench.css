@@ -509,20 +509,6 @@ body.back-to-top-visible .compare-tray { right: 84px; }
   color: #9a3f1c;
 }
 
-.channel-switch.active.tech {
-  background: #fbece6;
-  border-color: #efc7b6;
-  color: #9a3f1c;
-}
-
-.explorer-dept-card.accent-tech {
-  border-top-color: #c0582f;
-}
-
-.explorer-dept-card.accent-special {
-  border-top-color: #8a4fc0;
-}
-
 .detail-note {
   margin: 10px 0 0;
   color: var(--muted);
