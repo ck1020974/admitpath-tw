@@ -2840,7 +2840,8 @@ tr:hover td {
 }
 
 .explorer-category-card {
-  display: grid;
+  display: flex;
+  flex-direction: column;
   gap: 14px;
   min-height: 220px;
   padding: 18px;
@@ -3263,14 +3264,8 @@ tr:hover td {
   margin: -4px 0 16px;
 }
 
-.explorer-group-meta span.is-special {
-  border-color: #d9c8f0;
-  background: #f6f0fd;
-  color: #6b3fa0;
-}
-
-.explorer-category-card .explorer-group-meta {
-  margin-top: 0;
+.explorer-category-card .section-tag {
+  justify-self: start;
 }
 
 .explorer-representative-label {

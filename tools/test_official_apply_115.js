@@ -72,7 +72,7 @@ const reviews = JSON.parse(fs.readFileSync(path.join(__dirname, 'official_sieve_
 for (const id of Object.keys(reviews)) {
   const record = records.find(r => r.id === id);
   const detail = vm.runInContext(`detailHtml(state.records.find(r => r.id === ${JSON.stringify(id)}), null)`, sandbox);
-  assert(detail.includes('第一階段篩選結果'), id);
+  assert(detail.includes('<h3>第一階段</h3>'), id);
   assert(!detail.includes('篩選 ◎倍'), id);
   const html = vm.runInContext(`applySieveResultHtml(state.records.find(r => r.id === ${JSON.stringify(id)}))`, sandbox);
   assert(html.includes('查看官方篩選原表'), id);

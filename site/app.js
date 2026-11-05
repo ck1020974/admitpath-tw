@@ -75,12 +75,6 @@ const APPLY_SIEVE_SCORE_OVERRIDES = {
       2: "14",
     },
   },
-  "114-personal_application-001082-114_apply": {
-    scores: {
-      1: "10",
-      4: "12",
-    },
-  },
   "114-personal_application-001022-114_apply": {
     additions: [
       { rank: 1, multiplier: "2.5", subjects: ["英文"], score: "15", label: "英文15" },
@@ -1154,6 +1148,7 @@ async function loadData() {
     fetchJson("./data/category_representatives.json"),
     fetchJson("./data/apply114_quality_report.json"),
   ]);
+  applySieveCorrections(records);
   const specialData = await Promise.all([116, 115].map(year => fetchJson(`./data/special_admissions_${year}.json`)));
   // 特殊選才報名門檻（依簡章人工整理）；檔案缺漏時不影響其他資料。
   const specialRequirements = await fetchJson("./data/special_requirements_116.json").catch(() => null);
@@ -3487,8 +3482,17 @@ function applySieveOverrideConfig(record) {
   return { scores: override, additions: [] };
 }
 
+// 修正表是人工對照官方原表的結果，載入時套回資料，詳情、列表與落點才會用同一組分數；官方已核對的資料不動。
+function applySieveCorrections(records) {
+  records.forEach((record) => {
+    if (!APPLY_SIEVE_SCORE_OVERRIDES[record.id] || record.admissionAudit?.resultStatus === "verified") return;
+    record.applySieveResult = { ...record.applySieveResult, rankedItems: applySieveRankedItems(record) };
+  });
+}
+
 function applySieveRankedItems(record) {
-  if (record.admissionAudit) return AdmissionRules.verifiedResults(record);
+  const corrected = APPLY_SIEVE_SCORE_OVERRIDES[record?.id] && record.admissionAudit?.resultStatus !== "verified";
+  if (record.admissionAudit && !corrected) return AdmissionRules.verifiedResults(record);
   const items = record?.applySieveResult?.rankedItems || [];
   const { scores, additions } = applySieveOverrideConfig(record);
   const correctedItems = items.map((item) => {
@@ -3501,15 +3505,18 @@ function applySieveRankedItems(record) {
       label: subjects ? `${subjects}${overrideScore}` : item.label,
     };
   });
+  // 修正表優先於第三方比對來源：該來源有整列錯位的情形（例如臺大公衛官方 38，來源是下一列的 44）。
   additions.forEach((item) => {
-    if (correctedItems.some((existing) => existing.rank === item.rank)) return;
-    correctedItems.push({
+    const corrected = {
       rank: item.rank,
       multiplier: item.multiplier || "",
       subjects: [...(item.subjects || [])],
       score: item.score || "",
       label: item.label || ((item.subjects || []).length ? `${item.subjects.join("+")}${item.score || ""}` : ""),
-    });
+    };
+    const index = correctedItems.findIndex((existing) => existing.rank === item.rank);
+    if (index >= 0) correctedItems[index] = { ...correctedItems[index], ...corrected };
+    else correctedItems.push(corrected);
   });
   return correctedItems
     .filter((item) => !((item.subjects || []).length === 1 && Number(item.score) > 15))
@@ -3835,7 +3842,6 @@ function explorerCategoriesForGroup(groupName) {
       name,
       rows,
       count: rows.length,
-      stats: explorerRowStats(rows),
       representative,
       insight: getCategoryInsight(name, groupName, rows),
       curated: isCuratedCategory(name),
@@ -4028,15 +4034,11 @@ function explorerRowFlags(row) {
 
 function explorerRowStats(rows) {
   const unique = new Map(rows.map((row) => [row.schoolDepartmentName, row]));
-  const stats = { general: 0, tech: 0, special: 0 };
-  const specialIds = new Set();
+  const stats = { general: 0, tech: 0 };
   unique.forEach((row) => {
-    const flags = explorerRowFlags(row);
-    if (flags.tech) stats.tech += 1;
+    if (isTechGroupRow(row)) stats.tech += 1;
     else stats.general += 1;
-    flags.specials.forEach((record) => specialIds.add(record.id));
   });
-  stats.special = specialIds.size;
   return stats;
 }
 
@@ -4052,7 +4054,6 @@ function explorerStatChipsHtml(stats) {
   return [
     stats.general ? `<span>一般 ${fmt.format(stats.general)}</span>` : "",
     stats.tech ? `<span>科大 ${fmt.format(stats.tech)}</span>` : "",
-    stats.special ? `<span class="is-special">特選 ${fmt.format(stats.special)}</span>` : "",
   ].join("");
 }
 
@@ -4193,7 +4194,6 @@ function explorerGroupIntroHtml() {
           <h3>${escapeHtml(state.selectedGroup)}</h3>
           <p>${escapeHtml(window.GroupIntroductions.summaries?.[state.selectedGroup] || groupSummaryLine(state.selectedGroup, categories))}</p>
           <p class="explorer-stage-meta">${fmt.format(categories.length)} 個學類・${fmt.format(departmentCount)} 個校系</p>
-          <div class="explorer-group-meta">${explorerStatChipsHtml(explorerRowStats(categories.flatMap((item) => item.rows)))}</div>
         </div>
         <div class="explorer-stage-actions">
           <button class="explorer-back-link" data-explorer-back-overview>返回學群</button>
@@ -4210,7 +4210,6 @@ function explorerGroupIntroHtml() {
             ${category.curated ? `<div class="explorer-course-cluster compact">
               ${category.insight.coreCourses.slice(0, 5).map((course) => `<span class="course-chip">${escapeHtml(course)}</span>`).join("")}
             </div>` : ""}
-            <div class="explorer-group-meta">${explorerStatChipsHtml(category.stats)}</div>
             ${category.representative.length ? `<div class="explorer-category-foot">${escapeHtml(category.representative.join("、"))}</div>` : ""}
           </button>
         `).join("")}

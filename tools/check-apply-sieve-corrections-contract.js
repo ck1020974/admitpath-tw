@@ -31,7 +31,7 @@ function extractFunction(name) {
 const constMatch = app.match(/const\s+APPLY_SIEVE_SCORE_OVERRIDES\s*=\s*\{[\s\S]*?\n\};/);
 if (!constMatch) fail("Missing APPLY_SIEVE_SCORE_OVERRIDES.");
 
-const sandbox = {};
+const sandbox = { AdmissionRules: require("../site/admission-rules.js") };
 vm.createContext(sandbox);
 vm.runInContext(
   `${constMatch[0]}\n${extractFunction("applySieveOverrideConfig")}\n${extractFunction("applySieveRankedItems")}`,
@@ -52,8 +52,6 @@ vm.runInContext(
   ["114-personal_application-001532-114_apply", 1, "43", "NTU Finance first rank"],
   ["114-personal_application-004172-114_apply", 1, "43", "NCKU Engineering Science first rank"],
   ["114-personal_application-004022-114_apply", 1, "39", "NCKU Foreign Languages first rank"],
-  ["114-personal_application-001082-114_apply", 1, "10", "NTU Drama first rank"],
-  ["114-personal_application-001082-114_apply", 4, "12", "NTU Drama fourth rank"],
   ["114-personal_application-001122-114_apply", 3, "13", "NTU Geology third rank"],
   ["114-personal_application-004172-114_apply", 3, "14", "NCKU Engineering Science third rank"],
   ["114-personal_application-004262-114_apply", 1, "22", "NCKU Transportation first rank"],
@@ -101,7 +99,6 @@ vm.runInContext(
   ["114-personal_application-003112-114_apply", 1, "31", "NCHU Applied Economics first rank"],
   ["114-personal_application-003272-114_apply", 1, "7", "NCHU CS APCS first rank"],
   ["114-personal_application-003272-114_apply", 2, "25", "NCHU CS APCS second rank"],
-  ["114-personal_application-003272-114_apply", 4, "7", "NCHU CS APCS fourth rank"],
   ["114-personal_application-003332-114_apply", 1, "28", "NCHU Agronomy first rank"],
   ["114-personal_application-003332-114_apply", 3, "12", "NCHU Agronomy third rank"],
   ["114-personal_application-002102-114_apply", 1, "25", "NTNU Special Education first rank"],
@@ -181,7 +178,6 @@ vm.runInContext(
   ["114-personal_application-099302-114_apply", 1, "37", "NTPU Chinese first rank"],
   ["114-personal_application-099342-114_apply", 1, "27", "NTPU History first rank"],
   ["114-personal_application-099372-114_apply", 1, "17", "NTPU CS APCS first rank"],
-  ["114-personal_application-099372-114_apply", 2, "7", "NTPU CS APCS second rank"],
   ["114-personal_application-099382-114_apply", 1, "19", "NTPU CS flying first rank"],
   ["114-personal_application-099412-114_apply", 1, "37", "NTPU Electrical first rank"],
   ["114-personal_application-099422-114_apply", 1, "30", "NTPU Electrical flying first rank"],
@@ -220,7 +216,6 @@ vm.runInContext(
   ["114-personal_application-001572-114_apply", 1, "38", "NTU Public Health first rank"],
   ["114-personal_application-001582-114_apply", 1, "44", "NTU Electrical first rank"],
   ["114-personal_application-001602-114_apply", 1, "12", "NTU CS APCS first rank"],
-  ["114-personal_application-001602-114_apply", 2, "5", "NTU CS APCS second rank"],
   ["114-personal_application-001622-114_apply", 1, "30", "NTU Law first rank"],
   ["114-personal_application-001632-114_apply", 1, "30", "NTU Judicial first rank"],
   ["114-personal_application-001642-114_apply", 1, "30", "NTU Financial Law first rank"],

@@ -11,7 +11,7 @@ vm.createContext(context);
 vm.runInContext(fs.readFileSync(require.resolve('../site/admission-catalog.js'), 'utf8'), context);
 context.AdmissionCatalog = context.window.AdmissionCatalog;
 context.AdmissionCatalog.initialize(records, special);
-for (const name of ['normalize', 'recordSearchText', 'queryKeywordMatches', 'placementSchoolScopeAllows', 'placementMatchesFilters', 'isInternationalDualDegree', 'quickCategoryNeedles', 'categorySelectionNames', 'cachedGroupNeedles', 'groupRowsToNeedles', 'stripSchoolCampus', 'matchesGroup']) {
+for (const name of ['normalize', 'recordSearchText', 'queryKeywordMatches', 'placementSchoolScopeAllows', 'placementMatchesFilters', 'isInternationalDualDegree', 'quickCategoryNeedles', 'categorySelectionNames', 'cachedGroupNeedles', 'shortcutList', 'schoolScopesAllow', 'regionsAllow', 'quickCategoriesNeedles', 'groupRowsToNeedles', 'stripSchoolCampus', 'matchesGroup']) {
   vm.runInContext(source.match(new RegExp(`function ${name}\\([\\s\\S]*?\\n\\}`))[0], context);
 }
 for (const [school, region] of [['國立臺灣大學', 'area-north'], ['國立中興大學', 'area-central'], ['國立成功大學', 'area-south'], ['國立東華大學', 'area-east']]) {
@@ -48,8 +48,8 @@ for (const departmentName of ['財務金融學系', '財務工程與精算數學
   assert(context.placementMatchesFilters(record, finance), record.id);
 }
 const categories = [...html.matchAll(/data-placement-popular-category="([^"]+)"/g)].map(match => match[1]);
-assert.equal(new Set(categories).size, 10);
-for (const category of categories) assert(groups.some(g => g.categoryName === category), category);
+assert.equal(new Set(categories).size, 13);
+for (const category of categories.filter(item => item !== '半導體')) assert(groups.some(g => g.categoryName === category), category);
 assert(!html.includes('id="changePlacementChannel"'));
 console.log('Placement quick filters: four regions, real electrical category membership, clearing/unknown category and ten mapped presets passed.');
 

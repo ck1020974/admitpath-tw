@@ -32,6 +32,8 @@ const constMatch = app.match(/const\s+APPLY_SIEVE_SCORE_OVERRIDES\s*=\s*\{[\s\S]
 if (!constMatch) fail("Missing APPLY_SIEVE_SCORE_OVERRIDES.");
 
 const sandbox = {
+  state: { results: {} },
+  AdmissionRules: require("../site/admission-rules.js"),
   shortSubject: (value) => value,
   formatSubjectScore: (subject, score) => `${subject} ${score}`,
   applicationThresholdParts: () => [],
@@ -44,15 +46,21 @@ vm.createContext(sandbox);
 vm.runInContext(
   [
     constMatch[0],
+    extractFunction("applicationThresholdLabelParts"),
+    extractFunction("officialEmptyResult"),
+    extractFunction("hasUnresolvedSingleSubjectScore"),
+    extractFunction("personalApplicationDisplayResults"),
     extractFunction("personalApplicationStandardParts"),
     extractFunction("rankedSieveLabel"),
     extractFunction("personalApplicationNoResultLabel"),
     extractFunction("coveredSubjectsFromResult"),
     extractFunction("applySieveOverrideConfig"),
     extractFunction("applySieveRankedItems"),
+    extractFunction("applySieveCorrections"),
   ].join("\n\n"),
   sandbox
 );
+sandbox.applySieveCorrections(records);
 
 const business = records.find((item) => item.id === "114-personal_application-004292-114_apply");
 if (!business) fail("Missing fixture for 004292");

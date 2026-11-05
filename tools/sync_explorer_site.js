@@ -12,13 +12,14 @@ const files = ['styles.css', 'info-dialog.css', 'info-dialog.js',
   generatedName,
   ...['index.html', 'styles.css', 'app.js', 'measurement.js', 'engine.js', 'data.js', 'subjects.js',
     'bank.js', 'units.js', 'curriculum.js', 'collego-reference.js', 'exploration-model.js'].map(name => `curiosity/${name}`)];
+const sameText = (a, b) => a.toString().replace(/\r\n/g, '\n') === b.toString().replace(/\r\n/g, '\n');
 function sync({ check = false } = {}) {
   for (const name of files) {
     const content = name === generatedName ? generated : fs.readFileSync(path.join(source, name));
     if (name === generatedName) {
       const original = path.join(source,name);
       if (check) {
-        if (!fs.existsSync(original) || !content.equals(fs.readFileSync(original))) throw new Error('Main-site introductions need syncing.');
+        if (!fs.existsSync(original) || !sameText(content, fs.readFileSync(original))) throw new Error('Main-site introductions need syncing.');
       } else {
         fs.mkdirSync(path.dirname(original),{recursive:true});
         fs.writeFileSync(original,content);
@@ -26,7 +27,7 @@ function sync({ check = false } = {}) {
     }
     const target = path.join(destination, name);
     if (check) {
-      if (!fs.existsSync(target) || !content.equals(fs.readFileSync(target))) {
+      if (!fs.existsSync(target) || !sameText(content, fs.readFileSync(target))) {
         throw new Error(`Explorer assets need syncing: ${name}`);
       }
     } else {

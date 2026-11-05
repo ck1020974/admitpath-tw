@@ -20,7 +20,7 @@ const ctx = { state: { records, groups, results: {}, view: 'workbench', linkedGr
 vm.createContext(ctx);
 vm.runInContext('let advancedFilterDraft = null;', ctx);
 for (const name of ['normalize', 'recordSearchText', 'queryKeywordMatches', 'refreshQueryYears', 'renderQueryShortcuts',
-  'placementSchoolScopeAllows', 'isInternationalDualDegree', 'quickCategoryNeedles', 'categorySelectionNames', 'cachedGroupNeedles', 'groupRowsToNeedles', 'stripSchoolCampus', 'matchesGroup', 'applyFilters',
+  'placementSchoolScopeAllows', 'isInternationalDualDegree', 'quickCategoryNeedles', 'categorySelectionNames', 'cachedGroupNeedles', 'shortcutList', 'schoolScopesAllow', 'regionsAllow', 'quickCategoriesNeedles', 'groupRowsToNeedles', 'stripSchoolCampus', 'matchesGroup', 'applyFilters',
   'placementMatchesFilters', 'defaultPlacementState', 'placementProfile', 'placementSubjects', 'defaultAdvancedFilters',
   'cloneAdvancedFilters', 'currentAdvancedFilters', 'clearOuterSchoolFilters', 'openAdvancedFilters', 'closeAdvancedFilters',
   'recordMatchesAdvancedFilters', 'specialAdmissionModeAllows', 'advancedSubjectKey', 'recordSubjectKeys',
@@ -38,23 +38,29 @@ for (const view of ['workbench', 'placement']) {
   ctx.openAdvancedFilters();
   assert(open);
   const filters = view === 'workbench' ? ctx.state.filters : ctx.state.placement;
-  assert.equal(filters.school, 'all');
-  assert.equal(filters.schoolScope, 'all');
-  assert.equal(filters.quickCategory, '');
-  assert.equal(filters.dualDegreeOnly, false);
+  // 開啟時不清除外部捷徑，按下套用且選了學校或學群才清除。
+  assert.equal(filters.school, '國立臺灣大學');
+  assert.equal(filters.schoolScope, 'ntu');
+  assert.equal(filters.quickCategory, '電機工程學類');
+  assert.equal(filters.dualDegreeOnly, true);
   assert.equal(filters.year, '115');
   assert.equal(filters.channel, 'personal_application');
   assert.strictEqual(ctx.state.placement.scores, scores);
   assert.equal(view === 'workbench' ? ctx.state.placement.schoolScope : ctx.state.filters.schoolScope, inactiveScope);
+  // 實際改選另一校／學群：先前台大電機捷徑不得把東吳法律條件排除。
+  vm.runInContext('advancedFilterDraft.schools = ["東吳大學"]; advancedFilterDraft.groups = ["法政學群"];', ctx);
+  assert.equal(ctx.state.filters.advanced.schools.length, 0, 'Draft must not apply before confirmation');
+  vm.runInContext('state.filters.advanced = cloneAdvancedFilters(advancedFilterDraft);', ctx);
+  ctx.clearOuterSchoolFilters(ctx.state.filters.advanced);
+  assert.equal(filters.school, 'all');
+  assert.equal(filters.schoolScope, 'all');
+  assert.equal(filters.quickCategory, '');
+  assert.equal(filters.dualDegreeOnly, false);
   if (view === 'workbench') {
     assert.equal(ctx.state.linkedGroup, '');
     assert.equal(ctx.state.linkedCategory, '');
     assert.equal(ctx.els.schoolFilter.value, 'all');
   }
-  // 實際改選另一校／學群：先前台大電機捷徑不得把東吳法律條件排除。
-  vm.runInContext('advancedFilterDraft.schools = ["東吳大學"]; advancedFilterDraft.groups = ["法政學群"];', ctx);
-  assert.equal(ctx.state.filters.advanced.schools.length, 0, 'Draft must not apply before confirmation');
-  vm.runInContext('state.filters.advanced = cloneAdvancedFilters(advancedFilterDraft);', ctx);
   ctx.closeAdvancedFilters();
   ctx.applyFilters();
   const rows = view === 'workbench' ? ctx.state.filtered : analysisRows;

@@ -3,6 +3,10 @@ const path = require("path");
 
 const root = path.join(__dirname, "..");
 const rankPath = path.join(root, "outputs", "admissions_data", "star_rank_percent_standards.json");
+if (!fs.existsSync(rankPath)) {
+  console.log("Star rank standards contract skipped: outputs/ is not in this checkout.");
+  process.exit(0);
+}
 const star114Path = path.join(root, "outputs", "admissions_data", "star114_admission_standards.json");
 const star115Path = path.join(root, "outputs", "admissions_data", "star115_admission_standards.json");
 

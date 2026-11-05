@@ -142,6 +142,10 @@ vm.runInContext([
   extractFunction("groupRowsToNeedles"),
   extractFunction("categorySelectionNames"),
   extractFunction("cachedGroupNeedles"),
+  extractFunction("isTechRecord"),
+  extractFunction("shortcutList"),
+  extractFunction("schoolScopesAllow"),
+  extractFunction("regionsAllow"),
   extractFunction("stripSchoolCampus"),
   extractFunction("matchesGroup"),
   extractFunction("distributionResult"),
@@ -201,10 +205,12 @@ const coldMs = Date.now() - started;
 const warmStarted = Date.now();
 if (sandbox.placementAnalysisRows(profile) !== cachedRows) fail("Unchanged criteria must reuse analysis.");
 const warmMs = Date.now() - warmStarted;
+const collator = new Intl.Collator("zh-Hant");
 const originalRows = records.filter(record => sandbox.placementMatchesFilters(record, profile))
   .map(record => ({ record, evaluation: sandbox.evaluatePlacementRecord(record, profile) }))
   .sort((a, b) => sandbox.placementStatusWeight(a.evaluation.status) - sandbox.placementStatusWeight(b.evaluation.status)
+    || sandbox.isTechRecord(a.record) - sandbox.isTechRecord(b.record)
     || a.evaluation.gapTotal - b.evaluation.gapTotal
-    || `${a.record.schoolCode}${a.record.departmentName}`.localeCompare(`${b.record.schoolCode}${b.record.departmentName}`, "zh-Hant"));
+    || collator.compare(`${a.record.schoolCode}${a.record.departmentName}`, `${b.record.schoolCode}${b.record.departmentName}`));
 if (JSON.stringify(cachedRows) !== JSON.stringify(originalRows)) fail("Cached analysis changed results/order.");
 console.log(`Placement analysis contract check passed (${cachedRows.length} matching candidates; cold ${coldMs} ms, cached ${warmMs} ms).`);
