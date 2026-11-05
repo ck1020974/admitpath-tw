@@ -49,7 +49,7 @@ vm.runInContext(
   ["114-personal_application-001402-114_apply", 1, "40", "NTU Agricultural Chemistry first rank"],
   ["114-personal_application-001402-114_apply", 3, "14", "NTU Agricultural Chemistry third rank"],
   ["114-personal_application-001142-114_apply", 1, "33", "NTU Geography first rank"],
-  ["114-personal_application-001532-114_apply", 1, "43", "NTU Finance first rank"],
+  ["114-personal_application-001532-114_apply", 1, "40", "NTU Finance first rank"],
   ["114-personal_application-004172-114_apply", 1, "43", "NCKU Engineering Science first rank"],
   ["114-personal_application-004022-114_apply", 1, "39", "NCKU Foreign Languages first rank"],
   ["114-personal_application-001122-114_apply", 3, "13", "NTU Geology third rank"],
@@ -233,6 +233,9 @@ vm.runInContext(
   ["114-personal_application-001752-114_apply", 1, "13", "NTU Hope H first rank"],
   ["114-personal_application-001752-114_apply", 2, "56", "NTU Hope H second rank"],
   ["114-personal_application-001752-114_apply", 3, "42", "NTU Hope H third rank"],
+  // 2026-11 官方原表比對。
+  ["114-personal_application-021022-114_apply", 1, "32", "NTOU Shipping first rank"],
+  ["114-personal_application-023292-114_apply", 1, "25", "NCUE Fine Arts academic rank"],
 ].forEach(([recordId, rank, expected, label]) => {
   const record = records.find((item) => item.id === recordId);
   if (!record) fail(`Could not find fixture for ${label}.`);
@@ -246,5 +249,8 @@ vm.runInContext(
     fail(`applySieveRankedItems should return copied ranked items for ${label}.`);
   }
 });
+
+const cleared = records.find((item) => item.id === "114-personal_application-032062-114_apply");
+if (sandbox.applySieveRankedItems(cleared).length) fail("Scores the official table does not list should be cleared.");
 
 console.log("Apply sieve corrections contract check passed.");
