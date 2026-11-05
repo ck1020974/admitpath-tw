@@ -3256,6 +3256,39 @@ tr:hover td {
   gap: 12px;
 }
 
+.explorer-list-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: -4px 0 16px;
+}
+
+.explorer-group-meta span.is-special {
+  border-color: #d9c8f0;
+  background: #f6f0fd;
+  color: #6b3fa0;
+}
+
+.explorer-category-card .explorer-group-meta {
+  margin-top: 0;
+}
+
+.explorer-representative-label {
+  margin: 16px 0 -4px;
+  color: #6d4711;
+  font-size: 14px;
+}
+
+.compare-reminder {
+  margin: 0 0 12px;
+  padding: 10px 14px;
+  border: 1px solid #f2d48a;
+  border-radius: 10px;
+  background: #fff8e6;
+  color: #7a5000;
+  font-size: 14px;
+}
+
 .explorer-load-more {
   display: flex;
   justify-content: center;

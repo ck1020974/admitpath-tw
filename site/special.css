@@ -49,6 +49,7 @@
 }
 .sp-reg-badge i { font-style: normal; margin-left: 1px; opacity: .7; }
 .sp-reg-badge.is-open { background: #fff4d6; color: #8a5a00; box-shadow: inset 0 0 0 1px #f2d48a; }
+.sp-reg-badge.is-closing { background: #d92d20; color: #fff; }
 .sp-reg-badge.is-upcoming { background: #e8f0fe; color: #2753b5; box-shadow: inset 0 0 0 1px #c6d6f7; }
 .sp-reg-badge.is-closed { background: #fdeceb; color: #b42318; box-shadow: inset 0 0 0 1px #f6c9c4; }
 .sp-reg-date { font-size: 14px; font-weight: 700; font-variant-numeric: tabular-nums; }

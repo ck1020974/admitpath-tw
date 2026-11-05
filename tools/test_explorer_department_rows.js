@@ -49,7 +49,7 @@ const records = [
   { year: 116, channelKey: 'special_selection' },
   { year: 115, channelKey: 'personal_application' },
 ];
-assert.deepEqual(ctx.explorerChannelRecords(records).map(item => item.key), ['116-special_selection', '115-personal_application', '114-personal_application', '115-special_selection']);
+assert.deepEqual(Array.from(ctx.explorerChannelRecords(records), item => item.key), ['116-special_selection', '115-personal_application', '114-personal_application', '115-special_selection']);
 assert.equal(ctx.chooseExplorerRepresentative(records).year, 115);
 assert.equal(ctx.chooseExplorerRepresentative(records).channelKey, 'personal_application');
 assert.equal(ctx.chooseExplorerRepresentative(records, '116-special_selection').channelKey, 'special_selection');

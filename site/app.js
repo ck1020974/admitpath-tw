@@ -7,6 +7,9 @@ const state = {
   recordIndexByFullName: new Map(),
   recordIndexBySchoolDept: new Map(),
   specialRecordsBySchool: new Map(),
+  recordsBySchool: new Map(),
+  techSchoolKeys: new Set(),
+  groupRowRecords: new WeakMap(),
   manifest: null,
   view: "overview",
   selectedExplorerStage: "overview",
@@ -18,6 +21,7 @@ const state = {
   explorerChannelSelection: {},
   explorerListKey: "",
   explorerVisibleCount: 0,
+  explorerListFilter: "",
   categoryInsights: {},
   categoryRepresentatives: {},
   qualityReport: null,
@@ -1125,7 +1129,7 @@ function activateHomeEntry(entry) {
   if (!channel) return;
   state.filters.channel = channel;
   const channelYears = state.records.filter(record => record.channelKey === channel).map(record => record.year);
-  if (channel === "special_selection" || (state.filters.year !== "all" && !channelYears.includes(Number(state.filters.year)))) {
+  if (channel === "special_selection" || channel === "tech_application" || (state.filters.year !== "all" && !channelYears.includes(Number(state.filters.year)))) {
     state.filters.year = String(Math.max(...channelYears));
     els.yearFilter.value = state.filters.year;
   }
@@ -1179,13 +1183,21 @@ function resetExplorerState(stage = "overview") {
   state.linkedGroup = "";
   state.linkedCategory = "";
   state.explorerChannelSelection = {};
+  state.explorerListFilter = "";
 }
 
 function buildRecordIndexes() {
   state.recordIndexByFullName = new Map();
   state.recordIndexBySchoolDept = new Map();
   state.specialRecordsBySchool = new Map();
+  state.recordsBySchool = new Map();
+  state.techSchoolKeys = new Set();
+  state.groupRowRecords = new WeakMap();
   state.records.forEach((record) => {
+    const schoolKey = normalize(record.schoolName);
+    if (!state.recordsBySchool.has(schoolKey)) state.recordsBySchool.set(schoolKey, []);
+    state.recordsBySchool.get(schoolKey).push(record);
+    if (record.channelKey === "tech_application") state.techSchoolKeys.add(schoolMatchKey(record.schoolName));
     if (record.channelKey === "special_selection") {
       const schoolKey = schoolMatchKey(record.schoolName);
       if (!state.specialRecordsBySchool.has(schoolKey)) state.specialRecordsBySchool.set(schoolKey, []);
@@ -3785,10 +3797,12 @@ function groupSummaries() {
         categories: new Map(),
         keywords: new Set(),
         departments: new Set(),
+        rows: [],
       });
     }
     const group = groupMap.get(row.groupName);
     group.count += 1;
+    group.rows.push(row);
     group.categories.set(row.categoryName, (group.categories.get(row.categoryName) || 0) + 1);
     group.departments.add(row.schoolDepartmentName);
   });
@@ -3815,11 +3829,13 @@ function explorerCategoriesForGroup(groupName) {
       .map((row) => [row.categoryName, row.categoryName])
   ).values()].map((name) => {
     const rows = selectedCategoryRows(groupName, name);
-    const representative = categoryRepresentativeSchools(name, rows).slice(0, 3).map((item) => shortSchoolName(item.school));
+    const schools = categoryRepresentativeGroups(name, rows);
+    const representative = [...schools.general.slice(0, schools.tech.length ? 2 : 3), ...schools.tech].slice(0, 3).map((item) => shortSchoolName(item.school));
     return {
       name,
       rows,
       count: rows.length,
+      stats: explorerRowStats(rows),
       representative,
       insight: getCategoryInsight(name, groupName, rows),
       curated: isCuratedCategory(name),
@@ -3925,7 +3941,9 @@ function getExplorerDepartmentRows() {
     const key = explorerRowKey(row);
     if (!map.has(key)) {
       const records = findRecordsForGroupRow(row);
-      const selectedChannelKey = state.explorerChannelSelection[key];
+      // 篩特選時，卡片直接顯示特選內容。
+      const selectedChannelKey = state.explorerChannelSelection[key]
+        || (["special", "open"].includes(state.explorerListFilter) ? "116-special_selection" : "");
       map.set(key, {
         ...row,
         key,
@@ -3987,10 +4005,55 @@ function specialRecordsForGroupRow(parsed, matched) {
 }
 
 function findRecordsForGroupRow(groupRow) {
+  if (state.groupRowRecords.has(groupRow)) return state.groupRowRecords.get(groupRow);
   const parsed = splitSchoolDepartmentName(groupRow.schoolDepartmentName);
   const matched = directRecordsForGroupRow(parsed);
   const special = specialRecordsForGroupRow(parsed, matched);
-  return special.length ? [...matched, ...special] : matched;
+  const records = special.length ? [...matched, ...special] : matched;
+  state.groupRowRecords.set(groupRow, records);
+  return records;
+}
+
+function isTechGroupRow(row) {
+  return state.techSchoolKeys.has(schoolMatchKey(splitSchoolDepartmentName(row.schoolDepartmentName).schoolName));
+}
+
+// 科大、116 特選與目前可報名的狀態；row.records 是清單已查好的資料。
+function explorerRowFlags(row) {
+  const records = row.records || findRecordsForGroupRow(row);
+  const specials = records.filter((record) => explorerRecordKey(record) === "116-special_selection");
+  const active = specials.find((record) => isRegistrationActive(specialRegistrationStatus(record.specialSelection)));
+  return { tech: isTechGroupRow(row), special: specials.length > 0, active, specials };
+}
+
+function explorerRowStats(rows) {
+  const unique = new Map(rows.map((row) => [row.schoolDepartmentName, row]));
+  const stats = { general: 0, tech: 0, special: 0 };
+  const specialIds = new Set();
+  unique.forEach((row) => {
+    const flags = explorerRowFlags(row);
+    if (flags.tech) stats.tech += 1;
+    else stats.general += 1;
+    flags.specials.forEach((record) => specialIds.add(record.id));
+  });
+  stats.special = specialIds.size;
+  return stats;
+}
+
+// 特選不分組，同一系在學群資料有多組時只留一列。
+function uniqueSpecialRows(rows) {
+  return [...new Map(rows.map((row) => {
+    const flags = explorerRowFlags(row);
+    return [(flags.active || flags.specials[0]).id, row];
+  })).values()];
+}
+
+function explorerStatChipsHtml(stats) {
+  return [
+    stats.general ? `<span>一般 ${fmt.format(stats.general)}</span>` : "",
+    stats.tech ? `<span>科大 ${fmt.format(stats.tech)}</span>` : "",
+    stats.special ? `<span class="is-special">特選 ${fmt.format(stats.special)}</span>` : "",
+  ].join("");
 }
 
 function directRecordsForGroupRow(parsed) {
@@ -4004,8 +4067,7 @@ function directRecordsForGroupRow(parsed) {
   if (school && dept && state.recordIndexBySchoolDept.has(schoolDeptKey)) {
     return state.recordIndexBySchoolDept.get(schoolDeptKey);
   }
-  return state.records.filter((record) => {
-    if (school && normalize(record.schoolName) !== school) return false;
+  return (school ? state.recordsBySchool.get(school) || [] : state.records).filter((record) => {
     const recordDept = normalize(record.departmentName);
     if (dept && recordDept === dept) return true;
     if (dept && (recordDept.includes(dept) || dept.includes(recordDept))) return true;
@@ -4081,6 +4143,9 @@ function explorerDepartmentCard(row) {
   `).join("");
   const compactHighlight = record ? highlightHtml(record) : "";
   const crossGroups = Array.isArray(row.crossGroupNames) ? row.crossGroupNames.filter(Boolean) : [];
+  const flags = explorerRowFlags(row);
+  const specialRecord = flags.active || flags.specials[0];
+  const specialBadge = specialRecord && specialRegistrationStatus(specialRecord.specialSelection)?.key !== "closed" ? specialRegistrationBadgeHtml(specialRecord) : "";
   return `
     <article class="explorer-dept-card ${accentClass} ${record ? "is-clickable" : ""}" ${record ? `data-detail-card="${escapeAttr(record.id)}"` : ""}>
       <header>
@@ -4090,7 +4155,7 @@ function explorerDepartmentCard(row) {
         </div>
         <span class="explorer-card-category">${escapeHtml(displayCategoryName(row.categoryName))}</span>
       </header>
-      <div class="explorer-channels">${channels || "<span>暫無管道資料</span>"}</div>
+      <div class="explorer-channels">${channels || "<span>暫無管道資料</span>"}${specialBadge}</div>
       ${crossGroups.length ? `<p class="explorer-cross-groups">可跨學群：${escapeHtml(crossGroups.join("、"))}</p>` : ""}
       ${compactHighlight ? `<div class="explorer-highlight">${compactHighlight}</div>` : ""}
     </article>
@@ -4108,7 +4173,7 @@ function explorerOverviewHtml() {
             <p>${escapeHtml([...group.keywords].slice(0, 4).join("、"))}</p>
             <div class="explorer-group-meta">
               <span>${fmt.format(group.categories.size)} 學類</span>
-              <span>${fmt.format(group.departments.size)} 校系</span>
+              ${explorerStatChipsHtml(explorerRowStats(group.rows))}
             </div>
           </button>
         `).join("")}
@@ -4128,6 +4193,7 @@ function explorerGroupIntroHtml() {
           <h3>${escapeHtml(state.selectedGroup)}</h3>
           <p>${escapeHtml(window.GroupIntroductions.summaries?.[state.selectedGroup] || groupSummaryLine(state.selectedGroup, categories))}</p>
           <p class="explorer-stage-meta">${fmt.format(categories.length)} 個學類・${fmt.format(departmentCount)} 個校系</p>
+          <div class="explorer-group-meta">${explorerStatChipsHtml(explorerRowStats(categories.flatMap((item) => item.rows)))}</div>
         </div>
         <div class="explorer-stage-actions">
           <button class="explorer-back-link" data-explorer-back-overview>返回學群</button>
@@ -4144,6 +4210,7 @@ function explorerGroupIntroHtml() {
             ${category.curated ? `<div class="explorer-course-cluster compact">
               ${category.insight.coreCourses.slice(0, 5).map((course) => `<span class="course-chip">${escapeHtml(course)}</span>`).join("")}
             </div>` : ""}
+            <div class="explorer-group-meta">${explorerStatChipsHtml(category.stats)}</div>
             ${category.representative.length ? `<div class="explorer-category-foot">${escapeHtml(category.representative.join("、"))}</div>` : ""}
           </button>
         `).join("")}
@@ -4155,9 +4222,13 @@ function explorerGroupIntroHtml() {
 function explorerCategoryIntroHtml() {
   const rows = selectedCategoryRows(state.selectedGroup, state.selectedCategory);
   const insight = getCategoryInsight(state.selectedCategory, state.selectedGroup, rows);
-  const representativeSchools = categoryRepresentativeSchools(state.selectedCategory, rows);
+  const representative = categoryRepresentativeGroups(state.selectedCategory, rows);
+  const representativeSections = [
+    ["一般大學", representative.general.slice(0, 6)],
+    ["科大", representative.tech.slice(0, representative.general.length ? 3 : 6)],
+  ].filter(([, schools]) => schools.length);
   const categorySummary = categorySummaryProfile(state.selectedCategory, insight, state.selectedGroup);
-  const representativeCount = representativeSchools.length ? Math.min(representativeSchools.length, 6) : 0;
+  const representativeCount = representativeSections.reduce((sum, [, schools]) => sum + schools.length, 0);
   const curated = isCuratedCategory(state.selectedCategory);
   // 特質與能力目前是依學類名稱推測的，人工整理過才顯示，避免出現不貼切的標籤。
   const curatedProfile = Boolean(state.categoryInsights?.[state.selectedCategory]?.traits?.length);
@@ -4217,16 +4288,17 @@ function explorerCategoryIntroHtml() {
             </div>
             <span class="explorer-panel-count">${fmt.format(representativeCount)}</span>
           </div>
-          ${representativeSchools.length ? `
+          ${representativeSections.length ? representativeSections.map(([label, schools]) => `
+            ${representativeSections.length > 1 ? `<h5 class="explorer-representative-label">${escapeHtml(label)}</h5>` : ""}
             <div class="explorer-representative-grid">
-              ${representativeSchools.slice(0, 6).map((item) => `
+              ${schools.map((item) => `
                 <article class="representative-school-card">
                   <strong class="representative-school-name">${escapeHtml(shortSchoolName(item.school))}</strong>
                   <p class="representative-departments" title="${escapeAttr(item.departments.join("、") || "此校在本學類有相關校系")}">${escapeHtml(item.departments.join("、") || "此校在本學類有相關校系")}</p>
                 </article>
               `).join("")}
             </div>
-          ` : `<p class="explorer-panel-empty">目前沒有整理到相關校系。</p>`}
+          `).join("") : `<p class="explorer-panel-empty">目前沒有整理到相關校系。</p>`}
         </aside>
       </section>
     </div>
@@ -4253,6 +4325,14 @@ function categoryRepresentativeSchools(categoryName, rows) {
     .filter(([school]) => !priorities.includes(school))
     .map(([school, departments]) => ({ school, departments: departments.slice(0, 2) }));
   return [...ranked, ...fallback];
+}
+
+function categoryRepresentativeGroups(categoryName, rows) {
+  const national = (item) => (/^國立/.test(item.school) ? 0 : 1);
+  return {
+    general: categoryRepresentativeSchools(categoryName, rows.filter((row) => !isTechGroupRow(row))),
+    tech: categoryRepresentativeSchools(categoryName, rows.filter(isTechGroupRow)).sort((a, b) => national(a) - national(b)),
+  };
 }
 
 function categorySummaryProfile(categoryName, insight, groupName = "") {
@@ -4831,11 +4911,31 @@ function renderCategoryCourseHighlights(insight) {
 }
 
 const EXPLORER_PAGE_SIZE = 120;
+const EXPLORER_LIST_FILTERS = [
+  ["", "全部", () => true],
+  ["general", "一般大學", (flags) => !flags.tech],
+  ["tech", "科大", (flags) => flags.tech],
+  ["special", "116 特選", (flags) => flags.special],
+  ["open", "報名中", (flags) => Boolean(flags.active)],
+];
+
+function explorerActiveDeadline(row) {
+  return registrationDate(specialRegistrationRange(explorerRowFlags(row).active.specialSelection).end).getTime();
+}
 
 function explorerDepartmentListHtml() {
-  const allRows = getExplorerDepartmentRows();
-  // 換學類或改搜尋時，從第一頁重新顯示。
-  const listKey = JSON.stringify([state.selectedGroup, state.selectedCategory, normalize(state.explorerKeyword)]);
+  const keywordRows = getExplorerDepartmentRows();
+  const filters = EXPLORER_LIST_FILTERS.map(([key, label, test]) => {
+    const rows = keywordRows.filter((row) => test(explorerRowFlags(row)));
+    return { key, label, rows: key === "special" || key === "open" ? uniqueSpecialRows(rows) : rows };
+  });
+  const activeFilter = filters.find((item) => item.key === state.explorerListFilter) || filters[0];
+  // 報名中先看最快截止的校系。
+  const allRows = activeFilter.key === "open"
+    ? [...activeFilter.rows].sort((a, b) => explorerActiveDeadline(a) - explorerActiveDeadline(b))
+    : activeFilter.rows;
+  // 換學類、篩選或改搜尋時，從第一頁重新顯示。
+  const listKey = JSON.stringify([state.selectedGroup, state.selectedCategory, normalize(state.explorerKeyword), activeFilter.key]);
   if (state.explorerListKey !== listKey) {
     state.explorerListKey = listKey;
     state.explorerVisibleCount = EXPLORER_PAGE_SIZE;
@@ -4865,6 +4965,11 @@ function explorerDepartmentListHtml() {
           <button class="ghost-button" id="clearExplorerKeywordButton">清除</button>
         </div>
       </section>
+      <div class="explorer-list-filters" role="group" aria-label="校系篩選">
+        ${filters.filter((item) => !item.key || item.rows.length || item.key === activeFilter.key).map((item) => `
+          <button class="placement-chip ${item.key === activeFilter.key ? "active" : ""}" type="button" data-explorer-list-filter="${escapeAttr(item.key)}" aria-pressed="${item.key === activeFilter.key}">${escapeHtml(item.label)} ${fmt.format(item.rows.length)}</button>
+        `).join("")}
+      </div>
       ${rows.length ? `
         <div class="explorer-dept-grid">
           ${rows.map((row) => explorerDepartmentCard(row)).join("")}
@@ -5053,12 +5158,19 @@ function bindExplorerEvents() {
     button.addEventListener("click", () => {
       state.selectedExplorerStage = "departments";
       state.explorerKeyword = "";
+      state.explorerListFilter = "";
       renderExplorer();
     });
   });
   document.querySelectorAll("[data-explorer-channel]").forEach((button) => {
     button.addEventListener("click", () => {
       state.explorerChannelSelection[button.dataset.explorerChannel] = button.dataset.channelKey || "";
+      renderExplorer();
+    });
+  });
+  document.querySelectorAll("[data-explorer-list-filter]").forEach((button) => {
+    button.addEventListener("click", () => {
+      state.explorerListFilter = button.dataset.explorerListFilter;
       renderExplorer();
     });
   });
@@ -5208,19 +5320,30 @@ function specialRegistrationRange(source) {
   return match ? { start: match[1], end: match[2] } : null;
 }
 
+const REGISTRATION_CLOSING_DAYS = 3;
+
+function registrationDate(text) {
+  const [y, m, d] = text.split("/").map(Number);
+  return new Date(y, m - 1, d);
+}
+
 function specialRegistrationStatus(source, today = new Date()) {
   const range = specialRegistrationRange(source);
   if (!range) return null;
-  const toDate = (text) => { const [y, m, d] = text.split("/").map(Number); return new Date(y, m - 1, d); };
-  const start = toDate(range.start);
-  const end = toDate(range.end);
+  const start = registrationDate(range.start);
+  const end = registrationDate(range.end);
   const day = new Date(today.getFullYear(), today.getMonth(), today.getDate());
   const md = (date) => `${date.getMonth() + 1}/${date.getDate()}`;
   const tentative = Boolean(source.tentative?.registration) || /報名日期（暫定）/.test(source.schedule || "");
   const note = tentative ? "日期為暫定，以學校簡章為準" : "";
   if (day > end) return { key: "closed", label: "已截止", short: "已截止", note };
   if (day < start) return { key: "upcoming", label: `尚未開始（${md(start)} 起）`, short: "尚未開始", note };
+  if (end - day <= REGISTRATION_CLOSING_DAYS * 86400000) return { key: "closing", label: `即將截止（至 ${md(end)}）`, short: "即將截止", note };
   return { key: "open", label: `報名中（至 ${md(end)}）`, short: "報名中", note };
+}
+
+function isRegistrationActive(status) {
+  return status?.key === "open" || status?.key === "closing";
 }
 
 function specialRegistrationBadgeHtml(record) {
@@ -5978,7 +6101,7 @@ function renderCompare() {
   els.compareYearFilter.innerHTML = `<option value="all">全部年度</option>${years.map(year => `<option value="${escapeAttr(year)}">${escapeHtml(year)}年度</option>`).join('')}`;
   els.compareYearFilter.value = state.compareFilters.year;
   els.compareChannelFilter.value = state.compareFilters.channel;
-  const visible = filteredCompareRecords();
+  const visible = compareDisplayOrder(filteredCompareRecords());
   if (!state.compare.length) {
     els.compareGrid.innerHTML = `
       <section class="compare-empty-state" aria-labelledby="trackingEmptyTitle">
@@ -5997,7 +6120,7 @@ function renderCompare() {
   }
   const countEl = document.getElementById("compareCount");
   if (countEl) countEl.textContent = fmt.format(visible.length);
-  els.compareGrid.innerHTML = `<div class="table-shell rec-list"><table aria-label="已追蹤校系清單"><thead class="sr-only"><tr><th scope="col">管道</th><th scope="col">學校 / 校系與條件</th><th scope="col">操作</th></tr></thead><tbody>${visible.length
+  els.compareGrid.innerHTML = `${compareReminderHtml(state.compare)}<div class="table-shell rec-list"><table aria-label="已追蹤校系清單"><thead class="sr-only"><tr><th scope="col">管道</th><th scope="col">學校 / 校系與條件</th><th scope="col">操作</th></tr></thead><tbody>${visible.length
     ? visible.map(record => workbenchRecordRowHtml(record, true)).join('')
     : `<tr><td colspan="3"><div class="empty-state">目前篩選條件沒有符合的追蹤校系<br>篩選只影響顯示，不會移除追蹤校系。</div></td></tr>`}</tbody></table></div>`;
   els.compareGrid.querySelectorAll("[data-remove-compare]").forEach((button) => {
@@ -6006,6 +6129,32 @@ function renderCompare() {
   els.compareGrid.querySelectorAll("[data-detail]").forEach((button) => {
     button.addEventListener("click", () => openDetail(button.dataset.detail));
   });
+}
+
+// 特選報名中的排最前面（最快截止優先），接著是尚未開始、其他管道，已截止放最後；同一類保留加入順序。
+function compareDisplayOrder(records) {
+  const rank = (record) => {
+    const source = record.specialSelection;
+    const status = source ? specialRegistrationStatus(source) : null;
+    if (!status) return [2, 0];
+    const range = specialRegistrationRange(source);
+    if (isRegistrationActive(status)) return [0, registrationDate(range.end).getTime()];
+    return status.key === "upcoming" ? [1, registrationDate(range.start).getTime()] : [3, 0];
+  };
+  return records
+    .map((record) => ({ record, order: rank(record) }))
+    .sort((a, b) => a.order[0] - b.order[0] || a.order[1] - b.order[1])
+    .map((item) => item.record);
+}
+
+function compareReminderHtml(records) {
+  const active = records
+    .filter((record) => record.specialSelection && isRegistrationActive(specialRegistrationStatus(record.specialSelection)))
+    .map((record) => ({ status: specialRegistrationStatus(record.specialSelection), end: specialRegistrationRange(record.specialSelection).end }));
+  if (!active.length) return "";
+  const nearest = active.reduce((soonest, item) => (registrationDate(item.end) < registrationDate(soonest.end) ? item : soonest));
+  const closing = active.filter((item) => item.status.key === "closing").length;
+  return `<p class="compare-reminder">特選報名中 <b>${fmt.format(active.length)}</b> 筆${closing ? `，<b>${fmt.format(closing)}</b> 筆即將截止` : ""}｜最快 ${escapeHtml(nearest.end.slice(5))} 截止，以簡章為準</p>`;
 }
 
 function filteredCompareRecords() {
