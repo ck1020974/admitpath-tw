@@ -34,7 +34,7 @@
 
 - 進度存在瀏覽器 localStorage（`yuhsin-curiosity:v4`，內容為第 7 版，也能讀第 4–6 版存檔），重新整理或關掉再開都會保留；「重新開始」需要按兩次才會清除。
 - 已取消分享按鈕、姓名欄位、連結複製與分享結果讀取。匿名施測計次見 `docs/usage-tracking.md`；不集中保存個人完整結果。
-- 結果頁的學群與學類連結在同一分頁開啟主站（`?view=explorer&group=…&category=…&from=curiosity`），主站會顯示「回到我的探索結果」。
+- 結果頁的學群與學類連結在同一分頁開啟主站（`?view=explorer&group=…&category=…&from=curiosity`），主站會顯示「← 探索結果」。
 
 ## 驗證
 

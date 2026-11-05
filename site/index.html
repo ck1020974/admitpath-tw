@@ -14,18 +14,18 @@
   <meta property="og:locale" content="zh_TW">
   <meta property="og:site_name" content="YUHSIN 祐馨升學網">
   <meta property="og:title" content="YUHSIN 祐馨升學網｜把下一步，查清楚。">
-  <meta property="og:description" content="大學校系查詢、落點分析、十八學群探索與追蹤清單，一次整理四種入學管道。">
+  <meta property="og:description" content="大學校系查詢、落點分析、十八學群探索與追蹤清單，一次整理五種入學管道。">
   <meta property="og:url" content="https://ck1020974.github.io/admitpath-tw/">
   <meta property="og:image" content="https://ck1020974.github.io/admitpath-tw/media/og-image.jpg">
   <meta property="og:image:width" content="1200">
   <meta property="og:image:height" content="630">
   <meta property="og:image:alt" content="YUHSIN 祐馨升學網：校系查詢、落點分析、十八學群、追蹤清單">
   <meta name="twitter:card" content="summary_large_image">
-  <link rel="stylesheet" href="./styles.css?v=20261029-ui3">
+  <link rel="stylesheet" href="./styles.css?v=20261105-explorer-more">
   <link rel="stylesheet" href="./special.css?v=20261101-stage-table">
   <link rel="stylesheet" href="./support.css?v=20261029-contact">
   <link rel="stylesheet" href="./workbench.css?v=20261030-compare2">
-  <link rel="stylesheet" href="./layout.css?v=20261023-mobile">
+  <link rel="stylesheet" href="./layout.css?v=20261105-home-channels">
   <link rel="stylesheet" href="./student-account.css?v=20261102-skip">
 </head>
 <body data-active-view="overview">
@@ -77,7 +77,7 @@
               <div class="home-spot-copy">
                 <span class="home-label">還不確定方向</span>
                 <h1>從 18 個問題<br>開始探索</h1>
-                <p>回答生活中的問題和各科表現，<br>找出值得先探索的學群。</p>
+                <p>找出值得先探索的學群。</p>
                 <div class="home-spot-actions">
                   <a class="home-cta" href="./explore/curiosity/" data-curiosity-entry>開始探索<span class="home-cta-arrow"><svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path d="M3 8h10M9 4l4 4-4 4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span></a>
                   <span class="home-spot-time">約 5 分鐘</span>
@@ -88,17 +88,18 @@
               <button class="home-card is-blue" type="button" data-home-entry="group-explorer">
                 <span class="home-card-head"><span class="home-label">想多認識</span><svg viewBox="0 0 24 24" width="28" height="28" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg></span>
                 <strong>十八學群</strong>
-                <span class="home-card-text">132 個學類的課程和代表校系。</span>
+                <span class="home-card-text">131 個學類的課程與校系</span>
                 <span class="home-card-link">看學群介紹<svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path d="M3 8h10M9 4l4 4-4 4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
               </button>
               <div class="home-card is-orange">
                 <span class="home-card-head"><span class="home-label">準備選校系</span><svg viewBox="0 0 24 24" width="28" height="28" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="6.5"/><path d="M20 20l-4.2-4.2"/></svg></span>
                 <strong>找適合的校系</strong>
-                <span class="home-card-text">依學測成績與條件，查校系和落點。</span>
+                <span class="home-card-text">查校系、算落點</span>
                 <div class="home-channels" role="group" aria-label="入學管道">
                   <button type="button" data-home-entry="special-entry" aria-label="特殊選才" title="特殊選才">特選</button>
                   <button type="button" data-home-entry="star-entry" aria-label="繁星推薦" title="繁星推薦">繁星</button>
                   <button type="button" data-home-entry="personal-apply" aria-label="個人申請" title="個人申請">個申</button>
+                  <button type="button" data-home-entry="tech-entry" aria-label="四技申請（科大）" title="四技申請（科大）">四技</button>
                   <button type="button" data-home-entry="distribution-entry" aria-label="分發入學" title="分發入學">分發</button>
                 </div>
               </div>
@@ -130,9 +131,8 @@
         <section class="workbench-panel">
           <div class="workbench-head workspace-page-head">
             <div class="workbench-copy workspace-page-copy">
-              <h2>校系資料查詢</h2>
-              <p>依年度、管道與條件，找出適合的校系。</p>
-            </div>
+              <h2>校系查詢</h2>
+           </div>
             <div class="workbench-actions">
               <div class="result-meta"><strong id="resultCount">—</strong><span>筆符合</span></div>
               <button class="text-link-button" id="resetFiltersButton" type="button" hidden>重設篩選</button>
@@ -168,7 +168,7 @@
               </label>
               <label class="search-field">
                 <span>關鍵字</span>
-                <input id="keywordInput" type="search" placeholder="學校、學系、科目；空格可組合搜尋">
+                <input id="keywordInput" type="search" placeholder="學校、學系、科目">
               </label>
               <button class="ghost-button precision-button" id="openAdvancedFiltersButton" type="button">精準篩選</button>
             </section>
@@ -199,8 +199,7 @@
           <div class="placement-head placement-head-compact workspace-page-head">
             <div class="workspace-page-copy">
               <h2>落點分析</h2>
-              <p>依成績與條件，找出符合、接近與未達的校系。</p>
-            </div>
+           </div>
             <div class="workbench-actions placement-result-actions" id="placementResultActions" hidden>
               <div class="result-meta"><strong id="placementResultCount">0</strong><span id="placementResultCountLabel">筆符合</span></div>
               <button class="text-link-button" id="placementResetFiltersButton" type="button" hidden>重設篩選</button>
@@ -213,15 +212,15 @@
                 <h3 id="placementChannelHeading">入學管道</h3>
                 <div class="placement-channel-options" role="group" aria-label="選擇入學管道">
                   <button type="button" data-placement-channel="star_recommendation" aria-pressed="false">繁星<span>學測、英聽與校排</span></button>
-                  <button type="button" class="active" data-placement-channel="personal_application" aria-pressed="true">申請<span>個申＋四技，學測與英聽</span></button>
-                  <button type="button" data-placement-channel="exam_distribution" aria-pressed="false">分科<span>分發採計成績</span></button>
+                  <button type="button" class="active" data-placement-channel="personal_application" aria-pressed="true">申請<span>個申＋四技</span></button>
+                  <button type="button" data-placement-channel="exam_distribution" aria-pressed="false">分發<span>採計分數</span></button>
                 </div>
               </section>
               <section class="placement-score-band" id="placementScoreFields" hidden>
                 <div class="placement-band-head">
                   <div>
                     <h3 id="placementScoreHeading">輸入成績</h3>
-                    <span id="placementScoreHint">未填科目以 0 級分計算。</span>
+                    <span id="placementScoreHint">未填以 0 計算</span>
                   </div>
                 </div>
                 <div class="placement-score-grid">
@@ -263,7 +262,7 @@
                 <label class="wb-select wb-year"><span>年度</span><select id="placementYearFilter"></select></label>
                 <label class="wb-select wb-channel"><span>入學管道</span><select id="placementChannelFilter" aria-describedby="placementChannelHint"></select></label>
                 <label class="wb-select wb-school"><span>學校</span><select id="placementSchoolFilter"><option value="all">全部學校</option></select></label>
-                <label class="search-field"><span>關鍵字</span><input id="placementKeywordInput" type="search" placeholder="學校、學系、科目；空格可組合搜尋"></label>
+                <label class="search-field"><span>關鍵字</span><input id="placementKeywordInput" type="search" placeholder="學校、學系、科目"></label>
                 <button class="ghost-button precision-button" id="placementOpenAdvancedFiltersButton" type="button">精準篩選</button>
               </section>
               <span id="placementChannelHint" class="sr-only">切換入學管道後，將回到成績輸入。</span>
@@ -286,11 +285,10 @@
       <section class="view-panel" id="explorerView">
         <div class="section-head workspace-page-head">
           <div class="workspace-page-copy">
-            <h2>十八學群探索</h2>
-            <p>從學群、學類到校系，逐步認識適合的方向。</p>
-          </div>
+            <h2>十八學群</h2>
+         </div>
           <div class="explorer-head-links">
-            <a class="secondary-button explorer-assessment-entry" id="curiosityBackLink" href="./explore/curiosity/#results" hidden>← 回到我的探索結果</a>
+            <a class="secondary-button explorer-assessment-entry" id="curiosityBackLink" href="./explore/curiosity/#results" hidden>← 探索結果</a>
             <a class="secondary-button explorer-assessment-entry" data-curiosity-entry href="./explore/curiosity/">學群探索 →</a>
           </div>
         </div>
@@ -301,15 +299,14 @@
         <div class="section-head workspace-page-head">
           <div class="workspace-page-copy">
             <h2>追蹤清單</h2>
-            <p>把感興趣的校系留下來，隨時查看招生條件。</p>
-          </div>
+         </div>
           <div class="workbench-actions" id="compareHeadActions" hidden>
             <div class="result-meta"><strong id="compareCount">0</strong><span>筆追蹤</span></div>
           </div>
         </div>
         <div class="query-filter-panel compare-filter-panel" id="compareTools" hidden>
           <section class="compare-filters filter-band" aria-label="追蹤清單篩選">
-            <label><span>學年度</span><select id="compareYearFilter"><option value="all">全部學年度</option></select></label>
+            <label><span>年度</span><select id="compareYearFilter"><option value="all">全部年度</option></select></label>
             <label><span>入學管道</span><select id="compareChannelFilter">
               <option value="all">全部管道</option>
               <option value="personal_application">個人申請</option>
@@ -460,10 +457,10 @@
   <script src="./support-config.js?v=20261015"></script>
   <script src="./support.js?v=20261029-contact"></script>
   <script src="./admission-rules.js?v=20261027-placement-guards"></script>
-  <script src="./admission-catalog.js?v=20261029-tech-application"></script>
+  <script src="./admission-catalog.js?v=20261105-school-merge"></script>
   <script src="./explorer-link.js?v=20261023-intros"></script>
   <script src="./group-introductions.js?v=20261023-intros"></script>
-  <script src="./app.js?v=20261103-usage-total"></script>
+  <script src="./app.js?v=20261105-track-instant"></script>
   <script src="./back-to-top.js?v=20261030-2"></script>
 </body>
 </html>

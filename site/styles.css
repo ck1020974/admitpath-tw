@@ -3256,6 +3256,12 @@ tr:hover td {
   gap: 12px;
 }
 
+.explorer-load-more {
+  display: flex;
+  justify-content: center;
+  margin-top: 16px;
+}
+
 .explorer-dept-card {
   display: grid;
   gap: 10px;

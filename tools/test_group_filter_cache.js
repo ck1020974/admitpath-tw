@@ -6,7 +6,7 @@ const records = require('../site/data/admissions_records.json');
 const groups = require('../site/data/group_departments.json');
 const ctx = { state: { groups } };
 vm.createContext(ctx);
-for (const name of ['normalize', 'visibleGroupRows', 'selectedCategoryRows', 'categorySelectionNames', 'groupRowsToNeedles', 'cachedGroupNeedles', 'matchesGroup', 'getGroupNeedles', 'getCategoryNeedles', 'placementSelectedNeedles']) {
+for (const name of ['normalize', 'visibleGroupRows', 'selectedCategoryRows', 'categorySelectionNames', 'groupRowsToNeedles', 'cachedGroupNeedles', 'stripSchoolCampus', 'matchesGroup', 'getGroupNeedles', 'getCategoryNeedles', 'placementSelectedNeedles']) {
   vm.runInContext(source.match(new RegExp(`function ${name}\\([\\s\\S]*?\\n\\}`))[0], ctx);
 }
 let builds = 0;

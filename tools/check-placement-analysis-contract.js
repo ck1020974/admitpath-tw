@@ -142,6 +142,7 @@ vm.runInContext([
   extractFunction("groupRowsToNeedles"),
   extractFunction("categorySelectionNames"),
   extractFunction("cachedGroupNeedles"),
+  extractFunction("stripSchoolCampus"),
   extractFunction("matchesGroup"),
   extractFunction("distributionResult"),
   extractFunction("distributionSubjectLabel"),

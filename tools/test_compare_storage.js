@@ -25,6 +25,7 @@ function session() {
     els.detailCompareButton = { dataset: {} };
     renderCompare = () => {};
     renderTable = () => {};
+    syncCompareButtons = () => {};
     updateDetailCompareButton = () => {};
   `, context);
   return {

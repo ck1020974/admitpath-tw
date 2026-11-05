@@ -86,6 +86,7 @@ vm.runInContext([
   extractFunction("groupRowsToNeedles"),
   extractFunction("categorySelectionNames"),
   extractFunction("cachedGroupNeedles"),
+  extractFunction("stripSchoolCampus"),
   extractFunction("matchesGroup"),
 ].join("\n\n"), sandbox);
 

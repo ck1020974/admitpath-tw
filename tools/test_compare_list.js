@@ -10,11 +10,12 @@ const clear = {};
 const tools = {};
 const state = { records, compare: [], compareFilters: { year: 'all', channel: 'all' } };
 let alerts = 0;
+let tableRenders = 0;
 const context = { state, els: { compareGrid: grid, compareYearFilter: {}, compareChannelFilter: {} }, fmt: new Intl.NumberFormat('zh-Hant-TW'),
   accountRecords:null,renderCompareImport(){},
   COMPARE_STORAGE_KEY: 'admitpath-tw:compare:v1',
   document: { getElementById: id => id === 'compareTools' ? tools : id === 'clearCompareButton' ? clear : null }, window: { alert: () => alerts++, localStorage: { setItem() {} } },
-  renderTable() {}, updateDetailCompareButton() {}, recordSummary: r => ({ key: { label: '條件', html: `標準${r.id}` }, sub: null }), channelBadge: r => r.channelKey, specialAdmissionBadgeHtml: () => '（軍校）', escapeHtml: String, escapeAttr: String };
+  renderTable() { tableRenders++; }, syncCompareButtons() {}, updateDetailCompareButton() {}, recordSummary: r => ({ key: { label: '條件', html: `標準${r.id}` }, sub: null }), channelBadge: r => r.channelKey, specialAdmissionBadgeHtml: () => '（軍校）', escapeHtml: String, escapeAttr: String };
 vm.createContext(context);
 const names = ['dataPending', 'saveCompare', 'toggleCompare', 'renderCompare', 'filteredCompareRecords', 'workbenchRecordRowHtml'];
 vm.runInContext(names.map(name => source.match(new RegExp(`function ${name}\\([\\s\\S]*?\\n\\}`))[0]).join('\n'), context);
@@ -27,6 +28,7 @@ for (let i = 0; i < 100; i++) context.toggleCompare(String(i));
 assert.equal(tools.hidden, false);
 assert.equal(clear.hidden, false);
 assert.equal(state.compare.length, 100);
+assert.equal(tableRenders, 0, '加入追蹤只更新按鈕，不重畫整張表');
 assert.equal(context.filteredCompareRecords().length, 100);
 assert.equal((grid.innerHTML.match(/<tr[ >]/g) || []).length, 101); // Header + all 100 rows, no hidden cap.
 assert.ok(!html.includes('id="compareResultCount"'));

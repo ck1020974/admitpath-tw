@@ -25,9 +25,9 @@ function fail(message) {
 });
 
 [
-  "校系資料查詢",
+  "校系查詢",
   "落點分析",
-  "十八學群探索",
+  "十八學群",
   "追蹤清單",
 ].forEach((title) => {
   if (!new RegExp(`<h2>${title}<\\/h2>`).test(html)) {

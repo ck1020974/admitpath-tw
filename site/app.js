@@ -1,4 +1,4 @@
-﻿const state = {
+const state = {
   records: [],
   filtered: [],
   results: {},
@@ -6,6 +6,7 @@
   gsatStandards: {},
   recordIndexByFullName: new Map(),
   recordIndexBySchoolDept: new Map(),
+  specialRecordsBySchool: new Map(),
   manifest: null,
   view: "overview",
   selectedExplorerStage: "overview",
@@ -15,6 +16,8 @@
   linkedGroup: "",
   linkedCategory: "",
   explorerChannelSelection: {},
+  explorerListKey: "",
+  explorerVisibleCount: 0,
   categoryInsights: {},
   categoryRepresentatives: {},
   qualityReport: null,
@@ -44,10 +47,10 @@ const els = {};
 let advancedFilterDraft = null;
 
 const fmt = new Intl.NumberFormat("zh-Hant-TW");
-const DATA_VERSION = "20261101-detail-slim";
+const DATA_VERSION = "20261105-tech-sources";
 const COMPARE_STORAGE_KEY = "admitpath-tw:compare:v1";
 const accountRecords=window.YuhsinStudentRecords;
-let compareCloudRows=[],compareCloudBusy=false,compareGeneration=0;
+let compareCloudRows=[],compareCloudBusy=false,compareCloudPending=new Map(),compareCloudFlush=null,compareGeneration=0;
 accountRecords?.onChange(async()=>{
   compareGeneration++;state.compare=[];compareCloudRows=[];
   if(state.dataStatus!=='ready')return;
@@ -1109,6 +1112,7 @@ function activateHomeEntry(entry) {
   const channelMap = {
     "special-entry": "special_selection",
     "personal-apply": "personal_application",
+    "tech-entry": "tech_application",
     "star-entry": "star_recommendation",
     "distribution-entry": "exam_distribution",
     "placement-entry": "placement",
@@ -1180,7 +1184,13 @@ function resetExplorerState(stage = "overview") {
 function buildRecordIndexes() {
   state.recordIndexByFullName = new Map();
   state.recordIndexBySchoolDept = new Map();
+  state.specialRecordsBySchool = new Map();
   state.records.forEach((record) => {
+    if (record.channelKey === "special_selection") {
+      const schoolKey = schoolMatchKey(record.schoolName);
+      if (!state.specialRecordsBySchool.has(schoolKey)) state.specialRecordsBySchool.set(schoolKey, []);
+      state.specialRecordsBySchool.get(schoolKey).push(record);
+    }
     const fullKey = normalize(`${record.schoolName}${record.departmentName}`);
     const schoolDeptKey = `${normalize(record.schoolName)}|${normalize(record.departmentName)}`;
     if (fullKey) {
@@ -1575,7 +1585,7 @@ function recordMatchesAdvancedFilters(record) {
     groups: [],
     schools: [],
   };
-  if (advanced.schools?.length && !advanced.schools.includes(record.schoolName)) return false;
+  if (advanced.schools?.length && !advanced.schools.includes(record.schoolFilterName || record.schoolName)) return false;
   if (!specialAdmissionModeAllows(record, advanced.specialAdmissionMode || "exclude")) return false;
   const excluded = new Set((advanced.excludedSubjects || []).map(advancedSubjectKey).filter(Boolean));
   if (excluded.size) {
@@ -1790,7 +1800,7 @@ function applyFilters() {
   state.filtered = state.records.filter((record) => {
     if (state.filters.year !== "all" && String(record.year) !== state.filters.year) return false;
     if (state.filters.channel !== "all" && record.channelKey !== state.filters.channel) return false;
-    if (state.filters.school !== "all" && record.schoolName !== state.filters.school) return false;
+    if (state.filters.school !== "all" && (record.schoolFilterName || record.schoolName) !== state.filters.school) return false;
     if (state.filters.dualDegreeOnly && !isInternationalDualDegree(record)) return false;
     if (!schoolScopesAllow(record, state.filters.schoolScope)) return false;
     if (!regionsAllow(record, state.filters.region)) return false;
@@ -2315,12 +2325,12 @@ function renderPlacementControls() {
   const fields = document.getElementById("placementScoreFields");
   if (fields) fields.hidden = !subjects.length;
   const heading = document.getElementById("placementScoreHeading");
-  if (heading) heading.textContent = distribution ? "輸入分發採計成績（60級分）" : channel === "star_recommendation" ? "輸入學測成績與校排" : "輸入學測成績（15級分）";
+  if (heading) heading.textContent = distribution ? "輸入分發成績（60 級分）" : channel === "star_recommendation" ? "輸入學測級分與校排" : "輸入學測級分";
   const hint = document.getElementById("placementScoreHint");
   if (hint) hint.textContent = distribution
-    ? "學測與分科科目皆填分發採計的 60 級分成績，未填科目以 0 計算。"
-    : channel === "star_recommendation" ? "請填在校排名百分比；學測各科最高 15 級分，未填科目以 0 計算。"
-    : "學測各科最高 15 級分；英聽填 A、B、C 或 F，未填科目以 0 計算。";
+    ? "學測與分科都填 60 級分，未填以 0 計算"
+    : channel === "star_recommendation" ? "校排填百分比，未填以 0 計算"
+    : "未填以 0 計算";
   document.querySelectorAll("[data-placement-score]").forEach(input => {
     const subject = input.dataset.placementScore;
     input.closest("label").hidden = !subjects.includes(subject);
@@ -2587,7 +2597,7 @@ function placementResultCardHtml(record, evaluation) {
 
 function placementMatchesFilters(record, profile) {
   if (state.placement.year !== "all" && String(record.year) !== state.placement.year) return false;
-  if (profile.school && profile.school !== "all" && record.schoolName !== profile.school) return false;
+  if (profile.school && profile.school !== "all" && (record.schoolFilterName || record.schoolName) !== profile.school) return false;
   if (profile.dualDegreeOnly && !isInternationalDualDegree(record)) return false;
   if (!schoolScopesAllow(record, profile.schoolScope)) return false;
   if (!regionsAllow(record, profile.region)) return false;
@@ -3725,7 +3735,7 @@ function channelShort(channelKey) {
     personal_application: "個申",
     tech_application: "四技",
     star_recommendation: "繁星",
-    exam_distribution: "分科",
+    exam_distribution: "分發",
   }[channelKey] || "";
 }
 
@@ -3891,7 +3901,8 @@ function matchesGroup(record, needles) {
   const nameKey = JSON.stringify([record.schoolName, record.departmentName]);
   const previous = cache.get(record);
   if (previous?.nameKey === nameKey) return previous.matched;
-  const full = normalize(`${record.schoolName}${record.departmentName}`);
+  // 特選的校名帶校區（銘傳大學(桃園)），學群資料沒有，比對時先拿掉。
+  const full = normalize(`${stripSchoolCampus(record.schoolName)}${record.departmentName}`);
   const dept = normalize(record.departmentName);
   let matched = false;
   // 招生系名可包含完整的學類系名，但不能因學類長系名含有「數學系」等短字串而反向誤收。
@@ -3940,11 +3951,49 @@ function getExplorerDepartmentRows() {
     const as = ar ? `${ar.schoolCode}${ar.departmentName}` : a.schoolDepartmentName;
     const bs = br ? `${br.schoolCode}${br.departmentName}` : b.schoolDepartmentName;
     return as.localeCompare(bs, "zh-Hant");
-  }).slice(0, state.selectedCategory ? 120 : 72);
+  });
+}
+
+function stripSchoolCampus(schoolName) {
+  return String(schoolName || "").replace(/\s*[（(][^（）()]*[）)]\s*$/, "");
+}
+
+function schoolMatchKey(schoolName) {
+  return normalize(stripSchoolCampus(schoolName)).replace(/台/g, "臺");
+}
+
+// 同一系的分組也算同系，例如 統計學系 與 統計學系(A組)；不接受其他後綴，避免誤對到別的系。
+function isDepartmentVariant(base, variant) {
+  if (!base || !variant.startsWith(base)) return false;
+  const rest = variant.slice(base.length);
+  return !rest || /^\(?[^()]*組\)?$/.test(rest);
+}
+
+// 特選的系名多半不分組、校區寫在校名，學群資料則分組並把校區寫在系名，精確比對會漏接。
+function specialRecordsForGroupRow(parsed, matched) {
+  const records = state.specialRecordsBySchool.get(schoolMatchKey(parsed.schoolName)) || [];
+  if (!records.length) return [];
+  const found = new Set(matched.map(explorerRecordKey));
+  const campusPattern = /[（(]([^（）()]+)校區[）)]/;
+  const rowCampus = normalize(parsed.departmentName.match(campusPattern)?.[1]).replace(/台/g, "臺");
+  const rowDept = normalize(parsed.departmentName.replace(campusPattern, ""));
+  return records.filter((record) => {
+    if (found.has(explorerRecordKey(record))) return false;
+    const recordCampus = normalize(record.schoolName.match(/[（(]([^（）()]+)[）)]\s*$/)?.[1]).replace(/台/g, "臺");
+    if (rowCampus && recordCampus && rowCampus !== recordCampus) return false;
+    const recordDept = normalize(record.departmentName);
+    return isDepartmentVariant(rowDept, recordDept) || isDepartmentVariant(recordDept, rowDept);
+  });
 }
 
 function findRecordsForGroupRow(groupRow) {
   const parsed = splitSchoolDepartmentName(groupRow.schoolDepartmentName);
+  const matched = directRecordsForGroupRow(parsed);
+  const special = specialRecordsForGroupRow(parsed, matched);
+  return special.length ? [...matched, ...special] : matched;
+}
+
+function directRecordsForGroupRow(parsed) {
   const school = normalize(parsed.schoolName);
   const dept = normalize(parsed.departmentName);
   const full = normalize(`${parsed.schoolName}${parsed.departmentName}`);
@@ -3969,25 +4018,32 @@ function explorerRecordKey(record) {
   return `${record.year}-${record.channelKey}`;
 }
 
+const EXPLORER_CHANNEL_ORDER = {
+  "115-personal_application": 1,
+  "115-star_recommendation": 2,
+  "115-exam_distribution": 3,
+  "115-tech_application": 3.5,
+  "114-personal_application": 4,
+  "114-star_recommendation": 5,
+  "114-exam_distribution": 6,
+  "114-tech_application": 6.5,
+  "116-special_selection": 7,
+  "115-special_selection": 8,
+};
+
 function chooseExplorerRepresentative(records, preferredRecordKey = "") {
-  const order = {
-    "115-personal_application": 1,
-    "115-star_recommendation": 2,
-    "115-exam_distribution": 3,
-    "115-tech_application": 3.5,
-    "114-personal_application": 4,
-    "114-star_recommendation": 5,
-    "114-exam_distribution": 6,
-    "114-tech_application": 6.5,
-  };
   const pool = preferredRecordKey
     ? records.filter((item) => explorerRecordKey(item) === preferredRecordKey)
     : records;
   return [...(pool.length ? pool : records)].sort((a, b) => {
-    const ak = `${a.year}-${a.channelKey}`;
-    const bk = `${b.year}-${b.channelKey}`;
-    return (order[ak] || 99) - (order[bk] || 99);
+    return (EXPLORER_CHANNEL_ORDER[explorerRecordKey(a)] || 99) - (EXPLORER_CHANNEL_ORDER[explorerRecordKey(b)] || 99);
   })[0] || null;
+}
+
+// 按鈕最前面放最新的 116 特選；卡片預設內容仍是一般管道，見 chooseExplorerRepresentative。
+function explorerChannelRank(record) {
+  const key = explorerRecordKey(record);
+  return key === "116-special_selection" ? 0 : EXPLORER_CHANNEL_ORDER[key] || 99;
 }
 
 function explorerChannelRecords(records) {
@@ -3997,19 +4053,7 @@ function explorerChannelRecords(records) {
     if (!uniqueRecords.has(key)) uniqueRecords.set(key, record);
   });
   return [...uniqueRecords.values()]
-    .sort((a, b) => {
-      const order = {
-        "115-personal_application": 1,
-        "115-star_recommendation": 2,
-        "115-exam_distribution": 3,
-        "115-tech_application": 3.5,
-        "114-personal_application": 4,
-        "114-star_recommendation": 5,
-        "114-exam_distribution": 6,
-        "114-tech_application": 6.5,
-      };
-      return (order[explorerRecordKey(a)] || 99) - (order[explorerRecordKey(b)] || 99);
-    })
+    .sort((a, b) => explorerChannelRank(a) - explorerChannelRank(b))
     .map((record) => ({ channelKey: record.channelKey, record, key: explorerRecordKey(record) }));
 }
 
@@ -4075,13 +4119,15 @@ function explorerOverviewHtml() {
 
 function explorerGroupIntroHtml() {
   const categories = explorerCategoriesForGroup(state.selectedGroup);
+  // 同校系可跨學類，總數要去重才會和學群卡片一致。
+  const departmentCount = new Set(categories.flatMap((item) => item.rows.map((row) => row.schoolDepartmentName))).size;
   return `
     <div class="explorer-stage explorer-group-stage">
       <div class="explorer-stage-head">
         <div class="explorer-stage-copy">
           <h3>${escapeHtml(state.selectedGroup)}</h3>
           <p>${escapeHtml(window.GroupIntroductions.summaries?.[state.selectedGroup] || groupSummaryLine(state.selectedGroup, categories))}</p>
-          <p class="explorer-stage-meta">${fmt.format(categories.length)} 個學類・${fmt.format(categories.reduce((sum, item) => sum + item.count, 0))} 個校系</p>
+          <p class="explorer-stage-meta">${fmt.format(categories.length)} 個學類・${fmt.format(departmentCount)} 個校系</p>
         </div>
         <div class="explorer-stage-actions">
           <button class="explorer-back-link" data-explorer-back-overview>返回學群</button>
@@ -4784,15 +4830,25 @@ function renderCategoryCourseHighlights(insight) {
   `).join("");
 }
 
+const EXPLORER_PAGE_SIZE = 120;
+
 function explorerDepartmentListHtml() {
-  const rows = getExplorerDepartmentRows();
+  const allRows = getExplorerDepartmentRows();
+  // 換學類或改搜尋時，從第一頁重新顯示。
+  const listKey = JSON.stringify([state.selectedGroup, state.selectedCategory, normalize(state.explorerKeyword)]);
+  if (state.explorerListKey !== listKey) {
+    state.explorerListKey = listKey;
+    state.explorerVisibleCount = EXPLORER_PAGE_SIZE;
+  }
+  const rows = allRows.slice(0, state.explorerVisibleCount);
+  const remaining = allRows.length - rows.length;
   return `
     <div class="explorer-stage explorer-department-stage">
       <div class="explorer-detail-head">
         <div class="explorer-detail-copy">
           <h3>${escapeHtml(explorerResultTitle())}</h3>
           <div class="explorer-detail-meta-row">
-            <p>${fmt.format(rows.length)} 個相關校系｜點卡片可直接看詳細資料</p>
+            <p>${fmt.format(allRows.length)} 個相關校系${remaining ? `｜目前顯示 ${fmt.format(rows.length)} 個` : ""}｜點卡片可直接看詳細資料</p>
           </div>
         </div>
         <div class="explorer-head-actions">
@@ -4813,6 +4869,7 @@ function explorerDepartmentListHtml() {
         <div class="explorer-dept-grid">
           ${rows.map((row) => explorerDepartmentCard(row)).join("")}
         </div>
+        ${remaining ? `<div class="explorer-load-more"><button class="ghost-button" data-explorer-load-more>再顯示 ${fmt.format(Math.min(remaining, EXPLORER_PAGE_SIZE))} 個（還有 ${fmt.format(remaining)} 個）</button></div>` : ""}
       ` : `<div class="empty-state">目前沒有可對應的校系資料。</div>`}
     </div>
   `;
@@ -5004,6 +5061,10 @@ function bindExplorerEvents() {
       state.explorerChannelSelection[button.dataset.explorerChannel] = button.dataset.channelKey || "";
       renderExplorer();
     });
+  });
+  document.querySelector("[data-explorer-load-more]")?.addEventListener("click", () => {
+    state.explorerVisibleCount += EXPLORER_PAGE_SIZE;
+    renderExplorer();
   });
   document.getElementById("explorerKeywordInput")?.addEventListener("input", debounce(updateExplorerKeyword, 100));
   document.getElementById("clearExplorerKeywordButton")?.addEventListener("click", () => {
@@ -5738,19 +5799,42 @@ function singleLine(value) {
   return `<div class="kv single"><span>${escapeHtml(value ?? "")}</span></div>`;
 }
 
-async function changeCloudCompare(changes){
-  if(compareCloudBusy||!changes.length)return;
-  const owner=accountRecords.student?.id;if(!owner)return;
-  compareCloudBusy=true;state.compareStorageStatus='正在儲存到你的帳號…';renderCompare();
-  let failure='';
-  try{
-    const revisions=new Map(compareCloudRows.map(r=>[r.record_id,r.revision]));
-    await accountRecords.client.syncRecords({action:'tracking',operationId:crypto.randomUUID(),changes:changes.map(c=>({...c,revision:revisions.get(c.recordId)||0}))},owner);
-  }catch(error){failure=error.message;}
-  finally{
-    if(accountRecords.student?.id===owner){await restoreCompare();if(failure)state.compareStorageStatus=failure;compareCloudBusy=false;renderCompare();renderTable();}
-    else compareCloudBusy=false;
+// 畫面先更新，雲端在背景依序儲存；同一校系連按時只送最後狀態，失敗才退回帳號內容。
+function changeCloudCompare(changes){
+  const owner=accountRecords.student?.id;if(!owner||!changes.length)return Promise.resolve();
+  changes.forEach(c=>compareCloudPending.set(c.recordId,c.removed));
+  applyCloudPending();
+  state.compareStorageStatus='正在儲存到你的帳號…';renderCompare();syncCompareButtons();
+  compareCloudFlush||=flushCloudCompare(owner).finally(()=>{compareCloudFlush=null;});
+  return compareCloudFlush;
+}
+function applyCloudPending(){
+  compareCloudPending.forEach((removed,id)=>{
+    state.compare=state.compare.filter(r=>r.id!==id);
+    const record=removed?null:state.records.find(r=>r.id===id);
+    if(record)state.compare.push(record);
+  });
+}
+async function flushCloudCompare(owner){
+  compareCloudBusy=true;
+  let failure='',synced=false;
+  while(compareCloudPending.size&&accountRecords.student?.id===owner){
+    const cloud=new Map(compareCloudRows.map(r=>[r.record_id,r]));
+    const entries=[...compareCloudPending].slice(0,100);
+    entries.forEach(([id])=>compareCloudPending.delete(id));
+    const changes=entries.filter(([id,removed])=>removed===Boolean(cloud.get(id)&&!cloud.get(id).removed_at));
+    if(!changes.length)continue;
+    try{
+      await accountRecords.client.syncRecords({action:'tracking',operationId:crypto.randomUUID(),changes:changes.map(([recordId,removed])=>({recordId,removed,revision:cloud.get(recordId)?.revision||0}))},owner);
+    }catch(error){failure=error.message;compareCloudPending.clear();}
+    await restoreCompare();synced=true;
+    applyCloudPending();renderCompare();syncCompareButtons();
   }
+  compareCloudPending.clear();compareCloudBusy=false;
+  if(accountRecords.student?.id!==owner)return;
+  if(!synced)await restoreCompare();
+  if(failure)state.compareStorageStatus=failure;
+  renderCompare();syncCompareButtons();updateDetailCompareButton(els.detailCompareButton.dataset.recordId);
 }
 function renderCompareImport(){
   const status=document.getElementById('compareStorageStatus');if(!status)return;
@@ -5777,8 +5861,8 @@ function saveCompare() {
       ids: state.compare.map(record => record.id),
     }));
     state.compareStorageStatus = state.compare.length
-      ? "清單已自動儲存於此瀏覽器，下次回來會自動恢復。"
-      : "此瀏覽器會自動儲存追蹤清單，下次回來可繼續使用。";
+      ? "已自動儲存於此瀏覽器"
+      : "會自動儲存於此瀏覽器";
     return true;
   } catch (error) {
     state.compareStorageStatus = "此瀏覽器目前無法儲存清單，關閉或重新整理網頁後可能遺失選項。";
@@ -5841,26 +5925,40 @@ function clearCompare() {
 }
 
 function toggleCompare(id) {
-  if(accountRecords?.student){
-    const removed=state.compare.some(r=>r.id===id);
-    if(!removed){trackEvent("compare-add","加入追蹤清單",{total:true});trackRecordGroups("compare-group","加入追蹤（學群）",state.records.find(r=>r.id===id));}
-    return changeCloudCompare([{recordId:id,removed}]);
-  }
   const exists = state.compare.some((item) => item.id === id);
-  if (exists) {
-    state.compare = state.compare.filter((item) => item.id !== id);
-  } else {
-    const record = state.records.find((item) => item.id === id);
-    if (record && state.compare.length < 100) { state.compare.push(record); trackEvent("compare-add", "加入追蹤清單", { total: true }); trackRecordGroups("compare-group", "加入追蹤（學群）", record); }
-    else {
-      if (record) window.alert("追蹤清單最多可選取 100 個校系，請先移除部分校系再加入。");
-      return;
-    }
+  const record = exists ? null : state.records.find((item) => item.id === id);
+  if (!exists && (!record || state.compare.length >= 100)) {
+    if (record) window.alert("追蹤清單最多可選取 100 個校系，請先移除部分校系再加入。");
+    return;
   }
+  if (record) { trackEvent("compare-add", "加入追蹤清單", { total: true }); trackRecordGroups("compare-group", "加入追蹤（學群）", record); }
+  if (accountRecords?.student) {
+    changeCloudCompare([{ recordId: id, removed: exists }]);
+    updateDetailCompareButton(id);
+    return;
+  }
+  if (exists) state.compare = state.compare.filter((item) => item.id !== id);
+  else state.compare.push(record);
   saveCompare();
   renderCompare();
-  renderTable();
+  syncCompareButtons();
   updateDetailCompareButton(id);
+}
+
+// 只更新狀態有變的按鈕；重畫整張表在列數多時會讓按鈕有延遲感。
+function syncCompareButtons() {
+  const tracked = new Set(state.compare.map((record) => record.id));
+  document.querySelectorAll("[data-compare]").forEach((button) => {
+    const included = tracked.has(button.dataset.compare);
+    if (button.getAttribute("aria-pressed") === String(included)) return;
+    const name = button.getAttribute("aria-label").split("：").slice(1).join("：");
+    button.classList.toggle("is-on", included);
+    button.setAttribute("aria-pressed", String(included));
+    button.setAttribute("aria-label", `${included ? "從追蹤清單移除" : "加入追蹤清單"}：${name}`);
+    button.textContent = included ? "已追蹤" : "＋ 追蹤";
+  });
+  const tray = document.getElementById("compareTray");
+  if (tray) tray.hidden = !state.compare.length;
 }
 
 function renderCompare() {
@@ -5877,7 +5975,7 @@ function renderCompare() {
   const storageStatus = document.getElementById("compareStorageStatus");
   if (storageStatus) storageStatus.textContent = state.compareStorageStatus;
   const years = [...new Set(state.records.map(record => String(record.year)))].sort((a, b) => Number(b) - Number(a));
-  els.compareYearFilter.innerHTML = `<option value="all">全部學年度</option>${years.map(year => `<option value="${escapeAttr(year)}">${escapeHtml(year)} 學年度</option>`).join('')}`;
+  els.compareYearFilter.innerHTML = `<option value="all">全部年度</option>${years.map(year => `<option value="${escapeAttr(year)}">${escapeHtml(year)}年度</option>`).join('')}`;
   els.compareYearFilter.value = state.compareFilters.year;
   els.compareChannelFilter.value = state.compareFilters.channel;
   const visible = filteredCompareRecords();
@@ -5887,13 +5985,13 @@ function renderCompare() {
         <div class="compare-empty-content">
           <svg class="compare-empty-icon" viewBox="0 0 32 32" width="40" height="40" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5h14a2 2 0 0 1 2 2v21l-9-6-9 6V7a2 2 0 0 1 2-2Z"/><path d="M12 12h8M12 16h5"/></svg>
           <h3 id="trackingEmptyTitle">從第一個感興趣的校系開始</h3>
-          <p>查詢校系，按下「＋ 追蹤」，就能在這裡集中查看招生條件。</p>
+          <p>查詢校系，按「＋ 追蹤」就會出現在這裡。</p>
           <div class="compare-empty-actions">
             <a class="solid-button" href="#workbench">查詢校系</a>
             <a class="ghost-button" href="#placement">落點分析</a>
           </div>
         </div>
-        <p class="compare-empty-tip">個人申請、繁星推薦、分發入學、特殊選才，都能加入同一份追蹤清單。</p>
+        <p class="compare-empty-tip">個申、四技、繁星、分發、特選都能加入。</p>
       </section>`;
     return;
   }
