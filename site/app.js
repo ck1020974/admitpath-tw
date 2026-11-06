@@ -2942,7 +2942,7 @@ function placementResultCardHtml(record, evaluation) {
     miss: "未達",
     missing: "資料不足",
   }[evaluation.status] || "未判斷";
-  const summary = placementResultSummary(evaluation);
+  const summary = placementCardNote(evaluation);
   const specialCondition = evaluation.specialConditions ? `<span class="special-admission-badge">特殊條件</span>` : "";
   return `
     <article class="placement-result-card ${escapeAttr(evaluation.status)} is-clickable" data-placement-detail="${escapeAttr(record.id)}">
@@ -2960,7 +2960,7 @@ function placementResultCardHtml(record, evaluation) {
       </div>
       <div class="placement-result-side">
         <div class="placement-requirements">
-          ${placementRequirementChipsHtml(evaluation.requirements)}
+          ${placementRequirementChipsHtml(evaluation.requirements, evaluation.status === "missing")}
         </div>
       </div>
     </article>
@@ -3199,10 +3199,17 @@ function placementRequirementLabels(item) {
   return [{ item, label: placementRequirementLabel(item) }];
 }
 
-function placementRequirementChipsHtml(requirements) {
+function placementRequirementChipsHtml(requirements, incomplete = false) {
   const isTest = (item) => ["檢定", "數學檢定"].includes(item.source);
   const tests = requirements.filter(isTest);
   const primary = requirements.filter((item) => !isTest(item));
+  // 一階篩選只寫門檻，不重複學生的成績；未達由標籤顏色表示。
+  const thresholdLabel = (item) => {
+    if (item.kind === "any") return (item.checkedOptions || item.options).map(thresholdLabel).join(" 或 ");
+    if (item.kind === "techAverage") return item.zero ? "加權平均 未篩除申請者" : `加權平均 ${formatTechLevel(item.threshold, 2)} 級分`;
+    if (["score", "sum"].includes(item.kind)) return `${item.subjects.join("+")} ${item.threshold}`;
+    return placementRequirementLabel(item);
+  };
   const numericLabel = (item) => item.kind === "any"
     ? (item.checkedOptions || item.options).map(numericLabel).join(" 或 ")
     : placementRequirementLabel(item);
@@ -3213,10 +3220,21 @@ function placementRequirementChipsHtml(requirements) {
   const group = (label, chips) => chips.length ? `<span class="placement-req-group"><span class="placement-req-label">${label}</span>${chips.join("")}</span>` : "";
   const screening = primary.filter(item => ["倍率篩選", "官方篩選暫估", "篩選資料暫估", "加權平均篩選"].includes(item.source));
   const other = primary.filter(item => !screening.includes(item));
-  const chip = item => `<span class="placement-req ${escapeAttr(item.status)}">${escapeHtml(numericLabel(item))}</span>`;
-  return group("申請門檻", tests.map(item => testChip(item, testLabel(item))))
-    + group("一階篩選", screening.map(chip))
-    + other.map(chip).join("");
+  const chip = (item, label) => `<span class="placement-req ${escapeAttr(item.status)}">${escapeHtml(label(item))}</span>`;
+  // 申請門檻全部達標時合成一句；有沒達到的才逐項列出。資料不足的校系只能說已收錄的項目符合。
+  const unmetTests = tests.filter((item) => item.status !== "match");
+  const testsHtml = tests.length && !unmetTests.length
+    ? `<span class="placement-req-group"><span class="placement-req-label">申請門檻：${incomplete ? "已收錄項目符合" : "已符合"}</span></span>`
+    : group("申請門檻", unmetTests.map(item => testChip(item, testLabel(item))));
+  return testsHtml
+    + group("一階篩選", screening.map(item => chip(item, thresholdLabel)))
+    + other.map(item => chip(item, numericLabel)).join("");
+}
+
+// 卡片狀態標籤旁的短句：符合時標籤已說明，只有資料是估計值才補「暫估」。
+function placementCardNote(evaluation) {
+  if (evaluation.status === "match" && !evaluation.pendingData) return evaluation.estimatedScreeningData ? "暫估" : "";
+  return placementResultSummary(evaluation);
 }
 
 function placementResultSummary(evaluation) {

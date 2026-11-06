@@ -42,7 +42,7 @@ assert.equal(evaluate(unresolved, all15).status, 'missing');
 const app = fs.readFileSync(require.resolve('../site/app.js'), 'utf8');
 const context = { AdmissionRules: rules, escapeHtml: String, escapeAttr: String };
 vm.createContext(context);
-for (const name of ['placementResultSummary', 'placementRequirementChipsHtml', 'placementRequirementLabel']) {
+for (const name of ['placementResultSummary', 'placementCardNote', 'placementRequirementChipsHtml', 'placementRequirementLabel']) {
   vm.runInContext(app.match(new RegExp(`function ${name}\\([\\s\\S]*?\\n\\}`))[0], context);
 }
 const chips = context.placementRequirementChipsHtml(evaluate(chemistry, belowScreening).requirements);
@@ -50,6 +50,23 @@ assert(chips.includes('一階篩選') && chips.includes('申請門檻'));
 assert(chips.indexOf('申請門檻') < chips.indexOf('一階篩選'));
 assert(context.placementResultSummary(evaluate(missing, all15)).includes('一階篩選資料不足'));
 assert(context.placementResultSummary(evaluate(chemistry, all15)).includes('暫估'));
+
+// 申請門檻全部達標時合成一句；一階篩選只寫門檻，未達的標籤用 miss 樣式。
+const test = (status) => ({ kind: 'score', subjects: ['國文'], actual: 12, threshold: 10, standard: '均標', source: '檢定', status });
+const screen = { kind: 'score', subjects: ['英文'], actual: 10, threshold: 11, source: '倍率篩選', status: 'miss' };
+const sum = { kind: 'sum', subjects: ['國文', '社會'], actual: 24, threshold: 23, source: '官方篩選暫估', status: 'match' };
+const metHtml = context.placementRequirementChipsHtml([test('match'), test('match'), screen, sum]);
+assert(metHtml.includes('申請門檻：已符合'));
+assert(!metHtml.includes('均標'), '全部達標時不逐項列出申請門檻');
+assert(metHtml.includes('>英文 11<') && metHtml.includes('placement-req miss'));
+assert(metHtml.includes('>國文+社會 23<'));
+const unmetHtml = context.placementRequirementChipsHtml([test('match'), { ...test('miss'), subjects: ['英文'] }]);
+assert(!unmetHtml.includes('已符合') && unmetHtml.includes('英文') && unmetHtml.includes('未達'));
+assert(!unmetHtml.includes('國文'), '有未達時只列沒達到的申請門檻');
+assert(context.placementRequirementChipsHtml([test('match')], true).includes('已收錄項目符合'), '資料不足時不能說全部符合');
+assert.equal(context.placementCardNote({ status: 'match' }), '');
+assert.equal(context.placementCardNote({ status: 'match', estimatedScreeningData: true }), '暫估');
+assert.equal(context.placementCardNote({ status: 'near', gapTotal: 1 }), '約差 1');
 
 // 空白校排不能當作前 0%；缺少分發錄取分數或無法判斷的成績也不能顯示符合。
 Object.assign(context, { advancedSubjectKey: String, shortSubject: String,
