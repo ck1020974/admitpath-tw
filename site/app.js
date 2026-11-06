@@ -2792,6 +2792,17 @@ function placementProfile() {
   };
 }
 
+// 一次畫一批，學生要看再往下載，避免一次產生上千張卡片。
+const PLACEMENT_PAGE_SIZE = 120;
+
+function renderPlacementTabCounts(rows) {
+  const counts = {};
+  (rows || []).forEach((row) => { counts[row.evaluation.status] = (counts[row.evaluation.status] || 0) + 1; });
+  document.querySelectorAll("[data-placement-tab-count]").forEach((node) => {
+    node.textContent = rows ? fmt.format(counts[node.dataset.placementTabCount] || 0) : "";
+  });
+}
+
 function renderPlacementAnalysis() {
   if (!els.placementResults) return;
   renderPlacementControls();
@@ -2804,11 +2815,13 @@ function renderPlacementAnalysis() {
     button.classList.toggle("active", (button.dataset.placementResultTab || "all") === state.placement.resultTab);
   });
   if (dataPending()) {
+    renderPlacementTabCounts(null);
     els.placementResultCount.textContent = "—";
     els.placementResults.innerHTML = loadStatusHtml();
     return;
   }
   if (!placementHasAnyInput(profile)) {
+    renderPlacementTabCounts(null);
     els.placementResultCount.textContent = "0";
     if (els.placementResultCountLabel) els.placementResultCountLabel.textContent = "筆符合";
     els.placementResults.innerHTML = `<div class="empty-state">先輸入至少一科成績，系統會依門檻與篩選標準整理可能校系。</div>`;
@@ -2816,7 +2829,13 @@ function renderPlacementAnalysis() {
   }
   const allRows = placementAnalysisRows(profile);
   const visibleRows = allRows.filter((row) => row.evaluation.status === state.placement.resultTab);
-  const rows = visibleRows.slice(0, 120);
+  renderPlacementTabCounts(allRows);
+  // 換分頁或條件改變時，回到第一批。
+  const list = renderPlacementAnalysis.list;
+  if (list?.rows !== allRows || list.tab !== state.placement.resultTab) {
+    renderPlacementAnalysis.list = { rows: allRows, tab: state.placement.resultTab, shown: PLACEMENT_PAGE_SIZE };
+  }
+  const rows = visibleRows.slice(0, renderPlacementAnalysis.list.shown);
   const countLabel = {
     match: "筆符合",
     near: "筆接近",
@@ -2829,9 +2848,22 @@ function renderPlacementAnalysis() {
     els.placementResults.innerHTML = `<div class="empty-state">目前沒有此狀態的校系，可切換結果狀態，或放寬年度、學校與關鍵字等篩選。</div>`;
     return;
   }
-  els.placementResults.innerHTML = rows.map(({ record, evaluation }) => placementResultCardHtml(record, evaluation)).join("");
+  const remaining = visibleRows.length - rows.length;
+  els.placementResults.innerHTML = rows.map(({ record, evaluation }) => placementResultCardHtml(record, evaluation)).join("")
+    + (remaining > 0 ? `<div class="placement-load-more"><span>已顯示 ${fmt.format(rows.length)} / ${fmt.format(visibleRows.length)} 筆</span><button class="ghost-button" type="button" data-placement-more>再看 ${fmt.format(Math.min(remaining, PLACEMENT_PAGE_SIZE))} 筆</button></div>` : "");
   els.placementResults.querySelectorAll("[data-placement-detail]").forEach((button) => {
     button.addEventListener("click", () => openDetail(button.dataset.placementDetail));
+  });
+  els.placementResults.querySelectorAll("[data-compare]").forEach((button) => {
+    button.addEventListener("click", (event) => {
+      event.stopPropagation(); // 卡片本身點了會開詳情，追蹤按鈕不能一起觸發。
+      toggleCompare(button.dataset.compare);
+    });
+  });
+  els.placementResults.querySelector("[data-placement-more]")?.addEventListener("click", () => {
+    renderPlacementAnalysis.list.shown += PLACEMENT_PAGE_SIZE;
+    renderPlacementAnalysis();
+    els.placementResults.querySelector("[data-placement-more]")?.focus({ preventScroll: true });
   });
 }
 
@@ -2915,7 +2947,7 @@ function placementResultCardHtml(record, evaluation) {
   return `
     <article class="placement-result-card ${escapeAttr(evaluation.status)} is-clickable" data-placement-detail="${escapeAttr(record.id)}">
       <div class="placement-result-main">
-        <div>
+        <div class="placement-result-title">
           <strong>${escapeHtml(record.schoolName)}</strong>
           <h3>${escapeHtml(record.departmentName)}${specialAdmissionBadgeHtml(record)}${specialCondition}</h3>
           <p class="placement-result-meta">
@@ -2924,6 +2956,7 @@ function placementResultCardHtml(record, evaluation) {
             ${summary ? `<span class="placement-result-summary">${escapeHtml(summary)}</span>` : ""}
           </p>
         </div>
+        ${compareToggleHtml(record)}
       </div>
       <div class="placement-result-side">
         <div class="placement-requirements">
@@ -3338,13 +3371,19 @@ function syncWorkbenchControls() {
   }
 }
 
+// 校系查詢與落點結果共用同一顆追蹤按鈕，狀態由 syncCompareButtons 一起更新。
+function compareToggleHtml(record) {
+  const inCompare = state.compare.some((item) => item.id === record.id);
+  const name = `${record.schoolName}${record.departmentName}`;
+  return `<button class="small-button rec-compare${inCompare ? " is-on" : ""}" type="button" data-compare="${escapeAttr(record.id)}" aria-pressed="${inCompare}" aria-label="${inCompare ? "從追蹤清單移除" : "加入追蹤清單"}：${escapeAttr(name)}">${inCompare ? "已追蹤" : "＋ 追蹤"}</button>`;
+}
+
 // 工作臺與追蹤清單共用同一列，確保管道、標準與軍校等備註一致。
 // 繁星一階、二階使用同樣的條件列；其他管道依主要條件呈現。
 function workbenchRecordRowHtml(record, comparing = false) {
   const summary = recordSummary(record);
   const keyHtml = [summary.key, summary.secondKey].filter(Boolean).map((key) => `<p class="rec-key"><span class="rec-label">${escapeHtml(key.label)}</span><span class="rec-key-value">${key.html}</span></p>`).join("");
   const subHtml = summary.sub ? `<p class="rec-sub"><span class="rec-label">${escapeHtml(summary.sub.label)}</span><span>${String(summary.sub.text).split("、").map((item) => `<span class="rec-item">${escapeHtml(item)}</span>`).join("、")}</span></p>` : "";
-  const inCompare = state.compare.some((item) => item.id === record.id);
   const name = `${record.schoolName}${record.departmentName}`;
   return `
       <tr class="rec-row">
@@ -3363,7 +3402,7 @@ function workbenchRecordRowHtml(record, comparing = false) {
         <td class="rec-action">
           ${comparing
             ? `<button class="small-button rec-compare" type="button" data-remove-compare="${escapeAttr(record.id)}" aria-label="移除 ${escapeAttr(name)}">移除</button>`
-            : `<button class="small-button rec-compare${inCompare ? " is-on" : ""}" type="button" data-compare="${escapeAttr(record.id)}" aria-pressed="${inCompare}" aria-label="${inCompare ? "從追蹤清單移除" : "加入追蹤清單"}：${escapeAttr(name)}">${inCompare ? "已追蹤" : "＋ 追蹤"}</button>`}
+            : compareToggleHtml(record)}
         </td>
       </tr>
     `;

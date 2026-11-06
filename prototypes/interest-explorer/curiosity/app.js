@@ -135,7 +135,7 @@
   const list=questionList(),a=session.snapshot().answers,done=list.filter(q=>a[q.id]!==undefined).length;
   const pages=pageCount(),pageText=pages>1?`第 ${qPage+1} / ${pages} 頁　`:'';
   if(qMode==='quick')setBar('第 1 / 3 步・好奇心',`${pageText}已答 ${done} / ${list.length}`,done/list.length*0.6,{on:answeredFlags(),current:list.map((q,i)=>Math.floor(i/PAGE_SIZE)===qPage)});
-  else if(qMode==='extra')setBar('重新測驗',`${pageText}已答 ${done} / ${list.length}`,done/list.length);
+  else if(qMode==='extra')setBar('再答一輪',`${pageText}已答 ${done} / ${list.length}`,done/list.length);
   else setBar('深入探索・補充問題',`${pageText}已答 ${done} / ${list.length}`,done/list.length*0.5);
  }
  function renderQuestion(){
@@ -235,8 +235,12 @@
  // ── 結果 ──
  // 分頁下方的白話說明，學生不用先學分類名詞。
  const infoIcon='<svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M12 11v5M12 8h.01" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>';
- // 卡片放學群簡介；學生想知道的題目改放在 ⓘ 推薦依據裡。
- function cardWhy(row){return `<p class="card-about">${esc(row.undeclared?undeclaredText(row):data.descriptions[row.id])}</p>`;}
+ // 卡片先放學生自己選「想知道」的題目；沒有這種題目時放學群簡介。完整依據在 ⓘ。
+ function cardWhy(row){
+  if(row.undeclared)return `<p class="card-about">${esc(undeclaredText(row))}</p>`;
+  if(row.reason?.value>=2)return `<p class="card-reason"><b>你想知道</b>${esc(row.reason.text)}</p>`;
+  return `<p class="card-about">${esc(data.descriptions[row.id])}</p>`;
+ }
  // 不分系沒有自己的題目，卡片與推薦依據改用推薦的情況說明。
  function undeclaredText(row){
   if(row.undeclaredReason==='broad')return `你想知道的問題橫跨${row.domains.join('、')}，可以先入學，大一大二多修課再選主修。`;
@@ -284,12 +288,13 @@
   el('otherGroups').hidden=!others.length;
   el('otherGroupsTitle').textContent=`其他學群（${others.length}）`;
   el('otherGroupList').innerHTML=others.map(g=>`<a href="${esc(groupLink(g))}">${esc(short(g.name))}</a>`).join('');
-  el('resultActions').hidden=report.deep&&!report.canExplore&&session.extraComplete();
+  el('resultActions').hidden=report.deep;
   el('startDeep').hidden=report.deep;
-  // 重新測驗：每個學群再問 1 題沒看過的題目；上一批沒答完時改成「繼續」。
+  // 再答一輪：每個學群再問 1 題沒看過的題目；上一批沒答完時改成「繼續」，並打開選單讓學生看得到。
   const extraPending=!session.extraComplete();
   el('startExtra').hidden=!(report.canExplore||extraPending);
-  el('startExtra').textContent=extraPending?'繼續測驗':'重新測驗';
+  el('startExtra').textContent=extraPending?'繼續作答':'再答一輪';
+  el('adjustAnswers').open=extraPending;
   show('results','resultsTitle');
   syncResult();
  }

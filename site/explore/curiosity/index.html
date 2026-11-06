@@ -8,7 +8,7 @@
 <title>學群探索｜祐馨升學網</title>
 <link rel="icon" href="../../favicon.ico" sizes="any">
 <link rel="stylesheet" href="../../support.css?v=20261029-contact">
-<link rel="stylesheet" href="./styles.css?v=20261029-records1">
+<link rel="stylesheet" href="./styles.css?v=20261106-result-ux">
 <link rel="stylesheet" href="../info-dialog.css?v=header-20261023b">
 <link rel="stylesheet" href="../../student-account.css?v=20261102-skip">
 </head>
@@ -132,15 +132,20 @@
    <div id="resultActions" class="sheet-foot">
     <div class="sheet-foot-buttons">
      <button class="primary" id="startDeep" type="button">深入探索</button>
-     <button class="secondary" id="startExtra" type="button">重新測驗</button>
     </div>
    </div>
   </div>
   <p id="otherGroups" class="other-groups"><span id="otherGroupsTitle">其他學群</span><span id="otherGroupList" class="other-list"></span></p>
   <div id="resultTools" class="result-tools">
-   <button class="text-button" id="editCuriosity" type="button">重新回答好奇心</button>
-   <button class="text-button" id="editSubjects" type="button">調整學科表現</button>
-   <button class="text-button" id="restartFromResults" type="button" data-restart>重新開始</button>
+   <details id="adjustAnswers" class="adjust-answers">
+    <summary>調整答案</summary>
+    <div class="adjust-menu">
+     <button class="text-button" id="startExtra" type="button">再答一輪</button>
+     <button class="text-button" id="editCuriosity" type="button">修改好奇心答案</button>
+     <button class="text-button" id="editSubjects" type="button">修改學科表現</button>
+     <button class="text-button" id="restartFromResults" type="button" data-restart>重新開始</button>
+    </div>
+   </details>
    <button class="text-button" type="button" data-about>這份探索怎麼運作</button>
   </div>
  </section>
@@ -155,7 +160,7 @@
  <p>第 3 步先問整體成績（前段、中間、後段），再勾最拿手和比較吃力的科目，各 2–3 科。換算方式：前段＝好、中間＝普通、後段＝不好；勾成強項的科目高一級、吃力的低一級，其餘國英數、社會、自然十科等於整體程度。資訊、生活科技、美術、音樂只有勾選時才計入，沒勾不算低分。每個學群依相關科目的本站權重（核心 3、支持 2、相關 1）取加權平均。平均達 2.75，或高於你自己各科的平均且至少「普通」，視為有基礎；低於 1.5 且低於自己的平均，視為比較吃力。相關科目大多沒有資料時，不判斷基礎。</p>
  <p>有興趣也有基礎是「優先探索」；有興趣、基礎普通是「能力培養」；有興趣但比較吃力或沒填相關科目是「興趣延伸」；興趣不明顯但有基礎是「潛力發掘」，最多列 3 個，你選「沒興趣」的方向不會列入。其他三種方向每種最多列 6 個，排在後面的放進「其他學群」。</p>
  <p>不分系和其他學群一樣分類：最想知道的 3 題分屬 3 個不同領域、而且有興趣的學群橫跨至少 4 個領域（共 5 個）時，視為有興趣，再依國文、英文、數學（本站權重 3、3、2）判斷基礎，分到優先探索、能力培養或興趣延伸；這次沒有任何有興趣的方向、而且整體成績在前段或中間時，列在潛力發掘；其他情況列在其他學群。</p>
- <p>題庫共 108 題，每個學群 6 題。「深入探索」針對前 4 個方向各補問 3 題，並用課綱內容檢查最相關的幾科，完成後檢查過的科目改用具體內容計算。「重新測驗」每個學群再問 1 題還沒看過的問題，答完後一起計算興趣。</p>
+ <p>題庫共 108 題，每個學群 6 題。「深入探索」針對前 4 個方向各補問 3 題，並用課綱內容檢查最相關的幾科，完成後檢查過的科目改用具體內容計算。「再答一輪」每個學群再問 1 題還沒看過的問題，答完後一起計算興趣。</p>
  <p>題目、配對、權重及門檻由本站編輯，尚未經測量驗證，不是考招採計權重、科系適合率或放棄建議。陌生或尚未接觸的內容，不代表沒有學習能力。</p>
  <p>未登入的作答保存在這台瀏覽器。登入後完成的探索成果、逐題答案與學科自評會儲存到你的帳號，供授權教師輔導使用；舊訪客紀錄需由你選擇匯入。匿名使用次數另行統計，不包含作答內容或名字。</p>
  <ul id="sources"></ul>
@@ -208,7 +213,7 @@
 <script src="./data.js?v=header-20261023b"></script>
 <script src="./engine.js?v=20261030-weights1"></script>
 <script src="./measurement.js?v=20261028-exploration"></script>
-<script src="./app.js?v=20261030-weights1"></script>
+<script src="./app.js?v=20261106-result-ux"></script>
 <script src="../../back-to-top.js?v=20261030-2"></script>
 </body>
 </html>

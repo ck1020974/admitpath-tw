@@ -29,7 +29,8 @@ if (!/\.rec-list table\s*\{[\s\S]*?min-width:\s*0;[\s\S]*?\}/.test(css)) {
 }
 
 // 每列：整列開詳情、右側比較按鈕、一個重點加一行補充。
-const row = app.match(/function workbenchRecordRowHtml\([\s\S]*?\n\}/)?.[0] || "";
+const row = (app.match(/function workbenchRecordRowHtml\([\s\S]*?\n\}/)?.[0] || "")
+  + (app.match(/function compareToggleHtml\([\s\S]*?\n\}/)?.[0] || "");
 ["data-detail=", "data-compare=", "data-remove-compare=", "rec-key", "rec-sub"].forEach((needle) => {
   if (!row.includes(needle)) fail(`Workbench rows should include ${needle}.`);
 });

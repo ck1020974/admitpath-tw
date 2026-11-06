@@ -21,7 +21,7 @@
   <meta property="og:image:height" content="630">
   <meta property="og:image:alt" content="YUHSIN 祐馨升學網：校系查詢、落點分析、十八學群、追蹤清單">
   <meta name="twitter:card" content="summary_large_image">
-  <link rel="stylesheet" href="./styles.css?v=20261106-buttons">
+  <link rel="stylesheet" href="./styles.css?v=20261106-result-ux">
   <link rel="stylesheet" href="./special.css?v=20261105-closing">
   <link rel="stylesheet" href="./support.css?v=20261106-buttons">
   <link rel="stylesheet" href="./workbench.css?v=20261106-buttons">
@@ -270,10 +270,10 @@
             </div>
             <div class="advanced-filter-summary" id="placementAdvancedFilterSummary"></div>
             <div class="action-group placement-result-tabs" aria-label="結果狀態">
-              <button class="ghost-button placement-result-tab match" data-placement-result-tab="match">符合</button>
-              <button class="ghost-button placement-result-tab near" data-placement-result-tab="near">接近</button>
-              <button class="ghost-button placement-result-tab miss" data-placement-result-tab="miss">未達</button>
-              <button class="ghost-button placement-result-tab missing" data-placement-result-tab="missing">資料不足</button>
+              <button class="ghost-button placement-result-tab match" data-placement-result-tab="match">符合<span class="placement-tab-count" data-placement-tab-count="match"></span></button>
+              <button class="ghost-button placement-result-tab near" data-placement-result-tab="near">接近<span class="placement-tab-count" data-placement-tab-count="near"></span></button>
+              <button class="ghost-button placement-result-tab miss" data-placement-result-tab="miss">未達<span class="placement-tab-count" data-placement-tab-count="miss"></span></button>
+              <button class="ghost-button placement-result-tab missing" data-placement-result-tab="missing">資料不足<span class="placement-tab-count" data-placement-tab-count="missing"></span></button>
             </div>
             <section class="placement-results-panel">
               <div class="placement-results" id="placementResults"></div>
@@ -460,7 +460,7 @@
   <script src="./admission-catalog.js?v=20261105-school-merge"></script>
   <script src="./explorer-link.js?v=20261023-intros"></script>
   <script src="./group-introductions.js?v=20261023-intros"></script>
-  <script src="./app.js?v=20261106-dist-fill"></script>
+  <script src="./app.js?v=20261106-result-ux"></script>
   <script src="./back-to-top.js?v=20261030-2"></script>
 </body>
 </html>

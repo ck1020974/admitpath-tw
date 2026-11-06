@@ -17,7 +17,7 @@ const context = { REGISTRATION_CLOSING_DAYS: 3, specialRegistrationBadgeHtml: ()
   document: { getElementById: id => id === 'compareTools' ? tools : id === 'clearCompareButton' ? clear : null }, window: { alert: () => alerts++, localStorage: { setItem() {} } },
   renderTable() { tableRenders++; }, syncCompareButtons() {}, updateDetailCompareButton() {}, recordSummary: r => ({ key: { label: '條件', html: `標準${r.id}` }, sub: null }), channelBadge: r => r.channelKey, specialAdmissionBadgeHtml: () => '（軍校）', escapeHtml: String, escapeAttr: String };
 vm.createContext(context);
-const names = ['dataPending', 'saveCompare', 'toggleCompare', 'renderCompare', 'filteredCompareRecords', 'workbenchRecordRowHtml', 'compareDisplayOrder', 'compareReminderHtml', 'specialRegistrationRange', 'registrationDate', 'specialRegistrationStatus', 'isRegistrationActive'];
+const names = ['dataPending', 'saveCompare', 'toggleCompare', 'renderCompare', 'filteredCompareRecords', 'compareToggleHtml', 'workbenchRecordRowHtml', 'compareDisplayOrder', 'compareReminderHtml', 'specialRegistrationRange', 'registrationDate', 'specialRegistrationStatus', 'isRegistrationActive'];
 vm.runInContext(names.map(name => source.match(new RegExp(`function ${name}\\([\\s\\S]*?\\n\\}`))[0]).join('\n'), context);
 context.renderCompare();
 assert.equal(tools.hidden, true);

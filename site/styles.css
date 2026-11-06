@@ -1437,8 +1437,36 @@ button:disabled {
 
 .placement-result-main {
   display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 10px;
+  align-items: start;
   min-width: 0;
   padding: 16px;
+}
+
+.placement-result-title {
+  min-width: 0;
+}
+
+.placement-result-tabs .placement-tab-count {
+  min-height: 0;
+  margin-left: 5px;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+}
+
+.placement-load-more {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 8px 14px;
+  padding: 12px 0 4px;
+  color: var(--muted);
+  font-size: 13px;
 }
 
 .placement-status {

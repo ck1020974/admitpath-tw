@@ -207,6 +207,8 @@ h1[tabindex]:focus,h2[tabindex]:focus{outline:none}
 .info-button:hover{background:var(--sheet);color:var(--type-ink)}
 .card-cats{margin:3px 0 0;font-size:13px;color:var(--muted)}
 .card-about{flex:1;margin:12px 0 18px;font-size:14px;line-height:1.8;color:var(--muted)}
+.group-card .card-reason{flex:1;margin:12px 0 18px;font-size:14px;line-height:1.7;color:var(--ink)}
+.card-reason b{display:block;margin-bottom:2px;font-size:12px;color:var(--type-ink)}
 .card-foot{display:flex;align-items:baseline;justify-content:space-between;gap:12px;padding-top:12px;border-top:1px solid #17202d12;font-size:13px}
 .card-meta{min-width:0;color:var(--ink)}
 .card-meta b{margin-right:8px;font-size:12px;color:var(--type-ink)}
@@ -228,7 +230,10 @@ h1[tabindex]:focus,h2[tabindex]:focus{outline:none}
 .other-list{display:contents}
 .other-list a{color:var(--ink);text-decoration:underline;text-decoration-color:#17202d33;text-underline-offset:3px}
 .other-list a:hover{text-decoration-color:currentColor}
-.result-tools{display:flex;flex-wrap:wrap;gap:6px 18px;margin-top:18px;padding-top:12px;border-top:1px solid var(--line)}
+.result-tools{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:6px 18px;margin-top:18px;padding-top:12px;border-top:1px solid var(--line)}
+.adjust-answers summary{min-height:36px;display:inline-flex;align-items:center;font-size:13px;color:var(--ink);cursor:pointer}
+.adjust-answers[open]{order:1;flex-basis:100%}
+.adjust-menu{display:flex;flex-wrap:wrap;gap:0 18px}
 
 /* 說明視窗內容 */
 .subject-source{margin-bottom:22px}.subject-source h3{font-size:14px}.subject-source ul{font-size:12px}
