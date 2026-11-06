@@ -1,8 +1,8 @@
 'use strict';
-// 將 site/data/admissions_records.json 拆成兩部分，讓首頁載入更快：
+// 由 site/data/records/ 合併出 admissions_records.json，再拆成兩部分，讓首頁載入更快：
 //   site/data/records_core.json      查詢、篩選、落點分析需要的欄位（首頁一次載入）
 //   site/data/records_detail/NN.json 只在「校系詳情」才用到的長文字與來源網址（點開時才載入）
-// 原始檔 admissions_records.json 不會被修改，覆核頁與工具腳本照常使用。
+// 合併後的 admissions_records.json 供覆核頁與工具腳本使用。
 // 用法：node tools/build_site_data.js        產生拆分檔
 //       node tools/build_site_data.js --check 只檢查拆分後能否完整還原
 const fs = require('node:fs');
@@ -107,6 +107,7 @@ function sortKeys(value) {
 }
 
 if (require.main === module) {
+  require('./records_store').merge();
   const check = process.argv.includes('--check');
   const result = build({ check });
   if (check) console.log(`Site data split verified: ${result.records} records.`);

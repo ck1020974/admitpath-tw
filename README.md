@@ -9,20 +9,34 @@
 ## 本機預覽
 
 ```powershell
-node tools/build_site_data.js   # 選用：產生部署時使用的精簡資料
+node tools/build_site_data.js   # 由 site/data/records/ 產生網站資料
 node tools/serve-site.js site 5173
 ```
 
-開啟 `http://127.0.0.1:5173/`。沒有先執行 `build_site_data.js` 也能預覽，網站會改讀完整的 `admissions_records.json`。
+開啟 `http://127.0.0.1:5173/`。
+
+## 校系資料檔
+
+校系原始資料放在 `site/data/records/`，依年度與管道分檔、一筆一行，檔案順序記在 `index.json`。
+
+`site/data/admissions_records.json` 是合併產生的檔案，不進 Git，網站覆核頁、測試與工具照常讀取。`build_site_data.js` 與 `run_tests.js` 會自動合併。
+
+匯入或修正資料的工具會改寫這個完整檔，改完請把結果寫回分檔，否則修改不會進 Git：
+
+```powershell
+node tools/records_store.js split
+```
+
+如果忘了寫回，下次合併會停下並提示，不會蓋掉修改。
 
 ## 載入速度
 
-`tools/build_site_data.js` 會把 `site/data/admissions_records.json` 拆成兩部分，部署時由 GitHub Actions 自動執行：
+`tools/build_site_data.js` 會先合併校系資料，再拆成兩部分，部署時由 GitHub Actions 自動執行：
 
 - `records_core.json`：查詢、篩選與落點分析需要的欄位，首頁一次載入（約為原始檔的一半）。
 - `records_detail/*.json`：只在「校系詳情」顯示的長文字與來源網址，點開校系時才載入。
 
-這兩者都是產生檔，不需要提交到 git。原始的 `admissions_records.json` 維持不變，覆核頁與各工具腳本照常使用。
+這兩者都是產生檔，不需要提交到 git。
 
 若新增會在列表、篩選或落點判定中讀取的欄位，請確認它不在 `build_site_data.js` 的 `DETAIL_FIELDS` 中，並執行 `node tools/test_site_data_split.js` 檢查拆分前後結果一致。
 

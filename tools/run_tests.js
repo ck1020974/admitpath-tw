@@ -9,6 +9,8 @@ const TIMEOUT_MS = 90000;
 const files = fs.readdirSync(__dirname).filter(name => /^(test_|check-).*\.(js|mjs)$/.test(name)).sort();
 const failed = [];
 
+require('./records_store').merge();
+
 for (const name of files) {
   const result = spawnSync(process.execPath, [path.join('tools', name)], { cwd: root, encoding: 'utf8', timeout: TIMEOUT_MS });
   if (result.status === 0) continue;
