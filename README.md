@@ -28,6 +28,14 @@ node tools/serve-site.js site 5173
 
 資料檔網址帶有 `site/app.js` 的 `DATA_VERSION`，瀏覽器會快取資料；**更新資料後請一併修改 `DATA_VERSION`**，學生才會拿到新版本。
 
+## 測試
+
+```powershell
+node tools/run_tests.js
+```
+
+部署時會先建置再跑全部測試，沒通過就不會上線。
+
 ## 網址與分享
 
 目前頁面、查詢條件與開啟中的校系會記錄在網址 `#` 後面，可直接分享，例如：

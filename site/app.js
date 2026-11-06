@@ -2163,6 +2163,17 @@ function mountQueryShortcuts() {
     const host = document.getElementById(id);
     if (!host) continue;
     host.appendChild(template.content.cloneNode(true));
+    // 手機版預設收起，讓第一筆結果留在第一屏；桌機由 CSS 隱藏這顆按鈕。
+    const toggle = document.createElement("button");
+    toggle.type = "button";
+    toggle.className = "query-shortcuts-toggle";
+    toggle.setAttribute("aria-expanded", "false");
+    toggle.setAttribute("aria-controls", id);
+    toggle.textContent = "快速篩選";
+    toggle.addEventListener("click", () => {
+      toggle.setAttribute("aria-expanded", String(host.classList.toggle("is-open")));
+    });
+    host.before(toggle);
     const placement = id === "placementQuickFilters";
     const filters = () => placement ? state.placement : state.filters;
     const refresh = () => {
@@ -2219,6 +2230,11 @@ function renderQueryShortcuts(id, filters) {
   host.querySelectorAll("[data-placement-school-scope]").forEach(button => mark(button, shortcutList(filters.schoolScope).includes(button.dataset.placementSchoolScope)));
   host.querySelectorAll("[data-placement-region]").forEach(button => mark(button, shortcutList(filters.region).includes(button.dataset.placementRegion)));
   host.querySelectorAll("[data-placement-popular-category]").forEach(button => mark(button, shortcutList(filters.quickCategory).includes(button.dataset.placementPopularCategory)));
+  const toggle = host.previousElementSibling;
+  if (toggle?.classList.contains("query-shortcuts-toggle")) {
+    const selected = host.querySelectorAll(".active").length;
+    toggle.textContent = selected ? `快速篩選（已選 ${selected}）` : "快速篩選";
+  }
 }
 
 function refreshQueryYears(select, filters) {

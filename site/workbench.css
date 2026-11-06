@@ -440,6 +440,13 @@ body.back-to-top-visible .compare-tray { right: 84px; }
   .rec-main { grid-area: main; }
   .rec-action { grid-area: action; }
 
+  /* 學群校系清單沒有管道欄，追蹤按鈕放在校名右側，不多占一行。 */
+  .explorer-department-stage .rec-row {
+    grid-template-areas: "main action";
+    column-gap: 10px;
+  }
+  .explorer-department-stage .rec-action { align-self: start; }
+
   .rec-label {
     min-width: 0;
   }
@@ -488,7 +495,25 @@ body.back-to-top-visible .compare-tray { right: 84px; }
 .query-shortcuts .placement-hot-label { color: #d0342c; }
 .query-shortcuts .placement-region-row { display: flex; flex-wrap: wrap; align-items: center; gap: 7px; margin-top: 10px; }
 .query-shortcuts .placement-chip:focus-visible { outline: 3px solid #176b88; outline-offset: 2px; }
+.query-shortcuts-toggle { display: none; }
 @media (max-width: 720px) {
+  .query-shortcuts-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    min-height: 44px;
+    padding: 0 12px;
+    border: 0;
+    border-top: 1px solid #e7edf3;
+    background: none;
+    color: #29485a;
+    font-size: 14px;
+    font-weight: 700;
+  }
+  .query-shortcuts-toggle::after { content: "＋"; color: var(--subtle); }
+  .query-shortcuts-toggle[aria-expanded="true"]::after { content: "－"; }
+  .query-shortcuts:not(.is-open) { display: none; }
   .query-shortcuts { padding: 10px; }
   .query-shortcuts .placement-chip-row,
   .query-shortcuts .placement-popular-categories,
