@@ -18,6 +18,15 @@ for (const record of flying) {
   assert(ctx.specialAdmissionModeAllows(record, 'only'));
 }
 assert(!ctx.specialAdmissionInfo({ departmentName: '藥學系' }).special);
+for (const [pattern, label] of [[/展翅/, '展翅'], [/揚鷹/, '揚鷹'], [/薪傳組/, '薪傳']]) {
+  const group = records.filter(r => pattern.test(r.departmentName));
+  assert.equal(group.length, 10, label);
+  for (const record of group) {
+    assert.equal(ctx.specialAdmissionInfo(record).label, label, record.id);
+    assert.equal(ctx.specialAdmissionModeAllows(record, 'exclude'), false);
+    assert(ctx.specialAdmissionModeAllows(record, 'only'));
+  }
+}
 const fixtures = [
   ['國立成功大學', '機械工程學系(普渡雙聯組)'],
   ['國立陽明交通大學', '材料科學與工程學系-伊利諾雙聯組'],

@@ -68,6 +68,9 @@ if (!normalRecord) fail("Expected normal fixture record missing: 國立臺灣大
 [
   "\u653f\u661f",
   "\u5c6f\u8499",
+  "\u5c55\u7fc5",
+  "\u63da\u9df9",
+  "\u85aa\u50b3\u7d44",
 ].forEach((term) => {
   if (!records.some((record) => String(record.departmentName || "").includes(term))) {
     fail(`Expected special admission fixture record missing: ${term}`);

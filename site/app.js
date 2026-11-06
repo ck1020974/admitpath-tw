@@ -2033,6 +2033,9 @@ function specialAdmissionInfo(record) {
     { pattern: /柳川招生組/, label: "柳川" },
     { pattern: /青年儲蓄帳戶組|青年儲蓄/, label: "青年儲蓄" },
     { pattern: /芝山組|芝山/, label: "芝山" },
+    { pattern: /展翅/, label: "展翅" },
+    { pattern: /揚鷹/, label: "揚鷹" },
+    { pattern: /薪傳組/, label: "薪傳" },
   ];
   const match = patterns.find((item) => item.pattern.test(text));
   return match ? { special: true, label: match.label } : { special: false, label: "" };
