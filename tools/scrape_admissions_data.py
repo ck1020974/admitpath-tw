@@ -174,9 +174,10 @@ def parse_school_links(dataset):
 
 def split_program_cell(text, school_name):
     compact = clean_text(text).replace("\n", " ")
-    m_code = re.search(r"[（(]\s*([0-9A-Za-z]{3,})\s*[)）]", compact)
+    # 代碼以數字開頭；說明裡括號內的英文（AACSB、EMI）不是校系代碼。
+    m_code = re.search(r"[（(]\s*([0-9]{3,}[0-9A-Za-z]*)\s*[)）]", compact)
     program_code = m_code.group(1) if m_code else ""
-    without_code = re.sub(r"[（(]\s*[0-9A-Za-z]{3,}\s*[)）]", "", compact).strip()
+    without_code = re.sub(r"[（(]\s*[0-9]{3,}[0-9A-Za-z]*\s*[)）]", "", compact).strip()
     dept = without_code
     if school_name and dept.startswith(school_name):
         dept = dept[len(school_name):].strip()

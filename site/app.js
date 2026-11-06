@@ -51,7 +51,7 @@ const els = {};
 let advancedFilterDraft = null;
 
 const fmt = new Intl.NumberFormat("zh-Hant-TW");
-const DATA_VERSION = "20261105-tech-sources";
+const DATA_VERSION = "20261106-star-clean";
 const COMPARE_STORAGE_KEY = "admitpath-tw:compare:v1";
 const accountRecords=window.YuhsinStudentRecords;
 let compareCloudRows=[],compareCloudBusy=false,compareCloudPending=new Map(),compareCloudFlush=null,compareGeneration=0;
@@ -5783,8 +5783,8 @@ function starDetailHtml(record) {
   // 比序：順位、項目與上一年度錄取標準合在同一張表。
   const standards = result?.distributionStandards || [];
   const order = cac.distributionOrder || [];
-  const orderRows = (standards.length ? standards.map((item) => ({ rank: item.rank, label: order[item.rank - 1] ? String(order[item.rank - 1]).replace(/^\d+、/, "") : item.item, first: item.firstRoundStandard, second: item.secondRoundStandard }))
-    : order.map((text, index) => ({ rank: index + 1, label: String(text).replace(/^\d+、/, ""), first: "", second: "" })));
+  const orderRows = (standards.length ? standards.map((item) => ({ rank: item.rank, label: order[item.rank - 1] ? shortOrderItem(order[item.rank - 1]) : item.item, first: item.firstRoundStandard, second: item.secondRoundStandard }))
+    : order.map((text, index) => ({ rank: index + 1, label: shortOrderItem(text), first: "", second: "" })));
   const hasSecond = orderRows.some((row) => valueOk(row.second));
   const hasResult = orderRows.some((row) => valueOk(row.first));
   const lastUsed = orderRows.reduce((last, row) => (valueOk(row.first) || valueOk(row.second) ? row.rank : last), 0);
@@ -5805,6 +5805,14 @@ function starDetailHtml(record) {
     [`${record.year} 錄取標準原表`, result?.sourceUrl],
     ["在校排名標準", record.starRankStandard?.sourceUrl],
   ], `資料來源：${record.sourceOrganization || "大學甄選入學委員會"}；實際規定以官方公告為準。`);
+}
+
+// 比序項目沿用官方錄取標準表的短名稱，例如「英語文學業」「學測國文」。
+function shortOrderItem(text) {
+  const label = String(text).replace(/^\d+、/, "");
+  const combined = label.match(/^學測(.+)之級分總和$/);
+  if (combined) return `學測${combined[1].replace(/、/g, "").replace(/文|會|然/g, "").replace(/數學/g, "數")}`;
+  return label.replace(/學業成績(總平均)?全校排名百分比$/, "學業").replace(/級分$/, "");
 }
 
 function detailHtml(record, result) {
@@ -6034,9 +6042,9 @@ function cacDetailHtml(record, cac) {
       <section class="detail-section">
         <h3>繁星檢定與比序</h3>
         <div class="detail-list">
-          ${rank ? kv("在校學業成績全校排名百分比標準", rank) : kv("在校排名百分比標準", "目前未取得此年度附件資料")}
+          ${rank ? kv("校排標準", rank) : kv("校排標準", "目前未取得此年度附件資料")}
           ${cac.testRequirements?.length ? kv("學測/英聽檢定", formatStarPdfRequirements(record.year, cac.testRequirements)) : ""}
-          ${cac.distributionOrder?.length ? kv("分發比序項目", cac.distributionOrder.join("\n")) : ""}
+          ${cac.distributionOrder?.length ? kv("分發比序項目", cac.distributionOrder.map((text, index) => `${index + 1}、${shortOrderItem(text)}`).join("\n")) : ""}
         </div>
       </section>
       ${cac.notes ? `

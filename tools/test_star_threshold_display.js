@@ -7,7 +7,7 @@ const standards = require('../site/data/ceec_gsat_five_standard_scores.json');
 const ctx = { state: { gsatStandards: standards }, kv: (key, value) => key + ': ' + value, escapeHtml: String };
 vm.createContext(ctx);
 for (const name of ['normalizeSubject', 'shortSubject', 'formatSubjectScore', 'formatStarRequirement', 'starThresholdParts',
-  'formatStarPdfRequirements', 'cacDetailHtml', 'placementStarRequirements', 'uniquePlacementRequirements']) {
+  'formatStarPdfRequirements', 'cacDetailHtml', 'placementStarRequirements', 'uniquePlacementRequirements', 'shortOrderItem']) {
   vm.runInContext(source.match(new RegExp('function ' + name + '\\([\\s\\S]*?\\n\\}'))[0], ctx);
 }
 for (const standard of ['頂標', '前標', '均標', '後標', '底標']) {
@@ -22,6 +22,11 @@ assert.equal(Array.from(ctx.starThresholdParts(pharmacy)).join('、'), '國文 �
 assert.equal(ctx.formatStarPdfRequirements(115, pharmacy.starAdmissionResult.testRequirements), '國文 均標、英文 均標、數A 頂標、自然 頂標');
 const detail = ctx.cacDetailHtml(pharmacy, { ...pharmacy.cacDetail, notes: '' });
 assert(detail.includes('學測/英聽檢定: 國文 均標、英文 均標、數A 頂標、自然 頂標'));
+// 比序項目使用官方錄取標準表的短名稱。
+assert.equal(ctx.shortOrderItem('6、英語文學業成績總平均全校排名百分比'), '英語文學業');
+assert.equal(ctx.shortOrderItem('1、在校學業成績全校排名百分比'), '在校學業');
+assert.equal(ctx.shortOrderItem('2、學測國文級分'), '學測國文');
+assert.equal(ctx.shortOrderItem('3、學測國文、英文、數學B、社會之級分總和'), '學測國英數B社');
 // 顯示改為五標後，分析仍取得原本的數值門檻。
 const numeric = ctx.placementStarRequirements(pharmacy).filter(r => r.kind === 'score');
 assert.deepEqual(Array.from(numeric, r => [r.subjects[0], r.threshold]), [['國文',10], ['英文',8], ['數A',12], ['自然',13]]);
