@@ -58,7 +58,7 @@ body { background: var(--page); }
 .home-label { font-size: 13px; font-weight: 700; letter-spacing: .04em; }
 .home-spot .home-label { color: #6fd3c4; }
 .home-spot-actions { margin-top: auto; display: flex; flex-wrap: wrap; align-items: center; gap: 12px 18px; }
-.home-cta { display: inline-flex; align-items: center; gap: 14px; min-height: 52px; padding: 0 8px 0 24px; border-radius: 999px; background: var(--mint); color: var(--mint-ink); font-size: 16px; font-weight: 700; letter-spacing: .08em; text-decoration: none; box-shadow: 0 14px 28px -16px #000; }
+.home-cta { display: inline-flex; align-items: center; gap: 14px; min-height: 52px; padding: 0 8px 0 24px; border-radius: var(--radius-action); background: var(--mint); color: var(--mint-ink); font-size: 16px; font-weight: 700; letter-spacing: .08em; text-decoration: none; box-shadow: 0 14px 28px -16px #000; }
 .home-cta:hover { color: var(--mint-ink); background: #4fc2b3; }
 .home-cta:focus-visible { outline: 3px solid #f0c069; outline-offset: 3px; }
 .home-cta-arrow { display: grid; place-items: center; width: 36px; height: 36px; border-radius: 50%; background: #0d2a2a1f; transition: transform .2s ease; }
@@ -79,7 +79,7 @@ button.home-card { cursor: pointer; appearance: none; }
 .home-card-link { margin-top: auto; display: inline-flex; align-items: center; gap: 8px; font-size: 15px; font-weight: 700; color: var(--blue-ink); }
 .home-card:focus-visible { outline: 3px solid #c28a28; outline-offset: 3px; }
 .home-channels { margin-top: auto; display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; padding-top: 8px; }
-.home-channels button { min-width: 0; min-height: 44px; padding: 0 4px; border: 1px solid var(--orange-line); border-radius: 999px; background: #fff; color: var(--orange-ink); font-size: 15px; font-weight: 700; }
+.home-channels button { min-width: 0; min-height: 44px; padding: 0 4px; border: 1px solid var(--orange-line); border-radius: var(--radius-choice); background: #fff; color: var(--orange-ink); font-size: 15px; font-weight: 700; }
 .home-channels button:hover { border-color: #e0ad8d; background: #fffaf6; }
 .home-channels button:focus-visible { outline: 3px solid #c28a28; outline-offset: 2px; }
 
@@ -92,7 +92,7 @@ button.home-card { cursor: pointer; appearance: none; }
 .home-about-copy h2 { margin: 0; font-size: 36px; line-height: 1.35; font-weight: 900; }
 .home-about-copy p { margin: 0; max-width: 28em; font-size: 16px; line-height: 1.9; color: #4d5856; }
 .home-about-actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 8px; }
-.home-about-primary, .home-about-secondary { display: inline-flex; align-items: center; min-height: 48px; padding: 0 24px; border-radius: 999px; font-size: 15px; font-weight: 700; text-decoration: none; }
+.home-about-primary, .home-about-secondary { display: inline-flex; align-items: center; min-height: 48px; padding: 0 24px; border-radius: var(--radius-action); font-size: 15px; font-weight: 700; text-decoration: none; }
 .home-about-primary { background: var(--night); color: #fff; }
 .home-about-primary:hover { color: #fff; background: #22344a; }
 .home-about-secondary { border: 1px solid #cfccc2; color: var(--ink); }

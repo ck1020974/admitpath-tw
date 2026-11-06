@@ -13,6 +13,8 @@
   --red: #b85f67;
   --blue: #2c6496;
   --shadow: 0 18px 48px rgba(22, 32, 45, .12);
+  --radius-action: 8px; /* 按了會執行：查詢、追蹤、編輯、前往 */
+  --radius-choice: 999px; /* 按了是切換或篩選：管道、年度、標籤、分頁 */
   font-family: "Microsoft JhengHei", "Noto Sans TC", "PingFang TC", Arial, sans-serif;
 }
 
@@ -293,7 +295,7 @@ h3 {
   align-items: center;
   justify-content: center;
   min-height: 44px;
-  border-radius: 8px;
+  border-radius: var(--radius-action);
   border: 1px solid var(--line);
   background: var(--paper);
   color: var(--ink);
@@ -371,7 +373,7 @@ h3 {
   margin-top: 12px;
   padding: 10px 12px;
   border: 1px solid rgba(14, 143, 145, .18);
-  border-radius: 10px;
+  border-radius: var(--radius-action);
   background: #f2fbfa;
   color: #315665;
   font-size: 13px;
@@ -945,6 +947,7 @@ input:focus {
 
 .placement-criteria-summary .placement-score-edit {
   border: 1px solid #b5ccd7;
+  border-radius: var(--radius-action);
   cursor: pointer;
 }
 
@@ -958,7 +961,7 @@ input:focus {
   min-height: 30px;
   padding: 3px 10px;
   border: 1px solid #d6e1ec;
-  border-radius: 999px;
+  border-radius: var(--radius-action);
   background: transparent;
   color: var(--muted);
   font: inherit;
@@ -1171,7 +1174,7 @@ input:focus {
   min-height: 32px;
   padding: 0 11px;
   border: 1px solid #d6e1ec;
-  border-radius: 999px;
+  border-radius: var(--radius-choice);
   background: #fff;
   color: #29485a;
   font-size: 13px;
@@ -1254,7 +1257,7 @@ input:focus {
   min-height: 34px;
   padding: 0 12px;
   border: 1px solid #d6e1ec;
-  border-radius: 999px;
+  border-radius: var(--radius-choice);
   background: #fff;
   color: #315066;
   font-size: 13px;
@@ -1343,7 +1346,7 @@ input:focus {
   min-height: 28px;
   padding: 5px 10px;
   border: 1px solid transparent;
-  border-radius: 999px;
+  border-radius: var(--radius-choice);
   background: #f3f6f9;
   color: #526b80;
   font-size: 12px;
@@ -3096,7 +3099,7 @@ tr:hover td {
   min-height: 34px;
   padding: 0 12px;
   border: 1px solid #cfdbe7;
-  border-radius: 999px;
+  border-radius: var(--radius-action);
   background: #fff;
   color: #35556c;
   font-size: 13px;
@@ -3683,7 +3686,7 @@ tr:hover td {
   min-height: 38px;
   padding: 0 11px;
   border: 1px solid #dce7ef;
-  border-radius: 9px;
+  border-radius: var(--radius-action);
   background: #f8fbfd;
   color: #29485a;
   font-size: 13px;
@@ -3726,7 +3729,7 @@ tr:hover td {
   min-height: 34px;
   padding: 0 12px;
   border: 1px solid #d6e1ec;
-  border-radius: 999px;
+  border-radius: var(--radius-choice);
   background: #fff;
   color: #29485a;
   font-size: 13px;
@@ -4296,7 +4299,7 @@ tr:hover td {
 }
 /* Academic-group exploration has the same extension level as the workbench. */
 .nav-explorer-tools a.nav-item{display:flex;align-items:center;text-decoration:none}
-.explorer-assessment-entry{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:42px;padding:10px 16px;border:1px solid #b9d9d3;border-radius:10px;background:#edf7f4;color:#146d65;font-size:13px;font-weight:600;text-decoration:none;white-space:nowrap}
+.explorer-assessment-entry{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:42px;padding:10px 16px;border:1px solid #b9d9d3;border-radius: var(--radius-action);background:#edf7f4;color:#146d65;font-size:13px;font-weight:600;text-decoration:none;white-space:nowrap}
 .explorer-assessment-entry:hover{background:#dcefe9}.explorer-assessment-entry:focus-visible{outline:3px solid #a67b2d;outline-offset:3px}
 @media(max-width:1020px){.nav-explorer-tools{grid-template-columns:repeat(2,minmax(0,1fr))}.nav-explorer-tools a.nav-item{justify-content:center}}
 @media(max-width:720px){.primary-nav .nav-explorer-row .nav-item{white-space:nowrap}.primary-nav .nav-explorer-row .nav-channels-toggle{flex-basis:18px}.explorer-assessment-entry{align-self:flex-start}}
