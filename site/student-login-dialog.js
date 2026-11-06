@@ -17,6 +17,7 @@
         <p class="student-dialog-hint">學生輸入學號，教師輸入教師帳號。</p>
         <p class="student-dialog-error" role="alert" hidden></p>
         <button class="student-dialog-submit" type="submit">登入</button>
+        <button class="student-dialog-guest" type="button" hidden>訪客使用</button>
       </form>
     </section>
     <section class="student-dialog-account" hidden>
@@ -24,8 +25,10 @@
       <p class="student-dialog-name"></p>
       <dl></dl>
       <p class="student-dialog-error" role="alert" hidden></p>
-      <a class="student-dialog-teacher" href="#" hidden>進入教師後台</a>
-      <button class="student-dialog-logout" type="button">登出</button>
+      <div class="student-dialog-actions">
+        <a class="student-dialog-teacher" href="#" hidden>進入教師後台</a>
+        <button class="student-dialog-logout" type="button">登出</button>
+      </div>
     </section>`;
   document.body.append(dialog);
   const query = selector => dialog.querySelector(selector);
@@ -35,6 +38,7 @@
   const username = form.elements.username;
   const password = form.elements.password;
   const submit = query(".student-dialog-submit");
+  const guest = query(".student-dialog-guest");
   const toggle = query(".student-password-toggle");
   const status = query(".student-dialog-status");
   const error = query(".student-dialog-login .student-dialog-error");
@@ -143,6 +147,7 @@
     const teacher = !student && teacherClient?.current;
     login.hidden = Boolean(student || teacher);
     account.hidden = !(student || teacher);
+    guest.hidden = !auth.entryPending;
     const teacherLink = query(".student-dialog-teacher");
     teacherLink.hidden = !teacher;
     teacherLink.href = teacherUrl.href;
@@ -180,6 +185,12 @@
     message(error, "");
     document.documentElement.classList.remove("student-dialog-open");
     if (opener?.isConnected) opener.focus({ preventScroll: true });
+    auth.settleEntry();
+  });
+  guest.addEventListener("click", () => {
+    if (busy) return;
+    auth.setGuestEntry(true);
+    close();
   });
   toggle.addEventListener("click", () => {
     if (password.type === "text") return hidePassword();
@@ -231,7 +242,7 @@
   message(status, client.enabled ? "" : "登入尚未開放");
   setBusy(false);
   auth.openDialog = async () => {
-    if (dialog.open) return;
+    if (dialog.open) { render(); return; }
     opener = document.activeElement;
     render();
     document.documentElement.classList.add("student-dialog-open");

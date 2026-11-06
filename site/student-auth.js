@@ -64,6 +64,37 @@
     try { teacherClient = root.YuhsinSupabaseAuth.createClient({ config: { ...root.YUHSIN_STUDENT_AUTH_CONFIG, accountType: "teacher" }, fetcher: root.fetch.bind(root), storage: sessionStorage }); } catch {}
   }
   const teacherReady = teacherClient ? teacherClient.session().catch(() => null) : Promise.resolve(null);
+  // 學群探索、落點分析與追蹤清單的入口：未登入時先跳出登入視窗。
+  // 選擇訪客只放行當次操作，下次使用時會再詢問。
+  const GUEST_ENTRY_KEY = "yuhsin-guest-entry";
+  let guestEntry = false;
+  function setGuestEntry(value) { guestEntry = value; }
+  // 從首頁前往學群探索時換頁，把這次的訪客選擇帶過去，避免連問兩次。
+  function carryGuestEntry() { try { if (guestEntry) sessionStorage?.setItem(GUEST_ENTRY_KEY, "1"); } catch {} }
+  function takeCarriedGuestEntry() {
+    try {
+      const carried = sessionStorage?.getItem(GUEST_ENTRY_KEY) === "1";
+      sessionStorage?.removeItem(GUEST_ENTRY_KEY);
+      return carried;
+    } catch { return false; }
+  }
+  const entryAllowed = () => !client.enabled || guestEntry || Boolean(client.current || teacherClient?.current);
+  let entryGate = null;
+  function settleEntry() {
+    const gate = entryGate;
+    entryGate = null;
+    try { if (gate) (entryAllowed() ? gate.onPass : gate.onCancel)?.(); }
+    finally { guestEntry = false; }
+  }
+  // 同時有多個請求時只保留最新一個，頁面載入時重複套用路由也只會開一次視窗。
+  function requireEntry(onPass, onCancel) {
+    const waiting = Boolean(entryGate);
+    entryGate = { onPass, onCancel };
+    if (waiting) return;
+    Promise.allSettled([ready, teacherReady])
+      .then(() => { if (entryAllowed()) settleEntry(); else return openDialog(); })
+      .catch(() => { setGuestEntry(true); settleEntry(); }); // 登入視窗載入失敗時不擋住功能。
+  }
   let previousStudentId;
   function renderLinks() {
     root.document.querySelectorAll("[data-student-account]").forEach(link => {
@@ -90,12 +121,12 @@
     });
     contactLoading.then(() => root.YuhsinStudentContact.check(root.YuhsinStudentAuth)).catch(() => {});
   }
-  root.YuhsinStudentAuth = { client, ready, teacherClient, teacherReady, baseUrl: base.href, safeReturnUrl, renderLinks };
+  root.YuhsinStudentAuth = { client, ready, teacherClient, teacherReady, baseUrl: base.href, safeReturnUrl, renderLinks, entryAllowed, requireEntry, settleEntry, setGuestEntry, carryGuestEntry, get entryPending() { return Boolean(entryGate); } };
   let dialogLoading;
   function openDialog() {
     if (!dialogLoading) dialogLoading = new Promise((resolve, reject) => {
       const entry = root.document.createElement("script");
-      entry.src = new URL("student-login-dialog.js?v=20261102-skip", base).href;
+      entry.src = new URL("student-login-dialog.js?v=20261106-gate", base).href;
       entry.onload = resolve;
       entry.onerror = () => { entry.remove(); dialogLoading = null; reject(new Error("無法載入登入視窗，請稍後再試。")); };
       root.document.body.append(entry);
@@ -116,6 +147,8 @@
       root.history.replaceState(root.history.state, "", url);
       openDialog().catch(error => root.alert(error.message));
     }
+    // 直接開啟需要登入入口的頁面（學群探索）：取消時回到首頁。
+    if (root.document.body.hasAttribute("data-login-gate") && !takeCarriedGuestEntry()) requireEntry(null, () => root.location.assign(base.href));
   };
   if (root.document.readyState === "loading") root.document.addEventListener("DOMContentLoaded", boot); else boot();
 })(typeof window !== "undefined" ? window : globalThis);

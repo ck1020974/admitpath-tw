@@ -1315,7 +1315,11 @@ function bindEvents() {
   document.addEventListener("keydown", (event) => { if (event.key === "Escape" && document.body.classList.contains("menu-open")) { setMenu(false); menuButton?.focus(); } });
   document.addEventListener("click", (event) => { if (document.body.classList.contains("menu-open") && !event.target.closest(".topbar")) setMenu(false); });
   document.querySelectorAll("[data-curiosity-entry]").forEach((link) => {
-    link.addEventListener("click", () => trackEvent("home-entry/curiosity", "前往學群探索"));
+    link.addEventListener("click", (event) => {
+      trackEvent("home-entry/curiosity", "前往學群探索");
+      if (event.ctrlKey || event.metaKey || event.shiftKey || event.altKey) return;
+      if (!passLoginGate(() => { window.YuhsinStudentAuth.carryGuestEntry(); window.location.href = link.href; })) event.preventDefault();
+    });
   });
   setupContactLinks();
   document.querySelectorAll("[data-view]").forEach((button) => {
@@ -2385,7 +2389,18 @@ function trackRecordGroups(prefix, title, record) {
   recordGroupNamesForUsage(record).forEach(name => trackEvent(`${prefix}/${name}`, title, { total: true }));
 }
 
+// 未登入時先跳出登入視窗；登入或選擇訪客後才繼續，取消則留在原本的頁面。
+const LOGIN_GATED_VIEWS = new Set(["placement", "compare"]);
+function passLoginGate(onPass) {
+  const auth = window.YuhsinStudentAuth;
+  if (!auth?.requireEntry || auth.entryAllowed()) return true;
+  auth.requireEntry(onPass, () => { state.pendingHomeEntry = ""; syncUrl(); });
+  return false;
+}
+
 function setView(view) {
+  // 已在同一頁（例如資料載入完成後重新套用入口）不算再次使用，不重複詢問。
+  if (LOGIN_GATED_VIEWS.has(view) && view !== state.view && !passLoginGate(() => setView(view))) return;
   state.view = view;
   trackPage(view);
   document.body.dataset.activeView = view;

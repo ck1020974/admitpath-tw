@@ -76,7 +76,9 @@ html.student-contact-open { overflow:hidden; }
 .student-dialog-account .student-contact-row dt { flex:none; white-space:nowrap; }
 .student-contact-notice-text { margin:0; color:#455b55; font-size:13px; line-height:1.7; }
 .student-contact-notice-text a { color:#137d73; overflow-wrap:anywhere; }
-.student-dialog-teacher { display:flex; align-items:center; justify-content:center; width:100%; min-height:46px; margin:0 0 10px; padding:10px 16px; border:1px solid #137d73; border-radius: var(--radius-action, 8px); background:#fff; color:#137d73; font-weight:700; text-decoration:none; }
-.student-dialog-teacher:hover { background:#e6efeb; }
+.student-dialog-teacher, .student-dialog-guest { display:flex; align-items:center; justify-content:center; width:100%; min-height:46px; margin:0; padding:10px 16px; border:1px solid #137d73; border-radius: var(--radius-action, 8px); background:#fff; color:#137d73; font-weight:700!important; text-decoration:none; }
+.student-dialog-teacher:hover, .student-dialog-guest:hover { background:#e6efeb; }
+.student-dialog-actions { display:flex; gap:10px; }
+.student-dialog-actions > * { flex:1 1 0; min-width:0; padding-inline:8px; white-space:nowrap; }
 .student-contact-skip { width:100%; min-height:40px; margin-top:-4px; padding:8px 16px; border:0; background:none; color:#5b6b75; font-size:14px; text-decoration:underline; cursor:pointer; }
 .student-contact-skip:hover { color:#172c38; }
