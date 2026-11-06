@@ -51,7 +51,7 @@ const els = {};
 let advancedFilterDraft = null;
 
 const fmt = new Intl.NumberFormat("zh-Hant-TW");
-const DATA_VERSION = "20261106-star-clean";
+const DATA_VERSION = "20261106-dist-fill";
 const COMPARE_STORAGE_KEY = "admitpath-tw:compare:v1";
 const accountRecords=window.YuhsinStudentRecords;
 let compareCloudRows=[],compareCloudBusy=false,compareCloudPending=new Map(),compareCloudFlush=null,compareGeneration=0;
@@ -5851,7 +5851,7 @@ function detailHtml(record, result) {
     ` : ""}
     ${result ? `
       <section class="detail-section">
-        <h3>114 分發結果</h3>
+        <h3>${record.year} 分發結果</h3>
         <div class="detail-list">
           ${kv("錄取人數", result.admittedCount || "--")}
           ${kv("普通生最低錄取總分", result.regularTotalScore || result.regularMinScore || "--")}
