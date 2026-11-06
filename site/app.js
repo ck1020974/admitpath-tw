@@ -4332,6 +4332,15 @@ function explorerOverviewHtml() {
   `;
 }
 
+// 卡片標題已是學類名，說明只留第一句，太短才接下一句；完整內容在學類頁。
+function categoryCardSummary(category) {
+  const name = displayCategoryName(category.name);
+  const clauses = category.insight.summary.replace(new RegExp(`^${name}(會|將)?`), "").split(/[，。；]/).filter(Boolean);
+  // 「以…」「從…」開頭的只是鋪陳，要接下一句才完整。
+  const complete = clauses[0].length >= 12 && !/^(以|從)/.test(clauses[0]);
+  return complete || clauses.length === 1 ? clauses[0] : `${clauses[0]}，${clauses[1]}`;
+}
+
 function explorerGroupIntroHtml() {
   const categories = explorerCategoriesForGroup(state.selectedGroup);
   // 同校系可跨學類，總數要去重才會和學群卡片一致。
@@ -4342,22 +4351,24 @@ function explorerGroupIntroHtml() {
         <div class="explorer-stage-copy">
           <h3>${escapeHtml(state.selectedGroup)}</h3>
           <p>${escapeHtml(window.GroupIntroductions.summaries?.[state.selectedGroup] || groupSummaryLine(state.selectedGroup, categories))}</p>
-          <p class="explorer-stage-meta">${fmt.format(categories.length)} 個學類・${fmt.format(departmentCount)} 個校系</p>
         </div>
         <div class="explorer-stage-actions">
-          <button class="explorer-back-link" data-explorer-back-overview>返回學群</button>
+          <span class="explorer-stage-meta">${fmt.format(categories.length)} 學類・${fmt.format(departmentCount)} 校系</span>
+          <button class="explorer-back-link" data-explorer-back-overview>返回</button>
         </div>
       </div>
       <div class="explorer-category-grid">
         ${categories.map((category) => `
           <button class="explorer-category-card ${category.curated ? "" : "is-brief"}" data-open-category="${escapeAttr(category.name)}">
             <div class="explorer-category-top">
-              <span class="section-tag">${fmt.format(category.count)} 校系</span>
-              <strong>${escapeHtml(displayCategoryName(category.name))}</strong>
-              ${category.curated ? `<p>${escapeHtml(category.insight.summary)}</p>` : ""}
+              <div class="explorer-category-title">
+                <strong>${escapeHtml(displayCategoryName(category.name))}</strong>
+                <span>${fmt.format(category.count)} 校系</span>
+              </div>
+              ${category.curated ? `<p title="${escapeAttr(category.insight.summary)}">${escapeHtml(categoryCardSummary(category))}</p>` : ""}
             </div>
             ${category.curated ? `<div class="explorer-course-cluster compact">
-              ${category.insight.coreCourses.slice(0, 5).map((course) => `<span class="course-chip">${escapeHtml(course)}</span>`).join("")}
+              ${category.insight.coreCourses.slice(0, 4).map((course) => `<span class="course-chip">${escapeHtml(course)}</span>`).join("")}
             </div>` : ""}
             ${category.representative.length ? `<div class="explorer-category-foot">${escapeHtml(category.representative.join("、"))}</div>` : ""}
           </button>
@@ -4394,8 +4405,8 @@ function explorerCategoryIntroHtml() {
           ${state.selectedCategory === "心理學類" ? '<p>包含心理、輔導與諮商相關科系；各科系保留原本學類標示。</p>' : ''}
         </div>
         <div class="explorer-category-actions">
-          <button class="explorer-back-link" data-explorer-back-group>${onlyCategory ? "返回學群" : "返回學類"}</button>
-          <button class="solid-button" data-open-category-results>看全部 ${fmt.format(rows.length)} 個校系 →</button>
+          <button class="explorer-back-link" data-explorer-back-group>返回</button>
+          <button class="solid-button" data-open-category-results aria-label="看全部 ${fmt.format(rows.length)} 個校系">${fmt.format(rows.length)} 校系 →</button>
         </div>
       </section>
       ${curated ? `<section class="explorer-category-brief">
@@ -5113,8 +5124,8 @@ function explorerDepartmentListHtml() {
           </div>
         </div>
         <div class="explorer-head-actions">
-          <button class="explorer-back-link" data-explorer-back-category>返回介紹</button>
-          <button class="ghost-button" id="applyGroupToSearchButton">查詢工作台</button>
+          <button class="explorer-back-link" data-explorer-back-category>返回</button>
+          <button class="ghost-button" id="applyGroupToSearchButton">查詢校系</button>
         </div>
       </div>
       <div class="explorer-list-controls">

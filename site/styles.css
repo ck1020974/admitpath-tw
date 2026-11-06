@@ -3181,8 +3181,59 @@ tr:hover td {
   grid-template-columns: minmax(0, 1fr) auto;
 }
 
-.explorer-category-card .section-tag {
-  justify-self: start;
+/* 學群頁：所有學類卡列高一致，說明兩行、課程一行。 */
+.explorer-category-card {
+  gap: 12px;
+  min-height: 0;
+}
+
+.explorer-category-title {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.explorer-category-title strong {
+  min-width: 0;
+}
+
+.explorer-category-title span {
+  flex: 0 0 auto;
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.explorer-category-top p {
+  display: -webkit-box;
+  min-height: 3.36em;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+}
+
+/* 放不下的課程整顆隱藏，不切半。 */
+.explorer-category-card .explorer-course-cluster {
+  max-height: 28px;
+  overflow: hidden;
+}
+
+.explorer-category-card .explorer-category-foot {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.explorer-group-stage .explorer-stage-copy p {
+  margin: 0;
+}
+
+.explorer-stage-actions .explorer-stage-meta {
+  margin: 0;
+  font-weight: 700;
+  white-space: nowrap;
 }
 
 .explorer-representative-split {
