@@ -263,6 +263,11 @@ p {
   letter-spacing: 0;
 }
 
+/* 避免段落最後一行只剩兩三個字。 */
+p {
+  text-wrap: pretty;
+}
+
 h1 {
   margin: 0;
   font-size: 28px;
@@ -853,36 +858,23 @@ input:focus {
   max-width: none;
 }
 
-.placement-channel-picker h3 {
-  margin: 0 0 14px;
-  font-size: 18px;
-}
-
 .placement-channel-options {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 10px;
+  grid-template-columns: repeat(3, minmax(72px, 1fr));
+  gap: 8px;
 }
 
 .placement-channel-options button {
-  padding: 18px 12px;
+  min-height: 42px;
+  padding: 0 18px;
   border: 1px solid var(--line);
-  border-radius: 12px;
+  border-radius: 10px;
   background: var(--paper);
   color: var(--ink);
-  text-align: left;
   font: inherit;
-  font-size: 20px;
+  font-size: 16px;
   font-weight: 800;
   cursor: pointer;
-}
-
-.placement-channel-options button span {
-  display: block;
-  margin-top: 6px;
-  color: var(--muted);
-  font-size: 12px;
-  font-weight: 500;
 }
 
 .placement-channel-options button:hover { border-color: var(--teal); }
@@ -1040,14 +1032,9 @@ input:focus {
 
 .placement-band-head {
   display: flex;
-  align-items: flex-end;
+  align-items: center;
   justify-content: space-between;
   gap: 16px;
-}
-
-.placement-band-head h3 {
-  margin: 0 0 4px;
-  font-size: 17px;
 }
 
 .placement-band-head span,
@@ -2673,7 +2660,7 @@ tr:hover td {
 
 .explorer-category-hero {
   display: grid;
-  grid-template-columns: minmax(0, 1.15fr) 280px;
+  grid-template-columns: minmax(0, 1fr) auto;
   gap: 16px;
   margin-bottom: 18px;
   padding: 22px;
@@ -2694,6 +2681,13 @@ tr:hover td {
 .explorer-category-hero-copy h3 {
   font-size: 38px;
   line-height: 1.12;
+}
+
+/* 學類簡介只有兩三行，平均分行才不會留下只有兩三個字的最後一行。 */
+.explorer-category-hero-copy p,
+.explorer-stage-copy p,
+.explorer-brief-main p {
+  text-wrap: balance;
 }
 
 .explorer-category-hero-copy p:last-child {
@@ -4323,7 +4317,6 @@ tr:hover td {
 @media (max-width: 720px) {
   .placement-results { grid-template-columns: minmax(0, 1fr); }
   .placement-score-summary-line { flex-wrap: wrap; min-width: 0; }
-  .placement-channel-options button { padding: 16px 10px; }
 }
 /* Academic-group exploration has the same extension level as the workbench. */
 .nav-explorer-tools a.nav-item{display:flex;align-items:center;text-decoration:none}
@@ -4412,9 +4405,17 @@ tr:hover td {
 .explorer-category-actions {
   display: flex;
   flex-wrap: wrap;
+  grid-column: 2;
+  grid-row: 1;
+  align-self: start;
   align-items: center;
   justify-content: flex-end;
   gap: 10px;
+}
+/* 學生讀完簡介，下一眼就看到校系入口。 */
+.explorer-category-cta {
+  grid-column: 1;
+  justify-self: start;
 }
 .explorer-brief-main {
   padding: 20px;
@@ -4471,6 +4472,9 @@ tr:hover td {
     grid-template-columns: 1fr;
   }
   .explorer-category-actions {
+    grid-column: 1;
+    grid-row: auto;
+    order: -1;
     justify-content: flex-start;
   }
 }

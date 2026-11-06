@@ -21,7 +21,7 @@
   <meta property="og:image:height" content="630">
   <meta property="og:image:alt" content="YUHSIN 祐馨升學網：校系查詢、落點分析、十八學群、追蹤清單">
   <meta name="twitter:card" content="summary_large_image">
-  <link rel="stylesheet" href="./styles.css?v=20261106-result-ux">
+  <link rel="stylesheet" href="./styles.css?v=20261106-channel-row">
   <link rel="stylesheet" href="./special.css?v=20261105-closing">
   <link rel="stylesheet" href="./support.css?v=20261106-buttons">
   <link rel="stylesheet" href="./workbench.css?v=20261106-buttons">
@@ -208,20 +208,14 @@
 
           <section class="placement-setup-stage" id="placementSetupStage">
             <div class="placement-workbench">
-              <section class="placement-channel-picker" aria-labelledby="placementChannelHeading">
-                <h3 id="placementChannelHeading">入學管道</h3>
-                <div class="placement-channel-options" role="group" aria-label="選擇入學管道">
-                  <button type="button" data-placement-channel="star_recommendation" aria-pressed="false">繁星<span>學測、英聽與校排</span></button>
-                  <button type="button" class="active" data-placement-channel="personal_application" aria-pressed="true">申請<span>個申＋四技</span></button>
-                  <button type="button" data-placement-channel="exam_distribution" aria-pressed="false">分發<span>採計分數</span></button>
-                </div>
-              </section>
-              <section class="placement-score-band" id="placementScoreFields" hidden>
+              <section class="placement-score-band" id="placementScoreFields" aria-label="入學管道與成績" hidden>
                 <div class="placement-band-head">
-                  <div>
-                    <h3 id="placementScoreHeading">輸入成績</h3>
-                    <span id="placementScoreHint">未填以 0 計算</span>
+                  <div class="placement-channel-options" role="group" aria-label="選擇入學管道">
+                    <button type="button" data-placement-channel="star_recommendation" aria-pressed="false">繁星</button>
+                    <button type="button" class="active" data-placement-channel="personal_application" aria-pressed="true">申請</button>
+                    <button type="button" data-placement-channel="exam_distribution" aria-pressed="false">分發</button>
                   </div>
+                  <span id="placementScoreHint">未填以 0 計算</span>
                 </div>
                 <div class="placement-score-grid">
                   <label><span>國文</span><input data-placement-score="國文" type="number" inputmode="numeric" min="0" max="15" placeholder="級分"></label>
@@ -460,7 +454,7 @@
   <script src="./admission-catalog.js?v=20261105-school-merge"></script>
   <script src="./explorer-link.js?v=20261023-intros"></script>
   <script src="./group-introductions.js?v=20261023-intros"></script>
-  <script src="./app.js?v=20261106-card-simple"></script>
+  <script src="./app.js?v=20261106-channel-row"></script>
   <script src="./back-to-top.js?v=20261030-2"></script>
 </body>
 </html>

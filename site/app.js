@@ -2663,13 +2663,11 @@ function renderPlacementControls() {
   const distribution = channel === "exam_distribution";
   const fields = document.getElementById("placementScoreFields");
   if (fields) fields.hidden = !subjects.length;
-  const heading = document.getElementById("placementScoreHeading");
-  if (heading) heading.textContent = distribution ? "輸入分發成績（60 級分）" : channel === "star_recommendation" ? "輸入學測級分與校排" : "輸入學測級分";
   const hint = document.getElementById("placementScoreHint");
   if (hint) hint.textContent = distribution
     ? "學測與分科都填 60 級分，未填以 0 計算"
     : channel === "star_recommendation" ? "校排填百分比，未填以 0 計算"
-    : "未填以 0 計算";
+    : "含個申與四技，未填以 0 計算";
   document.querySelectorAll("[data-placement-score]").forEach(input => {
     const subject = input.dataset.placementScore;
     input.closest("label").hidden = !subjects.includes(subject);
@@ -4477,9 +4475,9 @@ function explorerCategoryIntroHtml() {
           ${curated ? `<p>${escapeHtml(insight.summary)}</p>` : groupLine ? `<p>${escapeHtml(groupLine)}</p>` : `<p class="explorer-pending-note">這個學類的課程介紹整理中，可以先看相關校系。</p>`}
           ${state.selectedCategory === "心理學類" ? '<p>包含心理、輔導與諮商相關科系；各科系保留原本學類標示。</p>' : ''}
         </div>
+        <button class="solid-button explorer-category-cta" data-open-category-results>看 ${fmt.format(rows.length)} 個校系 →</button>
         <div class="explorer-category-actions">
           <button class="explorer-back-link" data-explorer-back-group>返回</button>
-          <button class="solid-button" data-open-category-results aria-label="看全部 ${fmt.format(rows.length)} 個校系">${fmt.format(rows.length)} 校系 →</button>
         </div>
       </section>
       ${curated ? `<section class="explorer-category-brief">
