@@ -1382,6 +1382,13 @@ function bindEvents() {
   });
   bindPlacementEvents();
   window.addEventListener("popstate", () => {
+    if (!state.pendingBack && els.advancedFilterDrawer?.classList.contains("open")) {
+      // 精準篩選開啟時按「上一頁」：只關閉抽屜，不套用草稿。
+      state.advancedInHistory = false;
+      closeAdvancedFilters();
+      return;
+    }
+    state.advancedInHistory = false;
     state.detailInHistory = false;
     if (state.pendingBack) {
       // 這次是關閉詳情造成的返回：畫面已是正確狀態，只補上期間延後的網址更新。
@@ -1657,8 +1664,15 @@ function currentAdvancedFilters() {
 function openAdvancedFilters() {
   advancedFilterDraft = cloneAdvancedFilters(currentAdvancedFilters());
   renderAdvancedFilterDrawer();
+  const wasOpen = Boolean(els.advancedFilterDrawer?.classList?.contains?.("open"));
   els.advancedFilterDrawer?.classList.add("open");
   els.advancedFilterDrawer?.setAttribute("aria-hidden", "false");
+  // 新增一筆瀏覽紀錄，手機按「上一頁」先關閉精準篩選，不會離開頁面。
+  const win = globalThis.window;
+  if (!wasOpen && !state.advancedInHistory && !state.pendingBack && win?.history?.pushState && win.location) {
+    win.history.pushState(null, "", win.location.href);
+    state.advancedInHistory = true;
+  }
 }
 
 function clearOuterSchoolFilters(advanced) {
@@ -1687,6 +1701,12 @@ function closeAdvancedFilters() {
   advancedFilterDraft = null;
   els.advancedFilterDrawer?.classList.remove("open");
   els.advancedFilterDrawer?.setAttribute("aria-hidden", "true");
+  const win = globalThis.window;
+  if (state.advancedInHistory && win?.history?.back) {
+    state.advancedInHistory = false;
+    state.pendingBack = true;
+    win.history.back();
+  }
 }
 
 function renderAdvancedFilterSummary() {
@@ -2298,6 +2318,12 @@ function routeHash() {
       if (value && value !== "all") params.set(param, value === true ? "1" : value);
     });
   }
+  if (state.view === "explorer" && state.selectedGroup && state.selectedExplorerStage !== "overview") {
+    // 學群、學類寫進網址，手機的「上一頁」才會回到上一層，而不是離開十八學群。
+    params.set("group", state.selectedGroup);
+    if (state.selectedCategory) params.set("category", state.selectedCategory);
+    if (state.selectedExplorerStage === "departments") params.set("stage", "departments");
+  }
   if (state.openDetailId) params.set("record", state.openDetailId);
   const query = params.toString();
   return `#${state.view}${query ? `?${query}` : ""}`;
@@ -2324,7 +2350,37 @@ function parseRoute(hash) {
     view: view && document.getElementById(`${view}View`) ? view : "overview",
     filters: Object.fromEntries(Object.entries(ROUTE_FILTER_KEYS).map(([param, key]) => [key, params.get(param) || ""])),
     record: params.get("record") || "",
+    explorer: { group: params.get("group") || "", category: params.get("category") || "", stage: params.get("stage") || "" },
   };
+}
+
+// 依網址還原十八學群的層級；學群或學類不存在時回到總覽。
+function applyExplorerRoute(target = {}) {
+  const groupExists = target.group && state.groups?.some((row) => row.groupName === target.group);
+  const categoryExists = groupExists && target.category && state.groups.some((row) => row.groupName === target.group && row.categoryName === target.category);
+  const stage = !groupExists ? "overview" : !categoryExists ? "group" : target.stage === "departments" ? "departments" : "category";
+  if (stage === state.selectedExplorerStage && (state.selectedGroup || "") === (groupExists ? target.group : "") && (state.selectedCategory || "") === (categoryExists ? target.category : "")) return false;
+  if (stage === "overview") {
+    resetExplorerState("overview");
+  } else {
+    if (state.selectedGroup !== target.group || state.selectedCategory !== (categoryExists ? target.category : "")) {
+      state.explorerChannel = "personal_application";
+      state.explorerYear = "";
+      state.explorerListFilter = "";
+    }
+    state.selectedGroup = target.group;
+    state.selectedCategory = categoryExists ? target.category : "";
+    state.selectedExplorerStage = stage;
+  }
+  return true;
+}
+
+// 在十八學群內往下一層：重畫、捲回頂端，並新增一筆瀏覽紀錄。
+function explorerNavigate({ push = true } = {}) {
+  renderExplorer();
+  const view = document.getElementById("explorerView");
+  if (view && view.getBoundingClientRect().top < 0) window.scrollTo?.({ top: 0 });
+  syncUrl({ push });
 }
 
 function applyRoute(route) {
@@ -2346,8 +2402,11 @@ function applyRoute(route) {
           applyFilters();
     }
     if (state.view !== route.view) {
-      if (route.view === "explorer") resetExplorerState("overview");
+      if (route.view === "explorer") applyExplorerRoute(route.explorer);
       setView(route.view);
+    } else if (route.view === "explorer" && applyExplorerRoute(route.explorer)) {
+      renderExplorer();
+      window.scrollTo?.({ top: 0 });
     }
     if (route.record && state.records.some((record) => record.id === route.record)) {
       if (state.openDetailId !== route.record) openDetail(route.record);
@@ -5380,12 +5439,12 @@ function bindExplorerEvents() {
       trackEvent(`explorer-group/${button.dataset.openGroup}`, "打開學群");
       state.selectedExplorerStage = categories.length === 1 ? "category" : "group";
       state.selectedCategory = categories.length === 1 ? categories[0].name : "";
-      renderExplorer();
+      explorerNavigate();
     });
   });
   document.querySelector("[data-explorer-back-overview]")?.addEventListener("click", () => {
     resetExplorerState("overview");
-    renderExplorer();
+    explorerNavigate({ push: false });
   });
   document.querySelectorAll("[data-explorer-back-group]").forEach((button) => {
     button.addEventListener("click", (event) => {
@@ -5394,19 +5453,19 @@ function bindExplorerEvents() {
       state.selectedExplorerStage = onlyCategory ? "overview" : "group";
       if (onlyCategory) state.selectedGroup = "";
       state.selectedCategory = "";
-      renderExplorer();
+      explorerNavigate({ push: false });
     });
   });
   document.querySelector("[data-explorer-back-category]")?.addEventListener("click", () => {
     state.selectedExplorerStage = "category";
-    renderExplorer();
+    explorerNavigate({ push: false });
   });
   document.querySelectorAll("[data-open-category]").forEach((button) => {
     button.addEventListener("click", () => {
       state.selectedExplorerStage = "category";
       state.selectedCategory = button.dataset.openCategory || "";
       trackEvent(`explorer-category/${state.selectedCategory}`, "打開學類");
-      renderExplorer();
+      explorerNavigate();
     });
   });
   document.querySelectorAll("[data-open-category-results]").forEach((button) => {
@@ -5415,7 +5474,7 @@ function bindExplorerEvents() {
       state.explorerChannel = "personal_application";
       state.explorerYear = "";
       state.explorerListFilter = "";
-      renderExplorer();
+      explorerNavigate();
     });
   });
   document.querySelectorAll("[data-explorer-channel-tab]").forEach((button) => {
