@@ -2,7 +2,10 @@
 .student-account-entry:hover{background:#e1eee7;color:#124a43}
 .student-account-entry:focus-visible{outline:3px solid #c28a28;outline-offset:3px}
 .student-account-entry svg{width:17px;height:17px;flex:none}
-@media(max-width:1020px){.top-nav .student-account-entry,.site-nav .student-account-entry{grid-column:1/-1;min-height:44px;border-radius:12px;margin:0}}
+/* 手機選單：登入和聯絡作者並排成最後一行（聯絡作者隱藏時登入佔滿整行） */
+@media(max-width:1020px){.top-nav .student-account-entry,.site-nav .student-account-entry{min-height:44px;border-radius:12px;margin:0}
+.top-nav .student-account-entry:has(+ .nav-support[hidden]),.site-nav .student-account-entry:has(+ .nav-support[hidden]){grid-column:1/-1}
+.top-nav .nav-support,.site-nav .nav-support{min-height:44px;border-radius:12px}}
 
 /* Login stays over the current page; all styles are scoped to the dialog. */
 html.student-dialog-open { overflow: hidden; scrollbar-gutter: stable; }
