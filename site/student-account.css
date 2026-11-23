@@ -87,9 +87,10 @@ html.student-contact-open { overflow:hidden; }
 .student-login-dialog select:focus-visible { outline:3px solid #b68b40; outline-offset:2px; }
 .student-register-school { display:grid; grid-template-columns:minmax(0,2fr) minmax(0,3fr); gap:12px; }
 @media(max-width:420px) { .student-register-school { grid-template-columns:1fr; gap:16px; } }
-.student-register-source { margin-top:-8px; }
-.student-dialog-switch { margin:0; color:#536762; font-size:14px; text-align:center; }
-.student-dialog-switch button { padding:4px 2px; border:0; background:none; color:#137d73; font-weight:700; text-decoration:underline; text-underline-offset:3px; }
+/* 登入／註冊並排：左登入、右註冊，目前頁面的那顆是實心主按鈕 */
+.student-dialog-pair { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+.student-dialog-alt { width:100%; min-height:46px; padding:10px 16px; border:1px solid #137d73; border-radius: var(--radius-action, 8px); background:#fff; color:#137d73; font-weight:700!important; }
+.student-dialog-alt:hover { background:#e6efeb; }
 .student-register-done, .student-bind-done { display:grid; gap:14px; }
 .student-register-done p, .student-bind-done p { margin:0; line-height:1.7; }
 .student-register-done strong, .student-bind-done strong { overflow-wrap:anywhere; }

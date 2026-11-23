@@ -17,9 +17,11 @@
         <label>密碼<span class="student-password-wrap"><input name="password" type="password" maxlength="128" autocomplete="current-password" placeholder="請輸入密碼" required><button class="student-password-toggle" type="button" aria-label="顯示密碼" aria-pressed="false">${EYE}</button></span></label>
         <p class="student-dialog-hint">請用信箱登入。林口康橋同學若還沒綁定信箱，請先用學號登入完成綁定；教師請輸入教師帳號。</p>
         <p class="student-dialog-error" role="alert" hidden></p>
-        <button class="student-dialog-submit" type="submit">登入</button>
+        <div class="student-dialog-pair">
+          <button class="student-dialog-submit" type="submit">登入</button>
+          <button class="student-dialog-alt" type="button" data-view="register">註冊</button>
+        </div>
         <button class="student-dialog-guest" type="button" hidden>訪客使用</button>
-        <p class="student-dialog-switch">還沒有帳號？<button type="button" data-view="register">註冊會員</button></p>
       </form>
     </section>
     <section class="student-dialog-register" hidden>
@@ -32,13 +34,14 @@
           <label>縣市<select name="county" required><option value="">載入中…</option></select></label>
           <label>學校<select name="school" required disabled><option value="">請先選縣市</option></select></label>
         </div>
-        <p class="student-dialog-hint student-register-source" hidden></p>
         <label class="student-contact-check"><input name="updates" type="checkbox"><span>我想要收到升學相關資訊</span></label>
         <label class="student-contact-check"><input name="consent" type="checkbox" required><span>我同意<button class="student-contact-notice-toggle" type="button" aria-expanded="false">蒐集說明</button><em>（必勾）</em></span></label>
         <div class="student-contact-notice" hidden></div>
         <p class="student-dialog-error" role="alert" hidden></p>
-        <button class="student-dialog-submit" type="submit">註冊</button>
-        <p class="student-dialog-switch">已經有帳號？<button type="button" data-view="login">登入</button></p>
+        <div class="student-dialog-pair">
+          <button class="student-dialog-alt" type="button" data-view="login">登入</button>
+          <button class="student-dialog-submit" type="submit">註冊</button>
+        </div>
       </form>
       <div class="student-register-done" hidden>
         <p>驗證信已寄到 <strong></strong>，請點開信中的連結完成註冊，再回來登入。</p>
@@ -97,9 +100,6 @@
       .then(data => {
         schools = data;
         fillSelect(regFields.county, "請選擇縣市", data.counties.map(c => [c.name, c.name]));
-        const source = register.querySelector(".student-register-source");
-        source.textContent = `學校名單：教育部 ${data.year} 學年度高級中等學校名錄（${data.total} 所）`;
-        source.hidden = false;
       })
       .catch(() => { schoolsLoad = null; fillSelect(regFields.county, "學校名單載入失敗，請重新開啟", []); });
     return schoolsLoad;
