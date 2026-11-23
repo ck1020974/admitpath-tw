@@ -10,6 +10,7 @@
       return JSON.parse(atob(encoded)).role === 'anon';
     } catch { return false; }
   }
+  const EMAIL = /^[^@\s]+@[^@\s]+\.[^@\s]+$/;
   function createClient({ config = {}, fetcher, storage, now = () => Date.now() }) {
     const teacher = config.accountType === 'teacher';
     const url = String(config.supabaseUrl || '').replace(/\/$/, '');
@@ -23,7 +24,7 @@
       tokens = { access_token: data.access_token, refresh_token: data.refresh_token, expires_at: Number(data.expires_at) || Math.floor(now() / 1000) + Number(data.expires_in || 3600) };
       try { storage?.setItem(key, JSON.stringify(tokens)); } catch {}
     }
-    async function request(path, { body, token, method } = {}) {
+    async function request(path, { body, token, method, authCodes = false } = {}) {
       if (!enabled) throw Object.assign(new Error('學生登入尚未開放，仍可直接使用網站。'), { code: 'NOT_ENABLED' });
       let response;
       try {
@@ -32,6 +33,22 @@
           ...(body === undefined ? {} : { body: JSON.stringify(body) }), signal: AbortSignal.timeout(15000) });
       } catch { throw new Error('目前無法連線，請稍後再試。'); }
       const data = response.status === 204 ? null : await response.json().catch(() => null);
+      if (!response.ok && authCodes) {
+        // 信箱註冊／登入：依 Supabase Auth 的錯誤代碼給明確訊息。
+        const code = String(data?.error_code || data?.code || '');
+        const text = String(data?.msg || data?.message || data?.error_description || '');
+        const message = code === 'email_not_confirmed' || /not confirmed/i.test(text) ? '信箱尚未完成驗證，請先點開驗證信中的連結。'
+          : code === 'user_already_exists' || code === 'email_exists' || /already registered/i.test(text) ? '這個信箱已經註冊過，請直接登入。'
+          : code === 'weak_password' || /password/i.test(text) && response.status === 422 ? '密碼強度不足，請至少 8 個字元並混合英文與數字。'
+          : code === 'email_address_invalid' || code === 'validation_failed' ? '信箱格式不正確，請重新輸入。'
+          : code === 'over_email_send_rate_limit' || response.status === 429 ? '操作較頻繁，請稍後再試。'
+          : code === 'signup_disabled' ? '目前暫停開放註冊。'
+          : code === 'email_address_not_authorized' || /sending (confirmation )?email/i.test(text) ? '目前無法寄出驗證信，請稍後再試或聯絡網站管理者。'
+          : [400, 401].includes(response.status) && /invalid login/i.test(text) ? '信箱或密碼不正確，請重新輸入。'
+          : /database error/i.test(text) ? '註冊資料不完整，請確認姓名、學校並勾選同意後再試。'
+          : null;
+        if (message) throw Object.assign(new Error(message), { status: response.status, code });
+      }
       if (!response.ok) {
         const invalid = teacher ? '帳號或密碼不正確，請重新輸入。' : '學號或密碼不正確，請重新輸入。';
         const message = { 400: invalid, 401: invalid, 403: '帳號暫時無法使用，請聯絡管理者。', 409: '清單已在其他分頁更新，已重新載入，請再試一次。', 422: '資料尚未完整或版本不同，請確認後再儲存。', 429: '操作較頻繁，請稍後再試。' }[response.status];
@@ -60,11 +77,15 @@
         current = { id: access.id, name: access.name, role: 'teacher', allGroups: access.all_groups, teachingGroups: access.teaching_groups || [], canManageAccounts: access.can_manage_accounts === true };
         return current;
       }
-      const query = new URLSearchParams({ select: 'id,student_id,name,teaching_group,original_class,original_seat_number,active', id: 'eq.' + user.id, limit: '1' });
+      const query = new URLSearchParams({ select: 'id,student_id,name,teaching_group,original_class,original_seat_number,active,account_type,county,school_name,login_email_bound_at', id: 'eq.' + user.id, limit: '1' });
       const rows = await request('/rest/v1/students?' + query, { token: tokens.access_token });
       const student = Array.isArray(rows) && rows.length === 1 ? rows[0] : null;
       if (!student?.active || student.id !== user.id) throw Object.assign(new Error('帳號暫時無法使用，請聯絡老師。'), { status: 403 });
-      current = { id: student.id, studentId: student.student_id, name: student.name, teachingGroup: student.teaching_group, originalClass: student.original_class, originalSeatNumber: student.original_seat_number, role: 'student' };
+      // 名單學生（學號帳號）尚未綁定登入信箱時，登入後必須先綁定。
+      const bound = student.account_type === 'member' || Boolean(student.login_email_bound_at);
+      current = { id: student.id, studentId: student.student_id || '', name: student.name, teachingGroup: student.teaching_group, originalClass: student.original_class, originalSeatNumber: student.original_seat_number,
+        accountType: student.account_type === 'member' ? 'member' : 'roster', county: student.county || '', schoolName: student.school_name || '',
+        email: bound ? String(user.email || '') : '', needsEmailBinding: !bound, role: 'student' };
       return current;
     }
     async function authorized(path,options={},expectedOwner){
@@ -92,6 +113,57 @@
           : await request('/functions/v1/student-access', { body: { studentId, password } });
         save(data);
         try { return await profile(); } catch (error) { clear(); throw error; }
+      },
+      // 自行註冊的會員：以信箱與密碼登入（名單學生仍用學號，經 student-access 函式）。
+      async loginEmail(email, password) {
+        if (teacher) throw new Error('教師帳號請用教師帳號登入。');
+        const value = String(email || '').trim().toLowerCase();
+        if (!EMAIL.test(value)) throw Object.assign(new Error('信箱格式不正確，請重新輸入。'), { status: 400 });
+        const data = await request('/auth/v1/token?grant_type=password', { body: { email: value, password }, authCodes: true });
+        save(data);
+        try { return await profile(); } catch (error) { clear(); throw error; }
+      },
+      // 會員註冊。資料庫觸發器會依學校代碼建立會員資料；學校代碼必須在教育部名錄中。
+      // 專案開啟「信箱驗證」時不會立即登入，回傳 { confirm: true } 請使用者到信箱點驗證連結。
+      async signUp({ email, password, name, schoolCode, wantsUpdates, consentVersion, redirectTo }) {
+        if (teacher) throw new Error('教師帳號不能註冊會員。');
+        const value = String(email || '').trim().toLowerCase();
+        const displayName = String(name || '').trim();
+        if (!displayName || displayName.length > 50) throw Object.assign(new Error('請填寫姓名（50 字以內）。'), { field: 'name' });
+        if (!EMAIL.test(value) || value.length > 254 || /\.invalid$/.test(value)) throw Object.assign(new Error('信箱格式不正確，請重新輸入。'), { field: 'email' });
+        if (typeof password !== 'string' || password.length < 8 || password.length > 72) throw Object.assign(new Error('密碼需為 8 到 72 個字元。'), { field: 'password' });
+        if (!/^[0-9A-Z]{6}$/.test(schoolCode || '')) throw Object.assign(new Error('請選擇縣市與學校。'), { field: 'school' });
+        if (!/^\d{4}-\d{2}-\d{2}$/.test(consentVersion || '')) throw Object.assign(new Error('請勾選同意蒐集說明。'), { field: 'consent' });
+        const path = '/auth/v1/signup' + (redirectTo ? '?redirect_to=' + encodeURIComponent(redirectTo) : '');
+        const data = await request(path, { authCodes: true, body: { email: value, password, data: { account_type: 'member', name: displayName, school_code: schoolCode, wants_updates: Boolean(wantsUpdates), consent_version: consentVersion } } });
+        if (!data?.access_token) return { confirm: true, email: value };
+        save(data);
+        try { return await profile(); } catch (error) { clear(); throw error; }
+      },
+      // 名單學生綁定登入信箱（綁定後只能用信箱登入）。可同時設定新密碼（選填）。
+      async bindLoginEmail({ email, wantsUpdates, consentVersion, password }) {
+        if (teacher || !current?.needsEmailBinding) throw new Error('這個帳號不需要綁定信箱。');
+        const value = String(email || '').trim().toLowerCase();
+        if (value.length > 254 || !EMAIL.test(value) || /\.invalid$/.test(value)) throw Object.assign(new Error('信箱格式不正確，請重新輸入。'), { field: 'email' });
+        if (!/^\d{4}-\d{2}-\d{2}$/.test(consentVersion || '')) throw Object.assign(new Error('請勾選同意蒐集說明。'), { field: 'consent' });
+        if (password) {
+          if (password.length < 8 || password.length > 72) throw Object.assign(new Error('新密碼需為 8 到 72 個字元；不改密碼請留空。'), { field: 'password' });
+          if (password.toUpperCase() === String(current.studentId).toUpperCase()) throw Object.assign(new Error('新密碼不能和學號相同。'), { field: 'password' });
+          if (tokens.expires_at * 1000 < now() + 30000) await refresh();
+          try { await request('/auth/v1/user', { method: 'PUT', token: tokens.access_token, body: { password }, authCodes: true }); }
+          catch (error) { if (error.code === 'same_password') throw Object.assign(new Error('新密碼和目前密碼相同，請換一個或留空。'), { field: 'password' }); throw Object.assign(error, { field: 'password' }); }
+        }
+        let rows;
+        try { rows = await authorized('/rest/v1/rpc/student_bind_login_email', { body: { email_value: value, updates_value: Boolean(wantsUpdates), consent_value: consentVersion } }); }
+        catch (error) {
+          if (error.status === 409) throw Object.assign(new Error('這個信箱已經被其他帳號使用，請換一個信箱。'), { field: 'email' });
+          if (error.status === 400) throw Object.assign(new Error('信箱格式不正確，請重新輸入。'), { field: 'email' });
+          if (error.status === 404) throw new Error('信箱綁定功能尚未開放，請稍後再試。');
+          throw error;
+        }
+        const row = Array.isArray(rows) ? rows[0] : rows;
+        await profile();
+        return { email: row?.contact_email || value, wantsUpdates: Boolean(row?.wants_updates), consentVersion: row?.consent_version || consentVersion, consentAt: row?.consent_at || null };
       },
       async logout() {
         try { if (tokens) await request('/auth/v1/logout?scope=local', { token: tokens.access_token, method: 'POST' }).catch(error => { if (error.status !== 401) throw error; }); }

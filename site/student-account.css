@@ -80,5 +80,18 @@ html.student-contact-open { overflow:hidden; }
 .student-dialog-teacher:hover, .student-dialog-guest:hover { background:#e6efeb; }
 .student-dialog-actions { display:flex; gap:10px; }
 .student-dialog-actions > * { flex:1 1 0; min-width:0; padding-inline:8px; white-space:nowrap; }
+/* 會員註冊 */
+.student-login-dialog:has(.student-dialog-register:not([hidden])) { width:min(460px,calc(100% - 32px)); }
+.student-dialog-form select { display:block; width:100%; min-width:0; height:46px; padding:10px 34px 10px 12px; border:1px solid #bfcec7; border-radius:9px; background:rgba(255,255,255,.8) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='none' stroke='%23567369' stroke-width='1.8'%3E%3Cpath d='M5 8l5 5 5-5'/%3E%3C/svg%3E") no-repeat right 10px center/16px; color:#172f32; font-family:inherit; font-size:16px; font-weight:400; line-height:1.4; appearance:none; }
+.student-dialog-form select:disabled { background-color:#f1f4f2; color:#7b8c86; cursor:default; }
+.student-login-dialog select:focus-visible { outline:3px solid #b68b40; outline-offset:2px; }
+.student-register-school { display:grid; grid-template-columns:minmax(0,2fr) minmax(0,3fr); gap:12px; }
+@media(max-width:420px) { .student-register-school { grid-template-columns:1fr; gap:16px; } }
+.student-register-source { margin-top:-8px; }
+.student-dialog-switch { margin:0; color:#536762; font-size:14px; text-align:center; }
+.student-dialog-switch button { padding:4px 2px; border:0; background:none; color:#137d73; font-weight:700; text-decoration:underline; text-underline-offset:3px; }
+.student-register-done, .student-bind-done { display:grid; gap:14px; }
+.student-register-done p, .student-bind-done p { margin:0; line-height:1.7; }
+.student-register-done strong, .student-bind-done strong { overflow-wrap:anywhere; }
 .student-contact-skip { width:100%; min-height:40px; margin-top:-4px; padding:8px 16px; border:0; background:none; color:#5b6b75; font-size:14px; text-decoration:underline; cursor:pointer; }
 .student-contact-skip:hover { color:#172c38; }

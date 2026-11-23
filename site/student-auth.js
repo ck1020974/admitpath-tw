@@ -55,6 +55,22 @@
   if (typeof module !== "undefined" && module.exports) { module.exports = { createClient, safeReturnUrl }; return; }
   const script = root.document.currentScript;
   const base = new URL("./", script.src);
+  // 會員點開註冊驗證信後會回到「?login=1&verified=1#access_token=…」或「#error=…」。
+  // 在網站讀取 # 路由之前先移除這段，不採用網址帶來的登入憑證（避免被他人連結登入成別的帳號），改請會員自行登入。
+  let verifyNotice = "";
+  try {
+    const landing = new URL(root.location.href);
+    const fragment = new URLSearchParams(landing.hash.slice(1));
+    const fromVerify = landing.searchParams.get("verified") === "1";
+    if (fromVerify || fragment.has("access_token") || fragment.has("error_code")) {
+      if (fragment.has("error_code") || fragment.has("error")) verifyNotice = fragment.get("error_code") === "otp_expired" ? "驗證連結已失效，請重新註冊或聯絡管理者。" : "信箱驗證沒有完成，請重新點開驗證信或稍後再試。";
+      else if (fromVerify || fragment.get("type") === "signup") verifyNotice = "信箱驗證完成，請用註冊信箱與密碼登入。";
+      if (fragment.has("access_token") || fragment.has("error_code") || fragment.has("error")) landing.hash = "";
+      landing.searchParams.delete("verified");
+      if (verifyNotice) landing.searchParams.set("login", "1");
+      root.history.replaceState(root.history.state, "", landing.pathname + landing.search + landing.hash);
+    }
+  } catch {}
   let sessionStorage; try { sessionStorage = root.sessionStorage; } catch {}
   const client = createClient({ config: root.YUHSIN_STUDENT_AUTH_CONFIG, fetcher: root.fetch.bind(root), origin: root.location.origin, storage: sessionStorage });
   const ready = client.session();
@@ -109,24 +125,29 @@
     if(id!==previousStudentId){previousStudentId=id;root.dispatchEvent(new CustomEvent('yuhsin-auth-change',{detail:{id}}));checkContact();}
   }
   let contactLoading;
-  function checkContact() {
-    if (!client.current) { root.YuhsinStudentContact?.check(root.YuhsinStudentAuth); return; }
-    if (client.current.role === "teacher") return;
+  // 信箱同意說明（student-contact.js）：登入後檢查，註冊表單也要用到同一份說明與版本。
+  function loadContact() {
+    if (root.YuhsinStudentContact) return Promise.resolve(root.YuhsinStudentContact);
     if (!contactLoading) contactLoading = new Promise((resolve, reject) => {
       const entry = root.document.createElement("script");
-      entry.src = new URL("student-contact.js?v=20261102-skip", base).href;
+      entry.src = new URL("student-contact.js?v=20261123-bind", base).href;
       entry.onload = resolve;
       entry.onerror = () => { entry.remove(); contactLoading = null; reject(new Error("contact module")); };
       root.document.body.append(entry);
     });
-    contactLoading.then(() => root.YuhsinStudentContact.check(root.YuhsinStudentAuth)).catch(() => {});
+    return contactLoading.then(() => root.YuhsinStudentContact);
   }
-  root.YuhsinStudentAuth = { client, ready, teacherClient, teacherReady, baseUrl: base.href, safeReturnUrl, renderLinks, entryAllowed, requireEntry, settleEntry, setGuestEntry, carryGuestEntry, get entryPending() { return Boolean(entryGate); } };
+  function checkContact() {
+    if (!client.current) { root.YuhsinStudentContact?.check(root.YuhsinStudentAuth); return; }
+    if (client.current.role === "teacher") return;
+    loadContact().then(contact => contact.check(root.YuhsinStudentAuth)).catch(() => {});
+  }
+  root.YuhsinStudentAuth = { client, ready, teacherClient, teacherReady, baseUrl: base.href, safeReturnUrl, renderLinks, entryAllowed, requireEntry, settleEntry, setGuestEntry, carryGuestEntry, loadContact, takeVerifyNotice() { const text = verifyNotice; verifyNotice = ""; return text; }, get entryPending() { return Boolean(entryGate); } };
   let dialogLoading;
   function openDialog() {
     if (!dialogLoading) dialogLoading = new Promise((resolve, reject) => {
       const entry = root.document.createElement("script");
-      entry.src = new URL("student-login-dialog.js?v=20261106-gate", base).href;
+      entry.src = new URL("student-login-dialog.js?v=20261123-bind", base).href;
       entry.onload = resolve;
       entry.onerror = () => { entry.remove(); dialogLoading = null; reject(new Error("無法載入登入視窗，請稍後再試。")); };
       root.document.body.append(entry);
