@@ -45,4 +45,20 @@ for(const type of ['priority','potential'])assert.deepEqual(model.subjectHint({t
 for(const type of ['develop','interest'])assert.deepEqual(model.subjectHint({type,subjects}),{label:'補強',subjects:['英文','數學']});
 assert.deepEqual(model.subjectHint({type:'interest',subjects:[]}),{label:'補強',subjects:[]});
 assert.deepEqual(mixed.map(r=>r.type),['other','interest','develop','priority','potential'],'Display selection must not change stored classifications');
-console.log('Teacher directions: 2–6 limits, category order, search and subject hints passed.');
+// 自行註冊的會員：沒有學號與班級；縣市／學校篩選與搜尋。
+const kcis={county:'新北市',school_name:'新北市林口康橋國際高中'};
+const rosterKid={...a,...kcis,account_type:'roster'};
+const member={id:'fake-m',name:'測試會員',student_id:null,teaching_group:'會員',original_class:'',account_type:'member',county:'臺北市',school_name:'市立建國中學'};
+assert(model.isMember(member)&&!model.isMember(rosterKid));
+assert(model.matches(member,{search:'測試'}),'search must not fail on a missing student ID');
+assert(model.matches(member,{search:'建國'}),'search finds the school name');
+assert(model.matches(member,{county:'臺北市',school:'市立建國中學'}));assert(!model.matches(member,{county:'新北市'}));
+assert.equal(model.schoolName(rosterKid),'林口康橋');assert.equal(model.schoolLabel(rosterKid),'新北市／林口康橋');
+assert(model.matches(rosterKid,{school:'林口康橋'}));assert(!model.matches(rosterKid,{school:'市立建國中學'}));
+assert(model.matches(rosterKid,{search:'林口康橋'})&&model.matches(rosterKid,{search:'國際高中'}),'search finds short and official names');
+assert(model.matches(member,{group:'會員'}));assert(!model.matches(member,{grade:'G10'}));
+assert.equal(model.schoolLabel(member),'臺北市／市立建國中學');assert.equal(model.schoolLabel({}),'未填學校');
+assert.deepEqual(model.schoolOptions([rosterKid,{...rosterKid,id:'x'},member]),[
+  {county:'新北市',count:2,schools:[{name:'林口康橋',count:2}]},
+  {county:'臺北市',count:1,schools:[{name:'市立建國中學',count:1}]}]);
+console.log('Teacher directions: 2–6 limits, category order, search, subject hints and school filters passed.');

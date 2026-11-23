@@ -175,7 +175,7 @@
         await profile();
         const students = [];
         for (let offset = 0; ; offset += 200) {
-          const query = new URLSearchParams({ select: 'id,student_id,name,teaching_group,original_class,original_seat_number,active', order: 'teaching_group.asc,original_class.asc,original_seat_number.asc,student_id.asc', limit: '200', offset: String(offset) });
+          const query = new URLSearchParams({ select: 'id,student_id,name,teaching_group,original_class,original_seat_number,active,account_type,county,school_name', order: 'teaching_group.asc,original_class.asc,original_seat_number.asc,student_id.asc,created_at.asc', limit: '200', offset: String(offset) });
           const rows = await request('/rest/v1/students?' + query, { token: tokens.access_token });
           if (!Array.isArray(rows)) throw new Error('無法讀取學生名單，請稍後再試。');
           students.push(...rows);

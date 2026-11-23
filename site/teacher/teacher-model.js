@@ -55,11 +55,30 @@
     const label=status==='deep'?(groups.length?groups.join('、'):'無'):examOptions.find(o=>o.value===status)?.label||'未作答';
     return {status,label,groups,items};
   }
-  function matches(student,{search='',grade:gradeFilter='',group:groupFilter='',login:loginFilter='',exam:examFilter='',tag=''}={},summary,now=Date.now()){
+  // 學校：名單學生與自行註冊的會員都有縣市與學校；舊資料缺少時顯示「未填學校」。
+  const isMember=student=>student.account_type==='member';
+  // 畫面上的簡稱；資料庫仍保存教育部正式校名。
+  const schoolShort={'新北市林口康橋國際高中':'林口康橋'};
+  const schoolName=student=>student.school_name?(schoolShort[student.school_name]||student.school_name):'未填學校';
+  const schoolLabel=student=>[student.county,student.school_name&&schoolName(student)].filter(Boolean).join('／')||'未填學校';
+  // 依縣市整理出名單中出現的學校與人數，供篩選選單使用。
+  function schoolOptions(students=[]){
+    const counties=new Map();
+    for(const s of students){
+      const county=s.county||'未填縣市',school=schoolName(s);
+      if(!counties.has(county))counties.set(county,new Map());
+      const schools=counties.get(county);schools.set(school,(schools.get(school)||0)+1);
+    }
+    return [...counties].map(([county,schools])=>({county,count:[...schools.values()].reduce((a,b)=>a+b,0),schools:[...schools].map(([name,count])=>({name,count})).sort((a,b)=>b.count-a.count||a.name.localeCompare(b.name,'zh-Hant'))}))
+      .sort((a,b)=>b.count-a.count||a.county.localeCompare(b.county,'zh-Hant'));
+  }
+  function matches(student,{search='',grade:gradeFilter='',group:groupFilter='',login:loginFilter='',exam:examFilter='',tag='',county:countyFilter='',school:schoolFilter=''}={},summary,now=Date.now()){
     const query=search.trim().toLocaleLowerCase();
     // Search also finds a 優先學群 by abbreviation (醫衛) or full name (醫藥衛生學群).
     const groupText=exam(summary).items.flatMap(g=>[g.name,abbreviate(g.name)]).join(' ').toLocaleLowerCase();
-    return (!query||student.name.toLocaleLowerCase().includes(query)||student.student_id.toLowerCase().includes(query)||groupText.includes(query)||(summary?.contact_email||'').toLocaleLowerCase().includes(query))
+    return (!query||student.name.toLocaleLowerCase().includes(query)||String(student.student_id||'').toLowerCase().includes(query)||groupText.includes(query)||(summary?.contact_email||'').toLocaleLowerCase().includes(query)||(schoolLabel(student)+' '+(student.school_name||'')).toLocaleLowerCase().includes(query))
+      &&(!countyFilter||(student.county||'未填縣市')===countyFilter)
+      &&(!schoolFilter||schoolName(student)===schoolFilter)
       &&(!gradeFilter||(gradeFilter.startsWith('G')?grade(student)===gradeFilter:String(student.original_class)===gradeFilter))
       &&(!groupFilter||group(student)===groupFilter)
       &&(!loginFilter||login(summary?.last_sign_in_at,now)===loginFilter)
@@ -72,6 +91,6 @@
     const diff=value(a)-value(b);
     return diff===0?0:(diff<0?-1:1)*(direction==='desc'?-1:1);
   }
-  const api={directions,subjectHint,channelShort,gradeOptions,groupOptions,loginOptions,examOptions,group,grade,abbreviate,login,loginDate,exam,matches,compare};
+  const api={isMember,schoolName,schoolLabel,schoolOptions,directions,subjectHint,channelShort,gradeOptions,groupOptions,loginOptions,examOptions,group,grade,abbreviate,login,loginDate,exam,matches,compare};
   if(typeof module!=='undefined'&&module.exports)module.exports=api;else root.YuhsinTeacherModel=api;
 })(typeof window!=='undefined'?window:globalThis);

@@ -119,7 +119,8 @@
   }
   async function openStudent(student,tab='tracking'){
     clearDetail();selectedStudent=student;const version=detailEpoch;
-    $('detailTitle').textContent=student.name;$('detailIdentity').replaceChildren(...[student.original_class+' 班 '+student.original_seat_number+' 號',model.group(student),student.student_id].map(value=>text('span',value)));
+    const identity=model.isMember(student)?['會員',model.schoolLabel(student)]:[student.original_class+' 班 '+student.original_seat_number+' 號',model.group(student),student.student_id,model.schoolLabel(student)];
+    $('detailTitle').textContent=student.name;$('detailIdentity').replaceChildren(...identity.map(value=>text('span',value)));
     const email=contacts.get(student.id);
     if(email)$('detailIdentity').append(contactChip(email));
     selectTab(tab);updateNav();
@@ -152,7 +153,7 @@
   function askDelete(student){
     deleteTarget=student;message('deleteStatus','');
     const seat=String(student.original_seat_number||'').replace(/^0+(?=\d)/,'');
-    const who=document.createElement('strong');who.textContent=student.name+'（'+student.original_class+' 班 '+seat+' 號）';
+    const who=document.createElement('strong');who.textContent=student.name+'（'+(model.isMember(student)?'會員・'+model.schoolName(student):student.original_class+' 班 '+seat+' 號')+'）';
     $('deleteText').replaceChildren('確定要刪除 ',who,' 的所有學群探索作答與結果，',document.createElement('br'),'操作後將無法復原。');
     for(const id of ['deleteCancel','deleteConfirm'])$(id).disabled=false;$('deleteConfirm').textContent='刪除';
     deleteDialog.showModal();$('deleteCancel').focus();
@@ -175,7 +176,7 @@
   });
   function clearWorkspace(reset=true) {
     closeDialog();if(deleteDialog.open)deleteDialog.close();clearDetail();epoch++;students=[];filtered=[];summaries=new Map();contacts=new Map();summaryReady=false;$('students').replaceChildren();
-    if(reset){for(const id of ['search','grade','group'])$(id).value='';fillGroups();picks={login:'',exam:''};sort={key:'',direction:'asc'};}
+    if(reset){for(const id of ['search','grade','group','county','school'])$(id).value='';fillGroups();picks={login:'',exam:''};sort={key:'',direction:'asc'};}
     $('workspace').hidden=true;$('filters').hidden=true;$('ownerStatsButton').hidden=true;if(ownerDialog.open)ownerDialog.close();$('count').textContent='';$('empty').hidden=true;message('summaryStatus','');
   }
   function showLogin() { clearWorkspace(); $('signedOut').hidden = false; }
@@ -199,20 +200,22 @@
     make('exam',model.examOptions,s=>summaries.get(s.id)?.exam_status||'none');
   }
   function render() {
-    const now=Date.now(),base={search:$('search').value,grade:$('grade').value,group:$('group').value};
+    const now=Date.now(),base={search:$('search').value,grade:$('grade').value,group:$('group').value,county:$('county').value,school:$('school').value};
     const baseList=students.filter(student=>model.matches(student,base,withContact(student.id),now));
     filtered=summaryReady?baseList.filter(student=>model.matches(student,{login:picks.login,exam:picks.exam},summaries.get(student.id),now)):baseList;
     if(sort.key)filtered=filtered.map((s,i)=>[s,i]).sort((x,y)=>model.compare(sort.key,sort.direction,summaries.get(x[0].id),summaries.get(y[0].id))||x[1]-y[1]).map(x=>x[0]);
     $('overviewRows').hidden=!summaryReady;
     if(summaryReady)renderPills(baseList,now);
     const showGroup=!$('group').value;$('groupHead').hidden=!showGroup;
+    const showSchool=schoolsVisible()&&!$('school').value;$('schoolHead').hidden=!showSchool;
     const canDelete=summaryReady&&client.current?.canManageAccounts===true;$('deleteHead').hidden=!canDelete;
     for(const th of document.querySelectorAll('th[data-sort]'))th.setAttribute('aria-sort',sort.key===th.dataset.sort?(sort.direction==='asc'?'ascending':'descending'):'none');
     const fragment = document.createDocumentFragment();
     for (const s of filtered) {
       const summary=summaries.get(s.id),row = document.createElement('tr');row.addEventListener('click',()=>openStudent(s,'tracking'));
       const name=document.createElement('td'),button=text('button',s.name,'student-select');button.type='button';button.dataset.studentId=s.id;button.setAttribute('aria-label','查看 '+s.name+' 的詳細資料');button.addEventListener('click',event=>{event.stopPropagation();openStudent(s,'tracking');});
-      name.append(button);if(!s.active)name.append(text('span','停用','inactive'));name.append(text('span',s.original_class+'・'+s.original_seat_number+' 號','sub'));row.append(name);
+      name.append(button);if(!s.active)name.append(text('span','停用','inactive'));name.append(text('span',model.isMember(s)?'會員':s.original_class+'・'+s.original_seat_number+' 號','sub'));row.append(name);
+      if(showSchool){const cell=text('td',model.schoolName(s),'c-school');if(s.county)cell.append(text('span',s.county,'sub'));cell.title=model.schoolLabel(s);row.append(cell);}
       if(showGroup)row.append(text('td',model.group(s),'nowrap'));
       const loginCell=document.createElement('td'),trackCell=document.createElement('td'),examCell=document.createElement('td');trackCell.className='num';loginCell.className='login-cell';
       if(!summaryReady){for(const cell of [loginCell,trackCell,examCell])cell.append(text('span','—','muted'));}
@@ -259,6 +262,7 @@
     const [rows,summary,contactRows,directions] = await Promise.all([client.listStudents(),client.rosterSummary().then(value=>({value}),error=>({error})),typeof client.adminContacts==='function'?client.adminContacts().catch(()=>[]):[],client.rosterDirections().then(value=>({value}),error=>({error}))]);
     if (version !== epoch) return;
     students = rows;
+    fillSchools();fillGroups();
     summaryReady=!summary.error;summaries=new Map(summaryReady?summary.value.map(r=>[r.student,r]):[]);
     if(directions.value)for(const [student,groups] of directions.value){const summary=summaries.get(student);if(summary)summary.direction_groups=groups;}
     // 只有網站管理者會拿到信箱，用於標題列顯示與搜尋。
@@ -287,12 +291,30 @@
   function fillGroups(){
     const prefix=($('grade').value.match(/^(?:G)?(\d\d)/)||[])[1]||'',current=$('group').value;
     const options=model.groupOptions.filter(value=>!prefix||value.startsWith(prefix));
+    // 自行註冊的會員沒有班級，班群統一為「會員」。
+    if(!prefix&&students.some(model.isMember))options.push('會員');
     const all=document.createElement('option');all.value='';all.textContent='班群';
     $('group').replaceChildren(all,...options.map(value=>{const option=document.createElement('option');option.value=option.textContent=value;return option;}));
     $('group').value=options.includes(current)?current:'';
   }
+  // 縣市／學校篩選：網站管理者一律顯示；一般老師的名單只有一所學校時不顯示。
+  function schoolsVisible(){
+    const options=model.schoolOptions(students);
+    return client.current?.canManageAccounts===true||options.reduce((n,c)=>n+c.schools.length,0)>1;
+  }
+  function fillSchools(){
+    const visible=schoolsVisible();$('county').hidden=$('school').hidden=!visible;
+    const options=model.schoolOptions(students),county=$('county').value,school=$('school').value;
+    const option=(value,label)=>{const o=document.createElement('option');o.value=value;o.textContent=label;return o;};
+    $('county').replaceChildren(option('','縣市'),...options.map(c=>option(c.county,c.county+'（'+c.count+'）')));
+    $('county').value=options.some(c=>c.county===county)?county:'';
+    const schools=$('county').value?options.find(c=>c.county===$('county').value).schools:options.flatMap(c=>c.schools);
+    $('school').replaceChildren(option('','學校'),...schools.map(s=>option(s.name,s.name+'（'+s.count+'）')));
+    $('school').value=schools.some(s=>s.name===school)?school:'';
+  }
+  $('county').addEventListener('change',()=>{fillSchools();render();});
   fillGroups();$('grade').addEventListener('change',fillGroups);
-  for (const id of ['search','group','grade']) $(id).addEventListener(id === 'search' ? 'input' : 'change',render);
+  for (const id of ['search','group','grade','school']) $(id).addEventListener(id === 'search' ? 'input' : 'change',render);
   // The roster loads once per login (or page load); switching tabs or windows keeps the current view.
   (async () => { try { if (await client.session()) await workspace(); else { showLogin(); message('status',''); } } catch(error) { showLogin(); message('status',error.message); } })();
 })();
