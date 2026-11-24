@@ -57,10 +57,9 @@
   }
   // 學校：名單學生與自行註冊的會員都有縣市與學校；舊資料缺少時顯示「未填學校」。
   const isMember=student=>student.account_type==='member';
-  // 畫面上的簡稱；資料庫仍保存教育部正式校名。
-  const schoolShort={'新北市林口康橋國際高中':'林口康橋'};
-  const schoolName=student=>student.school_name?(schoolShort[student.school_name]||student.school_name):'未填學校';
-  const schoolLabel=student=>[student.county,student.school_name&&schoolName(student)].filter(Boolean).join('／')||'未填學校';
+  // 顯示教育部正式校名。
+  const schoolName=student=>student.school_name||'未填學校';
+  const schoolLabel=student=>[student.county,student.school_name].filter(Boolean).join('／')||'未填學校';
   // 依縣市整理出名單中出現的學校與人數，供篩選選單使用。
   function schoolOptions(students=[]){
     const counties=new Map();
@@ -76,7 +75,7 @@
     const query=search.trim().toLocaleLowerCase();
     // Search also finds a 優先學群 by abbreviation (醫衛) or full name (醫藥衛生學群).
     const groupText=exam(summary).items.flatMap(g=>[g.name,abbreviate(g.name)]).join(' ').toLocaleLowerCase();
-    return (!query||student.name.toLocaleLowerCase().includes(query)||String(student.student_id||'').toLowerCase().includes(query)||groupText.includes(query)||(summary?.contact_email||'').toLocaleLowerCase().includes(query)||(schoolLabel(student)+' '+(student.school_name||'')).toLocaleLowerCase().includes(query))
+    return (!query||student.name.toLocaleLowerCase().includes(query)||String(student.student_id||'').toLowerCase().includes(query)||groupText.includes(query)||(summary?.contact_email||'').toLocaleLowerCase().includes(query)||schoolLabel(student).toLocaleLowerCase().includes(query)||group(student).toLocaleLowerCase().includes(query))
       &&(!countyFilter||(student.county||'未填縣市')===countyFilter)
       &&(!schoolFilter||schoolName(student)===schoolFilter)
       &&(!gradeFilter||(gradeFilter.startsWith('G')?grade(student)===gradeFilter:String(student.original_class)===gradeFilter))

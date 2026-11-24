@@ -297,9 +297,7 @@
       query(".student-dialog-name").textContent = student.name;
       const list = query("dl");
       list.replaceChildren();
-      // 畫面顯示簡稱；資料庫保存教育部正式校名。
-      const shortName = { "新北市林口康橋國際高中": "林口康橋" }[student.schoolName] || student.schoolName;
-      const school = [student.county, shortName].filter(Boolean).join("／");
+      const school = [student.county, student.schoolName].filter(Boolean).join("／");
       const rows = student.accountType === "member"
         ? [["身分", "會員"], ["學校", school]]
         : [["學號", student.studentId], ["學校", school], ["原班級", student.originalClass], ["座號", student.originalSeatNumber]];

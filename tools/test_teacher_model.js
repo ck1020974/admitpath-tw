@@ -53,12 +53,13 @@ assert(model.isMember(member)&&!model.isMember(rosterKid));
 assert(model.matches(member,{search:'測試'}),'search must not fail on a missing student ID');
 assert(model.matches(member,{search:'建國'}),'search finds the school name');
 assert(model.matches(member,{county:'臺北市',school:'市立建國中學'}));assert(!model.matches(member,{county:'新北市'}));
-assert.equal(model.schoolName(rosterKid),'林口康橋');assert.equal(model.schoolLabel(rosterKid),'新北市／林口康橋');
-assert(model.matches(rosterKid,{school:'林口康橋'}));assert(!model.matches(rosterKid,{school:'市立建國中學'}));
-assert(model.matches(rosterKid,{search:'林口康橋'})&&model.matches(rosterKid,{search:'國際高中'}),'search finds short and official names');
+assert.equal(model.schoolName(rosterKid),'新北市林口康橋國際高中');assert.equal(model.schoolLabel(rosterKid),'新北市／新北市林口康橋國際高中');
+assert(model.matches(rosterKid,{school:'新北市林口康橋國際高中'}));assert(!model.matches(rosterKid,{school:'市立建國中學'}));
+assert(model.matches(rosterKid,{search:'林口康橋'}),'search finds the school name');
+assert(model.matches(rosterKid,{search:'10理A'})&&model.matches(member,{search:'會員'})&&!model.matches(rosterKid,{search:'12文H'}),'search finds the 班群 even without a 班群 column');
 assert(model.matches(member,{group:'會員'}));assert(!model.matches(member,{grade:'G10'}));
 assert.equal(model.schoolLabel(member),'臺北市／市立建國中學');assert.equal(model.schoolLabel({}),'未填學校');
 assert.deepEqual(model.schoolOptions([rosterKid,{...rosterKid,id:'x'},member]),[
-  {county:'新北市',count:2,schools:[{name:'林口康橋',count:2}]},
+  {county:'新北市',count:2,schools:[{name:'新北市林口康橋國際高中',count:2}]},
   {county:'臺北市',count:1,schools:[{name:'市立建國中學',count:1}]}]);
 console.log('Teacher directions: 2–6 limits, category order, search, subject hints and school filters passed.');

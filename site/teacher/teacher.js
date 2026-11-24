@@ -206,7 +206,6 @@
     if(sort.key)filtered=filtered.map((s,i)=>[s,i]).sort((x,y)=>model.compare(sort.key,sort.direction,summaries.get(x[0].id),summaries.get(y[0].id))||x[1]-y[1]).map(x=>x[0]);
     $('overviewRows').hidden=!summaryReady;
     if(summaryReady)renderPills(baseList,now);
-    const showGroup=!$('group').value;$('groupHead').hidden=!showGroup;
     const showSchool=schoolsVisible()&&!$('school').value;$('schoolHead').hidden=!showSchool;
     const canDelete=summaryReady&&client.current?.canManageAccounts===true;$('deleteHead').hidden=!canDelete;
     for(const th of document.querySelectorAll('th[data-sort]'))th.setAttribute('aria-sort',sort.key===th.dataset.sort?(sort.direction==='asc'?'ascending':'descending'):'none');
@@ -216,7 +215,6 @@
       const name=document.createElement('td'),button=text('button',s.name,'student-select');button.type='button';button.dataset.studentId=s.id;button.setAttribute('aria-label','查看 '+s.name+' 的詳細資料');button.addEventListener('click',event=>{event.stopPropagation();openStudent(s,'tracking');});
       name.append(button);if(!s.active)name.append(text('span','停用','inactive'));name.append(text('span',model.isMember(s)?'會員':s.original_class+'・'+s.original_seat_number+' 號','sub'));row.append(name);
       if(showSchool){const cell=text('td',model.schoolName(s),'c-school');if(s.county)cell.append(text('span',s.county,'sub'));cell.title=model.schoolLabel(s);row.append(cell);}
-      if(showGroup)row.append(text('td',model.group(s),'nowrap'));
       const loginCell=document.createElement('td'),trackCell=document.createElement('td'),examCell=document.createElement('td');trackCell.className='num';loginCell.className='login-cell';
       if(!summaryReady){for(const cell of [loginCell,trackCell,examCell])cell.append(text('span','—','muted'));}
       else{
@@ -267,7 +265,7 @@
     if(directions.value)for(const [student,groups] of directions.value){const summary=summaries.get(student);if(summary)summary.direction_groups=groups;}
     // 只有網站管理者會拿到信箱，用於標題列顯示與搜尋。
     contacts=new Map(contactRows.map(row=>[row.student,row.contact_email]));
-    const placeholder=contacts.size||client.current?.canManageAccounts?'搜尋姓名、學號或信箱':'搜尋姓名或學號';$('search').placeholder=placeholder;$('search').setAttribute('aria-label',placeholder);
+    const placeholder=contacts.size||client.current?.canManageAccounts?'搜尋姓名、學號、班群或信箱':'搜尋姓名、學號或班群';$('search').placeholder=placeholder;$('search').setAttribute('aria-label',placeholder);
     message('summaryStatus',!summaryReady?'登入與作答狀況暫時無法載入，請稍後重新整理。':directions.error?'完整學群摘要暫時無法載入，目前僅顯示優先探索，請稍後重新整理。':'');
     render();message('status','');$('signedOut').hidden=true;$('workspace').hidden=false;$('filters').hidden=false;
     // 網站數據按鈕：只有後端確認是網站管理者（owner_site_stats 回傳資料）才顯示。
