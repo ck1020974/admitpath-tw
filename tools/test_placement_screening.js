@@ -71,14 +71,17 @@ assert.equal(context.placementCardNote({ status: 'near', gapTotal: 1 }), '約差
 // 空白校排不能當作前 0%；缺少分發錄取分數或無法判斷的成績也不能顯示符合。
 Object.assign(context, { advancedSubjectKey: String, shortSubject: String,
   state: { gsatStandards: standards }, placementRecordRequirements: () => context.testRequirements });
-for (const name of ['evaluatePlacementRecord', 'placementRequirementResult', 'placementScoreValue']) {
+for (const name of ['evaluatePlacementRecord', 'evaluatePlacementRecordBase', 'placementSafetyMargin', 'placementRequirementResult', 'placementScoreValue']) {
   vm.runInContext(app.match(new RegExp(`function ${name}\\([\\s\\S]*?\\n\\}`))[0], context);
 }
 context.testRequirements = [{ kind: 'percent', subjects: ['在校'], threshold: 5, source: '校排' }];
 const star = { channelKey: 'star_recommendation' };
 assert.equal(context.evaluatePlacementRecord(star, { scores: {} }).status, 'missing');
-assert.equal(context.evaluatePlacementRecord(star, { scores: { 在校: 3 } }).status, 'match');
-assert.notEqual(context.evaluatePlacementRecord(star, { scores: { 在校: 6 } }).status, 'match');
+// 校排門檻 5%：剛好或只好 1 個百分點為符合，好 2 個以上為保底。
+assert.equal(context.evaluatePlacementRecord(star, { scores: { 在校: 5 } }).status, 'match');
+assert.equal(context.evaluatePlacementRecord(star, { scores: { 在校: 4 } }).status, 'match');
+assert.equal(context.evaluatePlacementRecord(star, { scores: { 在校: 3 } }).status, 'safe');
+assert(!['match', 'safe'].includes(context.evaluatePlacementRecord(star, { scores: { 在校: 6 } }).status));
 context.testRequirements = [];
 assert.equal(context.evaluatePlacementRecord({ channelKey: 'exam_distribution' }, { scores: all15 }).status, 'missing');
 context.testRequirements = [{ kind: 'weightedTotal', subjects: ['數甲'], weighted: [{ subject: '數甲', weight: 1 }], threshold: null }];
