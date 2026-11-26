@@ -14,8 +14,8 @@ const ctx = { state: { records, groups, filters: { advanced: {} }, placement: {}
   renderPlacementAnalysis() {}, hydratePlacementResultFilters() {}, renderAdvancedFilterDrawer() {},
 };
 vm.createContext(ctx);
-for (const name of ['normalize', 'recordSearchText', 'queryKeywordMatches', 'refreshQueryYears', 'renderQueryShortcuts',
-  'placementSchoolScopeAllows', 'isInternationalDualDegree', 'quickCategoryNeedles', 'categorySelectionNames', 'cachedGroupNeedles', 'shortcutList', 'schoolScopesAllow', 'regionsAllow', 'quickCategoriesNeedles', 'groupRowsToNeedles', 'stripSchoolCampus', 'matchesGroup', 'applyFilters',
+for (const name of ['normalize', 'recordSearchText', 'queryKeywordMatches', 'refreshQueryYears', 'renderQueryShortcuts', 'showHotTab', 'setSchoolDetailOpen',
+  'placementSchoolScopeAllows', 'isInternationalDualDegree', 'quickCategoryNeedles', 'categorySelectionNames', 'cachedGroupNeedles', 'shortcutList', 'schoolScopesAllow', 'regionsAllow', 'quickCategoriesMatch', 'groupRowsToNeedles', 'stripSchoolCampus', 'matchesGroup', 'applyFilters',
   'placementMatchesFilters', 'defaultPlacementState', 'placementProfile', 'placementSubjects', 'resetPlacementFilters', 'defaultAdvancedFilters']) {
   vm.runInContext(source.match(new RegExp('function ' + name + '\\([\\s\\S]*?\\n\\}'))[0], ctx);
 }

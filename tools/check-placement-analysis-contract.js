@@ -114,6 +114,8 @@ vm.runInContext([
   extractFunction("placementAnalysisRows"),
   extractFunction("placementStatusWeight"),
   extractFunction("evaluatePlacementRecord"),
+  extractFunction("evaluatePlacementRecordBase"),
+  extractFunction("placementSafetyMargin"),
   extractFunction("evaluateTechPlacement"),
   extractFunction("formatTechLevel"),
   extractFunction("formatTechGap"),
@@ -177,7 +179,7 @@ if (sandbox.placementMatchesFilters(ntuLiterature, profile)) {
 }
 
 const evaluation = sandbox.evaluatePlacementRecord(ntuCs, profile);
-if (!["match", "near", "miss", "missing"].includes(evaluation.status)) {
+if (!["safe", "match", "near", "miss", "missing"].includes(evaluation.status)) {
   fail(`Unexpected placement status: ${evaluation.status}`);
 }
 if (!Array.isArray(evaluation.requirements) || !evaluation.requirements.length) {
@@ -197,6 +199,30 @@ if (mergedRequirements.length !== 2 || mergedRequirements.find((item) => item.su
 }
 if (sandbox.placementRequirementLabel({ kind: "score", subjects: ["國文"], actual: 11, threshold: 13 }) !== "國文 11／13") {
   fail("Single-subject labels should clearly separate the entered score and the threshold.");
+}
+
+// 保底：最緊的篩選門檻超過 2 分以上；檢定只需通過，不影響保底判斷。
+const margin = (reqs) => sandbox.placementSafetyMargin(reqs);
+if (margin([{ status: "match", gap: -2, source: "倍率篩選" }, { status: "match", gap: -5, source: "倍率篩選" }]) !== 2) {
+  fail("Safety margin should use the tightest screening threshold.");
+}
+if (margin([{ status: "match", gap: -3, source: "倍率篩選" }, { status: "match", gap: 0, source: "檢定" }]) !== 3) {
+  fail("Pass/fail 檢定 thresholds should not block 保底.");
+}
+const star = (rank) => sandbox.evaluatePlacementRecord(
+  { channelKey: "star_recommendation", starRankStandard: { academicRankPercentileStandard: "20%" } },
+  { ...profile, scores: { ...profile.scores, 在校: rank } }).status;
+if (star(20) !== "match" || star(19) !== "match" || star(18) !== "safe" || star(21) === "safe") {
+  fail("Exactly meeting or +1 should be 符合; +2 or more should be 保底.");
+}
+
+const ntnu = { schoolName: "國立臺灣師範大學" };
+const ncue = { schoolName: "國立彰化師範大學" };
+if (!sandbox.placementSchoolScopeAllows(ntnu, "ntnu") || sandbox.placementSchoolScopeAllows(ncue, "ntnu")) {
+  fail("師大 should only include 國立臺灣師範大學.");
+}
+if (sandbox.placementSchoolScopeAllows(ntnu, "teacher") || !sandbox.placementSchoolScopeAllows(ncue, "teacher")) {
+  fail("師範 should include other normal/education universities but not 臺師大.");
 }
 
 const started = Date.now();

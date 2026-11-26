@@ -19,8 +19,8 @@ const ctx = { state: { records, groups, results: {}, view: 'workbench', linkedGr
 };
 vm.createContext(ctx);
 vm.runInContext('let advancedFilterDraft = null;', ctx);
-for (const name of ['normalize', 'recordSearchText', 'queryKeywordMatches', 'refreshQueryYears', 'renderQueryShortcuts',
-  'placementSchoolScopeAllows', 'isInternationalDualDegree', 'quickCategoryNeedles', 'categorySelectionNames', 'cachedGroupNeedles', 'shortcutList', 'schoolScopesAllow', 'regionsAllow', 'quickCategoriesNeedles', 'groupRowsToNeedles', 'stripSchoolCampus', 'matchesGroup', 'applyFilters',
+for (const name of ['normalize', 'recordSearchText', 'queryKeywordMatches', 'refreshQueryYears', 'renderQueryShortcuts', 'showHotTab', 'setSchoolDetailOpen',
+  'placementSchoolScopeAllows', 'isInternationalDualDegree', 'quickCategoryNeedles', 'categorySelectionNames', 'cachedGroupNeedles', 'shortcutList', 'schoolScopesAllow', 'regionsAllow', 'quickCategoriesMatch', 'groupRowsToNeedles', 'stripSchoolCampus', 'matchesGroup', 'applyFilters',
   'placementMatchesFilters', 'defaultPlacementState', 'placementProfile', 'placementSubjects', 'defaultAdvancedFilters',
   'cloneAdvancedFilters', 'currentAdvancedFilters', 'clearOuterSchoolFilters', 'openAdvancedFilters', 'closeAdvancedFilters',
   'recordMatchesAdvancedFilters', 'specialAdmissionModeAllows', 'advancedSubjectKey', 'recordSubjectKeys',

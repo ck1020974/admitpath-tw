@@ -265,7 +265,8 @@
             </div>
             <div class="advanced-filter-summary" id="placementAdvancedFilterSummary"></div>
             <div class="action-group placement-result-tabs" aria-label="結果狀態">
-              <button class="ghost-button placement-result-tab match" data-placement-result-tab="match">符合<span class="placement-tab-count" data-placement-tab-count="match"></span></button>
+              <button class="ghost-button placement-result-tab safe" data-placement-result-tab="safe" title="每個篩選門檻都超過 2 分以上">保底<span class="placement-tab-count" data-placement-tab-count="safe"></span></button>
+              <button class="ghost-button placement-result-tab match" data-placement-result-tab="match" title="剛好達標或只超過 1 分">符合<span class="placement-tab-count" data-placement-tab-count="match"></span></button>
               <button class="ghost-button placement-result-tab near" data-placement-result-tab="near">接近<span class="placement-tab-count" data-placement-tab-count="near"></span></button>
               <button class="ghost-button placement-result-tab miss" data-placement-result-tab="miss">未達<span class="placement-tab-count" data-placement-tab-count="miss"></span></button>
               <button class="ghost-button placement-result-tab missing" data-placement-result-tab="missing">資料不足<span class="placement-tab-count" data-placement-tab-count="missing"></span></button>
@@ -333,44 +334,157 @@
         <button type="button" class="placement-chip" data-placement-school-scope="public">公立</button>
         <button type="button" class="placement-chip" data-placement-school-scope="private">私立</button>
         <button type="button" class="placement-chip top-school" data-placement-school-scope="top">頂大</button>
+        <button type="button" class="school-detail-toggle" data-school-detail-toggle aria-expanded="false">細項</button>
+        <span class="placement-popular-label region-inline-label">地區</span>
+        <button type="button" class="placement-chip" data-placement-region="taipei">雙北</button>
+        <button type="button" class="placement-chip" data-placement-region="taoyuan">桃竹苗</button>
+        <button type="button" class="placement-chip" data-placement-region="taichung">中彰投</button>
+        <button type="button" class="placement-chip" data-placement-region="chiayi">雲嘉南</button>
+        <button type="button" class="placement-chip" data-placement-region="east">宜花東</button>
+        <button type="button" class="placement-chip" data-placement-region="kaoping">高屏</button>
+        <button type="button" class="placement-chip" data-placement-region="islands">離島</button>
+      </div>
+      <!-- 細項：個別學校與學校類型，平常收起；有選取時自動展開。 -->
+      <div class="placement-chip-row school-detail-row" data-school-detail hidden>
+        <span class="placement-popular-label" aria-hidden="true"></span>
         <button type="button" class="placement-chip" data-placement-school-scope="ntu">台大</button>
         <button type="button" class="placement-chip" data-placement-school-scope="nthu">清大</button>
         <button type="button" class="placement-chip" data-placement-school-scope="nycu">交大</button>
         <button type="button" class="placement-chip" data-placement-school-scope="ncku">成大</button>
         <button type="button" class="placement-chip" data-placement-school-scope="nccu">政大</button>
+        <span class="placement-chip-sep" aria-hidden="true"></span>
+        <button type="button" class="placement-chip" data-placement-school-scope="ntnu" title="國立臺灣師範大學">師大</button>
         <button type="button" class="placement-chip" data-placement-school-scope="ntpu">北大</button>
+        <button type="button" class="placement-chip" data-placement-school-scope="central" title="中央、中興、中山、中正">中字輩</button>
         <button type="button" class="placement-chip" data-placement-school-scope="scu">東吳</button>
-        <button type="button" class="placement-chip" data-placement-school-scope="teacher">師範</button>
-        <button type="button" class="placement-chip" data-placement-school-scope="central">中字輩</button>
-        <button type="button" class="placement-chip" data-placement-school-scope="tech">科大</button>
+        <button type="button" class="placement-chip" data-placement-school-scope="fju" title="輔仁大學">輔大</button>
+        <button type="button" class="placement-chip" data-placement-school-scope="ntust" title="國立臺灣科技大學">台科</button>
+        <button type="button" class="placement-chip" data-placement-school-scope="ntut" title="國立臺北科技大學">北科</button>
+        <span class="placement-chip-sep" aria-hidden="true"></span>
+        <button type="button" class="placement-chip" data-placement-school-scope="medical" title="北醫、中山醫、中國醫、高醫、馬偕醫、國防醫">醫大</button>
+        <button type="button" class="placement-chip" data-placement-school-scope="teacher" title="彰師、高師與教育大學（不含臺師大）">師範</button>
+        <button type="button" class="placement-chip" data-placement-school-scope="tech" title="四技申請的科技大學與技術學院">科大</button>
+        <button type="button" class="placement-chip" data-placement-school-scope="military" title="國防大學、國防醫學大學">軍校</button>
         <button type="button" class="placement-chip query-dual-degree" data-query-dual-degree aria-pressed="false" title="海外雙聯／雙學士招生學程">雙聯</button>
       </div>
     </div>
-    <div class="placement-popular-categories" role="group" aria-label="熱門學類">
+    <!-- 學類分頁一次只顯示一排；分頁上的小點表示該分頁有已選的學類。 -->
+    <div class="placement-popular-categories hot-tab-row" role="tablist" aria-label="學類分類">
       <span class="placement-popular-label placement-hot-label">熱門</span>
-      <button type="button" class="placement-chip" data-placement-popular-category="電機工程學類" data-category-event="electrical" aria-pressed="false" title="電機工程學類">電機</button>
-      <button type="button" class="placement-chip" data-placement-popular-category="半導體" data-category-event="semiconductor" aria-pressed="false" title="系名含「半導體」的校系（跨電子、電機、光電、材料等學類）">半導體</button>
-      <button type="button" class="placement-chip" data-placement-popular-category="資訊工程學類" data-category-event="computer-science" aria-pressed="false" title="資訊工程學類">資工</button>
-      <button type="button" class="placement-chip" data-placement-popular-category="建築學類" data-category-event="architecture" aria-pressed="false" title="建築學類">建築</button>
-      <button type="button" class="placement-chip" data-placement-popular-category="醫學學類" data-category-event="medicine" aria-pressed="false">醫學</button>
-      <button type="button" class="placement-chip" data-placement-popular-category="牙醫學類" data-category-event="dentistry" aria-pressed="false">牙醫</button>
-      <button type="button" class="placement-chip" data-placement-popular-category="獸醫學類" data-category-event="veterinary" aria-pressed="false" title="獸醫學類">獸醫</button>
-      <button type="button" class="placement-chip" data-placement-popular-category="藥學學類" data-category-event="pharmacy" aria-pressed="false">藥學</button>
-      <button type="button" class="placement-chip" data-placement-popular-category="法律學類" data-category-event="law" aria-pressed="false" title="法律學類、犯罪防治學類">法律</button>
-      <button type="button" class="placement-chip" data-placement-popular-category="企業管理學類" data-category-event="business" aria-pressed="false" title="企業管理學類">企管</button>
-      <button type="button" class="placement-chip" data-placement-popular-category="財務金融學類" data-category-event="finance" aria-pressed="false" title="財務金融學類">財金</button>
-      <button type="button" class="placement-chip" data-placement-popular-category="心理學類" data-category-event="psychology" aria-pressed="false" title="心理學類、輔導諮商學類、犯罪防治學類">心理</button>
-      <button type="button" class="placement-chip" data-placement-popular-category="大眾傳播學類" data-category-event="communication" aria-pressed="false" title="大眾傳播學類">傳播</button>
+      <button type="button" class="hot-tab" role="tab" data-hot-tab="electrical-cs" aria-selected="true">電資</button>
+      <button type="button" class="hot-tab" role="tab" data-hot-tab="engineering" aria-selected="false">工程</button>
+      <button type="button" class="hot-tab" role="tab" data-hot-tab="science" aria-selected="false">數理</button>
+      <button type="button" class="hot-tab" role="tab" data-hot-tab="medicine" aria-selected="false">醫藥</button>
+      <button type="button" class="hot-tab" role="tab" data-hot-tab="medical-tech" aria-selected="false">醫技</button>
+      <button type="button" class="hot-tab" role="tab" data-hot-tab="life-science" aria-selected="false">生科</button>
+      <button type="button" class="hot-tab" role="tab" data-hot-tab="business" aria-selected="false">商管</button>
+      <button type="button" class="hot-tab" role="tab" data-hot-tab="law-politics" aria-selected="false">法政</button>
+      <button type="button" class="hot-tab" role="tab" data-hot-tab="social" aria-selected="false">社心</button>
+      <button type="button" class="hot-tab" role="tab" data-hot-tab="humanities" aria-selected="false">文史哲</button>
+      <button type="button" class="hot-tab" role="tab" data-hot-tab="arts" aria-selected="false">藝術</button>
     </div>
-    <div class="placement-region-row" role="group" aria-label="學校地區">
-      <span class="placement-popular-label">地區</span>
-      <button type="button" class="placement-chip" data-placement-region="taipei">雙北</button>
-      <button type="button" class="placement-chip" data-placement-region="taoyuan">桃竹苗</button>
-      <button type="button" class="placement-chip" data-placement-region="taichung">中彰投</button>
-      <button type="button" class="placement-chip" data-placement-region="chiayi">雲嘉南</button>
-      <button type="button" class="placement-chip" data-placement-region="east">宜花東</button>
-      <button type="button" class="placement-chip" data-placement-region="kaoping">高屏</button>
-      <button type="button" class="placement-chip" data-placement-region="islands">離島</button>
+    <div class="placement-popular-categories hot-panel" role="tabpanel" data-hot-panel="electrical-cs" aria-label="電資">
+      <span class="placement-popular-label" aria-hidden="true"></span>
+      <button type="button" class="placement-chip" data-placement-popular-category="電機工程學類" data-category-event="electrical" aria-pressed="false" title="電機工程學類">電機</button>
+      <button type="button" class="placement-chip" data-placement-popular-category="電子工程學類" data-category-event="electronics" aria-pressed="false" title="電子工程學類">電子</button>
+      <button type="button" class="placement-chip" data-placement-popular-category="半導體" data-category-event="semiconductor" aria-pressed="false" title="系名含「半導體」的校系（跨電子、電機、光電、材料等學類）">半導體</button>
+      <button type="button" class="placement-chip" data-placement-popular-category="光電工程學類" data-category-event="photonics" aria-pressed="false" title="光電工程學類">光電</button>
+      <button type="button" class="placement-chip" data-placement-popular-category="資訊工程學類" data-category-event="computer-science" aria-pressed="false" title="資訊工程學類">資工</button>
+      <button type="button" class="placement-chip" data-placement-popular-category="通訊工程學類" data-category-event="communication-engineering" aria-pressed="false" title="通訊工程學類">通訊</button>
+      <button type="button" class="placement-chip" data-placement-popular-category="人工智慧" data-category-event="ai" aria-pressed="false" title="系名含「人工智慧」「AI」的校系">AI</button>
+    </div>
+    <div class="placement-popular-categories hot-panel" role="tabpanel" data-hot-panel="engineering" aria-label="工程" hidden>
+      <span class="placement-popular-label" aria-hidden="true"></span>
+      <button type="button" class="placement-chip" data-placement-popular-category="機械工程學類" data-category-event="mechanical" aria-pressed="false" title="機械工程學類">機械</button>
+      <button type="button" class="placement-chip" data-placement-popular-category="化學工程學類" data-category-event="chemical-engineering" aria-pressed="false" title="化學工程學類">化工</button>
+      <button type="button" class="placement-chip" data-placement-popular-category="材料工程學類" data-category-event="materials" aria-pressed="false" title="材料工程學類">材料</button>
+      <button type="button" class="placement-chip" data-placement-popular-category="土木工程學類" data-category-event="civil" aria-pressed="false" title="土木工程學類">土木</button>
+      <button type="button" class="placement-chip" data-placement-popular-category="生醫工程學類" data-category-event="biomedical-engineering" aria-pressed="false" title="生醫工程學類（生物醫學工程、醫學工程）">醫工</button>
+      <button type="button" class="placement-chip" data-placement-popular-category="航空工程學類" data-category-event="aerospace" aria-pressed="false" title="航空工程學類（航太）">航太</button>
+      <button type="button" class="placement-chip" data-placement-popular-category="環境工程學類" data-category-event="environmental-engineering" aria-pressed="false" title="環境工程學類">環工</button>
+      <button type="button" class="placement-chip" data-placement-popular-category="工業管理學類" data-category-event="industrial-engineering" aria-pressed="false" title="工業管理學類（工業工程與管理）">工工</button>
+    </div>
+    <div class="placement-popular-categories hot-panel" role="tabpanel" data-hot-panel="science" aria-label="數理" hidden>
+      <span class="placement-popular-label" aria-hidden="true"></span>
+      <button type="button" class="placement-chip" data-placement-popular-category="數學學類" data-category-event="mathematics" aria-pressed="false" title="數學學類（含應用數學）">數學</button>
+      <button type="button" class="placement-chip" data-placement-popular-category="物理學類" data-category-event="physics" aria-pressed="false" title="物理學類">物理</button>
+      <button type="button" class="placement-chip" data-placement-popular-category="化學" data-category-event="chemistry" aria-pressed="false" title="系名含「化學」的校系（不含化學工程）">化學</button>
+      <button type="button" class="placement-chip" data-placement-popular-category="統計" data-category-event="statistics" aria-pressed="false" title="系名含「統計」「資料科學」「數據科學」的校系">統計</button>
+      <button type="button" class="placement-chip" data-placement-popular-category="地球科學學類" data-category-event="earth-science" aria-pressed="false" title="地球科學、大氣科學、海洋科學學類">地科</button>
+    </div>
+    <div class="placement-popular-categories hot-panel" role="tabpanel" data-hot-panel="medicine" aria-label="醫藥" hidden>
+      <span class="placement-popular-label" aria-hidden="true"></span>
+      <button type="button" class="placement-chip" data-placement-popular-category="醫學學類" data-category-event="medicine" aria-pressed="false" title="醫學系（西醫）">醫學</button>
+      <button type="button" class="placement-chip" data-placement-popular-category="中醫" data-category-event="chinese-medicine" aria-pressed="false" title="系名含「中醫」的校系">中醫</button>
+      <button type="button" class="placement-chip" data-placement-popular-category="牙醫學類" data-category-event="dentistry" aria-pressed="false" title="牙醫學類">牙醫</button>
+      <button type="button" class="placement-chip" data-placement-popular-category="藥學學類" data-category-event="pharmacy" aria-pressed="false" title="藥學學類">藥學</button>
+      <button type="button" class="placement-chip" data-placement-popular-category="獸醫學類" data-category-event="veterinary" aria-pressed="false" title="獸醫學類">獸醫</button>
+      <button type="button" class="placement-chip" data-placement-popular-category="護理學類" data-category-event="nursing" aria-pressed="false" title="護理學類">護理</button>
+    </div>
+    <div class="placement-popular-categories hot-panel" role="tabpanel" data-hot-panel="medical-tech" aria-label="醫技" hidden>
+      <span class="placement-popular-label" aria-hidden="true"></span>
+      <button type="button" class="placement-chip" data-placement-popular-category="物理治療學類" data-category-event="physical-therapy" aria-pressed="false" title="物理治療學類">物治</button>
+      <button type="button" class="placement-chip" data-placement-popular-category="職能治療學類" data-category-event="occupational-therapy" aria-pressed="false" title="職能治療學類">職治</button>
+      <button type="button" class="placement-chip" data-placement-popular-category="醫學檢驗學類" data-category-event="medical-technology" aria-pressed="false" title="醫學檢驗學類（醫技、醫檢）">醫檢</button>
+      <button type="button" class="placement-chip" data-placement-popular-category="影像放射學類" data-category-event="radiology" aria-pressed="false" title="影像放射學類">放射</button>
+      <button type="button" class="placement-chip" data-placement-popular-category="食品營養學類" data-category-event="nutrition" aria-pressed="false" title="食品營養學類">營養</button>
+      <button type="button" class="placement-chip" data-placement-popular-category="公共衛生" data-category-event="public-health" aria-pressed="false" title="系名含「公共衛生」的校系">公衛</button>
+      <button type="button" class="placement-chip" data-placement-popular-category="語療聽力學類" data-category-event="speech-hearing" aria-pressed="false" title="語療聽力學類（語言治療、聽力）">語聽</button>
+    </div>
+    <div class="placement-popular-categories hot-panel" role="tabpanel" data-hot-panel="life-science" aria-label="生科" hidden>
+      <span class="placement-popular-label" aria-hidden="true"></span>
+      <button type="button" class="placement-chip" data-placement-popular-category="生命科學學類" data-category-event="life-science" aria-pressed="false" title="生命科學學類">生科</button>
+      <button type="button" class="placement-chip" data-placement-popular-category="生物科技學類" data-category-event="biotech" aria-pressed="false" title="生物科技學類">生技</button>
+      <button type="button" class="placement-chip" data-placement-popular-category="食品生技學類" data-category-event="food-science" aria-pressed="false" title="食品生技學類（食品科學）">食科</button>
+      <button type="button" class="placement-chip" data-placement-popular-category="動物科學學類" data-category-event="animal-science" aria-pressed="false" title="動物科學學類">動科</button>
+      <button type="button" class="placement-chip" data-placement-popular-category="農藝學類" data-category-event="agronomy" aria-pressed="false" title="農藝、園藝學類">農園</button>
+      <button type="button" class="placement-chip" data-placement-popular-category="森林學類" data-category-event="forestry" aria-pressed="false" title="森林學類">森林</button>
+    </div>
+    <div class="placement-popular-categories hot-panel" role="tabpanel" data-hot-panel="business" aria-label="商管" hidden>
+      <span class="placement-popular-label" aria-hidden="true"></span>
+      <button type="button" class="placement-chip" data-placement-popular-category="企業管理學類" data-category-event="business" aria-pressed="false" title="系名含企業管理、工商管理、經營管理的校系">企管</button>
+      <button type="button" class="placement-chip" data-placement-popular-category="資訊管理學類" data-category-event="information-management" aria-pressed="false" title="資訊管理學類">資管</button>
+      <button type="button" class="placement-chip" data-placement-popular-category="財務金融學類" data-category-event="finance" aria-pressed="false" title="財務金融學類、經濟學類">財經</button>
+      <button type="button" class="placement-chip" data-placement-popular-category="會計學類" data-category-event="accounting" aria-pressed="false" title="會計學類">會計</button>
+      <button type="button" class="placement-chip" data-placement-popular-category="國際企業學類" data-category-event="international-business" aria-pressed="false" title="國際企業學類（國際企業、國際經營與貿易）">國企</button>
+      <button type="button" class="placement-chip" data-placement-popular-category="行銷經營學類" data-category-event="marketing" aria-pressed="false" title="行銷經營學類">行銷</button>
+      <button type="button" class="placement-chip" data-placement-popular-category="觀光事業學類" data-category-event="hospitality" aria-pressed="false" title="觀光事業、餐旅管理學類">觀光餐旅</button>
+    </div>
+    <div class="placement-popular-categories hot-panel" role="tabpanel" data-hot-panel="law-politics" aria-label="法政" hidden>
+      <span class="placement-popular-label" aria-hidden="true"></span>
+      <button type="button" class="placement-chip" data-placement-popular-category="法律學類" data-category-event="law" aria-pressed="false" title="法律學類、犯罪防治學類">法律</button>
+      <button type="button" class="placement-chip" data-placement-popular-category="政治學類" data-category-event="politics" aria-pressed="false" title="政治學類">政治</button>
+      <button type="button" class="placement-chip" data-placement-popular-category="公共行政" data-category-event="public-administration" aria-pressed="false" title="系名含「公共行政」「行政管理」「公共事務」的校系">公行</button>
+      <button type="button" class="placement-chip" data-placement-popular-category="外交" data-category-event="diplomacy" aria-pressed="false" title="系名含「外交」「國際事務」的校系">外交</button>
+    </div>
+    <div class="placement-popular-categories hot-panel" role="tabpanel" data-hot-panel="social" aria-label="社心" hidden>
+      <span class="placement-popular-label" aria-hidden="true"></span>
+      <button type="button" class="placement-chip" data-placement-popular-category="心理學類" data-category-event="psychology" aria-pressed="false" title="心理學類、輔導諮商學類、犯罪防治學類">心理</button>
+      <button type="button" class="placement-chip" data-placement-popular-category="社會工作學類" data-category-event="social-work" aria-pressed="false" title="社會工作學類">社工</button>
+      <button type="button" class="placement-chip" data-placement-popular-category="社會學" data-category-event="sociology" aria-pressed="false" title="系名以「社會學」開頭的校系">社會</button>
+      <button type="button" class="placement-chip" data-placement-popular-category="大眾傳播學類" data-category-event="communication" aria-pressed="false" title="大眾傳播學類">傳播</button>
+      <span class="placement-chip-sep" aria-hidden="true"></span>
+      <button type="button" class="placement-chip" data-placement-popular-category="教育學類" data-category-event="education" aria-pressed="false" title="教育學類（含特教、幼教等各類教育系）">教育</button>
+      <button type="button" class="placement-chip" data-placement-popular-category="特殊教育" data-category-event="special-education" aria-pressed="false" title="系名含「特殊教育」的校系">特教</button>
+      <button type="button" class="placement-chip" data-placement-popular-category="幼兒教育" data-category-event="early-childhood" aria-pressed="false" title="系名含「幼兒」「幼教」的校系">幼教</button>
+      <button type="button" class="placement-chip" data-placement-popular-category="體育學類" data-category-event="physical-education" aria-pressed="false" title="體育學類">體育</button>
+    </div>
+    <div class="placement-popular-categories hot-panel" role="tabpanel" data-hot-panel="humanities" aria-label="文史哲" hidden>
+      <span class="placement-popular-label" aria-hidden="true"></span>
+      <button type="button" class="placement-chip" data-placement-popular-category="中文" data-category-event="chinese" aria-pressed="false" title="系名含「中國文學」「中國語文」「中文」「國文」的校系">中文</button>
+      <button type="button" class="placement-chip" data-placement-popular-category="英語文學類" data-category-event="foreign-languages" aria-pressed="false" title="英、日、歐洲與東方語文學類（含外國語文、應用外語）">外文</button>
+      <button type="button" class="placement-chip" data-placement-popular-category="日語文學類" data-category-event="japanese" aria-pressed="false" title="日語文學類">日文</button>
+      <button type="button" class="placement-chip" data-placement-popular-category="歷史學類" data-category-event="history" aria-pressed="false" title="歷史學類">歷史</button>
+      <button type="button" class="placement-chip" data-placement-popular-category="哲學學類" data-category-event="philosophy" aria-pressed="false" title="哲學學類">哲學</button>
+    </div>
+    <div class="placement-popular-categories hot-panel" role="tabpanel" data-hot-panel="arts" aria-label="藝術" hidden>
+      <span class="placement-popular-label" aria-hidden="true"></span>
+      <button type="button" class="placement-chip" data-placement-popular-category="建築學類" data-category-event="architecture" aria-pressed="false" title="建築學類">建築</button>
+      <button type="button" class="placement-chip" data-placement-popular-category="設計" data-category-event="design" aria-pressed="false" title="系名含「設計」的校系（視傳、工設、室內、數位媒體等）">設計</button>
+      <button type="button" class="placement-chip" data-placement-popular-category="美術學類" data-category-event="fine-arts" aria-pressed="false" title="美術學類（含視覺藝術）">美術</button>
+      <button type="button" class="placement-chip" data-placement-popular-category="音樂學類" data-category-event="music" aria-pressed="false" title="音樂學類">音樂</button>
+      <button type="button" class="placement-chip" data-placement-popular-category="表演藝術學類" data-category-event="drama" aria-pressed="false" title="表演藝術學類（戲劇、劇場、舞蹈）">戲劇</button>
+      <button type="button" class="placement-chip" data-placement-popular-category="廣電電影學類" data-category-event="film" aria-pressed="false" title="廣電電影學類（廣播、電視、電影）">廣電</button>
     </div>
   </template>
     <footer class="site-foot">

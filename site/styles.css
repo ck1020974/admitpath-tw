@@ -1302,6 +1302,11 @@ input:focus {
   font-size: 12px;
 }
 
+.placement-summary-card.safe {
+  background: #eef6ff;
+  border-color: #cde0f5;
+}
+
 .placement-summary-card.match {
   background: #f0fbf6;
   border-color: #cfeee0;
@@ -1357,6 +1362,12 @@ button:disabled {
   color: #13724e;
 }
 
+.placement-result-tabs .safe,
+.placement-status.safe {
+  background: #e6f0fb;
+  color: #1d5f9e;
+}
+
 .placement-result-tabs .near,
 .placement-status.near {
   background: #fff1db;
@@ -1404,6 +1415,10 @@ button:disabled {
   transform: translateY(-1px);
   border-color: rgba(14, 143, 145, .36);
   box-shadow: 0 14px 28px rgba(22, 32, 45, .08);
+}
+
+.placement-result-card.safe {
+  border-top-color: #2f7fd0;
 }
 
 .placement-result-card.match {

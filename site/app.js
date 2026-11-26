@@ -2099,16 +2099,38 @@ function toggleShortcutValue(value, item, empty = "") {
   return next.length ? next.join(",") : empty;
 }
 
-function quickCategoriesNeedles(value) {
-  const categories = shortcutList(value);
-  if (!categories.length) return null;
-  if (categories.length === 1) return quickCategoryNeedles(categories[0]);
-  quickCategoriesNeedles.cache ||= new Map();
-  const key = [...categories].sort().join(",");
-  if (!quickCategoriesNeedles.cache.has(key)) {
-    quickCategoriesNeedles.cache.set(key, new Set(categories.flatMap(category => [...quickCategoryNeedles(category)])));
-  }
-  return quickCategoriesNeedles.cache.get(key);
+// 熱門學類任一符合即可。
+// 下列按鈕直接比對系名：半導體跨多個學類；中文、設計、化學、企管的學類資料混入外文系、建築、日文系、資管與餐旅等，改用系名才準。
+// 醫學只收醫學系與中醫系，不含系名同樣有「醫學系」的牙醫、獸醫、生物醫學、運動醫學、植物醫學。
+function quickCategoriesMatch(record, value) {
+  const byName = {
+    半導體: /半導體/,
+    中文: /中國文學|中國語文|中文|^國文/,
+    設計: /(?<!晶片)設計/,
+    // 「文化學系」也含「化學」二字，要排除。
+    化學: /(?<!文)化學(?!工程)/,
+    企業管理學類: /企業管理|工商管理|^經營管理|企管/,
+    // 數據統計學類混入整個應用數學系，統計改用系名比對。
+    統計: /統計|資料科學|數據科學/,
+    // 公共衛生學類混入「教育學系」，會誤收所有教育系。
+    公共衛生: /公共衛生/,
+    // 特教、幼教學類同樣混入所有教育系；社會學沒有獨立學類。
+    特殊教育: /特殊教育/,
+    幼兒教育: /幼兒|幼教/,
+    社會學: /^社會學/,
+    人工智慧: /人工智慧|AI/,
+    中醫: /中醫/,
+    公共行政: /公共行政|行政管理|公共事務/,
+    外交: /外交|國際事務/,
+  };
+  const department = String(record.departmentName || "").replace(/\s+/g, "");
+  return shortcutList(value).some((category) => {
+    if (byName[category]) return byName[category].test(department);
+    const needles = quickCategoryNeedles(category);
+    if (!needles.size || !matchesGroup(record, needles)) return false;
+    // 醫學只收西醫；中醫另有按鈕。
+    return category !== "醫學學類" || /(?:^|[^牙獸物動生中])醫學系/.test(department);
+  });
 }
 
 function schoolScopesAllow(record, value) {
@@ -2122,10 +2144,18 @@ function regionsAllow(record, value) {
 }
 
 function quickCategoryNeedles(category) {
-  // 半導體跨電子、電機、光電、材料等學類，直接用系名含「半導體」比對。
-  if (category === "半導體") return (quickCategoryNeedles.semiconductor ||= new Set([normalize("半導體")]));
   const categories = [category];
   if (["心理學類", "法律學類"].includes(category)) categories.push("犯罪防治學類");
+  // 合併按鈕：財經＝財金＋經濟；地科含大氣、海洋；觀光餐旅；農園＝農藝＋園藝。
+  const merged = {
+    財務金融學類: ["經濟學類"],
+    地球科學學類: ["大氣科學學類", "海洋科學學類"],
+    觀光事業學類: ["餐旅管理學類"],
+    農藝學類: ["園藝學類"],
+  };
+  categories.push(...(merged[category] || []));
+  // 外文按鈕涵蓋英、日、歐洲與東方語文。
+  if (category === "英語文學類") categories.push("日語文學類", "歐語文學類", "東方語文學類");
   return cachedGroupNeedles([], categories);
 }
 
@@ -2146,7 +2176,6 @@ function applyFilters() {
   renderQueryShortcuts("workbenchQuickFilters", state.filters);
   const groupNeedles = getGroupNeedles(state.linkedGroup);
   const categoryNeedles = getCategoryNeedles(state.linkedGroup, state.linkedCategory);
-  const quickNeedles = quickCategoriesNeedles(state.filters.quickCategory);
   state.filtered = state.records.filter((record) => {
     if (state.filters.year !== "all" && String(record.year) !== state.filters.year) return false;
     if (state.filters.channel !== "all" && record.channelKey !== state.filters.channel) return false;
@@ -2154,7 +2183,7 @@ function applyFilters() {
     if (state.filters.dualDegreeOnly && !isInternationalDualDegree(record)) return false;
     if (!schoolScopesAllow(record, state.filters.schoolScope)) return false;
     if (!regionsAllow(record, state.filters.region)) return false;
-    if (quickNeedles && (!quickNeedles.size || !matchesGroup(record, quickNeedles))) return false;
+    if (state.filters.quickCategory && !quickCategoriesMatch(record, state.filters.quickCategory)) return false;
     if (groupNeedles.size && !matchesGroup(record, groupNeedles)) return false;
     if (categoryNeedles.size && !matchesGroup(record, categoryNeedles)) return false;
     if (!recordMatchesAdvancedFilters(record)) return false;
@@ -2233,6 +2262,14 @@ function mountQueryShortcuts() {
         refresh();
       });
     });
+    host.querySelectorAll("[data-hot-tab]").forEach(tab => {
+      tab.addEventListener("click", () => showHotTab(host, tab.dataset.hotTab));
+    });
+    host.querySelector("[data-school-detail-toggle]")?.addEventListener("click", () => {
+      // 學生自己收合過，就不再因為有選取而自動展開。
+      host.dataset.schoolDetailTouched = "1";
+      setSchoolDetailOpen(host, host.querySelector("[data-school-detail]")?.hidden);
+    });
     host.querySelectorAll("[data-placement-popular-category]").forEach(button => {
       button.addEventListener("click", () => {
         const category = button.dataset.placementPopularCategory;
@@ -2257,11 +2294,46 @@ function renderQueryShortcuts(id, filters) {
   host.querySelectorAll("[data-placement-school-scope]").forEach(button => mark(button, shortcutList(filters.schoolScope).includes(button.dataset.placementSchoolScope)));
   host.querySelectorAll("[data-placement-region]").forEach(button => mark(button, shortcutList(filters.region).includes(button.dataset.placementRegion)));
   host.querySelectorAll("[data-placement-popular-category]").forEach(button => mark(button, shortcutList(filters.quickCategory).includes(button.dataset.placementPopularCategory)));
+  // 分頁標記有已選學類；第一次顯示時（例如從網址帶入條件）直接開在有已選學類的分頁。
+  host.querySelectorAll("[data-hot-tab]").forEach(tab => {
+    const panel = host.querySelector(`[data-hot-panel="${tab.dataset.hotTab}"]`);
+    tab.classList.toggle("has-selection", Boolean(panel?.querySelector(".placement-chip.active")));
+  });
+  if (!host.dataset.hotTab) {
+    showHotTab(host, host.querySelector("[data-hot-tab].has-selection")?.dataset.hotTab || host.querySelector("[data-hot-tab]")?.dataset.hotTab);
+  }
+  // 細項按鈕顯示已選數量；有選取但收著時自動展開，避免選了卻看不到。
+  const detail = host.querySelector("[data-school-detail]");
+  const detailToggle = host.querySelector("[data-school-detail-toggle]");
+  if (detail && detailToggle) {
+    const picked = detail.querySelectorAll(".placement-chip.active").length;
+    detailToggle.textContent = picked ? `細項（${picked}）` : "細項";
+    if (picked && detail.hidden && !host.dataset.schoolDetailTouched) setSchoolDetailOpen(host, true);
+  }
   const toggle = host.previousElementSibling;
   if (toggle?.classList.contains("query-shortcuts-toggle")) {
     const selected = host.querySelectorAll(".active").length;
     toggle.textContent = selected ? `快速篩選（已選 ${selected}）` : "快速篩選";
   }
+}
+
+function setSchoolDetailOpen(host, open) {
+  const detail = host?.querySelector("[data-school-detail]");
+  if (!detail) return;
+  detail.hidden = !open;
+  host.querySelector("[data-school-detail-toggle]")?.setAttribute("aria-expanded", String(Boolean(open)));
+}
+
+// 熱門學類一次只顯示一個分頁；切換分頁不影響已選條件。
+function showHotTab(host, key) {
+  if (!host || !key) return;
+  host.dataset.hotTab = key;
+  host.querySelectorAll("[data-hot-tab]").forEach(tab => {
+    const current = tab.dataset.hotTab === key;
+    tab.classList.toggle("is-current", current);
+    tab.setAttribute("aria-selected", String(current));
+  });
+  host.querySelectorAll("[data-hot-panel]").forEach(panel => { panel.hidden = panel.dataset.hotPanel !== key; });
 }
 
 function refreshQueryYears(select, filters) {
@@ -2484,7 +2556,7 @@ function setView(view) {
 function defaultPlacementState() {
   return {
     stage: "setup",
-    resultTab: "match",
+    resultTab: "safe",
     scores: {
       國文: "",
       英文: "",
@@ -2543,7 +2615,7 @@ function selectPlacementChannel(channel) {
   state.placement.scores = state.placement.scoresByMode[newMode] || {};
   state.placement.channel = channel;
   state.placement.channels = [channel];
-  state.placement.resultTab = "match";
+  state.placement.resultTab = "safe";
   state.placement.stage = "setup";
   hydratePlacementResultFilters();
   renderPlacementStage();
@@ -2606,7 +2678,7 @@ function bindPlacementEvents() {
       const scope = PLACEMENT_APPLY_OPTIONS[value];
       if (state.placement.channel === "personal_application") {
         state.placement.applyScope = scope;
-        state.placement.resultTab = "match";
+        state.placement.resultTab = "safe";
         hydratePlacementResultFilters();
         renderPlacementAnalysis();
       } else {
@@ -2635,7 +2707,7 @@ function showPlacementResults() {
   if (invalid) { invalid.reportValidity(); return; }
   state.placement.stage = "results";
   trackEvent("placement-run", "查看落點分析結果", { total: true });
-  state.placement.resultTab = "match";
+  state.placement.resultTab = "safe";
   renderPlacementStage();
   renderPlacementAnalysis();
 }
@@ -2912,6 +2984,7 @@ function renderPlacementAnalysis() {
   }
   const rows = visibleRows.slice(0, renderPlacementAnalysis.list.shown);
   const countLabel = {
+    safe: "筆保底",
     match: "筆符合",
     near: "筆接近",
     miss: "筆未達",
@@ -2980,9 +3053,10 @@ function placementSummaryCardsHtml(rows) {
     const status = row.evaluation?.status || "missing";
     acc[status] = (acc[status] || 0) + 1;
     return acc;
-  }, { match: 0, near: 0, miss: 0 });
+  }, { safe: 0, match: 0, near: 0, miss: 0 });
   const cards = [
-    { key: "match", label: "符合", value: counts.match, note: "目前成績達標" },
+    { key: "safe", label: "保底", value: counts.safe, note: "超過門檻 2 分以上" },
+    { key: "match", label: "符合", value: counts.match, note: "剛好達標或超過 1 分" },
     { key: "near", label: "接近", value: counts.near, note: "差距較小可參考" },
     { key: "miss", label: "未達", value: counts.miss, note: "門檻仍有差距" },
   ];
@@ -3007,11 +3081,12 @@ function isTechRecord(record) {
 }
 
 function placementStatusWeight(status) {
-  return { match: 0, near: 1, miss: 2 }[status] ?? 3;
+  return { safe: 0, match: 1, near: 2, miss: 3 }[status] ?? 4;
 }
 
 function placementResultCardHtml(record, evaluation) {
   const statusLabel = {
+    safe: "保底",
     match: "符合",
     near: "接近",
     miss: "未達",
@@ -3056,10 +3131,7 @@ function placementMatchesFilters(record, profile) {
   if (profile.topUniversityOnly && !isTopUniversity(record)) return false;
   const needles = placementSelectedNeedles(profile);
   if (needles.size && !matchesGroup(record, needles)) return false;
-  if (profile.quickCategory) {
-    const categoryNeedles = quickCategoriesNeedles(profile.quickCategory);
-    if (!categoryNeedles.size || !matchesGroup(record, categoryNeedles)) return false;
-  }
+  if (profile.quickCategory && !quickCategoriesMatch(record, profile.quickCategory)) return false;
   return true;
 }
 
@@ -3082,14 +3154,35 @@ function evaluateTechPlacement(record, profile) {
   const threshold = Number(tech.screeningStandard) * 15 / 100;
   // 官方標準精確到百分制小數兩位，比較時用百分制避免換算捨入誤差。
   const passed = Number((average / 15 * 100).toFixed(2)) >= Number(tech.screeningStandard);
-  const gap = passed ? 0 : threshold - average;
+  // 通過時 gap 為負值（超出的級分），用來判斷保底。
+  const gap = threshold - average;
   const requirement = { kind: "techAverage", subjects: weights.map((item) => item.subject), weights, actual: average, threshold,
     zero: Number(tech.screeningStandard) === 0, source: "加權平均篩選", status: passed ? "match" : "miss", gap };
-  return { status: passed ? "match" : gap <= nearLevel ? "near" : "miss", requirements: [requirement], gapTotal: gap,
+  return { status: passed ? "match" : gap <= nearLevel ? "near" : "miss", requirements: [requirement], gapTotal: passed ? 0 : gap,
     missingCount: 0, missCount: passed ? 0 : 1, tech: true };
 }
 
+// 達標的校系再分兩級：每個篩選門檻都超過 2 分以上為「保底」，剛好或只超過 1 分為「符合」。
 function evaluatePlacementRecord(record, profile) {
+  const safeMargin = 2;
+  const evaluation = evaluatePlacementRecordBase(record, profile);
+  if (evaluation.status !== "match") return evaluation;
+  const margin = placementSafetyMargin(evaluation.requirements);
+  return { ...evaluation, margin, status: margin != null && margin >= safeMargin - 1e-9 ? "safe" : "match" };
+}
+
+// 取最緊的門檻超出多少（gap 為門檻減成績，超出時為負值）。
+// 檢定、英聽等只需通過的條件不算在內；沒有其他條件時才用它們判斷。
+function placementSafetyMargin(requirements) {
+  const comparable = (requirements || []).filter((item) => item.status === "match" && Number.isFinite(Number(item.gap)) && item.kind !== "note");
+  const passFail = (item) => item.kind === "listening" || ["檢定", "數學檢定", "學測"].includes(item.source);
+  const ranked = comparable.filter((item) => !passFail(item));
+  const pool = ranked.length ? ranked : comparable;
+  if (!pool.length) return null;
+  return Math.min(...pool.map((item) => -Number(item.gap)));
+}
+
+function evaluatePlacementRecordBase(record, profile) {
   if (record.channelKey === "tech_application") return evaluateTechPlacement(record, profile);
   if (record.channelKey === "personal_application") return AdmissionRules.evaluate(record, profile, state.gsatStandards);
   const requirements = placementRecordRequirements(record);
@@ -3308,11 +3401,23 @@ function placementRequirementChipsHtml(requirements, incomplete = false) {
 
 // 卡片狀態標籤旁的短句：符合時標籤已說明，只有資料是估計值才補「暫估」。
 function placementCardNote(evaluation) {
-  if (evaluation.status === "match" && !evaluation.pendingData) return evaluation.estimatedScreeningData ? "暫估" : "";
+  if (["safe", "match"].includes(evaluation.status) && !evaluation.pendingData) {
+    const margin = evaluation.margin != null ? placementMarginText(evaluation) : "";
+    return [margin, evaluation.estimatedScreeningData ? "暫估" : ""].filter(Boolean).join("・");
+  }
   return placementResultSummary(evaluation);
 }
 
+// 最緊的門檻超出多少；剛好達標時寫「剛好達標」。
+function placementMarginText(evaluation) {
+  const margin = Math.max(0, evaluation.margin);
+  if (margin < 0.05) return "剛好達標";
+  const value = evaluation.tech ? formatTechGap(margin) : Number(margin.toFixed(1));
+  return `至少超出 ${value}${evaluation.tech ? " 級分" : ""}`;
+}
+
 function placementResultSummary(evaluation) {
+  if (evaluation.status === "safe") return evaluation.tech ? "超過一階最低篩選標準 2 級分以上" : "各門檻皆超過 2 分以上";
   if (evaluation.tech) {
     if (evaluation.status === "missing") return "採計科目或一階標準資料不足";
     if (evaluation.status === "match") return "達一階最低篩選標準";
@@ -3370,10 +3475,15 @@ function placementSchoolScopeAllows(record, scope = "all") {
   if (scope === "top") return isTopUniversity(record);
   // 科大：四技申請的校系（科技大學、技術學院與招四技的大學）。
   if (scope === "tech") return record.channelKey === "tech_application";
+  if (scope === "medical") {
+    return ["臺北醫學大學", "中山醫學大學", "中國醫藥大學", "高雄醫學大學", "馬偕醫學大學", "馬偕醫學院", "國防醫學大學", "國防醫學院"]
+      .some((name) => normalize(name) === normalize(stripSchoolCampus(record.schoolName)));
+  }
   if (scope === "central") return ["國立中央大學", "國立中興大學", "國立中山大學", "國立中正大學"].includes(record.schoolName);
+  // 師大只指臺師大；師範是其他師範與教育大學。
   if (scope === "teacher") {
     return [
-      "國立臺灣師範大學", "國立彰化師範大學", "國立高雄師範大學",
+      "國立彰化師範大學", "國立高雄師範大學",
       "國立臺北教育大學", "國立臺中教育大學", "國立臺南大學", "臺北市立大學",
     ].some((name) => normalize(name) === normalize(record.schoolName));
   }
@@ -3384,7 +3494,12 @@ function placementSchoolScopeAllows(record, scope = "all") {
     ncku: ["國立成功大學", "成功大學"],
     nccu: ["國立政治大學", "政治大學"],
     ntpu: ["國立臺北大學", "國立台北大學", "臺北大學", "台北大學"],
+    ntnu: ["國立臺灣師範大學", "國立台灣師範大學", "臺灣師範大學", "台灣師範大學"],
+    ntust: ["國立臺灣科技大學", "國立台灣科技大學"],
+    ntut: ["國立臺北科技大學", "國立台北科技大學"],
+    military: ["國防大學", "國防醫學大學", "國防醫學院"],
     scu: ["東吳大學"],
+    fju: ["輔仁大學"],
   };
   if (schoolScopes[scope]) return schoolScopes[scope].some((name) => normalize(name) === normalize(record.schoolName));
   return true;

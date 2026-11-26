@@ -480,6 +480,57 @@ body.back-to-top-visible .compare-tray { right: 84px; }
 .query-shortcuts { padding: 12px 16px 16px; border-top: 1px solid #e7edf3; }
 .query-shortcuts .placement-school-scope { margin: 0; }
 .query-shortcuts .placement-popular-categories { margin-top: 10px; gap: 7px; }
+/* 熱門：分頁列＋目前分頁的一排按鈕，間距縮小讓兩行看成同一組。 */
+.query-shortcuts .placement-popular-categories + .placement-popular-categories { margin-top: 7px; }
+.query-shortcuts .hot-panel[hidden],
+.query-shortcuts .school-detail-row[hidden] { display: none; }
+/* 細項有 17 顆，略縮間距讓筆電寬度（1024）也排得下一行。 */
+.query-shortcuts .school-detail-row { margin-top: 7px; gap: 6px; }
+.query-shortcuts .school-detail-row .placement-chip { padding: 0 6px; }
+.query-shortcuts .school-detail-toggle {
+  min-height: 32px;
+  padding: 0 10px;
+  border: 1px dashed #b9c9d6;
+  border-radius: var(--radius-choice);
+  background: transparent;
+  color: #3f5a6e;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+}
+/* 學校排中段的「地區」小標：前面留空隙，和學校按鈕分開。 */
+.query-shortcuts .placement-popular-label.region-inline-label { width: auto; margin-left: 14px; padding-right: 2px; color: var(--ink); }
+.query-shortcuts .school-detail-toggle::after { content: " ▾"; color: var(--subtle); }
+.query-shortcuts .school-detail-toggle[aria-expanded="true"]::after { content: " ▴"; }
+.query-shortcuts .school-detail-toggle:focus-visible { outline: 3px solid #176b88; outline-offset: 2px; }
+.query-shortcuts .hot-tab-row { gap: 4px; }
+.query-shortcuts .hot-tab {
+  position: relative;
+  min-height: 30px;
+  padding: 0 12px;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: #5b6f82;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+}
+.query-shortcuts .hot-tab:hover { background: #f1f5f8; color: #29485a; }
+.query-shortcuts .hot-tab.is-current { background: #fdeceb; color: #c2352d; }
+.query-shortcuts .hot-tab.has-selection::after {
+  content: "";
+  position: absolute;
+  top: 5px;
+  right: 4px;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #0e8f91;
+}
+.query-shortcuts .hot-tab:focus-visible { outline: 3px solid #176b88; outline-offset: 2px; }
+.query-shortcuts .placement-chip-sep { flex: 0 0 auto; width: 1px; height: 18px; margin: 0 1px; background: #d6e0ea; }
 .query-shortcuts .placement-chip-row { gap: 7px; }
 .query-shortcuts .placement-chip { min-height: 32px; padding: 0 10px; font-weight: 600; }
 .query-shortcuts .query-dual-degree { border-style: dashed; }
