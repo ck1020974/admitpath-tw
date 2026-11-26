@@ -2302,13 +2302,10 @@ function renderQueryShortcuts(id, filters) {
   if (!host.dataset.hotTab) {
     showHotTab(host, host.querySelector("[data-hot-tab].has-selection")?.dataset.hotTab || host.querySelector("[data-hot-tab]")?.dataset.hotTab);
   }
-  // 細項按鈕顯示已選數量；有選取但收著時自動展開，避免選了卻看不到。
+  // 細項有選取但收著時自動展開，避免選了卻看不到。
   const detail = host.querySelector("[data-school-detail]");
-  const detailToggle = host.querySelector("[data-school-detail-toggle]");
-  if (detail && detailToggle) {
-    const picked = detail.querySelectorAll(".placement-chip.active").length;
-    detailToggle.textContent = picked ? `細項（${picked}）` : "細項";
-    if (picked && detail.hidden && !host.dataset.schoolDetailTouched) setSchoolDetailOpen(host, true);
+  if (detail?.querySelector(".placement-chip.active") && detail.hidden && !host.dataset.schoolDetailTouched) {
+    setSchoolDetailOpen(host, true);
   }
   const toggle = host.previousElementSibling;
   if (toggle?.classList.contains("query-shortcuts-toggle")) {
