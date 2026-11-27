@@ -15,6 +15,7 @@ for (const r of military) {
   assert.equal(rules.evaluate(r, all15, standards).status, 'match', r.departmentName);
   assert.notEqual(rules.evaluate(r, {}, standards).status, 'match', r.departmentName);
   assert.equal(rules.hasSpecialConditions(r), true);
+  assert(rules.specialConditionList(r).some(item => item.key === 'military' && item.detail.includes('體檢')));
   assert.equal(r.year, 115);
   assert.equal(r.channelKey, 'personal_application');
   assert.ok(groups.some(g => g.schoolDepartmentName === r.schoolName + r.departmentName));

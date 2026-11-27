@@ -59,11 +59,11 @@ const csim = sample(115, '101005'); // 國×1、英×2、數A×2，標準 77.33
 // (12 + 12×2 + 11×2) ÷ (15×5) = 58 ÷ 75 = 77.33…，剛好達標。
 let result = context.evaluateTechPlacement(csim, profile({ 國文: '12', 英文: '12', 數A: '11' }));
 assert.equal(result.status, 'match');
-assert.equal(context.placementResultSummary(result), '達一階最低篩選標準');
+assert.equal(context.placementResultSummary({ ...result, margin: 0 }), '剛好達標');
 // 少 1 級分英文：(12 + 22 + 22) ÷ 75 = 74.67，差 0.4 級分 → 接近。
 result = context.evaluateTechPlacement(csim, profile({ 國文: '12', 英文: '11', 數A: '11' }));
 assert.equal(result.status, 'near');
-assert.equal(context.placementResultSummary(result), '加權平均約差 0.40 級分');
+assert.equal(context.placementResultSummary(result), '差 0.40');
 assert.equal(context.placementRequirementLabel(result.requirements[0]), '加權平均 11.20／11.60 級分');
 // 只差一點點也不能顯示「差 0.00」。
 assert.equal(context.formatTechGap(0.0015), '0.01');

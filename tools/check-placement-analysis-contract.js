@@ -116,6 +116,7 @@ vm.runInContext([
   extractFunction("evaluatePlacementRecord"),
   extractFunction("evaluatePlacementRecordBase"),
   extractFunction("placementSafetyMargin"),
+  extractFunction("placementMissingReason"),
   extractFunction("evaluateTechPlacement"),
   extractFunction("formatTechLevel"),
   extractFunction("formatTechGap"),
@@ -235,8 +236,10 @@ const collator = new Intl.Collator("zh-Hant");
 const originalRows = records.filter(record => sandbox.placementMatchesFilters(record, profile))
   .map(record => ({ record, evaluation: sandbox.evaluatePlacementRecord(record, profile) }))
   .sort((a, b) => sandbox.placementStatusWeight(a.evaluation.status) - sandbox.placementStatusWeight(b.evaluation.status)
+    || Number(a.evaluation.specialConditions) - Number(b.evaluation.specialConditions)
     || sandbox.isTechRecord(a.record) - sandbox.isTechRecord(b.record)
     || a.evaluation.gapTotal - b.evaluation.gapTotal
+    || (a.evaluation.margin ?? 0) - (b.evaluation.margin ?? 0)
     || collator.compare(`${a.record.schoolCode}${a.record.departmentName}`, `${b.record.schoolCode}${b.record.departmentName}`));
 if (JSON.stringify(cachedRows) !== JSON.stringify(originalRows)) fail("Cached analysis changed results/order.");
 console.log(`Placement analysis contract check passed (${cachedRows.length} matching candidates; cold ${coldMs} ms, cached ${warmMs} ms).`);

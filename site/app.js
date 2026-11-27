@@ -2553,7 +2553,8 @@ function setView(view) {
 function defaultPlacementState() {
   return {
     stage: "setup",
-    resultTab: "safe",
+    // 預設先看「符合」（剛好達標排最前），不是保底。
+    resultTab: "match",
     scores: {
       國文: "",
       英文: "",
@@ -2612,7 +2613,7 @@ function selectPlacementChannel(channel) {
   state.placement.scores = state.placement.scoresByMode[newMode] || {};
   state.placement.channel = channel;
   state.placement.channels = [channel];
-  state.placement.resultTab = "safe";
+  state.placement.resultTab = "match";
   state.placement.stage = "setup";
   hydratePlacementResultFilters();
   renderPlacementStage();
@@ -2675,7 +2676,7 @@ function bindPlacementEvents() {
       const scope = PLACEMENT_APPLY_OPTIONS[value];
       if (state.placement.channel === "personal_application") {
         state.placement.applyScope = scope;
-        state.placement.resultTab = "safe";
+        state.placement.resultTab = "match";
         hydratePlacementResultFilters();
         renderPlacementAnalysis();
       } else {
@@ -2704,7 +2705,7 @@ function showPlacementResults() {
   if (invalid) { invalid.reportValidity(); return; }
   state.placement.stage = "results";
   trackEvent("placement-run", "查看落點分析結果", { total: true });
-  state.placement.resultTab = "safe";
+  state.placement.resultTab = "match";
   renderPlacementStage();
   renderPlacementAnalysis();
 }
@@ -3024,9 +3025,12 @@ function placementAnalysisRows(profile) {
     .filter((record) => placementMatchesFilters(record, profile))
     .map((record) => ({ record, evaluation: evaluatePlacementRecord(record, profile) }))
     // 同一狀態內一般大學在前、科大（四技）在後；四技的級分差換算方式不同，不和個申混在一起比。
+    // 達標的校系超出越少越前面，剛好達標排最前。有術科、APCS 等特殊條件的一律排在同一狀態的最後。
     .sort((a, b) => placementStatusWeight(a.evaluation.status) - placementStatusWeight(b.evaluation.status)
+      || Number(a.evaluation.specialConditions) - Number(b.evaluation.specialConditions)
       || isTechRecord(a.record) - isTechRecord(b.record)
       || a.evaluation.gapTotal - b.evaluation.gapTotal
+      || (a.evaluation.margin ?? 0) - (b.evaluation.margin ?? 0)
       || collator.compare(`${a.record.schoolCode}${a.record.departmentName}`, `${b.record.schoolCode}${b.record.departmentName}`));
   placementAnalysisRows.cache = { key, records: state.records, results: state.results,
     groups: state.groups, standards: state.gsatStandards, rows };
@@ -3090,7 +3094,17 @@ function placementResultCardHtml(record, evaluation) {
     missing: "資料不足",
   }[evaluation.status] || "未判斷";
   const summary = placementCardNote(evaluation);
-  const specialCondition = evaluation.specialConditions ? `<span class="special-admission-badge">特殊條件</span>` : "";
+  // 標題旁寫「需術科」「需APCS」；軍校已有（軍校）標籤。細項寫在下方「另需」。
+  const conditions = evaluation.conditions || [];
+  const specialCondition = conditions.filter(item => item.key !== "military")
+    .map(item => `<span class="special-admission-badge">需${escapeHtml(item.label)}</span>`).join("");
+  // 官方原表全是「--」：申請人數未超過倍率，一階沒有刷人。
+  const noScreeningHtml = evaluation.noScreening
+    ? `<span class="placement-req-group"><span class="placement-req-label">一階篩選：未篩選（申請人少）</span></span>` : "";
+  const conditionsHtml = conditions.length
+    ? `<span class="placement-req-group placement-req-extra"><span class="placement-req-label">另需</span>${conditions
+      .map(item => `<span class="placement-req note">${escapeHtml(item.detail ? `${item.label}：${item.detail}` : `${item.label}（詳見簡章）`)}</span>`).join("")}</span>`
+    : "";
   return `
     <article class="placement-result-card ${escapeAttr(evaluation.status)} is-clickable" data-placement-detail="${escapeAttr(record.id)}">
       <div class="placement-result-main">
@@ -3107,7 +3121,7 @@ function placementResultCardHtml(record, evaluation) {
       </div>
       <div class="placement-result-side">
         <div class="placement-requirements">
-          ${placementRequirementChipsHtml(evaluation.requirements, evaluation.status === "missing")}
+          ${placementRequirementChipsHtml(evaluation.requirements, evaluation.status === "missing")}${noScreeningHtml}${conditionsHtml}
         </div>
       </div>
     </article>
@@ -3160,12 +3174,38 @@ function evaluateTechPlacement(record, profile) {
 }
 
 // 達標的校系再分兩級：每個篩選門檻都超過 2 分以上為「保底」，剛好或只超過 1 分為「符合」。
+// 術科、APCS、軍校甄試等學測以外的條件一併帶出，卡片逐項寫清楚，排序時排在同一狀態的最後。
 function evaluatePlacementRecord(record, profile) {
   const safeMargin = 2;
-  const evaluation = evaluatePlacementRecordBase(record, profile);
+  const conditions = AdmissionRules.specialConditionList?.(record) || [];
+  const evaluation = { ...evaluatePlacementRecordBase(record, profile), specialConditions: conditions.length > 0, conditions };
+  if (evaluation.status === "missing") return { ...evaluation, missingReason: placementMissingReason(record, evaluation) };
   if (evaluation.status !== "match") return evaluation;
   const margin = placementSafetyMargin(evaluation.requirements);
   return { ...evaluation, margin, status: margin != null && margin >= safeMargin - 1e-9 ? "safe" : "match" };
+}
+
+// 資料不足的原因，寫在卡片上。對照過官方原表的「--」已視為該順位沒刷人、照常判定，
+// 這裡只剩未核對的空白（可能是讀圖沒讀到），寫「一階結果待核對」。
+function placementMissingReason(record, evaluation) {
+  if (evaluation.tech) return "缺一階標準";
+  if (record.channelKey === "exam_distribution") return "無去年錄取分數";
+  if (record.channelKey === "star_recommendation") return "缺校排標準";
+  if (record.channelKey !== "personal_application") return "";
+  const sieve = record.applySieveResult || {};
+  const items = sieve.rankedItems || [];
+  const scored = (item) => /^\d/.test(String(item.score ?? ""));
+  const academic = new Set(["國文", "英文", "數A", "數B", "社會", "自然"]);
+  const isAcademic = (item) => (item.subjects || []).every((name) => academic.has(AdmissionRules.subject(name)));
+  if ((sieve.specializations || []).length) return "依主修術科篩選";
+  if (!Object.keys(sieve).length) return "尚未收錄一階結果";
+  if (sieve.publishedStatus === "not-published" || (items.length && items.every((item) => !scored(item)))) return "一階結果待核對";
+  if (items.length && !items.some(isAcademic)) {
+    return items.some((item) => (item.subjects || []).some((name) => /APCS|程式/.test(name))) ? "一階看APCS" : "一階看術科";
+  }
+  if (items.some((item) => isAcademic(item) && !scored(item))) return "一階結果待核對";
+  if (evaluation.missingCount) return "檢定待核對";
+  return "無一階篩選資料";
 }
 
 // 取最緊的門檻超出多少（gap 為門檻減成績，超出時為負值）。
@@ -3396,38 +3436,23 @@ function placementRequirementChipsHtml(requirements, incomplete = false) {
     + other.map(item => chip(item, numericLabel)).join("");
 }
 
-// 卡片狀態標籤旁的短句：符合時標籤已說明，只有資料是估計值才補「暫估」。
+// 卡片狀態標籤旁的短句。標籤已寫保底／符合／接近／未達／資料不足，這裡只補差距；資料不足寫原因。
 function placementCardNote(evaluation) {
-  if (["safe", "match"].includes(evaluation.status) && !evaluation.pendingData) {
-    const margin = evaluation.margin != null ? placementMarginText(evaluation) : "";
-    return [margin, evaluation.estimatedScreeningData ? "暫估" : ""].filter(Boolean).join("・");
-  }
-  return placementResultSummary(evaluation);
+  return evaluation.status === "missing" ? evaluation.missingReason || "" : placementResultSummary(evaluation);
 }
 
-// 最緊的門檻超出多少；剛好達標時寫「剛好達標」。
-function placementMarginText(evaluation) {
-  const margin = Math.max(0, evaluation.margin);
-  if (margin < 0.05) return "剛好達標";
-  const value = evaluation.tech ? formatTechGap(margin) : Number(margin.toFixed(1));
-  return `至少超出 ${value}${evaluation.tech ? " 級分" : ""}`;
-}
-
+// 所有管道同一種寫法：剛好達標／超出 N／差 N，資料是估計或不完整時加「・暫估」。
 function placementResultSummary(evaluation) {
-  if (evaluation.status === "safe") return evaluation.tech ? "超過一階最低篩選標準 2 級分以上" : "各門檻皆超過 2 分以上";
-  if (evaluation.tech) {
-    if (evaluation.status === "missing") return "採計科目或一階標準資料不足";
-    if (evaluation.status === "match") return "達一階最低篩選標準";
-    return `加權平均約差 ${formatTechGap(evaluation.gapTotal)} 級分`;
+  if (evaluation.status === "missing") return "資料不足";
+  const number = (value) => evaluation.tech ? formatTechGap(value) : String(Number(value.toFixed(1)));
+  let text;
+  if (["safe", "match"].includes(evaluation.status)) {
+    const margin = evaluation.margin == null ? null : Math.max(0, Number(evaluation.margin));
+    text = margin == null ? "達標" : margin < 0.05 ? "剛好達標" : `超出 ${number(margin)}`;
+  } else {
+    text = `差 ${number(Number(evaluation.gapTotal) || 0)}`;
   }
-  if (evaluation.application && evaluation.pendingData) return "申請門檻或一階篩選資料不足，僅比對已收錄條件";
-  if (evaluation.status === "missing") return "錄取標準或必要成績不足，暫不判定符合";
-  if (evaluation.application && evaluation.estimatedScreeningData) return evaluation.status === "match"
-    ? "依已收錄一階篩選資料暫估" : `篩選資料暫估，約差 ${Number(evaluation.gapTotal.toFixed(1))}`;
-  if (evaluation.application && evaluation.status === "match") return "符合已收錄條件";
-  if (evaluation.status === "match") return "達標";
-  if (evaluation.status === "near") return `約差 ${Number(evaluation.gapTotal.toFixed(1))}`;
-  return `約差 ${Number(evaluation.gapTotal.toFixed(1))}`;
+  return evaluation.estimatedScreeningData || evaluation.pendingData ? `${text}・暫估` : text;
 }
 
 // 七個地區：依各校主校區所在縣市（基隆併入雙北）。系名或校名標有校區的，改用該校區所在地。

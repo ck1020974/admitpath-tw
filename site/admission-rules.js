@@ -56,12 +56,25 @@
     return [...(detail.screeningSubjects || [])]
       .some(item => valid(item.subject) && valid(item.standard));
   }
-  function hasSpecialConditions(record) {
+  // 學測以外、落點無法比對的條件，逐項寫出：術科科目、APCS 級分、軍校甄試。
+  // 藝術類版面但術科欄位全是「--」且不需術科的校系（如劇場設計、表演藝術）不算。
+  function specialConditionList(record) {
     const detail = record.cacDetail || {};
-    return Boolean(record.militaryAdmission) || /APCS/.test(record.departmentName)
-      || (detail.apcsSubjects || []).length > 0
-      || record.examRequired === '是'
-      || detail.layout === 'art';
+    const named = (items) => (items || []).filter(item => valid(item.subject));
+    const list = [];
+    const art = named(detail.artSubjects);
+    if (record.examRequired === '是' || art.length) {
+      list.push({ key: 'art', label: '術科', detail: [...new Set(art.map(item => item.subject.replace(/[（(].*?[）)]/g, '')))].join('、') });
+    }
+    const apcs = named(detail.apcsSubjects);
+    if (apcs.length || /APCS/.test(record.departmentName)) {
+      list.push({ key: 'apcs', label: 'APCS', detail: apcs.map(item => `${item.subject}${valid(item.standard) ? ' ' + item.standard : ''}`).join('、') });
+    }
+    if (record.militaryAdmission) list.push({ key: 'military', label: '軍校甄試', detail: '體檢、智力測驗、口試' });
+    return list;
+  }
+  function hasSpecialConditions(record) {
+    return specialConditionList(record).length > 0;
   }
   function importedScreeningResults(record) {
     const audit = record.admissionAudit;
@@ -140,21 +153,35 @@
     if (rule.source === '檢定' && rule.standard) return `${rule.subjects.join('+')} ${rule.standard}`;
     return `${rule.subjects.join('+')} ≥ ${rule.threshold}${rule.subjects.some(s => s.startsWith('APCS')) ? '級' : '級分'}`;
   }
+  // 官方篩選表的「--」表示該順位人數未超過倍率、沒有刷人；全部是「--」就是沒有篩選。
+  // 只有對照過官方原表的結果才這樣解讀，未核對的 OCR 空白仍視為資料不足。
+  function officiallyReviewed(record) {
+    const method = record.applySieveResult?.verification?.method;
+    return record.admissionAudit?.resultStatus === 'verified' || method === 'official-image-visual-review' || method === 'university_tw_crosscheck';
+  }
+  function noScreening(record) {
+    const sieve = record.applySieveResult || {};
+    const rows = sieve.rankedItems || [];
+    return officiallyReviewed(record) && !(sieve.specializations || []).length
+      && (sieve.publishedStatus === 'not-published' || (rows.length > 0 && rows.every(i => !valid(i.score))));
+  }
   function evaluate(record, profile, standards) {
     const checked = requirements(record, standards).map(r => check(r, profile));
     const missingCount = checked.filter(r => r.status === 'missing').length;
     const missCount = checked.filter(r => r.status === 'miss').length;
     const gapTotal = checked.reduce((sum, r) => sum + Math.max(0, r.gap), 0);
     const specialConditions = hasSpecialConditions(record);
-    const pendingData = missingCount > 0 || (!record.militaryAdmission && (!checked.some(r => r.rank != null || ['倍率篩選', '官方篩選暫估', '篩選資料暫估'].includes(r.source))
-      || (record.applySieveResult?.rankedItems || []).some(i => academicResult(i) && !valid(i.score))));
+    const unscreened = noScreening(record);
+    const hasScreening = unscreened || checked.some(r => r.rank != null || ['倍率篩選', '官方篩選暫估', '篩選資料暫估'].includes(r.source));
+    const unreviewedBlank = !officiallyReviewed(record) && (record.applySieveResult?.rankedItems || []).some(i => academicResult(i) && !valid(i.score));
+    const pendingData = missingCount > 0 || (!record.militaryAdmission && (!hasScreening || unreviewedBlank));
     return { status: missCount ? (gapTotal <= 3 ? 'near' : 'miss') : pendingData ? 'missing' : 'match',
       requirements: checked, missingCount, missCount, gapTotal, application: true,
-      pendingData,
+      pendingData, noScreening: unscreened,
       importedOfficialData: checked.some(r => r.source === '官方篩選暫估'),
       estimatedScreeningData: checked.some(r => ['官方篩選暫估', '篩選資料暫估'].includes(r.source)),
       specialConditions,
       caveat: specialConditions ? '僅比對已收錄學測條件；術科、主修及APCS須另核對，不代表通過超額篩選或錄取。' : '僅比對已收錄條件；不代表通過超額篩選或錄取。' };
   }
-  return { subject, thresholds, requirements, verifiedResults, importedOfficialResults, importedScreeningResults, hasUsableApplicationDetail, hasSpecialConditions, check, describe, evaluate };
+  return { subject, thresholds, requirements, verifiedResults, importedOfficialResults, importedScreeningResults, hasUsableApplicationDetail, specialConditionList, hasSpecialConditions, officiallyReviewed, noScreening, check, describe, evaluate };
 });

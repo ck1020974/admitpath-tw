@@ -2076,6 +2076,12 @@ button:disabled {
   white-space: nowrap;
 }
 
+/* 「另需」：學測以外、落點無法比對的條件（術科、APCS、軍校甄試）。 */
+.placement-req.note {
+  background: #f4f0fb;
+  color: #5b4a8a;
+}
+
 .placement-req.placement-req-test {
   background: #edf0f3;
   color: #52606d;
